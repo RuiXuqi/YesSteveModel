@@ -1,9 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
-import com.elfmcys.yesstevemodel.util.Keep;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -12,7 +10,6 @@ import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 public class ExtraPlayerScreen implements IGuiOverlay {
     @Override
-    @Keep
     public void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int width, int height) {
         if (ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.get()) {
             return;

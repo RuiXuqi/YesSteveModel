@@ -5,124 +5,107 @@ import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.geckolib3.geo.exception.GeckoLibException;
-import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.GeoModelProvider;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.IAnimatableModelProvider;
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.Keep;
-import com.mojang.blaze3d.Blaze3D;
+import com.elfmcys.yesstevemodel.mixin.client.MinecraftAccessor;
+import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 
-import java.util.Collections;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public abstract class AnimatedGeoModel<T extends IAnimatable> extends GeoModelProvider<T> implements IAnimatableModel<T>, IAnimatableModelProvider<T> {
-    private final AnimationProcessor animationProcessor;
-    private GeoModel currentModel;
+public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoModelProvider<T> implements IAnimatableModel<T>, IAnimatableModelProvider<T> {
+    private final AnimationProcessor<T> animationProcessor;
+    private GeoModelState currentModel;
 
     protected AnimatedGeoModel() {
-        this.animationProcessor = new AnimationProcessor(this);
-    }
-
-    public void registerBone(GeoBone bone) {
-        registerModelRenderer(bone);
-        for (GeoBone childBone : bone.childBones) {
-            registerBone(childBone);
-        }
+        this.animationProcessor = new AnimationProcessor<>(this);
     }
 
     @Override
-    @Keep
-    public void setCustomAnimations(T animatable, int instanceId, AnimationEvent animationEvent) {
+    public boolean setCustomAnimations(T animatable, AnimationContext<?> ctx, @Nonnull AnimationEvent<T> animationEvent) {
         Minecraft mc = Minecraft.getInstance();
-        AnimationData manager = animatable.getFactory().getOrCreateAnimationData(instanceId);
+        AnimationData manager = animatable.getFactory().getOrCreateAnimationData(0, this);
         AnimationEvent<T> predicate;
-        double currentTick = animatable instanceof Entity livingEntity ? livingEntity.tickCount : getCurrentTick();
+        double currentTick = getCurrentTick();
 
         if (manager.startTick == -1) {
-            manager.startTick = currentTick + mc.getFrameTime();
-        }
-
-        if (!mc.isPaused() || manager.shouldPlayWhilePaused) {
-            if (animatable instanceof LivingEntity) {
-                manager.tick = currentTick + mc.getFrameTime();
-                double gameTick = manager.tick;
-                double deltaTicks = gameTick - this.lastGameTickTime;
+            manager.startTick = currentTick;
+        } else {
+            manager.tick = currentTick - manager.startTick;
+            if (!mc.isPaused() || manager.shouldPlayWhilePaused) {
+                double deltaTicks = manager.tick - this.lastGameTickTime;
                 this.seekTime += deltaTicks;
-                this.lastGameTickTime = gameTick;
-                codeAnimations(animatable, instanceId, animationEvent);
-            } else {
-                manager.tick = currentTick - manager.startTick;
-                double gameTick = manager.tick;
-                double deltaTicks = gameTick - this.lastGameTickTime;
-                this.seekTime += deltaTicks;
-                this.lastGameTickTime = gameTick;
             }
+            this.lastGameTickTime = manager.tick;
         }
 
-        predicate = animationEvent == null ? new AnimationEvent<T>(animatable, 0, 0, (float) (manager.tick - this.lastGameTickTime), false, Collections.emptyList()) : animationEvent;
+        predicate = animationEvent;
         predicate.animationTick = this.seekTime;
         getAnimationProcessor().preAnimationSetup(predicate.getAnimatable(), this.seekTime);
-        if (!getAnimationProcessor().getModelRendererList().isEmpty()) {
-            getAnimationProcessor().tickAnimation(animatable, instanceId, this.seekTime, predicate, GeckoLibCache.getInstance().parser, this.shouldCrashOnMissing);
+        if (!getAnimationProcessor().isModelRendererEmpty()) {
+            return getAnimationProcessor().tickAnimation(animatable, this.seekTime, predicate, ctx, this.shouldCrashOnMissing);
         }
-    }
-
-    public void codeAnimations(T entity, Integer uniqueID, AnimationEvent<?> customPredicate) {
+        return false;
     }
 
     @Override
-    @Keep
-    public AnimationProcessor getAnimationProcessor() {
+    public AnimationProcessor<T> getAnimationProcessor() {
         return this.animationProcessor;
     }
 
-    public void registerModelRenderer(IBone modelRenderer) {
-        this.animationProcessor.registerModelRenderer(modelRenderer);
-    }
-
     @Override
-    @Keep
-    public Animation getAnimation(String name, IAnimatable animatable) {
-        AnimationFile animation = GeckoLibCache.getInstance().getAnimations().get(this.getAnimationFileLocation((T) animatable));
+    public Animation getAnimation(String name, T animatable) {
+        AnimationFile animation = GeckoLibCache.getInstance().getAnimations().get(this.getAnimationFileLocation(animatable));
         if (animation == null) {
-            throw new GeckoLibException(this.getAnimationFileLocation((T) animatable), "Could not find animation file. Please double check name.");
+            throw new GeckoLibException(this.getAnimationFileLocation(animatable), "Could not find animation file. Please double check name.");
         }
         return animation.getAnimation(name);
     }
 
-    @Override
-    @Keep
-    public GeoModel getModel(ResourceLocation location) {
-        GeoModel model = super.getModel(location);
+    public boolean updateCurrentModel(T animatable) {
+        ResourceLocation mainModelId = getModelLocation(animatable);
+        GeoModel model = super.getModel(mainModelId);
         if (model == null) {
-            throw new GeckoLibException(location, "Could not find model. If you are getting this with a built mod, please just restart your game.");
+            this.currentModel = null;
+            return false;
         }
-        if (model != this.currentModel) {
-            this.animationProcessor.clearModelRendererList();
-            this.currentModel = model;
-            for (GeoBone bone : model.topLevelBones) {
-                registerBone(bone);
-            }
+        if (this.currentModel == null || model != this.currentModel.model()) {
+            this.currentModel = new GeoModelState(model);
+            this.animationProcessor.registerModelRenderer(currentModel.boneMap(), model.properties.scripts());
         }
-        return model;
+        return true;
     }
 
-    public GeoModel getCurrentModel() {
+    public GeoModelState getCurrentModel() {
         return currentModel;
     }
 
     @Override
-    @Keep
     public double getCurrentTick() {
-        return Blaze3D.getTime() * 20;
+        return ((TimerAccessor)((MinecraftAccessor) Minecraft.getInstance()).getTimer()).getLastMs() / 50d;
+    }
+
+    public DebugInfo getDebugInfo() {
+        return animationProcessor.getDebugInfo();
+    }
+
+    public void execute(IValue value, @Nullable Consumer<Object> resultConsumer) {
+        animationProcessor.execute(value, resultConsumer);
+    }
+
+    public IForeignVariableStorage getPublicVariableStorage() {
+        return this.animationProcessor.getPublicVariableStorage();
     }
 }

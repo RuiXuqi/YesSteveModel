@@ -1,0 +1,23 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.elfmcys.yesstevemodel.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "refmap": "yes_steve_model.refmap.json",
+    "injectors": {
+      "defaultRequire": 1
+    },
+    "client": [
+      "client.ArrowRendererMixin",
+      "client.LivingEntityAccessor",
+      "client.LivingRendererMixin",
+      "client.MinecraftAccessor",
+      "client.TimerAccessor",
+      "client.WorldRendererMixin",
+      "client.ArrowEntityAccessor"
+    ],
+    "mixins": [
+      "AbstractArrowEntityMixin"
+    ]
+  }
+  

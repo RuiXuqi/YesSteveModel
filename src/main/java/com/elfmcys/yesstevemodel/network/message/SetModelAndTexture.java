@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.network.message;
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,7 +45,12 @@ public class SetModelAndTexture {
 
     private static void handleCapability(SetModelAndTexture message, ServerPlayer sender) {
         sender.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> sender.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(ownModelsCap -> {
-            if (!ServerModelManager.AUTH_MODELS.contains(message.modelId.getPath()) || ownModelsCap.containModel(message.modelId)) {
+            String modelName = message.modelId.getPath();
+            if (!ServerModelManager.getModels().containsKey(modelName)
+                    || ServerModelManager.getAuthModels().contains(modelName) && !ownModelsCap.containModel(message.modelId)
+                    || !ServerModelManager.getModels().get(modelName).textures().contains(ModelIdUtil.getSubNameFromId(message.selectTexture)) ) {
+                modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_ID);
+            } else {
                 modelIdCap.setModelAndTexture(message.modelId, message.selectTexture);
             }
         }));

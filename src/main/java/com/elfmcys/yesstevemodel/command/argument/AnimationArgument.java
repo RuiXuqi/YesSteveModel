@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.command.argument;
 import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.Keep;
 import com.google.common.collect.Sets;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -37,13 +36,11 @@ public class AnimationArgument implements ArgumentType<String> {
     }
 
     @Override
-    @Keep
     public String parse(StringReader reader) throws CommandSyntaxException {
         return reader.readString();
     }
 
     @Override
-    @Keep
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> source, SuggestionsBuilder builder) {
         if (source.getSource() instanceof SharedSuggestionProvider) {
             if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
@@ -52,7 +49,7 @@ public class AnimationArgument implements ArgumentType<String> {
             } else {
                 AnimationFile main = GeckoLibCache.getInstance().getAnimations().get(CustomPlayerModel.DEFAULT_MAIN_ANIMATION);
                 Set<String> animations = Sets.newHashSet();
-                animations.addAll(main.animations().keySet());
+                animations.addAll(main.getAnimations().keySet());
                 animations.add(STOP);
                 return SharedSuggestionProvider.suggest(animations, builder);
             }
@@ -62,7 +59,6 @@ public class AnimationArgument implements ArgumentType<String> {
     }
 
     @Override
-    @Keep
     public Collection<String> getExamples() {
         return EXAMPLES;
     }

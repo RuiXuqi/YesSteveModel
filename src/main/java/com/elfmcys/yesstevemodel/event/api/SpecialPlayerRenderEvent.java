@@ -12,6 +12,13 @@ public class SpecialPlayerRenderEvent extends Event {
     private final CustomPlayerEntity customPlayer;
     private final ResourceLocation modelId;
 
+    // 没这个方法 forge 会报错
+    public SpecialPlayerRenderEvent() {
+        player = null;
+        customPlayer = null;
+        modelId = null;
+    }
+
     public SpecialPlayerRenderEvent(Player player, CustomPlayerEntity customPlayer, ResourceLocation modelId) {
         this.player = player;
         this.customPlayer = customPlayer;

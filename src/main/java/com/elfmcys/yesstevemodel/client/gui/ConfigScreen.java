@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.client.gui.button.ConfigCheckBox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
-import com.elfmcys.yesstevemodel.util.Keep;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -18,7 +17,6 @@ public class ConfigScreen extends Screen {
     }
 
     @Override
-    @Keep
     protected void init() {
         int x = (width - 420) / 2;
         int y = (height - 235) / 2;
@@ -29,11 +27,12 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 47, "disable_other_model", GeneralConfig.DISABLE_OTHER_MODEL));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 69, "print_animation_roulette_msg", GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 91, "disable_self_hands", GeneralConfig.DISABLE_SELF_HANDS));
-        addRenderableWidget(new ConfigCheckBox(x + 5, y + 112, "disable_player_render", ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER));
+        addRenderableWidget(new ConfigCheckBox(x + 5, y + 113, "disable_player_render", ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER));
+        addRenderableWidget(new ConfigCheckBox(x + 5, y + 135, "disable_arrows_model", GeneralConfig.DISABLE_ARROWS_MODEL));
+        addRenderableWidget(new ConfigCheckBox(x + 5, y + 157, "use_compatibility_renderer", GeneralConfig.USE_COMPATIBILITY_RENDERER));
     }
 
     @Override
-    @Keep
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         renderBackground(graphics);
         super.render(graphics, pMouseX, pMouseY, pPartialTick);

@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.util.Keep;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ListTag;
 import net.minecraftforge.common.capabilities.Capability;
@@ -20,7 +19,6 @@ public class StarModelsCapabilityProvider implements ICapabilitySerializable<Lis
 
     @NotNull
     @Override
-    @Keep
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == STAR_MODELS_CAP) {
             return LazyOptional.of(this::createCapability).cast();
@@ -30,7 +28,6 @@ public class StarModelsCapabilityProvider implements ICapabilitySerializable<Lis
 
     @NotNull
     @Override
-    @Keep
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
         return getCapability(cap, null);
     }
@@ -44,13 +41,11 @@ public class StarModelsCapabilityProvider implements ICapabilitySerializable<Lis
     }
 
     @Override
-    @Keep
     public void deserializeNBT(ListTag nbt) {
         createCapability().deserializeNBT(nbt);
     }
 
     @Override
-    @Keep
     public ListTag serializeNBT() {
         return createCapability().serializeNBT();
     }

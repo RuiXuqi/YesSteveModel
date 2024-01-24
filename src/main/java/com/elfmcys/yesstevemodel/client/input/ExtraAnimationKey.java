@@ -1,23 +1,18 @@
 package com.elfmcys.yesstevemodel.client.input;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.apache.commons.compress.utils.Lists;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = YesSteveModel.MOD_ID)
 public class ExtraAnimationKey {
     public static final List<KeyMapping> EXTRA_ANIMATION_KEYS = Lists.newArrayList();
 
@@ -35,7 +30,6 @@ public class ExtraAnimationKey {
         }
     }
 
-    @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
             if (key.isDown()) {

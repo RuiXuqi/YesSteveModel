@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.command.argument;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
-import com.elfmcys.yesstevemodel.util.Keep;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -34,19 +33,17 @@ public class ModelsArgument implements ArgumentType<String> {
     }
 
     @Override
-    @Keep
     public String parse(StringReader reader) throws CommandSyntaxException {
         return reader.readString();
     }
 
     @Override
-    @Keep
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> source, SuggestionsBuilder builder) {
         if (source.getSource() instanceof SharedSuggestionProvider) {
             if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-                return SharedSuggestionProvider.suggest(ServerModelManager.CACHE_NAME_INFO.keySet(), builder);
+                return SharedSuggestionProvider.suggest(ServerModelManager.getModels().keySet(), builder);
             } else {
-                return SharedSuggestionProvider.suggest(ClientModelManager.MODELS.keySet().stream().map(ResourceLocation::getPath), builder);
+                return SharedSuggestionProvider.suggest(ClientModelManager.getModelInfo().keySet().stream().map(ResourceLocation::getPath), builder);
             }
         } else {
             return Suggestions.empty();
@@ -54,7 +51,6 @@ public class ModelsArgument implements ArgumentType<String> {
     }
 
     @Override
-    @Keep
     public Collection<String> getExamples() {
         return EXAMPLES;
     }

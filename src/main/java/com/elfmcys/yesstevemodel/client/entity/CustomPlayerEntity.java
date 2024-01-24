@@ -2,8 +2,10 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
+import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
@@ -13,24 +15,35 @@ import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationFactory;
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import com.elfmcys.yesstevemodel.geckolib3.util.GeckoLibUtil;
-import com.elfmcys.yesstevemodel.util.Keep;
-import net.minecraft.resources.ResourceLocation;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
-public class CustomPlayerEntity implements IAnimatable {
-    private final AnimationFactory factory = GeckoLibUtil.createFactory(this, true);
+public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
+    private final AnimationFactory factory = GeckoLibUtil.createFactory(this, false);
     private ResourceLocation mainModel = CustomPlayerModel.DEFAULT_MAIN_MODEL;
+    private ResourceLocation modelId = CustomPlayerModel.DEFAULT_MODEL;
     private ResourceLocation texture = CustomPlayerModel.DEFAULT_TEXTURE;
     private String previewAnimation = "";
-    private Player player = null;
+    private AbstractClientPlayer player;
+
+    public CustomPlayerEntity(AbstractClientPlayer player) {
+        this.player = player;
+    }
+
+    // 只允许重置为 LocalPlayer，用于 GUI 渲染
+    public void setPlayer(LocalPlayer player) {
+        this.player = player;
+    }
 
     @NotNull
-    private static <P extends IAnimatable> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
+    private static PlayState playLoopAnimation(AnimationEvent<CustomPlayerEntity> event, String animationName) {
         event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, ILoopType.EDefaultLoopTypes.LOOP));
         return PlayState.CONTINUE;
     }
@@ -39,32 +52,31 @@ public class CustomPlayerEntity implements IAnimatable {
      * 越往后优先级越高
      */
     @Override
-    @Keep
     @SuppressWarnings("all")
-    public void registerControllers(AnimationData data) {
+    public void registerControllers(AnimationData data, IAnimatableModel<?> model) {
         AnimationManager manager = AnimationManager.getInstance();
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("pre_parallel_%d_controller", i);
             String animationName = String.format("pre_parallel%d", i);
-            data.addAnimationController(new AnimationController<>(this, controllerName, 0, e -> manager.predicateParallel(e, animationName)));
+            data.addAnimationController(new AnimationController(this, model, controllerName, 0, e -> manager.predicateParallel(e, animationName)));
         }
-        data.addAnimationController(new AnimationController(this, MAIN_CONTROLLER, 2, manager::predicateMain));
-        data.addAnimationController(new AnimationController(this, HOLD_OFFHAND_CONTROLLER, 0, manager::predicateOffhandHold));
-        data.addAnimationController(new AnimationController(this, HOLD_MAINHAND_CONTROLLER, 0, manager::predicateMainhandHold));
-        data.addAnimationController(new AnimationController(this, SWING_CONTROLLER, 2, manager::predicateSwing));
-        data.addAnimationController(new AnimationController(this, USE_CONTROLLER, 2, manager::predicateUse));
+        data.addAnimationController(new AnimationController(this, model, MAIN_CONTROLLER, 2, manager::predicateMain));
+        data.addAnimationController(new AnimationController(this, model, HOLD_OFFHAND_CONTROLLER, 0, manager::predicateOffhandHold));
+        data.addAnimationController(new AnimationController(this, model, HOLD_MAINHAND_CONTROLLER, 0, manager::predicateMainhandHold));
+        data.addAnimationController(new AnimationController(this, model, SWING_CONTROLLER, 2, manager::predicateSwing));
+        data.addAnimationController(new AnimationController(this, model, USE_CONTROLLER, 2, manager::predicateUse));
+        data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, manager::predicateCap));
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);
             String animationName = String.format("parallel%d", i);
-            data.addAnimationController(new AnimationController<>(this, controllerName, 0, e -> manager.predicateParallel(e, animationName)));
+            data.addAnimationController(new AnimationController(this, model, controllerName, 0, e -> manager.predicateParallel(e, animationName)));
         }
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                 String controllerName = String.format("%s_controller", slot.getName());
-                data.addAnimationController(new AnimationController(this, controllerName, 0, e -> manager.predicateArmor(e, slot)));
+                data.addAnimationController(new AnimationController(this, model, controllerName, 0, e -> manager.predicateArmor(e, slot)));
             }
         }
-        data.addAnimationController(new AnimationController(this, CAP_CONTROLLER, 2, manager::predicateCap));
     }
 
     public ResourceLocation getMainModel() {
@@ -74,8 +86,13 @@ public class CustomPlayerEntity implements IAnimatable {
         return CustomPlayerModel.DEFAULT_MAIN_MODEL;
     }
 
+    public ResourceLocation getMainModelUnsafe() {
+        return this.mainModel;
+    }
+
     public void setMainModel(ResourceLocation mainModel) {
         this.mainModel = mainModel;
+        this.modelId = ModelIdUtil.getModelIdFromMainId(mainModel);
     }
 
     public ResourceLocation getAnimation() {
@@ -86,29 +103,21 @@ public class CustomPlayerEntity implements IAnimatable {
     }
 
     public float getHeightScale() {
-        if (ClientModelManager.SCALE_INFO.containsKey(this.mainModel)) {
-            return ClientModelManager.SCALE_INFO.get(this.mainModel).left().floatValue();
-        }
-        return 0.7f;
+        ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
+        return modelInfo == null ? 0.7f : (float) modelInfo.heightScale();
     }
 
     public float getWidthScale() {
-        if (ClientModelManager.SCALE_INFO.containsKey(this.mainModel)) {
-            return ClientModelManager.SCALE_INFO.get(this.mainModel).right().floatValue();
-        }
-        return 0.7f;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
+        ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
+        return modelInfo == null ? 0.7f : (float) modelInfo.widthScale();
     }
 
     @Override
-    @Keep
+    public AbstractClientPlayer getEntity() {
+        return player;
+    }
+
+    @Override
     public AnimationFactory getFactory() {
         return this.factory;
     }

@@ -1,51 +1,45 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
-import com.elfmcys.yesstevemodel.util.Keep;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 
 public class TextureButton extends Button {
-    private final ResourceLocation modelId;
-    private final ResourceLocation textureId;
     private final String name;
+    private final GuiModelInstance instance;
 
-    public TextureButton(int pX, int pY, ResourceLocation modelId, ResourceLocation textureId) {
+    public TextureButton(int pX, int pY, GuiModelInstance instance) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
         }, DEFAULT_NARRATION);
-        this.modelId = modelId;
-        this.textureId = textureId;
-        this.name = ModelIdUtil.getSubNameFromId(textureId);
+        this.name = ModelIdUtil.getSubNameFromId(instance.getTextureLocation());
+        this.instance = instance;
     }
 
     @Override
-    @Keep
     public void onPress() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap ->
-                    cap.setModelAndTexture(modelId, textureId));
+            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap ->
+                    cap.setTexture(instance.getTextureLocation()));
         }
-        NetworkHandler.CHANNEL.sendToServer(new SetModelAndTexture(modelId, textureId));
+        NetworkHandler.CHANNEL.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation()));
     }
 
     @Override
-    @Keep
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
@@ -58,7 +52,7 @@ public class TextureButton extends Button {
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderEntityInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, minecraft.player, modelId, textureId);
+        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, instance);
         RenderSystem.disableScissor();
 
         Component message = Component.literal(name);

@@ -5,26 +5,55 @@ import com.elfmcys.yesstevemodel.network.message.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.*;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.Optional;
 
 public final class NetworkHandler {
-    private static final String VERSION = "1.0.0";
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(YesSteveModel.MOD_ID, "network"),
-            () -> VERSION, it -> it.equals(VERSION), it -> it.equals(VERSION));
+    private static final String VERSION = "1.1.0";
+    private static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION);
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION,
+            NetworkHandler::checkProtocolVersion, NetworkHandler::checkProtocolVersion);
+
+    private static boolean checkProtocolVersion(String protocolVersionIn) {
+        // 都安装 YSM 的情况下要求版本相同
+        if (protocolVersionIn.equals(VERSION)) {
+            return true;
+        }
+        // 允许其中一方未安装 YSM
+        if (protocolVersionIn.equals(NetworkRegistry.ABSENT)) {
+            return true;
+        }
+        // 允许其中一方是原版端
+        if (protocolVersionIn.equals(NetworkRegistry.ACCEPTVANILLA)) {
+            return true;
+        }
+        return false;
+    }
+
+    // 检测客户端是否安装了相同版本的 YSM 模组
+    public static boolean isPlayerChannelPresent(ServerPlayer player) {
+        ConnectionData connectionData = NetworkHooks.getConnectionData(player.connection.connection);
+        // 原版端
+        if (connectionData == null) {
+            return false;
+        }
+        String channelVersion = connectionData.getChannels().get(CHANNEL_NAME);
+        // 未安装 YSM 或版本不匹配
+        if (!VERSION.equals(channelVersion)) {
+            return false;
+        }
+
+        return true;
+    }
 
     public static void init() {
-        CHANNEL.registerMessage(0, SyncModelFiles.class, SyncModelFiles::encode, SyncModelFiles::decode, SyncModelFiles::handle,
+        CHANNEL.registerMessage(1, SyncDataToClient.class, SyncDataToClient::encode, SyncDataToClient::decode, SyncDataToClient::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(2, SyncDataToServer.class, SyncDataToServer::encode, SyncDataToServer::decode, SyncDataToServer::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
-        CHANNEL.registerMessage(1, SendModelFile.class, SendModelFile::encode, SendModelFile::decode, SendModelFile::handle,
-                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-        CHANNEL.registerMessage(2, RequestSyncModel.class, RequestSyncModel::encode, RequestSyncModel::decode, RequestSyncModel::handle,
-                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-        CHANNEL.registerMessage(3, RequestLoadModel.class, RequestLoadModel::encode, RequestLoadModel::decode, RequestLoadModel::handle,
+        CHANNEL.registerMessage(3, ExecuteMolang.class, ExecuteMolang::encode, ExecuteMolang::decode, ExecuteMolang::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(4, SyncModelInfo.class, SyncModelInfo::encode, SyncModelInfo::decode, SyncModelInfo::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
@@ -50,7 +79,15 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
-    public static void sendToClientPlayer(Object message, Player player) {
+    public static void sendToClientPlayer(Object message, final Player player) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), message);
+    }
+
+    public static void broadcastToAllPlayers(Object message) {
+        CHANNEL.send(PacketDistributor.ALL.noArg(), message);
+    }
+
+    public static void broadcastToVisiblePlayersAndSelf(Object message, final Player self) {
+        CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> self), message);
     }
 }

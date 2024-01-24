@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
@@ -9,9 +9,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
-import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -23,11 +21,18 @@ import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
+import javax.annotation.Nonnull;
 
 public final class AnimationManager {
     private static AnimationManager MANAGER;
-    private final Int2ObjectOpenHashMap<LinkedList<AnimationState>> data = new Int2ObjectOpenHashMap<>();
+    @SuppressWarnings("unchecked")
+    private final ReferenceArrayList<AnimationState>[] data = new ReferenceArrayList[Priority.LOWEST + 1];
+
+    public AnimationManager() {
+        for(int i = 0; i < data.length; i++) {
+            data[i] = new ReferenceArrayList<>(6);
+        }
+    }
 
     public static AnimationManager getInstance() {
         if (MANAGER == null) {
@@ -36,31 +41,25 @@ public final class AnimationManager {
         return MANAGER;
     }
 
-    @NotNull
-    private static <P extends IAnimatable> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
+    @Nonnull
+    private static <P extends IAnimatable<?>> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
         return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.LOOP);
     }
 
-    @NotNull
-    private static <P extends IAnimatable> PlayState playAnimation(AnimationEvent<P> event, String animationName, ILoopType loopType) {
+    @Nonnull
+    private static <P extends IAnimatable<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName, ILoopType loopType) {
         event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
         return PlayState.CONTINUE;
     }
 
-    @NotNull
-    private static <P extends IAnimatable> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
+    @Nonnull
+    private static <P extends IAnimatable<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
         event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName));
         return PlayState.CONTINUE;
     }
 
     public void register(AnimationState state) {
-        if (data.containsKey(state.getPriority())) {
-            data.get(state.getPriority()).add(state);
-        } else {
-            LinkedList<AnimationState> states = Lists.newLinkedList();
-            states.add(state);
-            data.put(state.getPriority(), states);
-        }
+        data[state.getPriority()].add(state);
     }
 
     public PlayState predicateParallel(AnimationEvent<CustomPlayerEntity> event, String animationName) {
@@ -72,17 +71,17 @@ public final class AnimationManager {
 
     public PlayState predicateCap(AnimationEvent<CustomPlayerEntity> event) {
         CustomPlayerEntity animatable = event.getAnimatable();
-        Player player = animatable.getPlayer();
-        if (player == null) {
-            if (animatable.hasPreviewAnimation()) {
-                return playLoopAnimation(event, animatable.getPreviewAnimation());
-            }
-            return PlayState.STOP;
+        if (animatable.hasPreviewAnimation()) {
+            return playLoopAnimation(event, animatable.getPreviewAnimation());
         }
 
-        return player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).map(cap -> {
-            if (cap.isPlayAnimation()) {
-                return playAnimation(event, cap.getAnimation());
+        return animatable.getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).map(cap -> {
+            if (cap.isPlayingAnimation()) {
+                if(cap.isAnimationDirty()) {
+                    cap.clearAnimationDirty();
+                    event.getController().markNeedsReload();
+                }
+                return playAnimation(event, cap.getAnimationName());
             }
             return PlayState.STOP;
         }).orElse(PlayState.STOP);
@@ -90,16 +89,15 @@ public final class AnimationManager {
 
     @NotNull
     public PlayState predicateMain(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getPlayer();
+        Player player = event.getAnimatable().getEntity();
         if (player == null) {
             return PlayState.STOP;
         }
+        if(event.getAnimatable().hasPreviewAnimation()) {
+            return PlayState.STOP;
+        }
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {
-            if (!data.containsKey(i)) {
-                continue;
-            }
-            LinkedList<AnimationState> states = data.get(i);
-            for (AnimationState state : states) {
+            for (AnimationState state : data[i]) {
                 if (state.getPredicate().test(player, event)) {
                     String animationName = state.getAnimationName();
                     ILoopType loopType = state.getLoopType();
@@ -111,8 +109,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateOffhandHold(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getPlayer();
-        if (player == null) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (!player.getOffhandItem().isEmpty() && checkSwingAndUse(player, InteractionHand.OFF_HAND)) {
@@ -129,8 +127,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateMainhandHold(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getPlayer();
-        if (player == null) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (!player.swinging && !player.isUsingItem()) {
@@ -161,8 +159,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateSwing(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getPlayer();
-        if (player == null) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (player.swinging && !player.isSleeping()) {
@@ -184,8 +182,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateUse(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getPlayer();
-        if (player == null) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (player.isUsingItem() && !player.isSleeping()) {
@@ -219,8 +217,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateArmor(AnimationEvent<CustomPlayerEntity> event, EquipmentSlot slot) {
-        Player player = event.getAnimatable().getPlayer();
-        if (player == null) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         ItemStack itemBySlot = player.getItemBySlot(slot);
@@ -239,7 +237,7 @@ public final class AnimationManager {
 
         ResourceLocation animation = event.getAnimatable().getAnimation();
         String defaultName = slot.getName() + ":default";
-        if (GeckoLibCache.getInstance().getAnimations().get(animation).animations().containsKey(defaultName)) {
+        if (GeckoLibCache.getInstance().getAnimations().get(animation).getAnimations().containsKey(defaultName)) {
             return playAnimation(event, defaultName, ILoopType.EDefaultLoopTypes.LOOP);
         }
         return PlayState.STOP;

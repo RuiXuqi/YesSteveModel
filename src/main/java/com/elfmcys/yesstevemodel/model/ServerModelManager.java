@@ -1,204 +1,190 @@
 package com.elfmcys.yesstevemodel.model;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.data.EncryptTools;
-import com.elfmcys.yesstevemodel.model.format.FolderFormat;
-import com.elfmcys.yesstevemodel.model.format.ServerModelInfo;
-import com.elfmcys.yesstevemodel.model.format.YsmFormat;
-import com.elfmcys.yesstevemodel.model.format.ZipFormat;
+import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
-import com.elfmcys.yesstevemodel.network.message.RequestSyncModel;
-import com.elfmcys.yesstevemodel.util.GetJarResources;
+import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
+import com.elfmcys.yesstevemodel.network.message.SyncDataToClient;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.entity.player.Player;
-import org.apache.commons.io.FileUtils;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
-import java.io.File;
-import java.nio.file.Files;
+import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 
+// Native Access
 public final class ServerModelManager {
     /**
-     * 配置相关文件夹
-     */
-    public static final Path FOLDER = Paths.get("config", YesSteveModel.MOD_ID);
-
-    /**
      * 自定义模型所放置的文件夹
+     * 为了统一，现在这些目录在 native 层定义
      */
-    public static final Path CUSTOM = FOLDER.resolve("custom");
-    public static final Path AUTH = FOLDER.resolve("auth");
-    public static final Path EXPORT = FOLDER.resolve("export");
-
-    /**
-     * 生成缓存文件的文件夹
-     */
-    public static final Path CACHE = FOLDER.resolve("cache");
-    public static final Path CACHE_SERVER = CACHE.resolve("server");
-    /**
-     * 存储密码的文件
-     */
-    public static final Path PASSWORD_FILE = CACHE_SERVER.resolve("PASSWORD");
-    public static final Path CACHE_CLIENT = CACHE.resolve("client");
+    // Native Access: jni 初始化时写入
+    public static Path CUSTOM;
+    // Native Access: jni 初始化时写入
+    public static Path AUTH;
     /**
      * 模型名称 -> 模型额外信息缓存
-     * 可以方便的通过此缓存，来判断客户端发来的 MD5 在不在服务端
-     * 从而将服务器文件发送给玩家
+     * 可以方便的通过此缓存，来判断客户端发来的模型名称在不在服务端
      * 还可以获取其他服务端模型信息
      */
-    public static final Map<String, ServerModelInfo> CACHE_NAME_INFO = Maps.newHashMap();
-
+    private static Map<String, ServerModel> MODELS = Maps.newHashMap();
     /**
      * 放置授权模型名称
      */
-    public static final Set<String> AUTH_MODELS = Sets.newHashSet();
+    private static Set<String> AUTH_MODELS = Sets.newHashSet();
 
-    /**
-     * 特定文件名
-     */
-    public static final String MAIN_MODEL_FILE_NAME = "main.json";
-    public static final String ARM_MODEL_FILE_NAME = "arm.json";
-    public static final String MAIN_ANIMATION_FILE_NAME = "main.animation.json";
-    public static final String ARM_ANIMATION_FILE_NAME = "arm.animation.json";
-    public static final String EXTRA_ANIMATION_FILE_NAME = "extra.animation.json";
+    public static Map<String, ServerModel> getModels() {
+        return MODELS;
+    }
 
-    public static void sendRequestSyncModelMessage(PlayerList playerList) {
-        for (ServerPlayer player : playerList.getPlayers()) {
-            NetworkHandler.sendToClientPlayer(new RequestSyncModel(), player);
+    public static Set<String> getAuthModels() {
+        return AUTH_MODELS;
+    }
+
+    // 非阻塞
+    public static void syncModelsToPlayer(ServerPlayer player, @Nullable Consumer<SyncModelResult> completeCallback) {
+        syncTaskEnqueue(new UUID[]{player.getUUID()}, new String[]{player.getGameProfile().getName()}, completeCallback);
+    }
+
+    public static native ExportModelResult exportModel(String modelName);
+
+    // 非阻塞
+    // 如果有其它 reload 任务正在进行，将忽略本次重载并返回 false
+    public static boolean reloadAndSync(@Nullable final Consumer<ReloadModelResult> reloadCompleteCallback, @Nullable final Consumer<SyncModelResult> syncCompleteCallback) {
+        return reloadBegin((Consumer<ReloadModelResult>) result -> {
+            if (reloadCompleteCallback != null) {
+                reloadCompleteCallback.accept(result);
+            }
+            final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if (server == null) {
+                return;
+            }
+            server.execute(() -> {
+                Collection<ServerPlayer> players = server.getPlayerList().getPlayers();
+                UUID[] uuids = players.stream().filter(NetworkHandler::isPlayerChannelPresent).map(Entity::getUUID).toArray(UUID[]::new);
+                String[] playerNames = players.stream().filter(NetworkHandler::isPlayerChannelPresent).map(p -> p.getGameProfile().getName()).toArray(String[]::new);
+                syncTaskEnqueue(uuids, playerNames, syncCompleteCallback);
+            });
+        });
+    }
+
+    // 非阻塞
+    private static native boolean reloadBegin(@Nullable Object state);
+
+    // Native Access: 在 worker 线程上调用
+    @SuppressWarnings("unused,unchecked")
+    private static void reloadCommit(final ReloadModelResult result, @Nullable Object state) {
+        final Consumer<ReloadModelResult> completeCallback = (Consumer<ReloadModelResult>) state;
+        final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) {
+            server.execute(() -> {
+                if (result.success()) {
+                    MODELS = result.models();
+                    AUTH_MODELS = result.authModels();
+                }
+                if (completeCallback != null) {
+                    ThreadTools.submit(() -> completeCallback.accept(result));
+                }
+            });
+        } else {
+            if (result.success()) {
+                MODELS = result.models();
+                AUTH_MODELS = result.authModels();
+            }
+            if (completeCallback != null) {
+                completeCallback.accept(result);
+            }
         }
     }
 
-    public static void sendRequestSyncModelMessage() {
-        ClientModelManager.sendSyncModelMessage();
+    private static native void syncTaskEnqueue(UUID[] playerIds, String[] playerNames, Object state);
+
+    public static void syncTaskAbort(UUID playerId) {
+        syncReceiveData(playerId, null);
     }
 
-    public static void sendRequestSyncModelMessage(Player player) {
-        NetworkHandler.sendToClientPlayer(new RequestSyncModel(), player);
+    public static native void syncReceiveData(UUID playerId, ByteBuffer data);
+
+    // Native Access: 在 worker 线程上调用
+    @SuppressWarnings("unused")
+    private static boolean syncSendData(UUID playerId, ByteBuffer data) {
+        return syncSendEncodedPacket(playerId, NetworkHandler.CHANNEL.toVanillaPacket(new SyncDataToClient(data), NetworkDirection.PLAY_TO_CLIENT));
     }
 
-    public static void reloadPacks() {
-        CACHE_NAME_INFO.clear();
-        AUTH_MODELS.clear();
-
-        createFolder(FOLDER);
-        createFolder(CUSTOM);
-        createFolder(AUTH);
-        createFolder(EXPORT);
-
-        createFolder(CACHE);
-        createFolder(CACHE_SERVER);
-        createFolder(CACHE_CLIENT);
-
-        // 不管存不存在，强行覆盖
-        copyDefaultModel();
-        copyWineFoxModel();
-        copyVanillaModel();
-        initPassword();
-        cacheAllModels(CUSTOM);
-        cacheAllModels(AUTH);
+    // Native Access: 在 worker 线程上调用
+    @SuppressWarnings("unused")
+    private static Object encodeSyncDataPacket(ByteBuffer data) {
+        return NetworkHandler.CHANNEL.toVanillaPacket(new SyncDataToClient(data), NetworkDirection.PLAY_TO_CLIENT);
     }
 
-    private static void copyDefaultModel() {
-        Path defaultPath = CUSTOM.resolve("default");
-        createFolder(defaultPath);
+    // Native Access: 在 worker 线程上调用
+    @SuppressWarnings("unused")
+    private static boolean syncSendEncodedPacket(UUID playerId, Object packet) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
+            return false;
+        }
 
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default/main.json"), defaultPath, MAIN_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default/arm.json"), defaultPath, ARM_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default/default.png"), defaultPath, "default.png");
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default/blue.png"), defaultPath, "blue.png");
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default/main.animation.json"), defaultPath, MAIN_ANIMATION_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default/arm.animation.json"), defaultPath, ARM_ANIMATION_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default/extra.animation.json"), defaultPath, EXTRA_ANIMATION_FILE_NAME);
+        ServerPlayer player = server.getPlayerList().getPlayer(playerId);
+        if (player == null) {
+            return false;
+        }
 
-        Path defaultBoyPath = CUSTOM.resolve("default_boy");
-        createFolder(defaultBoyPath);
-
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default_boy/main.json"), defaultBoyPath, MAIN_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default_boy/arm.json"), defaultBoyPath, ARM_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default_boy/red.png"), defaultBoyPath, "red.png");
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default_boy/blue.png"), defaultBoyPath, "blue.png");
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/default_boy/main.animation.json"), defaultBoyPath, MAIN_ANIMATION_FILE_NAME);
-    }
-
-    private static void copyVanillaModel() {
-        Path stevePath = CUSTOM.resolve("steve");
-        createFolder(stevePath);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/steve/main.json"), stevePath, MAIN_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/steve/arm.json"), stevePath, ARM_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/steve/tartaric_acid.png"), stevePath, "tartaric_acid.png");
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/steve/main.animation.json"), stevePath, MAIN_ANIMATION_FILE_NAME);
-
-        Path alexPath = CUSTOM.resolve("alex");
-        createFolder(alexPath);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/alex/main.json"), alexPath, MAIN_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/alex/arm.json"), alexPath, ARM_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/alex/gsl.png"), alexPath, "gsl.png");
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/alex/main.animation.json"), alexPath, MAIN_ANIMATION_FILE_NAME);
-
-        Path qinglukaPath = CUSTOM.resolve("qingluka");
-        createFolder(qinglukaPath);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/qingluka/main.json"), qinglukaPath, MAIN_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/qingluka/arm.json"), qinglukaPath, ARM_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/qingluka/texture.png"), qinglukaPath, "texture.png");
-    }
-
-    private static void copyWineFoxModel() {
-        Path wineFoxPath = CUSTOM.resolve("wine_fox");
-        createFolder(wineFoxPath);
-
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/wine_fox/main.json"), wineFoxPath, MAIN_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/wine_fox/arm.json"), wineFoxPath, ARM_MODEL_FILE_NAME);
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/wine_fox/skin.png"), wineFoxPath, "skin.png");
-        GetJarResources.copyYesSteveModelFile(getCustomFiles("custom/wine_fox/main.animation.json"), wineFoxPath, MAIN_ANIMATION_FILE_NAME);
-    }
-
-    private static void cacheAllModels(Path rootPath) {
-        YsmFormat.cacheAllModels(rootPath);
-        ZipFormat.cacheAllModels(rootPath);
-        FolderFormat.cacheAllModels(rootPath);
-    }
-
-    private static void initPassword() {
+        // 不在主线程上，最好 try 一下
         try {
-            EncryptTools.createRandomPassword();
-            File passwordFile = PASSWORD_FILE.toFile();
-            if (passwordFile.isFile()) {
-                EncryptTools.readPassword(FileUtils.readFileToByteArray(passwordFile));
-            } else {
-                FileUtils.writeByteArrayToFile(passwordFile, EncryptTools.writePassword());
+            player.connection.send((Packet<?>) packet);
+        } catch (Exception ignored) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // Native Access: 在 worker 线程上调用
+    @SuppressWarnings("unused,unchecked")
+    private static void syncTaskComplete(final SyncModelResult result, final @Nullable Object state) {
+        final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        final Consumer<SyncModelResult> completeCallback  = (Consumer<SyncModelResult>) state;
+        if (server == null) {
+            if (completeCallback != null) {
+                completeCallback.accept(result);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            return;
         }
-    }
+        server.execute(() -> {
+            for (UUID playerId : result.allPlayerIds()) {
+                final ServerPlayer player = server.getPlayerList().getPlayer(playerId);
+                if (player == null) {
+                    continue;
+                }
+                player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
+                    player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authModelCap -> {
+                        if (authModelCap.getAuthModels().removeIf(authModel -> !MODELS.containsKey(authModel.getPath()) || !AUTH_MODELS.contains(authModel.getPath()))) {
+                            NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelCap.getAuthModels()), player);
+                        }
 
-    private static String getCustomFiles(String path) {
-        return String.format("/assets/%s/%s", YesSteveModel.MOD_ID, path);
-    }
-
-    private static void createFolder(Path path) {
-        File folder = path.toFile();
-        if (!folder.isDirectory()) {
-            try {
-                Files.createDirectories(folder.toPath());
-            } catch (Exception e) {
-                e.printStackTrace();
+                        String modelName = modelIdCap.getModelId().getPath();
+                        if (!ServerModelManager.getModels().containsKey(modelName)
+                                || AUTH_MODELS.contains(modelName) && !authModelCap.containModel(modelIdCap.getModelId())
+                                || !MODELS.get(modelName).textures().contains(ModelIdUtil.getSubNameFromId(modelIdCap.getSelectTexture()))) {
+                            modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_ID);
+                        }
+                    });
+                });
+                if (completeCallback != null) {
+                    ThreadTools.submit(() -> completeCallback.accept(result));
+                }
             }
-        }
-    }
-
-    public static String removeExtension(String fileName) {
-        int lastIndex = fileName.lastIndexOf('.');
-        if (lastIndex != -1) {
-            fileName = fileName.substring(0, lastIndex);
-        }
-        return fileName;
+        });
     }
 }

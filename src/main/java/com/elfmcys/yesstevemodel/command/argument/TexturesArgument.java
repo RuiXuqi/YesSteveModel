@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.command.argument;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
-import com.elfmcys.yesstevemodel.util.Keep;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -40,25 +39,23 @@ public class TexturesArgument implements ArgumentType<String> {
     }
 
     @Override
-    @Keep
     public String parse(StringReader reader) throws CommandSyntaxException {
         return reader.readString();
     }
 
     @Override
-    @Keep
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> source, SuggestionsBuilder builder) {
         if (source.getSource() instanceof SharedSuggestionProvider) {
             String modelName = ModelsArgument.getModel((CommandContext<CommandSourceStack>) source, "model_id");
             if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-                if (ServerModelManager.CACHE_NAME_INFO.containsKey(modelName)) {
-                    Set<String> textures = ServerModelManager.CACHE_NAME_INFO.get(modelName).getTextures();
+                if (ServerModelManager.getModels().containsKey(modelName)) {
+                    Set<String> textures = ServerModelManager.getModels().get(modelName).textures();
                     return SharedSuggestionProvider.suggest(textures, builder);
                 }
             } else {
                 ResourceLocation modelId = new ResourceLocation(YesSteveModel.MOD_ID, modelName);
-                if (ClientModelManager.MODELS.containsKey(modelId)) {
-                    List<ResourceLocation> textures = ClientModelManager.MODELS.get(modelId);
+                if (ClientModelManager.getModelInfo().containsKey(modelId)) {
+                    List<ResourceLocation> textures = ClientModelManager.getModelInfo().get(modelId).textureIds();
                     Stream<String> stream = textures.stream().map(ModelIdUtil::getSubNameFromId).filter(StringUtils::isNoneBlank);
                     return SharedSuggestionProvider.suggest(stream, builder);
                 }
@@ -68,7 +65,6 @@ public class TexturesArgument implements ArgumentType<String> {
     }
 
     @Override
-    @Keep
     public Collection<String> getExamples() {
         return EXAMPLES;
     }

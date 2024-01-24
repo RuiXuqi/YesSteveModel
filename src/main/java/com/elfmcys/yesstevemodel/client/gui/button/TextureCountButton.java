@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.util.Keep;
+import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -15,14 +15,14 @@ public class TextureCountButton extends FlatColorButton {
     }
 
     @Override
-    @Keep
     public Component getMessage() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            return player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).map(cap -> {
+            return player.getCapability(PlayerGeoCapabilityProvider.CAP).map(cap -> {
                 ResourceLocation modelId = cap.getModelId();
-                if (ClientModelManager.MODELS.containsKey(modelId)) {
-                    String countText = String.valueOf(ClientModelManager.MODELS.get(modelId).size());
+                ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
+                if (modelInfo != null) {
+                    String countText = String.valueOf(modelInfo.textureIds().size());
                     return Component.literal(countText);
                 }
                 return super.getMessage();

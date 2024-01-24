@@ -1,13 +1,12 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
-import com.elfmcys.yesstevemodel.util.Keep;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -36,30 +35,28 @@ public class AnimationRouletteScreen extends Screen {
     }
 
     @Override
-    @Keep
     protected void init() {
         this.x = width / 2;
         this.y = height / 2 - 8;
 
         if (minecraft != null && minecraft.player != null) {
-            minecraft.player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+            minecraft.player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 ResourceLocation modelId = cap.getModelId();
-                if (ClientModelManager.EXTRA_ANIMATION_NAME.containsKey(ModelIdUtil.getMainId(modelId))) {
-                    this.names = ClientModelManager.EXTRA_ANIMATION_NAME.get(ModelIdUtil.getMainId(modelId));
+                ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
+                if(modelInfo != null && !modelInfo.extraAnimationNames().isEmpty()) {
+                    this.names = modelInfo.extraAnimationNames().toArray(new String[0]);
                 }
             });
         }
     }
 
     @Override
-    @Keep
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         drawRoulette(graphics.pose(), pMouseX, pMouseY);
         drawRouletteText(graphics);
     }
 
     @Override
-    @Keep
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (-1 < selectId && selectId < 8 && minecraft != null) {
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -73,7 +70,6 @@ public class AnimationRouletteScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean isPauseScreen() {
         return false;
     }

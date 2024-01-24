@@ -4,20 +4,32 @@
  */
 package com.elfmcys.yesstevemodel.geckolib3.core.builder;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType.EDefaultLoopTypes;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimation;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.EventKeyFrame;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.ParticleEventKeyFrame;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.EventKeyFrame;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.ParticleEventKeyFrame;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import java.util.List;
 
+// Native Access
 public class Animation {
-    public String animationName;
-    public double animationLength = -1;
-    public ILoopType loop = EDefaultLoopTypes.LOOP;
-    public List<BoneAnimation> boneAnimations;
-    public List<EventKeyFrame<String>> soundKeyFrames = new ObjectArrayList<>();
-    public List<ParticleEventKeyFrame> particleKeyFrames = new ObjectArrayList<>();
-    public List<EventKeyFrame<String>> customInstructionKeyframes = new ObjectArrayList<>();
+    public final String animationName;
+    public final double animationLength;
+    public final ILoopType loop;
+    public final List<BoneAnimation> boneAnimations;
+    public final List<EventKeyFrame<String>> soundKeyFrames;
+    public final List<ParticleEventKeyFrame> particleKeyFrames;
+    public final List<EventKeyFrame<IValue[]>> customInstructionKeyframes;
+
+    // Native Access
+    public Animation(String animationName, double animationLength, ILoopType loop, BoneAnimation[] boneAnimations, EventKeyFrame<String>[] soundKeyFrames, ParticleEventKeyFrame[] particleKeyFrames, EventKeyFrame<IValue[]>[] customInstructionKeyframes) {
+        this.animationName = animationName;
+        this.animationLength = animationLength;
+        this.loop = loop;
+        this.boneAnimations = ReferenceArrayList.wrap(boneAnimations);
+        this.soundKeyFrames = ReferenceArrayList.wrap(soundKeyFrames);
+        this.particleKeyFrames = ReferenceArrayList.wrap(particleKeyFrames);
+        this.customInstructionKeyframes = ReferenceArrayList.wrap(customInstructionKeyframes);
+    }
 }

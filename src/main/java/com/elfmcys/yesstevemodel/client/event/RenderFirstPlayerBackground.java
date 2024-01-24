@@ -1,15 +1,13 @@
 package com.elfmcys.yesstevemodel.client.event;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
+import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.AnimatableCacheUtil;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -22,31 +20,22 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-import java.util.concurrent.ExecutionException;
-
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = YesSteveModel.MOD_ID)
 public class RenderFirstPlayerBackground {
-    private static final String NAME = "Background";
     /**
      * 因为 RenderHandEvent 可有几率会渲染多次，所以为了避免多次渲染，这样设计
      */
     private static boolean ALREADY_RENDERED = false;
 
-    @SubscribeEvent
     public static void onRenderLevelLase(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
             ALREADY_RENDERED = false;
         }
     }
 
-    @SubscribeEvent
     public static void onRenderHand(RenderHandEvent event) {
         if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
             return;
@@ -59,44 +48,30 @@ public class RenderFirstPlayerBackground {
             return;
         }
         ALREADY_RENDERED = true;
-        player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+        player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             ResourceLocation modelId = cap.getModelId();
-            GeoModel geoModel = GeckoLibCache.getInstance().getGeoModels().get(ModelIdUtil.getArmId(cap.getModelId()));
-            if (geoModel == null || !geoModel.hasTopLevelBone(NAME)) {
+            final GeoModel geoModel = GeckoLibCache.getInstance().getGeoModels().get(ModelIdUtil.getArmId(modelId));
+            if (geoModel == null || !geoModel.hasfirstPersonBackground) {
                 return;
             }
-            CustomPlayerRenderer instance = RegisterEntityRenderersEvent.getInstance();
-            PoseStack poseStack = event.getPoseStack();
+            CustomPlayerRenderer instance = RegisterEntityRenderersEvent.getPlayerRenderer();
+            final PoseStack poseStack = event.getPoseStack();
             MultiBufferSource multiBufferSource = event.getMultiBufferSource();
-            VertexConsumer buffer;
-            IAnimatable animatable;
-
-            try {
-                animatable = AnimatableCacheUtil.ANIMATABLE_CACHE.get(modelId, () -> {
-                    CustomPlayerEntity entity = new CustomPlayerEntity();
-                    entity.setTexture(cap.getSelectTexture());
-                    return entity;
-                });
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+            CustomPlayerEntity customPlayer = cap.getAnimatable();
+            if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, customPlayer, modelId))) {
+                return;
             }
-
-            if (animatable instanceof CustomPlayerEntity customPlayer) {
-                customPlayer.setTexture(cap.getSelectTexture());
-                if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, customPlayer, modelId))) {
-                    return;
+            RenderType renderType = RenderType.entityTranslucent(customPlayer.getTexture());
+            final VertexConsumer buffer = multiBufferSource.getBuffer(renderType);
+            final int packedLight = event.getPackedLight();
+            if (instance != null) {
+                poseStack.pushPose();
+                if (Minecraft.getInstance().options.bobView().get()) {
+                    bobView(poseStack, event.getPartialTick(), player);
                 }
-                buffer = multiBufferSource.getBuffer(RenderType.entityTranslucent(customPlayer.getTexture()));
-                int packedLight = event.getPackedLight();
-                if (instance != null) {
-                    poseStack.pushPose();
-                    if (Minecraft.getInstance().options.bobView().get()) {
-                        bobView(poseStack, event.getPartialTick(), player);
-                    }
-                    poseStack.translate(0, -1.5, 0);
-                    geoModel.getTopLevelBone(NAME).ifPresent(bone -> instance.renderRecursively(bone, poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1));
-                    poseStack.popPose();
-                }
+                poseStack.translate(0, -1.5, 0);
+                NativeRenderer.renderModel(buffer, poseStack.last(), geoModel, geoModel.getInitialState(), NativeRenderer.RENDER_MODE_BACKGROUND, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                poseStack.popPose();
             }
         });
     }

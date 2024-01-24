@@ -1,50 +1,14 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.builder;
 
-import com.elfmcys.yesstevemodel.util.Keep;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-
-import java.util.Locale;
-
 public interface ILoopType {
-    /**
-     * 从动画文件读取播放类型
-     *
-     * @param json json 文件
-     * @return 播放类型
-     */
-    static ILoopType fromJson(JsonElement json) {
-        if (json == null || !json.isJsonPrimitive()) {
-            return EDefaultLoopTypes.PLAY_ONCE;
-        }
-        JsonPrimitive primitive = json.getAsJsonPrimitive();
-        if (primitive.isBoolean()) {
-            return primitive.getAsBoolean() ? EDefaultLoopTypes.LOOP : EDefaultLoopTypes.PLAY_ONCE;
-        }
-        if (primitive.isString()) {
-            String string = primitive.getAsString();
-            if ("false".equalsIgnoreCase(string)) {
-                return EDefaultLoopTypes.PLAY_ONCE;
-            }
-            if ("true".equalsIgnoreCase(string)) {
-                return EDefaultLoopTypes.LOOP;
-            }
-            try {
-                return EDefaultLoopTypes.valueOf(string.toUpperCase(Locale.ROOT));
-            } catch (Exception ignore) {
-            }
-        }
-        return EDefaultLoopTypes.PLAY_ONCE;
-    }
-
     /**
      * 是否在动画结束后重复
      *
      * @return 是否在动画结束后重复
      */
-    @Keep
     boolean isRepeatingAfterEnd();
 
+    // Native Access: 所有枚举值都有读取
     enum EDefaultLoopTypes implements ILoopType {
         /**
          * 动画播放类型
@@ -64,7 +28,6 @@ public interface ILoopType {
         }
 
         @Override
-        @Keep
         public boolean isRepeatingAfterEnd() {
             return this.looping;
         }

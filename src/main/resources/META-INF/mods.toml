@@ -12,3 +12,24 @@ license="All rights reserved"
     credits="bernie-g (GeckoLib), fadookie (mclib), TT432 & SQwatermark (helped me solve many difficult problems)"
     authors="YS Group, TartaricAcid, AryochiL"
     description="A mod based on GeckoLib that modifies the player model"
+
+[[dependencies.yes_steve_model]]
+    modId="forge"
+    mandatory=true
+    versionRange="[46,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.yes_steve_model]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20,1.20.2)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.yes_steve_model]]
+    modId="oculus"
+    mandatory=false
+    versionRange="[1.6.4,)"
+    ordering="NONE"
+    side="BOTH"

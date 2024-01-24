@@ -1,11 +1,10 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
 import com.elfmcys.yesstevemodel.client.gui.button.TextureButton;
-import com.elfmcys.yesstevemodel.util.Keep;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.Window;
@@ -29,6 +28,8 @@ public class PlayerTextureScreen extends Screen {
     private static final float SCALE_MIN = 18f;
     private static final float PITCH_MAX = 90f;
     private static final float PITCH_MIN = -90f;
+    private static final GuiModelInstance PREVIEW_INSTANCE = new GuiModelInstance();
+    private static final GuiModelInstance[] TEXTURE_BUTTON_INSTANCE = new GuiModelInstance[4];
 
     private static final int LEFT_MOUSE_BUTTON = 0;
     private static final int RIGHT_MOUSE_BUTTON = 1;
@@ -52,19 +53,25 @@ public class PlayerTextureScreen extends Screen {
     private float pitch = -5;
     private boolean showGround = true;
 
+    static {
+        for(int i = 0; i < TEXTURE_BUTTON_INSTANCE.length; i++) {
+            GuiModelInstance instance = new GuiModelInstance();
+            instance.getAnimatable().setPreviewAnimation("idle");
+            TEXTURE_BUTTON_INSTANCE[i] = instance;
+        }
+    }
 
     public PlayerTextureScreen(PlayerModelScreen parent, ResourceLocation modelId, List<ResourceLocation> textures) {
         super(Component.literal("Player Texture GUI"));
         this.parent = parent;
         this.modelId = modelId;
-        this.textures = textures;
+        this.textures = Lists.newArrayList(textures);
         this.textures.sort(ResourceLocation::compareTo);
-        this.animations = new ArrayList<>(ClientModelManager.DEFAULT_ANIMATION_FILE.animations().keySet().stream().toList());
+        this.animations = new ArrayList<>(ClientModelManager.getDefaultAnimationFile().getAnimations().keySet());
         this.animations.sort(String::compareTo);
     }
 
     @Override
-    @Keep
     protected void init() {
         this.clearWidgets();
 
@@ -82,7 +89,7 @@ public class PlayerTextureScreen extends Screen {
         addRenderableWidget(new FlatColorButton(x + 5, y, 80, 18, Component.translatable("gui.yes_steve_model.model.return"), (b) -> this.getMinecraft().setScreen(parent)));
 
         addRenderableWidget(new FlatIconButton(x + 281, y + 2, 16, 16, 64, 16, (b) -> {
-            this.animation = "";
+            this.animation = "idle";
         }).setTooltips("gui.yes_steve_model.model.stop"));
         addRenderableWidget(new FlatIconButton(x + 263, y + 2, 16, 16, 48, 16, (b) -> {
             this.posX = 0;
@@ -143,12 +150,13 @@ public class PlayerTextureScreen extends Screen {
             }
             int xStart = x + 306 + 56 * (i % 2);
             int yStart = y + 5 + 104 * (i / 2);
-            addRenderableWidget(new TextureButton(xStart, yStart, modelId, textures.get(modelIndex)));
+            GuiModelInstance instance = TEXTURE_BUTTON_INSTANCE[i];
+            instance.setModelAndTexture(modelId, textures.get(modelIndex));
+            addRenderableWidget(new TextureButton(xStart, yStart, instance));
         }
     }
 
     @Override
-    @Keep
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         LocalPlayer player = getMinecraft().player;
         if (player == null) {
@@ -160,21 +168,22 @@ public class PlayerTextureScreen extends Screen {
         graphics.fillGradient(x + 93, y, x + 299, y + 235, 0xff_222222, 0xff_222222);
         graphics.fillGradient(x + 302, y, x + 420, y + 235, 0xff_222222, 0xff_222222);
 
-        player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-            Window window = Minecraft.getInstance().getWindow();
-            double guiScale = window.getGuiScale();
-            int scissorX = (int) ((this.x + 93) * guiScale);
-            int scissorY = (int) (window.getHeight() - ((this.y + 235) * guiScale));
-            int scissorW = (int) (206 * guiScale);
-            int scissorH = (int) (235 * guiScale);
-            RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, getMinecraft().player, modelId, cap.getSelectTexture(), showGround, entity -> {
-                if (!entity.hasPreviewAnimation(animation)) {
-                    entity.setPreviewAnimation(animation);
-                }
-            });
-            RenderSystem.disableScissor();
+        Window window = Minecraft.getInstance().getWindow();
+        double guiScale = window.getGuiScale();
+        int scissorX = (int) ((this.x + 93) * guiScale);
+        int scissorY = (int) (window.getHeight() - ((this.y + 235) * guiScale));
+        int scissorW = (int) (206 * guiScale);
+        int scissorH = (int) (235 * guiScale);
+
+        if (!PREVIEW_INSTANCE.getAnimatable().hasPreviewAnimation(animation)) {
+            PREVIEW_INSTANCE.getAnimatable().setPreviewAnimation(animation);
+        }
+        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
+        PREVIEW_INSTANCE.getAnimatable().getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            PREVIEW_INSTANCE.setModelAndTexture(modelId, cap.getTextureLocation());
+            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_INSTANCE, showGround);
         });
+        RenderSystem.disableScissor();
 
         String texturePageInfo = String.format("%d/%d", texturePage + 1, this.maxTexturePage + 1);
         graphics.drawString(font, texturePageInfo, x + 302 + (118 - font.width(texturePageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
@@ -188,7 +197,6 @@ public class PlayerTextureScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (minecraft == null || !inViewRange(mouseX, mouseY)) {
             return false;
@@ -205,7 +213,6 @@ public class PlayerTextureScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (minecraft == null) {
             return false;
@@ -287,7 +294,6 @@ public class PlayerTextureScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean isPauseScreen() {
         return false;
     }

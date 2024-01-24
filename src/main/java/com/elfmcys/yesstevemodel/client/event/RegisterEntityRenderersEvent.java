@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.client.renderer.CustomArrowRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -11,16 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD, modid = YesSteveModel.MOD_ID)
 public class RegisterEntityRenderersEvent {
     private static CustomPlayerRenderer CUSTOM_PLAYER_RENDERER;
+    private static CustomArrowRenderer CUSTOM_ARROW_RENDERER;
 
-    @SubscribeEvent
     public static void clientSetup(EntityRenderersEvent.RegisterRenderers event) {
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
@@ -32,9 +28,14 @@ public class RegisterEntityRenderersEvent {
         EntityRendererProvider.Context context = new EntityRendererProvider.Context(dispatcher, itemRenderer, blockRenderer, itemInHandRenderer, resourceManager, entityModels, font);
         context.getModelSet().onResourceManagerReload(resourceManager);
         CUSTOM_PLAYER_RENDERER = new CustomPlayerRenderer(context);
+        CUSTOM_ARROW_RENDERER = new CustomArrowRenderer(context);
     }
 
-    public static CustomPlayerRenderer getInstance() {
+    public static CustomPlayerRenderer getPlayerRenderer() {
         return CUSTOM_PLAYER_RENDERER;
+    }
+
+    public static CustomArrowRenderer getArrowRenderer() {
+        return CUSTOM_ARROW_RENDERER;
     }
 }

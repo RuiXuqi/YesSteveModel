@@ -1,21 +1,21 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.manager;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
-import com.elfmcys.yesstevemodel.util.Keep;
+import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
 
-public class InstancedAnimationFactory extends AnimationFactory {
+public class InstancedAnimationFactory implements AnimationFactory {
+    private final IAnimatable animatable;
     private AnimationData animationData;
 
     public InstancedAnimationFactory(IAnimatable animatable) {
-        super(animatable);
+        this.animatable = animatable;
     }
 
     @Override
-    @Keep
-    public AnimationData getOrCreateAnimationData(int uniqueID) {
+    public AnimationData getOrCreateAnimationData(int uniqueID, IAnimatableModel<?> model) {
         if (this.animationData == null) {
             this.animationData = new AnimationData();
-            this.animatable.registerControllers(this.animationData);
+            this.animatable.registerControllers(this.animationData, model);
         }
         return this.animationData;
     }

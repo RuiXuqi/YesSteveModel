@@ -1,8 +1,9 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
-import com.elfmcys.yesstevemodel.client.event.ReloadResourceEvent;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
+import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
@@ -25,20 +26,48 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import net.minecraftforge.fml.ModList;
 
 import java.util.Locale;
 import java.util.function.DoubleSupplier;
 
 public class DebugAnimationScreen implements IGuiOverlay {
-    public static final String FIRST_PERSON_MOD_ID = "firstpersonmod";
+    private static final int DEBUG_BG_WIDTH = 1000;
 
     @Override
     public void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
-        if (!DebugAnimationKey.DEBUG) {
-            return;
+        if(DebugAnimationKey.TYPE == DebugAnimationKey.DebugType.QUERIES) {
+            renderQueries(gui, graphics, partialTick, screenWidth, screenHeight);
+        } else if(DebugAnimationKey.TYPE == DebugAnimationKey.DebugType.CUSTOM) {
+            renderCustom(gui, graphics, partialTick, screenWidth, screenHeight);
         }
+    }
 
+    private static void renderCustom(ForgeGui gui, GuiGraphics graphics, float partialTick, int width, int height) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            int[] y = {5};
+
+            DebugInfo debugInfo = cap.getAnimatableModel().getDebugInfo();
+            debugInfo.enumerate((name, result) -> {
+                renderCustomText(gui, graphics, y, name, result == null ? "null" : result.toString());
+            });
+        });
+    }
+
+    private static void renderCustomText(ForgeGui gui, GuiGraphics graphics, int[] y, String name, String result) {
+        Font font = gui.getFont();
+        String s = I18n.get("molang.yes_steve_model.bg_width");
+        if ((y[0] - 5) % 20 == 0) {
+            graphics.fill(2, y[0] - 1, DEBUG_BG_WIDTH, y[0] + 9, 0xc0505050);
+        } else {
+            graphics.fill(2, y[0] - 1, DEBUG_BG_WIDTH, y[0] + 9, 0xc0506050);
+        }
+        graphics.drawString(font, name, 5, y[0], 0xffffff);
+        graphics.drawString(font, result, 260, y[0], 0xffffff);
+        y[0] = y[0] + 10;
+    }
+
+    private static void renderQueries(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.renderDebug) {
             return;
@@ -140,9 +169,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
         renderText(gui, graphics, y, "ysm.is_close_eyes", getEyeCloseState(partialTick, player));
         renderText(gui, graphics, y, "ysm.is_riptide", player.isAutoSpinAttack());
 
-        if (ModList.get().isLoaded(FIRST_PERSON_MOD_ID)) {
-            renderText(gui, graphics, y, "ysm.first_person_mod_hide", FirstPersonCompat.isHeadHide());
-        }
+        renderText(gui, graphics, y, "ysm.first_person_mod_hide", FirstPersonCompat.isInstalled() && FirstPersonCompat.shouldHideHead());
     }
 
     private static boolean hasCape(Player player) {
@@ -175,9 +202,9 @@ public class DebugAnimationScreen implements IGuiOverlay {
         Font font = gui.getFont();
         String s = I18n.get("molang.yes_steve_model.bg_width");
         if ((y[0] - 5) % 20 == 0) {
-            graphics.fill(2, y[0] - 1, ReloadResourceEvent.DEBUG_BG_WIDTH, y[0] + 9, 0xc0505050);
+            graphics.fill(2, y[0] - 1, DEBUG_BG_WIDTH, y[0] + 9, 0xc0505050);
         } else {
-            graphics.fill(2, y[0] - 1, ReloadResourceEvent.DEBUG_BG_WIDTH, y[0] + 9, 0xc0506050);
+            graphics.fill(2, y[0] - 1, DEBUG_BG_WIDTH, y[0] + 9, 0xc0506050);
         }
         graphics.drawString(font, name, 5, y[0], 0xffffff);
         graphics.drawString(font, data, 200, y[0], 0xffffff);

@@ -1,10 +1,14 @@
 import proguard.gradle.ProGuardTask
 
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 buildscript {
     repositories {
         maven { url = "https://plugins.gradle.org/m2/" }
         maven { url = 'https://maven.minecraftforge.net' }
         maven { url = 'https://maven.parchmentmc.org' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -12,6 +16,7 @@ buildscript {
         classpath 'org.gradle.toolchains:foojay-resolver:0.5.0'
         //classpath 'org.parchmentmc:librarian:1.+'
         classpath 'com.guardsquare:proguard-gradle:7.3.1'
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
 
@@ -23,10 +28,24 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     // id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
+apply plugin: 'org.spongepowered.mixin'
 
-version = '1.1.5-hotfix-2'
+version = '1.1.6-snapshot1'
 group = 'com.elfmcys.yesstevemodel'
-archivesBaseName = 'yesstevemodel-1.20-release'
+archivesBaseName = 'yesstevemodel-1.20'
+
+// 构建工具用到的变量
+var builderPath = "${buildDir}/ysm-native/YSMBuilder.exe"
+var buildTaskGroup = "ysm"
+var buildModLoader = "forge"
+var buildGameVersion = "1120"
+var javaHome = System.properties['java.home']
+var devLib = "${buildDir}/ysm-native/lib/ysm-core_forge-1120-dev.dll"
+
+if(!file(builderPath).exists()) {
+    System.err.println("Please put YSMBuilder to ${builderPath}")
+    throw new GradleException("YSMBuilder not found")
+}
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -36,50 +55,48 @@ minecraft {
 
     copyIdeResources = true
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
-        client {
-            workingDirectory project.file('run/client_a')
+        configureEach {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
+            property 'forge.enabledGameTestNamespaces', 'yesstevemodel'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            // 以下环境变量只在调试时有效，在测试和生产构建中无效
+            buildEnvironment {
+                environment 'EMBEDDED_MODEL_PATH', "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\custom"
+                environment 'YSM_CORE_LIB', devLib
+            }
+
             mods {
-                examplemod {
+                yes_steve_model {
                     source sourceSets.main
                 }
             }
         }
 
+        client {
+            workingDirectory project.file('run/client_a')
+        }
+
         client2 {
-            parent minecraft.runs.client
             workingDirectory project.file('run/client_b')
             args '--username', 'tartaric_acid'
-            mods {
-                yesstevemodel {
-                    source sourceSets.main
-                }
-            }
         }
 
         server {
             workingDirectory project.file('run/server')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
         }
     }
 }
 
+mixin {
+    add sourceSets.main, "yes_steve_model.refmap.json"
+    config "yes_steve_model.mixins.json"
+}
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
@@ -93,6 +110,9 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20-46.0.14'
     implementation fg.deobf('libs:firstperson-forge:2.2.3-mc1.20')
     implementation fg.deobf('libs:notenoughanimations-forge:1.6.4-mc1.20')
+    compileOnly fg.deobf('libs:embeddium:0.2.18+mc1.20.1')
+    compileOnly fg.deobf('libs:oculus:mc1.20.1-1.6.13')
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 jar {
@@ -102,15 +122,86 @@ jar {
                 "Implementation-Version": "${version}"
         ])
     }
+    outputs.upToDateWhen { false }
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
-// 运行此 task 编译并混淆模组
-task proguard(type: ProGuardTask, dependsOn: build) {
+tasks.register('buildDevLib', Exec) {
+    description "runClient 之前需要手动运行此 task"
+    group buildTaskGroup
+    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'dev', devLib
+}
+
+tasks.register('buildWindowsTestJar', Exec) {
+    description "构建 Windows 版未混淆模组，仅供内部测试，不能以任何方式公开"
+    group buildTaskGroup
+    dependsOn tasks.reobfJar
+    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-test',
+            tasks.reobfJar.input.asFile.get().path,
+            '-c', "${projectDir}/protected-classes.txt",
+            '-l', tasks.createMcpToSrg.output.asFile.get().path
+}
+
+tasks.register('buildLinuxTestJar', Exec) {
+    description "构建 Linux 版未混淆模组，仅供内部测试，不能以任何方式公开"
+    group buildTaskGroup
+    dependsOn tasks.reobfJar
+    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'linux-test',
+            tasks.reobfJar.input.asFile.get().path,
+            '-c', "${projectDir}/protected-classes.txt",
+            '-l', tasks.createMcpToSrg.output.asFile.get().path
+}
+
+tasks.register('tempJar', Jar) {
+    manifest.from(tasks.jar.manifest)
+    from tasks.jar.source
+    outputs.upToDateWhen { false }
+
+    destinationDirectory.set(file("${buildDir}/tmp"))
+    archiveClassifier.set("temp")
+    finalizedBy tasks.proguardJar
+}
+
+reobf {
+    tempJar {}
+}
+
+tasks.register('proguardJar', ProGuardTask) {
     configuration file('proguard.pro')
-    injars(tasks.named('jar', Jar).flatMap { it.archiveFile })
+    libraryjars "${javaHome}/jmods"
+    libraryjars "${javaHome}/lib"
+    libraryjars sourceSets.main.compileClasspath
+    outputs.upToDateWhen { false }
+
+    injars(tasks.tempJar.archiveFile.get())
     outjars(file("${buildDir}/libs/${archivesBaseName}-${version}-minified.jar"))
+    printmapping("${buildDir}/libs/${archivesBaseName}-${version}-mappings.txt")
+    doLast {
+        Files.move(outJarFileCollection.singleFile.toPath(),
+                inJarFileCollection.singleFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING)
+    }
+}
+
+tasks.register('buildProductionJar', Exec) {
+    doFirst {
+        Files.move(tempJar.archiveFile.get().asFile.toPath(),
+                tasks.proguardJar.outJarFileCollection.singleFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    description "构建经过混淆的模组，可以公开发布"
+    group buildTaskGroup
+    dependsOn tasks.reobfTempJar
+    outputs.upToDateWhen { false }
+
+    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'production',
+            tasks.proguardJar.outJarFileCollection.singleFile.path,
+            '-c', "${projectDir}/protected-classes.txt",
+            '-p', "${projectDir}/ysm.vmp",
+            '-l', tasks.createMcpToSrg.output.asFile.get().path,
+            '-g', tasks.proguardJar.printMappingFile.path
 }

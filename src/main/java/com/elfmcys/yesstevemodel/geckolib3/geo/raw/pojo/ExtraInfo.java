@@ -1,21 +1,21 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo.raw.pojo;
 
-import com.google.gson.annotations.SerializedName;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.Serializable;
-
-public class ExtraInfo implements Serializable {
-    @SerializedName("name")
+// Native Access
+public class ExtraInfo {
     private String name;
-    @SerializedName("tips")
-    private String tips = StringUtils.EMPTY;
-    @SerializedName("extra_animation_names")
-    private String[] extraAnimationNames = null;
-    @SerializedName("authors")
-    private String[] authors = null;
-    @SerializedName("license")
-    private String license = "All Rights Reserved";
+    private String tips;
+    private String[] extraAnimationNames;
+    private String[] authors;
+    private String license;
+
+    // Native Access
+    public ExtraInfo(String name, String tips, String[] extraAnimationNames, String[] authors, String license) {
+        this.name = name;
+        this.tips = tips;
+        this.extraAnimationNames = extraAnimationNames;
+        this.authors = authors;
+        this.license = license;
+    }
 
     public String getName() {
         return name;

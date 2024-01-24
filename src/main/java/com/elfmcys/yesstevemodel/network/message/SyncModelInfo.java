@@ -1,8 +1,9 @@
 package com.elfmcys.yesstevemodel.network.message;
 
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapability;
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
-import com.elfmcys.yesstevemodel.util.ThreadTools;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,9 +13,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class SyncModelInfo {
+    private static final Cache<Integer, ModelInfoCapability> PACKET_CACHE = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
+
     private final int entityId;
     private final ModelInfoCapability capability;
 
@@ -50,22 +55,26 @@ public class SyncModelInfo {
     private static void handleCapability(SyncModelInfo message) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != null) {
-            ThreadTools.THREAD_POOL.submit(() -> {
-                        try {
-                            int time = 0;
-                            while (mc.level.getEntity(message.entityId) == null && time < 5) {
-                                Thread.sleep(500);
-                                time++;
-                            }
-                            Entity entity = mc.level.getEntity(message.entityId);
-                            if (entity instanceof Player player) {
-                                player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> cap.copyFrom(message.capability));
-                            }
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+            Entity entity = mc.level.getEntity(message.entityId);
+            if (entity == null) {
+                PACKET_CACHE.put(message.entityId, message.capability);
+                return;
+            }
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
+                player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                    cap.setModelAndTexture(message.capability.getModelId(), message.capability.getSelectTexture());
+                    if(message.capability.isPlayAnimation()) {
+                        cap.playAnimation(message.capability.getAnimation());
+                    } else {
+                        cap.stopAnimation();
                     }
-            );
+                });
+            }
         }
+    }
+
+    public static Optional<ModelInfoCapability> getCache(Integer entityId) {
+        return Optional.ofNullable(PACKET_CACHE.getIfPresent(entityId));
     }
 }

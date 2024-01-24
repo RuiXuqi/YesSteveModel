@@ -1,0 +1,152 @@
+# 加密重要的 class 防止反编译，支持通配符* ；
+# 优先级决定加载顺序，从高到低排序，最高五位数；
+# 加载顺序不正确可能导致 NoClassDefFoundError
+# TODO: 改成显式加载顺序
+
+com.elfmcys.yesstevemodel.molang.lexer.MolangLexerImpl* 2002 client
+com.elfmcys.yesstevemodel.molang.parser.MolangParserImpl* 2001 client
+com.elfmcys.yesstevemodel.network.message.RequestServerModelInfo* 2000
+com.elfmcys.yesstevemodel.client.compat.IrisCompat 2000 client
+com.elfmcys.yesstevemodel.model.SyncModelResult* 2000
+com.elfmcys.yesstevemodel.model.ReloadModelResult* 2000
+com.elfmcys.yesstevemodel.model.ExportModelResult* 2000
+com.elfmcys.yesstevemodel.model.ServerModel* 2000
+com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluatorImpl* 2000 client
+com.elfmcys.yesstevemodel.geckolib3.core.molang.value.MolangValue* 2000 client
+com.elfmcys.yesstevemodel.util.ThreadTools* 2000
+com.elfmcys.yesstevemodel.util.CleanerUtil* 2000
+com.elfmcys.yesstevemodel.util.NativeUtil* 2000
+com.elfmcys.yesstevemodel.util.ModelIdUtil* 2000
+com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils* 2000 client
+com.elfmcys.yesstevemodel.client.texture.NativeTexture* 2000 client
+
+com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.math.functions.* 2000 client
+com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.query.functions.* 2000 client
+com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding 2000 client
+com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.math.MathBinding 1900 client
+com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.query.QueryBinding 1900 client
+com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.PrimaryBinding 1899 client
+
+com.elfmcys.yesstevemodel.client.animation.molang.bindings.functions* 1900 client
+com.elfmcys.yesstevemodel.client.animation.molang.bindings.YSMBinding 1800 client
+com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser 1750 client
+
+com.elfmcys.yesstevemodel.network.message.ExecuteMolang* 1700
+com.elfmcys.yesstevemodel.client.command.sub.* 1650 client
+com.elfmcys.yesstevemodel.client.command.ClientRootCommand 1600 client
+
+com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig 2000
+com.elfmcys.yesstevemodel.config.ServerConfig 2000
+com.elfmcys.yesstevemodel.config.GeneralConfig 1999
+com.elfmcys.yesstevemodel.client.event.RenderExtraPlayerScreenEvent 1900 client
+com.elfmcys.yesstevemodel.client.event.LocalPlayerTickEvent 1900 client
+
+com.elfmcys.yesstevemodel.capability.ModelInfoCapability$* 1801
+com.elfmcys.yesstevemodel.capability.AuthModelsCapability$* 1801
+com.elfmcys.yesstevemodel.capability.StarModelsCapability$* 1801
+com.elfmcys.yesstevemodel.capability.ModelInfoCapability 1800
+com.elfmcys.yesstevemodel.capability.AuthModelsCapability 1800
+com.elfmcys.yesstevemodel.capability.StarModelsCapability 1800
+
+com.elfmcys.yesstevemodel.model.ServerModelManager* 1000
+com.elfmcys.yesstevemodel.event.LoggedOutEvent* 999
+com.elfmcys.yesstevemodel.event.LoginEvent* 999
+com.elfmcys.yesstevemodel.event.ServerStartingEvent* 999
+
+com.elfmcys.yesstevemodel.command.argument.* 200
+com.elfmcys.yesstevemodel.command.sub.* 200
+com.elfmcys.yesstevemodel.command.RootCommand 100
+com.elfmcys.yesstevemodel.event.CommandRegistry 99
+com.elfmcys.yesstevemodel.event.CommonEvent* 99
+
+com.elfmcys.yesstevemodel.client.model.CustomPlayerModel* 99 client
+com.elfmcys.yesstevemodel.client.model.CustomArrowModel* 99 client
+com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity* 98 client
+com.elfmcys.yesstevemodel.client.entity.CustomArrowEntity* 98 client
+com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent 97 client
+com.elfmcys.yesstevemodel.client.animation.AnimationManager* 97 client
+com.elfmcys.yesstevemodel.client.instance.CustomArrowInstance* 97 client
+com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance* 97 client
+com.elfmcys.yesstevemodel.capability.PlayerGeoCapability 96 client
+com.elfmcys.yesstevemodel.client.animation.AnimationRegister* 95 client
+com.elfmcys.yesstevemodel.client.gui.GuiModelInstance* 95 client
+com.elfmcys.yesstevemodel.client.gui.button.ModelButton* 94 client
+com.elfmcys.yesstevemodel.client.event.ClientSetupEvent 94 client
+com.elfmcys.yesstevemodel.client.gui.button.TextureButton* 94 client
+com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen* 93 client
+com.elfmcys.yesstevemodel.client.gui.PlayerTextureScreen* 93 client
+
+com.elfmcys.yesstevemodel.client.input.* 90 client
+
+com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat* 90 client
+com.elfmcys.yesstevemodel.client.compat.TacGunRenderer* 90 client
+com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerElytraLayer* 90 client
+com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerItemInHandLayer* 90 client
+
+com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer* 85 client
+com.elfmcys.yesstevemodel.client.renderer.CustomArrowRenderer* 85 client
+
+com.elfmcys.yesstevemodel.client.event.VanillaPlayerRenderEvent* 80 client
+com.elfmcys.yesstevemodel.client.event.ReplacePlayerRenderEvent* 80 client
+com.elfmcys.yesstevemodel.client.event.ReplacePlayerHandRenderEvent* 80 client
+com.elfmcys.yesstevemodel.client.event.RenderFirstPlayerBackground* 80 client
+com.elfmcys.yesstevemodel.util.RenderUtil* 80 client
+com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent* 80 client
+
+com.elfmcys.yesstevemodel.util.MixinInnerWrapper* 70
+
+com.elfmcys.yesstevemodel.client.data.ClientModelInfo 2000 client
+
+com.elfmcys.yesstevemodel.client.texture.* 1900 client
+com.elfmcys.yesstevemodel.client.upload.* 1900 client
+
+com.elfmcys.yesstevemodel.network.NetworkHandler 1800
+com.elfmcys.yesstevemodel.event.CapabilityEvent* 1700
+com.elfmcys.yesstevemodel.network.message.CompleteFeedback 1500
+com.elfmcys.yesstevemodel.network.message.SetPlayAnimation 1500
+com.elfmcys.yesstevemodel.network.message.SetStarModel 1500
+com.elfmcys.yesstevemodel.network.message.SyncAuthModels 1500
+com.elfmcys.yesstevemodel.network.message.SyncModelInfo 1500
+com.elfmcys.yesstevemodel.network.message.SyncStarModels 1500
+com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent 1400 client
+com.elfmcys.yesstevemodel.client.event.PlayerJoinWorldEvent 1400 client
+com.elfmcys.yesstevemodel.network.message.SyncDataToClient 800
+com.elfmcys.yesstevemodel.network.message.SyncDataToServer 800
+com.elfmcys.yesstevemodel.network.message.SetModelAndTexture 800
+com.elfmcys.yesstevemodel.network.message.UploadFile* 800
+com.elfmcys.yesstevemodel.network.message.HandleFile 500
+com.elfmcys.yesstevemodel.network.message.RefreshModelManage 100
+
+
+com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone 2497 client
+com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils 2496
+com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone 2496 client
+com.elfmcys.yesstevemodel.geckolib3.model.GeoBoneState 2490 client
+com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel 2480 client
+com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState 2470 client
+
+com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile 2300 client
+com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation 2299 client
+
+com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache 2100 client
+com.elfmcys.yesstevemodel.geckolib3.model.provider.GeoModelProvider 2099 client
+com.elfmcys.yesstevemodel.geckolib3.model.provider.IAnimatableModelProvider 2098 client
+
+com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController* 2001 client
+com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor* 2000 client
+
+com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer* 2001 client
+com.elfmcys.yesstevemodel.geckolib3.geo.IGeoRenderer 2000 client
+com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer 1999 client
+com.elfmcys.yesstevemodel.geckolib3.geo.GeoProjectilesRenderer 1999 client
+com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer 1998 client
+com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel 1996 client
+
+com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance 1800
+com.elfmcys.yesstevemodel.client.data.ClientModel 1800 client
+com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker 1700 client
+com.elfmcys.yesstevemodel.client.data.ClientModelProcessor 1600 client
+com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult 1400 client
+com.elfmcys.yesstevemodel.client.ClientModelManager* 1000 client
+com.elfmcys.yesstevemodel.client.event.ClientLoggedOutEvent* 900 client
+com.elfmcys.yesstevemodel.YesSteveModel$Init* 80

@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.util.Keep;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
@@ -20,7 +19,6 @@ public class ModelInfoCapabilityProvider implements ICapabilitySerializable<Comp
 
     @Nonnull
     @Override
-    @Keep
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
         if (cap == MODEL_INFO_CAP) {
             return LazyOptional.of(this::createCapability).cast();
@@ -30,7 +28,6 @@ public class ModelInfoCapabilityProvider implements ICapabilitySerializable<Comp
 
     @NotNull
     @Override
-    @Keep
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
         return getCapability(cap, null);
     }
@@ -44,13 +41,11 @@ public class ModelInfoCapabilityProvider implements ICapabilitySerializable<Comp
     }
 
     @Override
-    @Keep
     public void deserializeNBT(CompoundTag nbt) {
         createCapability().deserializeNBT(nbt);
     }
 
     @Override
-    @Keep
     public CompoundTag serializeNBT() {
         return createCapability().serializeNBT();
     }

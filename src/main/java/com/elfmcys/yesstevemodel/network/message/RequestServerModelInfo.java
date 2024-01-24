@@ -1,8 +1,7 @@
 package com.elfmcys.yesstevemodel.network.message;
 
-import com.elfmcys.yesstevemodel.client.gui.ModelManageScreen;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.model.format.Type;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -56,8 +55,7 @@ public class RequestServerModelInfo {
 
     @OnlyIn(Dist.CLIENT)
     private static void openGui(RequestServerModelInfo message) {
-        Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(new ModelManageScreen(message.customModels, message.authModels));
+        ClientModelManager.openModelManageScreen(message.customModels, message.authModels);
     }
 
     private static void infoToBuffer(FriendlyByteBuf buf, Info info) {

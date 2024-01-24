@@ -3,8 +3,6 @@
  */
 package com.elfmcys.yesstevemodel.geckolib3.core.util;
 
-import com.elfmcys.yesstevemodel.util.Keep;
-
 public final class Color {
     public static final Color WHITE = new Color(0xFFFFFFFF);
     public static final Color LIGHT_GRAY = new Color(0xFFC0C0C0);
@@ -155,7 +153,6 @@ public final class Color {
     }
 
     @Override
-    @Keep
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -167,13 +164,11 @@ public final class Color {
     }
 
     @Override
-    @Keep
     public int hashCode() {
         return color;
     }
 
     @Override
-    @Keep
     public String toString() {
         return String.valueOf(color);
     }

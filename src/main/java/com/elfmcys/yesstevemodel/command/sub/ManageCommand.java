@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.model.format.Type;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.RequestServerModelInfo;
+import com.elfmcys.yesstevemodel.util.CommandUtil;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -24,13 +25,13 @@ public class ManageCommand {
     private static final String MANAGE_NAME = "manage";
 
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
-        LiteralArgumentBuilder<CommandSourceStack> manage = Commands.literal(MANAGE_NAME).requires(stack -> stack.hasPermission(4));
+        LiteralArgumentBuilder<CommandSourceStack> manage = Commands.literal(MANAGE_NAME).requires(stack -> CommandUtil.hasPermission(stack, 4));
         manage.executes(ManageCommand::exportModel);
         return manage;
     }
 
     private static int exportModel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        if (context.getSource().hasPermission(4)) {
+        if (CommandUtil.hasPermission(context.getSource(), 4)) {
             ServerPlayer player = context.getSource().getPlayerOrException();
             List<RequestServerModelInfo.Info> customInfo = getFilesInfo(ServerModelManager.CUSTOM);
             List<RequestServerModelInfo.Info> authInfo = getFilesInfo(ServerModelManager.AUTH);

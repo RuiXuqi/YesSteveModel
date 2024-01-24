@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 import com.elfmcys.yesstevemodel.model.format.Type;
 import com.elfmcys.yesstevemodel.network.message.RequestServerModelInfo;
 import com.elfmcys.yesstevemodel.util.FileSizeUtils;
-import com.elfmcys.yesstevemodel.util.Keep;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -21,7 +20,6 @@ public class ModelInfoButton extends Button {
     }
 
     @Override
-    @Keep
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float pPartialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;

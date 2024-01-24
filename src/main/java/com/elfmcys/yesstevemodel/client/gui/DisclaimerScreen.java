@@ -1,8 +1,6 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
-import com.elfmcys.yesstevemodel.util.Keep;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -24,7 +22,6 @@ public class DisclaimerScreen extends Screen {
     }
 
     @Override
-    @Keep
     protected void init() {
         this.clearWidgets();
 
@@ -49,7 +46,6 @@ public class DisclaimerScreen extends Screen {
     }
 
     @Override
-    @Keep
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         renderBackground(graphics);
         graphics.drawWordWrap(font, Component.translatable("gui.yes_steve_model.disclaimer.text"), x, y, 400, 0xffffffff);

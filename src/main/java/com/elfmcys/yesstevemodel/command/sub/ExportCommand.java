@@ -1,9 +1,10 @@
 package com.elfmcys.yesstevemodel.command.sub;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.command.argument.ModelsArgument;
+import com.elfmcys.yesstevemodel.model.ExportModelResult;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
-import com.elfmcys.yesstevemodel.util.YesModelUtils;
+import com.elfmcys.yesstevemodel.util.CommandUtil;
+import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -11,9 +12,6 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-
-import java.io.File;
-import java.io.IOException;
 
 public class ExportCommand {
     private static final String EXPORT_NAME = "export";
@@ -26,34 +24,18 @@ public class ExportCommand {
         return export;
     }
 
-    private static int exportModel(CommandContext<CommandSourceStack> context) {
-        String modelName = ModelsArgument.getModel(context, MODEL_ID_NAME);
-        File customFolder = ServerModelManager.CUSTOM.resolve(modelName).toFile();
-        if (customFolder.isDirectory()) {
-            try {
-                YesModelUtils.export(customFolder);
-                context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.success",
-                        YesSteveModel.MOD_ID, modelName), false);
-                return Command.SINGLE_SUCCESS;
-            } catch (IOException e) {
-                e.printStackTrace();
+    private static int exportModel(final CommandContext<CommandSourceStack> context) {
+        final String modelName = ModelsArgument.getModel(context, MODEL_ID_NAME);
+        ThreadTools.submit(() -> {
+            ExportModelResult result = ServerModelManager.exportModel(modelName);
+            if(result.message() != null) {
+                CommandUtil.sendAsyncFeedback(context.getSource(), CommandUtil.wrapMessage(result.message()), true);
             }
-        }
-
-        File authFolder = ServerModelManager.AUTH.resolve(modelName).toFile();
-        if (authFolder.isDirectory()) {
-            try {
-                YesModelUtils.export(authFolder);
-                context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.success",
-                        YesSteveModel.MOD_ID, modelName), false);
-                return Command.SINGLE_SUCCESS;
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(result.success()) {
+                CommandUtil.sendAsyncFeedback(context.getSource(), Component.translatable("commands.yes_steve_model.export.success", result.filePath()), true);
             }
-        }
+        });
 
-        context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
-                modelName), false);
         return Command.SINGLE_SUCCESS;
     }
 }

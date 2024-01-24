@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.util.CommandUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -37,7 +38,7 @@ public class UploadFile {
 
     public static void handle(UploadFile message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
-        if (context.getDirection().getReceptionSide().isServer() && context.getSender() != null && context.getSender().hasPermissions(4)) {
+        if (context.getDirection().getReceptionSide().isServer() && context.getSender() != null && CommandUtil.hasPermission(context.getSender(), 4)) {
             context.enqueueWork(() -> writeFile(message, context.getSender()));
         }
         context.setPacketHandled(true);

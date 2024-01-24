@@ -2,12 +2,11 @@ package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.gui.button.*;
-import com.elfmcys.yesstevemodel.util.Keep;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -28,14 +27,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.fml.ModList;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class PlayerModelScreen extends Screen {
+    private static final GuiModelInstance[] MODEL_PREVIEW_INSTANCE = new GuiModelInstance[10];
+
     private Map<ResourceLocation, List<ResourceLocation>> models = Maps.newHashMap();
     private List<ResourceLocation> modelOrderList;
     private int maxPage;
@@ -45,6 +46,14 @@ public class PlayerModelScreen extends Screen {
     private int x;
     private int y;
 
+    static {
+        for(int i = 0; i < MODEL_PREVIEW_INSTANCE.length; i++) {
+            GuiModelInstance instance = new GuiModelInstance();
+            instance.getAnimatable().setPreviewAnimation("idle");
+            MODEL_PREVIEW_INSTANCE[i] = instance;
+        }
+    }
+
     public PlayerModelScreen() {
         super(Component.literal("YSM Player Model GUI"));
         this.category = Category.ALL;
@@ -53,14 +62,14 @@ public class PlayerModelScreen extends Screen {
     private void calculateModelList() {
         models = Maps.newHashMap();
         if (this.category == Category.ALL) {
-            this.models.putAll(ClientModelManager.MODELS);
+            this.models = ClientModelManager.getModelInfo().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().textureIds()));
         }
         if (this.category == Category.AUTH) {
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-                    for (ResourceLocation modelId : ClientModelManager.MODELS.keySet()) {
-                        if (cap.containModel(modelId) || !ClientModelManager.AUTH_MODELS.contains(modelId.getPath())) {
-                            this.models.put(modelId, ClientModelManager.MODELS.get(modelId));
+                    for (ResourceLocation modelId : ClientModelManager.getModelInfo().keySet()) {
+                        if (cap.containModel(modelId) || !ClientModelManager.getAuthModelNames().contains(modelId.getPath())) {
+                            this.models.put(modelId, ClientModelManager.getModelInfo().get(modelId).textureIds());
                         }
                     }
                 });
@@ -69,9 +78,9 @@ public class PlayerModelScreen extends Screen {
         if (this.category == Category.STAR) {
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
-                    for (ResourceLocation modelId : ClientModelManager.MODELS.keySet()) {
+                    for (ResourceLocation modelId : ClientModelManager.getModelInfo().keySet()) {
                         if (cap.containModel(modelId)) {
-                            this.models.put(modelId, ClientModelManager.MODELS.get(modelId));
+                            this.models.put(modelId, ClientModelManager.getModelInfo().get(modelId).textureIds());
                         }
                     }
                 });
@@ -88,7 +97,6 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     protected void init() {
         this.clearWidgets();
         this.calculateModelList();
@@ -113,10 +121,10 @@ public class PlayerModelScreen extends Screen {
         addRenderableWidget(new FlatIconButton(x + 28, y + 5, 79, 20, 32, 16, (b) -> {
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;
-                player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-                    List<ResourceLocation> textures = ClientModelManager.MODELS.get(cap.getModelId());
-                    if (textures != null) {
-                        Minecraft.getInstance().setScreen(new PlayerTextureScreen(this, cap.getModelId(), textures));
+                player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                    ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(cap.getModelId());
+                    if (modelInfo != null) {
+                        Minecraft.getInstance().setScreen(new PlayerTextureScreen(this, cap.getModelId(), modelInfo.textureIds()));
                     }
                 });
             }
@@ -181,19 +189,17 @@ public class PlayerModelScreen extends Screen {
             int xStart = x + 143 + 55 * (i % 5);
             int yStart = y + 28 + 93 * (i / 5);
             if (minecraft != null && minecraft.player != null) {
+                final GuiModelInstance instance = MODEL_PREVIEW_INSTANCE[i];
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-                    if (ClientModelManager.AUTH_MODELS.contains(id.getPath()) && !cap.containModel(id)) {
-                        addRenderableWidget(new ModelButton(xStart, yStart, true, Pair.of(id, models.get(id)), ClientModelManager.EXTRA_INFO.get(ModelIdUtil.getMainId(id))));
-                    } else {
-                        addRenderableWidget(new ModelButton(xStart, yStart, false, Pair.of(id, models.get(id)), ClientModelManager.EXTRA_INFO.get(ModelIdUtil.getMainId(id))));
-                    }
+                    instance.setModelAndTexture(id, models.get(id).get(0));
+                    boolean isNeedAuth = ClientModelManager.getAuthModelNames().contains(id.getPath()) && !cap.containModel(id);
+                    addRenderableWidget(new ModelButton(xStart, yStart, isNeedAuth, instance, ClientModelManager.getModelInfo().get(id).extraInfo()));
                 });
             }
         }
     }
 
     @Override
-    @Keep
     @SuppressWarnings("all")
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         renderBackground(graphics);
@@ -215,7 +221,7 @@ public class PlayerModelScreen extends Screen {
             InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x + 67, y + 190, 70, x + 67 - mouseX, y + 180 - 95 - mouseY, player);
             RenderSystem.disableScissor();
 
-            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 String modelName = cap.getModelId().getPath();
                 List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
                 int lineY = y + 205;
@@ -245,7 +251,6 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     public void resize(Minecraft minecraft, int width, int height) {
         String value = this.textField.getValue();
         super.resize(minecraft, width, height);
@@ -253,13 +258,11 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     public void tick() {
         this.textField.tick();
     }
 
     @Override
-    @Keep
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.textField.mouseClicked(mouseX, mouseY, button)) {
             this.setFocused(this.textField);
@@ -269,7 +272,6 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean charTyped(char codePoint, int modifiers) {
         if (textField == null) {
             return false;
@@ -286,7 +288,6 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         boolean hasKeyCode = InputConstants.getKey(keyCode, scanCode).getNumericKeyValue().isPresent();
         String preText = this.textField.getValue();
@@ -305,7 +306,6 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     protected void insertText(String text, boolean overwrite) {
         if (overwrite) {
             this.textField.setValue(text);
@@ -315,7 +315,6 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (minecraft == null) {
             return false;
@@ -347,7 +346,6 @@ public class PlayerModelScreen extends Screen {
     }
 
     @Override
-    @Keep
     public boolean isPauseScreen() {
         return false;
     }

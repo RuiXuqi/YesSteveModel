@@ -1621,7 +1621,7 @@
 		},
 		"tac:run:rifle": {
 			"loop": true,
-			"animation_length": 0.66667,
+			"animation_length": 0.6667,
 			"bones": {
 				"LongHead": {
 					"rotation": [-57.5, 0, 0]
@@ -1827,10 +1827,13 @@
 					}
 				},
 				"g17": {
-					"scale": [0, 0, 0]
+					"scale": 0
 				},
 				"rpg7": {
-					"scale": [0, 0, 0]
+					"scale": 0
+				},
+				"LongHair": {
+					"rotation": [15, 0, 0]
 				}
 			}
 		},
@@ -3277,7 +3280,7 @@
 		},
 		"tac:run:pistol": {
 			"loop": true,
-			"animation_length": 0.66667,
+			"animation_length": 0.6667,
 			"bones": {
 				"LongHead": {
 					"rotation": {
@@ -3485,6 +3488,9 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				},
+				"LongHair": {
+					"rotation": [15, 0, 0]
 				}
 			}
 		},
@@ -5226,7 +5232,10 @@
 					"rotation": [5.32288, -7.27506, -2.51071]
 				},
 				"ak47": {
-					"scale": [0, 0, 0]
+					"scale": 0
+				},
+				"LongHair": {
+					"rotation": [15, 0, 0]
 				}
 			}
 		},

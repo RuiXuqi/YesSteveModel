@@ -1,106 +1,95 @@
 package com.elfmcys.yesstevemodel.client.model;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.MolangParser;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
-import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
+import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.Keep;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.ModList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
 @SuppressWarnings("all")
-public class CustomPlayerModel extends AnimatedGeoModel {
-    public static final ResourceLocation DEFAULT_MAIN_MODEL = ModelIdUtil.getMainId(new ResourceLocation(YesSteveModel.MOD_ID, "default"));
-    public static final ResourceLocation DEFAULT_MAIN_ANIMATION = ModelIdUtil.getMainId(new ResourceLocation(YesSteveModel.MOD_ID, "default"));
-    public static final ResourceLocation DEFAULT_TEXTURE = new ResourceLocation(YesSteveModel.MOD_ID, "default/default.png");
-    public static final String FIRST_PERSON_MOD_ID = "firstpersonmod";
+public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
+    public static final ResourceLocation DEFAULT_MODEL = ModelIdUtil.DEFAULT_MODEL_ID;
+    public static final ResourceLocation DEFAULT_MAIN_MODEL = ModelIdUtil.DEFAULT_MAIN_MODEL_ID;
+    public static final ResourceLocation DEFAULT_MAIN_ANIMATION = ModelIdUtil.DEFAULT_MAIN_MODEL_ID;
+    public static final ResourceLocation DEFAULT_TEXTURE = ModelIdUtil.DEFAULT_TEXTURE_ID;
     public static float FIRST_PERSON_HEAD_POS;
 
     @Override
-    @Keep
-    public ResourceLocation getModelLocation(Object object) {
-        if (object instanceof CustomPlayerEntity customPlayer) {
-            return customPlayer.getMainModel();
-        }
-        return DEFAULT_MAIN_MODEL;
+    public ResourceLocation getModelLocation(CustomPlayerEntity customPlayer) {
+        return customPlayer.getMainModel();
     }
 
     @Override
-    @Keep
-    public ResourceLocation getTextureLocation(Object object) {
-        if (object instanceof CustomPlayerEntity customPlayer) {
-            return customPlayer.getTexture();
-        }
-        return DEFAULT_TEXTURE;
+    public ResourceLocation getTextureLocation(CustomPlayerEntity customPlayer) {
+        return customPlayer.getTexture();
     }
 
     @Override
-    @Keep
-    public ResourceLocation getAnimationFileLocation(Object object) {
-        if (object instanceof CustomPlayerEntity customPlayer) {
-            return customPlayer.getAnimation();
-        }
-        return DEFAULT_MAIN_ANIMATION;
+    public ResourceLocation getAnimationFileLocation(CustomPlayerEntity customPlayer) {
+        return customPlayer.getAnimation();
     }
 
     @Override
-    @Keep
-    public void setCustomAnimations(IAnimatable animatable, int instanceId, AnimationEvent animationEvent) {
+    public boolean setCustomAnimations(CustomPlayerEntity customPlayer, AnimationContext<?> ctx, @Nonnull AnimationEvent<CustomPlayerEntity> animationEvent) {
         List extraData = animationEvent.getExtraData();
-        MolangParser parser = GeckoLibCache.getInstance().parser;
-        if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData data
-                && animatable instanceof CustomPlayerEntity customPlayer && customPlayer.getPlayer() != null) {
-            Player player = customPlayer.getPlayer();
-            AnimationRegister.setParserValue(animationEvent, parser, data, player);
-            super.setCustomAnimations(animatable, instanceId, animationEvent);
-            this.codeAnimation(animationEvent, data, player);
+        if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
+                && customPlayer.getEntity() != null) {
+            Player player = customPlayer.getEntity();
+            EntityModelData data = (EntityModelData) extraData.get(0);
+            boolean update = super.setCustomAnimations(customPlayer, ctx, animationEvent);
+            this.codeAnimation(animationEvent, data, player, update);
+            return update;
         } else {
-            super.setCustomAnimations(animatable, instanceId, animationEvent);
+            return super.setCustomAnimations(customPlayer, ctx, animationEvent);
         }
     }
 
-    private void codeAnimation(AnimationEvent animationEvent, EntityModelData data, Player player) {
-        // FIXME: 2023/6/21 这一块设计应该改成 molang 的，而且这个寻找效率低下
+    @Deprecated
+    private void codeAnimation(AnimationEvent<CustomPlayerEntity> animationEvent, EntityModelData data, Player player, boolean update) {
+        // 2023/6/21 这一块设计应该改成 molang 的，而且这个寻找效率低下
+        // 2023/11/07 改善了寻找效率
         IBone head = getBone("Head");
-        FIRST_PERSON_HEAD_POS = 24;
-        if (head != null) {
-            head.setRotationX(head.getRotationX() + (float) Math.toRadians(data.headPitch));
-            head.setRotationY(head.getRotationY() + (float) Math.toRadians(data.netHeadYaw));
-            FIRST_PERSON_HEAD_POS = head.getPivotY() * ((CustomPlayerEntity) animationEvent.getAnimatable()).getHeightScale();
+        boolean isLocalPlayer = player instanceof LocalPlayer;
+        if (update) {
+            if (isLocalPlayer) {
+                FIRST_PERSON_HEAD_POS = 24;
+            }
+            if (head != null) {
+                head.setRotationX(head.getRotationX() + (float) Math.toRadians(data.headPitch));
+                head.setRotationY(head.getRotationY() + (float) Math.toRadians(data.netHeadYaw));
+                if (isLocalPlayer) {
+                    FIRST_PERSON_HEAD_POS = head.getPivotY() * animationEvent.getAnimatable().getHeightScale();
+                }
+            }
         }
-        if (getCurrentModel().firstPersonViewLocator != null) {
-            float heightScale = ((CustomPlayerEntity) animationEvent.getAnimatable()).getHeightScale();
-            GeoBone locator = getCurrentModel().firstPersonViewLocator;
-            FIRST_PERSON_HEAD_POS = locator.getPivotY() * heightScale;
-        }
-        if (ModList.get().isLoaded(FIRST_PERSON_MOD_ID) && getCurrentModel().firstPersonHead != null) {
-            FirstPersonCompat.hideHead(getCurrentModel().firstPersonHead);
+        GeoModelState model = getCurrentModel();
+        if (isLocalPlayer && model != null) {
+            if (model.firstPersonViewLocator() != null) {
+                float heightScale = animationEvent.getAnimatable().getHeightScale();
+                IBone locator = model.firstPersonViewLocator();
+                FIRST_PERSON_HEAD_POS = locator.getPivotY() * heightScale;
+            }
+            if (FirstPersonCompat.isInstalled() && model.firstPersonHead() != null) {
+                FirstPersonCompat.hideHead(model.firstPersonHead());
+            }
         }
     }
 
     @Override
-    @Keep
     @Nullable
     public IBone getBone(String boneName) {
         return getAnimationProcessor().getBone(boneName);
-    }
-
-    @Override
-    @Keep
-    public void setMolangQueries(IAnimatable animatable, double seekTime) {
     }
 }

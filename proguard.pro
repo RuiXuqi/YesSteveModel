@@ -1,11 +1,5 @@
-# 导入相关库文件，丢失会导致混淆/加载失败
--libraryjars <java.home>/jmods/java.base.jmod(!**.jar;!module-info.class)
--libraryjars libs/forge-1.20-46.0.14_mapped_official_1.20.jar
--libraryjars libs/gson-2.10.jar
-
-# 打印更加详细的信息，但是忽略依赖错误
+# 打印更加详细的信息
 -verbose
--ignorewarnings
 
 # 不要缩减和优化，否则会导致游戏加载失败
 -dontshrink
@@ -17,8 +11,11 @@
 -classobfuscationdictionary dict.txt
 -repackageclasses com.elfmcys.yesstevemodel
 
-# 保留唯一的主模组类
+# 保留唯一的主模组类和 Mixin 类
 -keep class com.elfmcys.yesstevemodel.YesSteveModel
+-keep class com.elfmcys.yesstevemodel.mixin.*
+-keep class com.elfmcys.yesstevemodel.mixin.client.*
+-keep class com.elfmcys.yesstevemodel.mixin.plugin.*
 
 # 保留部分枚举类属性
 -keepclassmembers enum * {

@@ -5,8 +5,6 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.builder;
 
-import com.elfmcys.yesstevemodel.util.Keep;
-
 import java.util.Objects;
 
 public class RawAnimation {
@@ -22,7 +20,6 @@ public class RawAnimation {
     }
 
     @Override
-    @Keep
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -34,7 +31,6 @@ public class RawAnimation {
     }
 
     @Override
-    @Keep
     public int hashCode() {
         return Objects.hash(this.animationName, this.loopType);
     }

@@ -5,18 +5,50 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
+import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 
-public record BoneAnimationQueue(IBone bone, AnimationPointQueue rotationXQueue, AnimationPointQueue rotationYQueue,
-                                 AnimationPointQueue rotationZQueue, AnimationPointQueue positionXQueue,
-                                 AnimationPointQueue positionYQueue,
-                                 AnimationPointQueue positionZQueue, AnimationPointQueue scaleXQueue,
-                                 AnimationPointQueue scaleYQueue,
-                                 AnimationPointQueue scaleZQueue) {
+import javax.annotation.Nullable;
 
-    public BoneAnimationQueue(IBone bone) {
-        this(bone, new AnimationPointQueue(), new AnimationPointQueue(), new AnimationPointQueue(),
-                new AnimationPointQueue(), new AnimationPointQueue(), new AnimationPointQueue(),
-                new AnimationPointQueue(), new AnimationPointQueue(), new AnimationPointQueue());
+public class BoneAnimationQueue {
+    public final BoneTopLevelSnapshot topLevelSnapshot;
+    public final BoneSnapshot controllerSnapshot;
+    @Nullable 
+    public BoneAnimation animation;
+
+    public AnimationPointQueue rotationQueue = new AnimationPointQueue();
+    public AnimationPointQueue positionQueue = new AnimationPointQueue();
+    public AnimationPointQueue scaleQueue = new AnimationPointQueue();
+
+    public BoneAnimationQueue(BoneTopLevelSnapshot snapshot) {
+        topLevelSnapshot = snapshot;
+        controllerSnapshot = new BoneSnapshot(snapshot);
+    }
+
+    public BoneSnapshot snapshot() {
+        return controllerSnapshot;
+    }
+
+    public AnimationPointQueue rotationQueue() {
+        return rotationQueue;
+    }
+
+    public AnimationPointQueue positionQueue() {
+        return positionQueue;
+    }
+
+    public AnimationPointQueue scaleQueue() {
+        return scaleQueue;
+    }
+
+    public void updateSnapshot() {
+        controllerSnapshot.copyFrom(topLevelSnapshot);
+    }
+
+    // 链表重开比 clear() 快
+    public void resetQueues() {
+        rotationQueue = new AnimationPointQueue();
+        positionQueue = new AnimationPointQueue();
+        scaleQueue = new AnimationPointQueue();
     }
 }

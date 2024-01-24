@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.command.argument.ModelsArgument;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -46,7 +47,7 @@ public class AuthCommand {
     private static int addAuthModel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
         String modelName = ModelsArgument.getModel(context, MODEL_ID_NAME);
-        if (!ServerModelManager.CACHE_NAME_INFO.containsKey(modelName)) {
+        if (!ServerModelManager.getModels().containsKey(modelName)) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
                     modelName), true);
             return Command.SINGLE_SUCCESS;
@@ -64,7 +65,7 @@ public class AuthCommand {
     private static int addAllAuthModel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
         targets.forEach(player -> player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-            ServerModelManager.CACHE_NAME_INFO.keySet().forEach(name -> cap.addModel(new ResourceLocation(YesSteveModel.MOD_ID, name)));
+            ServerModelManager.getModels().keySet().forEach(name -> cap.addModel(new ResourceLocation(YesSteveModel.MOD_ID, name)));
             NetworkHandler.sendToClientPlayer(new SyncAuthModels(cap.getAuthModels()), player);
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.auth_model.all.info",
                     player.getScoreboardName()), true);
@@ -78,10 +79,8 @@ public class AuthCommand {
         targets.forEach(player -> player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(ownModelsCap -> {
             ownModelsCap.removeModel(modelId);
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
-                if (ServerModelManager.AUTH_MODELS.contains(modelIdCap.getModelId().getPath()) && !ownModelsCap.containModel(modelIdCap.getModelId())) {
-                    ResourceLocation defaultModelId = new ResourceLocation(YesSteveModel.MOD_ID, "default");
-                    ResourceLocation defaultTextureId = new ResourceLocation(YesSteveModel.MOD_ID, "default/default.png");
-                    modelIdCap.setModelAndTexture(defaultModelId, defaultTextureId);
+                if (ServerModelManager.getAuthModels().contains(modelIdCap.getModelId().getPath()) && !ownModelsCap.containModel(modelIdCap.getModelId())) {
+                    modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_ID);
                 }
             });
             NetworkHandler.sendToClientPlayer(new SyncAuthModels(ownModelsCap.getAuthModels()), player);
@@ -96,9 +95,7 @@ public class AuthCommand {
         targets.forEach(player -> player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(ownModelCap -> {
             ownModelCap.clear();
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
-                ResourceLocation defaultModelId = new ResourceLocation(YesSteveModel.MOD_ID, "default");
-                ResourceLocation defaultTextureId = new ResourceLocation(YesSteveModel.MOD_ID, "default/default.png");
-                modelIdCap.setModelAndTexture(defaultModelId, defaultTextureId);
+                modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_ID);
             });
             NetworkHandler.sendToClientPlayer(new SyncAuthModels(ownModelCap.getAuthModels()), player);
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.auth_model.clear.info",

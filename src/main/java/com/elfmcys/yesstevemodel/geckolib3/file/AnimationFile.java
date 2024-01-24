@@ -1,14 +1,22 @@
 package com.elfmcys.yesstevemodel.geckolib3.file;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 
 import java.util.Collection;
 import java.util.Map;
 
-public record AnimationFile(Map<String, Animation> animations) {
+// Native Access
+public class AnimationFile {
+    private final Map<String, Animation> animations;
+
+    // Native Access
+    public AnimationFile(Map<String, Animation> animations) {
+        this.animations = new Object2ReferenceOpenHashMap<>(animations);
+    }
+
     public AnimationFile() {
-        this(new Object2ObjectOpenHashMap<>());
+        this(new Object2ReferenceOpenHashMap<>());
     }
 
     public Animation getAnimation(String name) {
@@ -17,6 +25,10 @@ public record AnimationFile(Map<String, Animation> animations) {
 
     public Collection<Animation> getAllAnimations() {
         return this.animations.values();
+    }
+
+    public Map<String, Animation> getAnimations() {
+        return this.animations;
     }
 
     public void putAnimation(String name, Animation animation) {

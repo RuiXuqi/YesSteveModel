@@ -9,7 +9,6 @@ import com.elfmcys.yesstevemodel.network.message.HandleFile;
 import com.elfmcys.yesstevemodel.network.message.RefreshModelManage;
 import com.elfmcys.yesstevemodel.network.message.RequestServerModelInfo;
 import com.elfmcys.yesstevemodel.network.message.UploadFile;
-import com.elfmcys.yesstevemodel.util.Keep;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -55,7 +54,6 @@ public class ModelManageScreen extends Screen {
     }
 
     @Override
-    @Keep
     protected void init() {
         this.clearWidgets();
         this.calculateList();
@@ -250,7 +248,6 @@ public class ModelManageScreen extends Screen {
     }
 
     @Override
-    @Keep
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         renderBackground(graphics);
         graphics.fillGradient(x, y, x + 260, y + 235, 0xff_222222, 0xff_222222);
@@ -300,7 +297,6 @@ public class ModelManageScreen extends Screen {
     }
 
     @Override
-    @Keep
     public void resize(Minecraft minecraft, int width, int height) {
         super.resize(minecraft, width, height);
         if (textField != null) {
@@ -311,7 +307,6 @@ public class ModelManageScreen extends Screen {
     }
 
     @Override
-    @Keep
     public void tick() {
         if (textField != null) {
             this.textField.tick();

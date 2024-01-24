@@ -5,8 +5,9 @@ import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.command.argument.ModelsArgument;
 import com.elfmcys.yesstevemodel.command.argument.TexturesArgument;
+import com.elfmcys.yesstevemodel.model.ServerModel;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
-import com.elfmcys.yesstevemodel.model.format.ServerModelInfo;
+import com.elfmcys.yesstevemodel.util.CommandUtil;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,26 +21,15 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
-
-import static com.elfmcys.yesstevemodel.model.ServerModelManager.*;
 
 public class ModelCommand {
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().excludeFieldsWithoutExposeAnnotation().create();
@@ -80,14 +70,14 @@ public class ModelCommand {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
         String modelName = ModelsArgument.getModel(context, MODEL_ID_NAME);
         String textureName = TexturesArgument.getTexture(context, TEXTURE_ID_NAME);
-        if (!ServerModelManager.CACHE_NAME_INFO.containsKey(modelName)) {
+        if (!ServerModelManager.getModels().containsKey(modelName)) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
                     modelName), true);
             return Command.SINGLE_SUCCESS;
         }
 
-        ServerModelInfo info = ServerModelManager.CACHE_NAME_INFO.get(modelName);
-        if (info.getTexture().isEmpty()) {
+        ServerModel info = ServerModelManager.getModels().get(modelName);
+        if (info.textures().isEmpty()) {
             return Command.SINGLE_SUCCESS;
         }
 
@@ -105,7 +95,7 @@ public class ModelCommand {
 
         targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap ->
                 player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authCap -> {
-                    if (!ServerModelManager.AUTH_MODELS.contains(modelName) || authCap.containModel(modelId)) {
+                    if (!ServerModelManager.getAuthModels().contains(modelName) || authCap.containModel(modelId)) {
                         cap.setModelAndTexture(modelId, textureId);
                         context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
                                 modelName, player.getScoreboardName()), true);
@@ -118,82 +108,40 @@ public class ModelCommand {
     }
 
     private static int exportAllPackInfo(CommandContext<CommandSourceStack> context) {
-        String infoText = GSON.toJson(ServerModelManager.CACHE_NAME_INFO);
+        String infoText = GSON.toJson(ServerModelManager.getModels());
         context.getSource().sendSuccess(() -> Component.literal(infoText), false);
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int reloadAllPack(CommandContext<CommandSourceStack> context) {
-        StopWatch watch = StopWatch.createStarted();
-        checkModelFiles(context, CUSTOM);
-        checkModelFiles(context, AUTH);
-        ServerModelManager.reloadPacks();
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ServerModelManager::sendRequestSyncModelMessage);
-        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-            ServerModelManager.sendRequestSyncModelMessage(context.getSource().getServer().getPlayerList());
-        }
-        context.getSource().getLevel().players().forEach(player -> player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(ownModelsCap -> {
-            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
-                if (ServerModelManager.AUTH_MODELS.contains(modelIdCap.getModelId().getPath()) && !ownModelsCap.containModel(modelIdCap.getModelId())) {
-                    ResourceLocation defaultModelId = new ResourceLocation(YesSteveModel.MOD_ID, "default");
-                    ResourceLocation defaultTextureId = new ResourceLocation(YesSteveModel.MOD_ID, "default/default.png");
-                    modelIdCap.setModelAndTexture(defaultModelId, defaultTextureId);
+    private static int reloadAllPack(final CommandContext<CommandSourceStack> context) {
+        final StopWatch watch = StopWatch.createStarted();
+        boolean queued = ServerModelManager.reloadAndSync(result -> {
+            if (result.message() != null) {
+                CommandUtil.sendAsyncFeedback(context.getSource(), CommandUtil.wrapMessage(result.message()), true);
+            }
+            if(result.success()) {
+                CommandUtil.sendAsyncFeedback(context.getSource(), Component.translatable("message.yes_steve_model.model.reload.complete", watch.getTime(TimeUnit.MICROSECONDS) / 1000.0), true);
+                watch.reset();
+                watch.start();
+            }
+        }, result -> {
+            watch.stop();
+            if (!result.success()) {
+                CommandUtil.sendAsyncFeedback(context.getSource(), CommandUtil.wrapMessage(result.error()), true);
+            } else if (!result.playerErrors().isEmpty()) {
+                // 这里可以获悉哪些玩家同步失败，但目前没用到
+                for (Component error : result.playerErrors().values()) {
+                    CommandUtil.sendAsyncFeedback(context.getSource(), CommandUtil.wrapMessage(error), true);
                 }
-            });
-        }));
-        watch.stop();
-        context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.info", watch.getTime(TimeUnit.MICROSECONDS) / 1000.0), true);
+                if(FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+                    CommandUtil.sendAsyncFeedback(context.getSource(), Component.translatable("message.yes_steve_model.model.sync.complete", watch.getTime(TimeUnit.MICROSECONDS) / 1000.0), true);
+                }
+            }
+        });
+        if(!queued) {
+            // 有其它重载任务正在进行
+            context.getSource().sendFailure(Component.translatable("message.yes_steve_model.model.reload.in_progress"));
+        }
         return Command.SINGLE_SUCCESS;
-    }
-
-    private static void checkModelFiles(CommandContext<CommandSourceStack> context, Path rootPath) {
-        Collection<File> dirs = FileUtils.listFiles(rootPath.toFile(), DirectoryFileFilter.INSTANCE, null);
-        for (File dir : dirs) {
-            String dirName = dir.getName();
-            if (!ResourceLocation.isValidResourceLocation(dirName)) {
-                context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.error.dir_name", dirName), true);
-            }
-            boolean noMainModelFile = true;
-            boolean noArmModelFile = true;
-            boolean noTextureFile = true;
-            Collection<File> files = FileUtils.listFiles(rootPath.resolve(dirName).toFile(), FileFileFilter.INSTANCE, null);
-            for (File file : files) {
-                String fileName = file.getName();
-                if (MAIN_MODEL_FILE_NAME.equals(fileName) && isNotBlankFile(file)) {
-                    noMainModelFile = false;
-                }
-                if (ARM_MODEL_FILE_NAME.equals(fileName) && isNotBlankFile(file)) {
-                    noArmModelFile = false;
-                }
-                if (fileName.endsWith(".png")) {
-                    noTextureFile = false;
-                    String name = file.getName();
-                    name = name.substring(0, name.length() - 4);
-                    if (!ResourceLocation.isValidResourceLocation(name)) {
-                        String showName = String.format("%s/%s.png", dirName, name);
-                        context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.error.texture_name", showName), true);
-                    }
-                }
-            }
-            if (noMainModelFile) {
-                context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.error.no_main_file", dirName), true);
-            }
-            if (noArmModelFile) {
-                context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.error.no_arm_file", dirName), true);
-            }
-            if (noTextureFile) {
-                context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.error.no_texture_file", dirName), true);
-            }
-        }
-    }
-
-    private static boolean isNotBlankFile(File file) {
-        try {
-            String fileText = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-            return StringUtils.isNoneBlank(fileText);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 }
