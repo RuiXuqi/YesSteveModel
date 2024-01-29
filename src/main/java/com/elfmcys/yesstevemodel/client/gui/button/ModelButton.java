@@ -48,7 +48,7 @@ public class ModelButton extends Button {
                 cap.setModelAndTexture(instance.getModelId(), instance.getTextureLocation());
             });
         }
-        NetworkHandler.CHANNEL.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation()));
+        NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation()));
     }
 
     @Override

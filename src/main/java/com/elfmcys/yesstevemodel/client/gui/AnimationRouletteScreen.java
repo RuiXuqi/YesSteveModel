@@ -60,7 +60,7 @@ public class AnimationRouletteScreen extends Screen {
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (-1 < selectId && selectId < 8 && minecraft != null) {
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId));
+            NetworkHandler.sendToServer(new SetPlayAnimation(selectId));
             if (minecraft.player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
                 minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectId));
             }

@@ -45,10 +45,10 @@ public class StarButton extends FlatColorButton {
                 ResourceLocation modelId = modelInfoCap.getModelId();
                 if (starModelsCap.containModel(modelId)) {
                     starModelsCap.removeModel(modelId);
-                    NetworkHandler.CHANNEL.sendToServer(SetStarModel.remove(modelId));
+                    NetworkHandler.sendToServer(SetStarModel.remove(modelId));
                 } else {
                     starModelsCap.addModel(modelId);
-                    NetworkHandler.CHANNEL.sendToServer(SetStarModel.add(modelId));
+                    NetworkHandler.sendToServer(SetStarModel.add(modelId));
                 }
             }));
         }

@@ -2,6 +2,8 @@ package com.elfmcys.yesstevemodel.network;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.network.message.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.Connection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -22,7 +24,7 @@ public final class NetworkHandler {
             return true;
         }
         // 允许其中一方未安装 YSM
-        if (protocolVersionIn.equals(NetworkRegistry.ABSENT)) {
+        if (protocolVersionIn.equals(NetworkRegistry.ABSENT.version())) {
             return true;
         }
         // 允许其中一方是原版端
@@ -34,7 +36,15 @@ public final class NetworkHandler {
 
     // 检测客户端是否安装了相同版本的 YSM 模组
     public static boolean isPlayerChannelPresent(ServerPlayer player) {
-        ConnectionData connectionData = NetworkHooks.getConnectionData(player.connection.connection);
+        return isChannelPresent(player.connection.connection);
+    }
+
+    public static boolean isRemoteChannelPresent() {
+        return Minecraft.getInstance().player != null && isChannelPresent(Minecraft.getInstance().player.connection.getConnection());
+    }
+
+    private static boolean isChannelPresent(Connection conn) {
+        ConnectionData connectionData = NetworkHooks.getConnectionData(conn);
         // 原版端
         if (connectionData == null) {
             return false;
@@ -79,8 +89,17 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
+    public static void sendToServer(Object message) {
+        if (!isRemoteChannelPresent()) {
+            return;
+        }
+        CHANNEL.sendToServer(message);
+    }
+
     public static void sendToClientPlayer(Object message, final Player player) {
-        CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), message);
+        if (isPlayerChannelPresent((ServerPlayer) player)) {
+            CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), message);
+        }
     }
 
     public static void broadcastToAllPlayers(Object message) {

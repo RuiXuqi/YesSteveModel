@@ -36,7 +36,7 @@ public class TextureButton extends Button {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap ->
                     cap.setTexture(instance.getTextureLocation()));
         }
-        NetworkHandler.CHANNEL.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation()));
+        NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation()));
     }
 
     @Override

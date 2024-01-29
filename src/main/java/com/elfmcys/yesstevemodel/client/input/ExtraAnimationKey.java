@@ -33,7 +33,7 @@ public class ExtraAnimationKey {
     public static void onKeyboardInput(InputEvent.Key event) {
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
             if (key.isDown()) {
-                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(EXTRA_ANIMATION_KEYS.indexOf(key)));
+                NetworkHandler.sendToServer(new SetPlayAnimation(EXTRA_ANIMATION_KEYS.indexOf(key)));
                 return;
             }
         }

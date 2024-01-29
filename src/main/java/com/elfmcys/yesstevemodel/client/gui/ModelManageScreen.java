@@ -78,23 +78,23 @@ public class ModelManageScreen extends Screen {
                     RequestServerModelInfo.Info info = getModels().get(index);
                     UploadFile.Dir dir = isCustomModels ? UploadFile.Dir.CUSTOM : UploadFile.Dir.AUTH;
                     if (this.action == Action.DELETE) {
-                        NetworkHandler.CHANNEL.sendToServer(new HandleFile(info.getFileName(), dir, "delete", ""));
+                        NetworkHandler.sendToServer(new HandleFile(info.getFileName(), dir, "delete", ""));
                         canConfirm = true;
                     }
                     if (this.action == Action.MOVE) {
-                        NetworkHandler.CHANNEL.sendToServer(new HandleFile(info.getFileName(), dir, "move", ""));
+                        NetworkHandler.sendToServer(new HandleFile(info.getFileName(), dir, "move", ""));
                         canConfirm = true;
                     }
                     if (this.action == Action.RENAME && StringUtils.isNotBlank(this.textField.getValue())) {
                         String value = this.textField.getValue();
                         String fileName = info.getFileName();
                         if (info.getType() == Type.FOLDER && !value.equals(fileName)) {
-                            NetworkHandler.CHANNEL.sendToServer(new HandleFile(info.getFileName(), dir, "rename", value));
+                            NetworkHandler.sendToServer(new HandleFile(info.getFileName(), dir, "rename", value));
                             canConfirm = true;
                         }
                         if (info.getType() != Type.FOLDER && !value.equals(fileName.substring(0, fileName.length() - 4))) {
                             value = value + fileName.substring(fileName.length() - 4);
-                            NetworkHandler.CHANNEL.sendToServer(new HandleFile(info.getFileName(), dir, "rename", value));
+                            NetworkHandler.sendToServer(new HandleFile(info.getFileName(), dir, "rename", value));
                             canConfirm = true;
                         }
                     }
@@ -109,7 +109,7 @@ public class ModelManageScreen extends Screen {
                 }
                 if (canConfirm) {
                     this.action = Action.EMPTY;
-                    NetworkHandler.CHANNEL.sendToServer(new RefreshModelManage());
+                    NetworkHandler.sendToServer(new RefreshModelManage());
                 }
             }));
             addRenderableWidget(new FlatColorButton(x + 345, y + 235 - 23, 70, 18, Component.translatable("gui.yes_steve_model.model_manage.cancel"), (b) -> {
@@ -242,7 +242,7 @@ public class ModelManageScreen extends Screen {
             String name = file.getName();
             byte[] bytes = FileUtils.readFileToByteArray(file);
             UploadFile.Dir dir = isCustom ? UploadFile.Dir.CUSTOM : UploadFile.Dir.AUTH;
-            NetworkHandler.CHANNEL.sendToServer(new UploadFile(name, bytes, dir));
+            NetworkHandler.sendToServer(new UploadFile(name, bytes, dir));
             UploadManager.STATUE = UploadManager.Statue.PROCESSING;
         }
     }

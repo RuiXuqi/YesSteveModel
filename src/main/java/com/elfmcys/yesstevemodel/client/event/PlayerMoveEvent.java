@@ -14,7 +14,7 @@ public class PlayerMoveEvent {
         if (isMoveKey() && player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isPlayingAnimation()) {
-                    NetworkHandler.CHANNEL.sendToServer(SetPlayAnimation.stop());
+                    NetworkHandler.sendToServer(SetPlayAnimation.stop());
                 }
             });
         }
