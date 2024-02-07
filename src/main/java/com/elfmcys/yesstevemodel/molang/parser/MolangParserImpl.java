@@ -146,6 +146,9 @@ final class MolangParserImpl implements MolangParser {
                 }
 
                 return expr;
+            case PLUS:
+                lexer.next();
+                return parseCompoundExpression(lexer, UnaryExpression.Op.PLUS.precedence());
             case SUB:
                 lexer.next();
                 return new UnaryExpression(UnaryExpression.Op.ARITHMETICAL_NEGATION, parseCompoundExpression(lexer, UnaryExpression.Op.ARITHMETICAL_NEGATION.precedence()));

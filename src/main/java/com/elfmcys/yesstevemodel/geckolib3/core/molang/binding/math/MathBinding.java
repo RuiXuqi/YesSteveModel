@@ -31,8 +31,8 @@ public class MathBinding extends ContextBinding {
         function("pow", new Pow());
 
         /* 三角函数 */
-        function("cos", new Sin());     // degree
-        function("sin", new Cos());     // degree
+        function("sin", new Sin());     // degree
+        function("cos", new Cos());     // degree
         function("acos", new ACos());
         function("asin", new ASin());
         function("atan", new Atan());

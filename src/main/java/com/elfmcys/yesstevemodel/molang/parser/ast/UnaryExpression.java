@@ -101,6 +101,7 @@ public final class UnaryExpression implements Expression {
     public enum Op {
         LOGICAL_NEGATION(2800),
         ARITHMETICAL_NEGATION(2800),
+        PLUS(2800),
         RETURN(-1);
 
         final int precedence;
