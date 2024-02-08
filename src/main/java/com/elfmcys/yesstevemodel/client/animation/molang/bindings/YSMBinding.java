@@ -72,17 +72,13 @@ public class YSMBinding extends ContextBinding {
         playerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
         playerVar("elytra_rot_z", ctx -> Math.toDegrees(ctx.entity().elytraRotZ));
         playerVar("food_level", ctx -> ctx.entity().getFoodData().getFoodLevel());    // 之前默认值是 2
-        if (FirstPersonCompat.isInstalled()) {
-            playerVar("first_person_mod_hide", ctx -> {
-                if (ctx.entity() instanceof LocalPlayer) {
-                    return FirstPersonCompat.shouldHideHead();
-                } else {
-                    return false;
-                }
-            });
-        } else {
-            constValue("first_person_mod_hide", 0f);
-        }
+        playerVar("first_person_mod_hide", ctx -> {
+            if (ctx.entity() instanceof LocalPlayer && FirstPersonCompat.isInstalled()) {
+                return FirstPersonCompat.shouldHideHead();
+            } else {
+                return false;
+            }
+        });
 
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());

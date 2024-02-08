@@ -58,8 +58,6 @@ public class YesSteveModel {
         }
 
         private static void initClient() {
-            FirstPersonCompat.init();
-
             FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetupEvent::onClientSetup);
             FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetupEvent::onRegisterKeyMappings);
             FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetupEvent::onRegisterGuiOverlays);
