@@ -59,7 +59,7 @@ public class ClientModelManager {
     private static void syncCommit(final ClientModelSyncResult result) {
         // Render Thread 单线程模型提供天然的原子性
         Minecraft.getInstance().execute(() -> {
-            if(result.message != null && Minecraft.getInstance().player != null) {
+            if (result.message != null && Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.sendSystemMessage(result.message);
             }
             if (!result.success) {

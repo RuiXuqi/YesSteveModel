@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel;
 
-import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.event.*;
 import com.elfmcys.yesstevemodel.client.input.*;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
