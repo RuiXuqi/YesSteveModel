@@ -10,6 +10,7 @@ public class ServerConfig {
     public static ForgeConfigSpec.IntValue BANDWIDTH_LIMIT;
     // Native Access: 同步开始时读取
     public static ForgeConfigSpec.IntValue CLIENT_SYNC_TIMEOUT;
+    public static ForgeConfigSpec.BooleanValue CAN_SWITCH_MODEL;
 
     public static void init(ForgeConfigSpec.Builder builder) {
         builder.comment("Only available on dedicated servers.");
@@ -23,6 +24,9 @@ public class ServerConfig {
 
         builder.comment("Timeout for players to respond to synchronization.(In seconds)");
         CLIENT_SYNC_TIMEOUT = builder.defineInRange("PlayerSyncTimeout", 10, 5, 60);
+
+        builder.comment("Whether or not players are allowed to switch models");
+        CAN_SWITCH_MODEL = builder.define("CanSwitchModel", true);
 
         builder.pop();
     }

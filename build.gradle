@@ -58,6 +58,7 @@ minecraft {
 
     runs {
         configureEach {
+            jvmArgs "-XX:+AllowEnhancedClassRedefinition"
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'yesstevemodel'
@@ -82,6 +83,7 @@ minecraft {
         }
 
         client2 {
+            parent minecraft.runs.client
             workingDirectory project.file('run/client_b')
             args '--username', 'tartaric_acid'
         }
@@ -119,6 +121,7 @@ dependencies {
     compileOnly fg.deobf('libs:embeddium:0.2.18+mc1.20.1')
     compileOnly fg.deobf('libs:oculus:mc1.20.1-1.6.13')
     implementation fg.deobf("curse.maven:slashblade-241596:${slashblade_id}")
+    implementation fg.deobf("curse.maven:carry-on-274259:${carry_on_id}")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

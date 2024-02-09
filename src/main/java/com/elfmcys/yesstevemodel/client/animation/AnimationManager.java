@@ -42,7 +42,7 @@ public final class AnimationManager {
     }
 
     @Nonnull
-    private static <P extends IAnimatable<?>> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
+    public static <P extends IAnimatable<?>> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
         return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.LOOP);
     }
 

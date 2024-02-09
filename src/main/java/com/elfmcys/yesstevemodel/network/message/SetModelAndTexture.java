@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.network.FriendlyByteBuf;
@@ -37,7 +38,9 @@ public class SetModelAndTexture {
                 if (sender == null) {
                     return;
                 }
-                handleCapability(message, sender);
+                if (ServerConfig.CAN_SWITCH_MODEL.get()) {
+                    handleCapability(message, sender);
+                }
             });
         }
         context.setPacketHandled(true);
@@ -48,7 +51,7 @@ public class SetModelAndTexture {
             String modelName = message.modelId.getPath();
             if (!ServerModelManager.getModels().containsKey(modelName)
                     || ServerModelManager.getAuthModels().contains(modelName) && !ownModelsCap.containModel(message.modelId)
-                    || !ServerModelManager.getModels().get(modelName).textures().contains(ModelIdUtil.getSubNameFromId(message.selectTexture)) ) {
+                    || !ServerModelManager.getModels().get(modelName).textures().contains(ModelIdUtil.getSubNameFromId(message.selectTexture))) {
                 modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_ID);
             } else {
                 modelIdCap.setModelAndTexture(message.modelId, message.selectTexture);

@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
+import com.elfmcys.yesstevemodel.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
@@ -18,8 +19,8 @@ import com.elfmcys.yesstevemodel.geckolib3.util.GeckoLibUtil;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,6 +66,9 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         data.addAnimationController(new AnimationController(this, model, HOLD_MAINHAND_CONTROLLER, 0, manager::predicateMainhandHold));
         data.addAnimationController(new AnimationController(this, model, SWING_CONTROLLER, 2, manager::predicateSwing));
         data.addAnimationController(new AnimationController(this, model, USE_CONTROLLER, 2, manager::predicateUse));
+        if (CarryOnCompat.isCarryOnLoaded()) {
+            data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2, CarryOnCompat::predicateCarryOn));
+        }
         data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, manager::predicateCap));
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);

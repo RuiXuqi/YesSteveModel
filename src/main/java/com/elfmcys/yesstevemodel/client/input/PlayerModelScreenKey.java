@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.input;
 
 import com.elfmcys.yesstevemodel.client.gui.DisclaimerScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
+import com.elfmcys.yesstevemodel.config.DisableSwitch;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
@@ -20,7 +21,7 @@ public class PlayerModelScreenKey {
             "key.category.yes_steve_model");
 
     public static void onKeyboardInput(InputEvent.Key event) {
-        if (PLAYER_MODEL_KEY.isDown()) {
+        if (PLAYER_MODEL_KEY.isDown() && DisableSwitch.CAN_SWITCH) {
             if (GeneralConfig.DISCLAIMER_SHOW.get()) {
                 Minecraft.getInstance().setScreen(new DisclaimerScreen());
             } else {

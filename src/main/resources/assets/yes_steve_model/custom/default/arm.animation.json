@@ -1712,6 +1712,138 @@
 					"rotation": [42.5, 0, 0]
 				}
 			}
+		},
+		"carryon:block": {
+			"loop": true,
+			"bones": {
+				"Root": {
+					"rotation": [2, 0, 0],
+					"position": [0, 0, 0.5]
+				},
+				"AllBody": {
+					"rotation": [0, 0, 0]
+				},
+				"UpBody": {
+					"rotation": [-15, 0, 0]
+				},
+				"Head": {
+					"rotation": [25, 0, 0]
+				},
+				"LeftArm": {
+					"rotation": [-25, 5, 5],
+					"position": [0, -0.5, 0]
+				},
+				"LeftForeArm": {
+					"rotation": [-5, 0, 0]
+				},
+				"LeftHandLocator": {
+					"scale": 0
+				},
+				"RightArm": {
+					"rotation": [-25, -5, -5],
+					"position": [0, -0.5, 0]
+				},
+				"RightForeArm": {
+					"rotation": [-5, 0, 0]
+				},
+				"RightHandLocator": {
+					"scale": 0
+				},
+				"LeftHand": {
+					"rotation": [0, 0, 0]
+				},
+				"RightHand": {
+					"rotation": [0, 0, 0]
+				}
+			}
+		},
+		"carryon:entity": {
+			"loop": true,
+			"bones": {
+				"Root": {
+					"rotation": [2, 0, 0],
+					"position": [0, 0, -0.5]
+				},
+				"AllBody": {
+					"rotation": [0, 0, 0]
+				},
+				"UpBody": {
+					"rotation": [-20, 0, 0]
+				},
+				"Head": {
+					"rotation": [30, 0, 0]
+				},
+				"LeftArm": {
+					"rotation": [-45, 5, -5],
+					"position": [0, -0.5, 0]
+				},
+				"LeftForeArm": {
+					"rotation": [-5, 0, 0]
+				},
+				"LeftHandLocator": {
+					"scale": 0
+				},
+				"RightArm": {
+					"rotation": [-45, -5, 5],
+					"position": [0, -0.5, 0]
+				},
+				"RightForeArm": {
+					"rotation": [-5, 0, 0]
+				},
+				"RightHandLocator": {
+					"scale": 0
+				},
+				"RightHand": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftHand": {
+					"rotation": [0, 0, 0]
+				}
+			}
+		},
+		"carryon:player": {
+			"loop": true,
+			"bones": {
+				"Root": {
+					"rotation": [2, 0, 0],
+					"position": [0, 0, 0]
+				},
+				"AllBody": {
+					"rotation": [0, 0, 0]
+				},
+				"UpBody": {
+					"rotation": [-10, 0, 0]
+				},
+				"Head": {
+					"rotation": [10, 0, 0]
+				},
+				"LeftArm": {
+					"rotation": [-30, 5, -5],
+					"position": [0, -0.5, 0]
+				},
+				"LeftForeArm": {
+					"rotation": [-42.5, 0, 0]
+				},
+				"LeftHandLocator": {
+					"scale": 0
+				},
+				"RightArm": {
+					"rotation": [-30, -5, 5],
+					"position": [0, -0.5, 0]
+				},
+				"RightForeArm": {
+					"rotation": [-90, 47.5, -90]
+				},
+				"RightHandLocator": {
+					"scale": 0
+				},
+				"RightHand": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftHand": {
+					"rotation": [0, 0, 0]
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2

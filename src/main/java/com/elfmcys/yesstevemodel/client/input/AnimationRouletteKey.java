@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.input;
 
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
+import com.elfmcys.yesstevemodel.config.DisableSwitch;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -18,7 +19,7 @@ public class AnimationRouletteKey {
             "key.category.yes_steve_model");
 
     public static void onKeyboardInput(InputEvent.Key event) {
-        if (ANIMATION_ROULETTE_KEY.isDown()) {
+        if (ANIMATION_ROULETTE_KEY.isDown() && DisableSwitch.CAN_SWITCH) {
             Minecraft.getInstance().setScreen(new AnimationRouletteScreen());
         }
     }
