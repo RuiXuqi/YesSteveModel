@@ -10,9 +10,7 @@ import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.resources.ResourceLocation;
@@ -23,8 +21,8 @@ import java.util.function.Consumer;
 
 // 避免字节码保护导致 Mixin 出现依赖问题
 public class MixinInnerWrapper {
-    public static void tickAllInstance(final float partialTick, final Frustum clippinghelper, final Camera pActiveRenderInfo) {
-        AnimationParallelTicker.tickAll(partialTick, clippinghelper, pActiveRenderInfo);
+    public static void tickAllInstance(final float partialTick) {
+        AnimationParallelTicker.tickAll(partialTick);
     }
 
     public static void beginAsyncScope() {

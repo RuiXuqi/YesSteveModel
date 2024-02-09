@@ -1,9 +1,7 @@
 package com.elfmcys.yesstevemodel.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 
@@ -11,8 +9,8 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public class MixinWrapper {
-    public static void tickAllInstance(final float partialTick, final Frustum clippinghelper, final Camera pActiveRenderInfo) {
-        MixinInnerWrapper.tickAllInstance(partialTick, clippinghelper, pActiveRenderInfo);
+    public static void tickAllInstance(final float partialTick) {
+        MixinInnerWrapper.tickAllInstance(partialTick);
     }
 
     public static void beginAsyncScope() {
