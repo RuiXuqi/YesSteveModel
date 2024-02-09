@@ -1253,6 +1253,18 @@
 					"rotation": [-30, 0, 0]
 				},
 				{
+					"name": "LeftWaistLocator",
+					"parent": "UpBody",
+					"pivot": [3, 18, 0],
+					"rotation": [-20, 0, 0]
+				},
+				{
+					"name": "RightWaistLocator",
+					"parent": "UpBody",
+					"pivot": [-3, 18, 0],
+					"rotation": [-5, 0, 0]
+				},
+				{
 					"name": "DownBody",
 					"parent": "AllBody",
 					"pivot": [0, 17.135, 0]

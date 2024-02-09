@@ -14,7 +14,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.gradle.toolchains:foojay-resolver:0.5.0'
-        //classpath 'org.parchmentmc:librarian:1.+'
+        classpath 'org.parchmentmc:librarian:1.+'
         classpath 'com.guardsquare:proguard-gradle:7.3.1'
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
@@ -26,7 +26,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    // id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 apply plugin: 'org.spongepowered.mixin'
 
@@ -50,8 +50,7 @@ if(!file(builderPath).exists()) {
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'official', version: '1.20'
-    // mappings channel: 'parchment', version: '2023.03.12-1.19.3'
+    mappings channel: 'parchment', version: '2023.08.20-1.20.1'
 
     copyIdeResources = true
 
@@ -104,14 +103,22 @@ repositories {
     flatDir {
         dir 'libs'
     }
+    maven {
+        name = "Curse Maven"
+        url = "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20-46.0.14'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
     implementation fg.deobf('libs:firstperson-forge:2.2.3-mc1.20')
     implementation fg.deobf('libs:notenoughanimations-forge:1.6.4-mc1.20')
     compileOnly fg.deobf('libs:embeddium:0.2.18+mc1.20.1')
     compileOnly fg.deobf('libs:oculus:mc1.20.1-1.6.13')
+    implementation fg.deobf("curse.maven:slashblade-241596:${slashblade_id}")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

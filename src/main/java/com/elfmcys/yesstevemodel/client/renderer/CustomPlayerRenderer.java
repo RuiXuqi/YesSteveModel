@@ -18,8 +18,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
@@ -39,7 +39,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
     @SuppressWarnings("all")
     public void render(AbstractClientPlayer player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         PlayerGeoCapability cap = player.getCapability(PlayerGeoCapabilityProvider.CAP).orElse(null);
-        if(cap == null) {
+        if (cap == null) {
             return;
         }
 

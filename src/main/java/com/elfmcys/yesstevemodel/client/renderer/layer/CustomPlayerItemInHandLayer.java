@@ -1,6 +1,8 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.compat.slashblade.SlashBladeCompat;
+import com.elfmcys.yesstevemodel.compat.slashblade.SlashBladeRender;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -25,7 +27,7 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
     public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerInstance instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         LivingEntity entityLivingBaseIn = instance.getAnimatable().getEntity();
         GeoModelState geoModel = instance.getAnimatableModel().getCurrentModel();
-        if(geoModel == null) {
+        if (geoModel == null) {
             return;
         }
         ItemStack offhandItem = entityLivingBaseIn.getOffhandItem();
@@ -33,10 +35,18 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
         if (!offhandItem.isEmpty() || !mainHandItem.isEmpty()) {
             poseStack.pushPose();
             if (!geoModel.rightHandBones().isEmpty()) {
-                this.renderArmWithItem(geoModel, entityLivingBaseIn, mainHandItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, poseStack, bufferIn, packedLightIn);
+                if (SlashBladeCompat.isSlashBladeItem(mainHandItem)) {
+                    SlashBladeRender.renderMainhandSlashBlade(entityLivingBaseIn, geoModel, poseStack, bufferIn, packedLightIn, mainHandItem, partialTicks);
+                } else {
+                    this.renderArmWithItem(geoModel, entityLivingBaseIn, mainHandItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, poseStack, bufferIn, packedLightIn);
+                }
             }
             if (!geoModel.leftHandBones().isEmpty()) {
-                this.renderArmWithItem(geoModel, entityLivingBaseIn, offhandItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+                if (SlashBladeCompat.isSlashBladeItem(offhandItem)) {
+                    SlashBladeRender.renderOffhandSlashBlade(geoModel, poseStack, bufferIn, packedLightIn, offhandItem);
+                } else {
+                    this.renderArmWithItem(geoModel, entityLivingBaseIn, offhandItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+                }
             }
             poseStack.popPose();
         }

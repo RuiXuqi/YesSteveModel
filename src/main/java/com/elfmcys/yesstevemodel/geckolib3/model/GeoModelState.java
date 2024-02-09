@@ -27,6 +27,10 @@ public class GeoModelState {
     private final List<IBone> tacPistolBones;
     @Nonnull
     private final List<IBone> tacRifleBones;
+    @Nonnull
+    private final List<IBone> leftWaistBones;
+    @Nonnull
+    private final List<IBone> rightWaistBones;
     @Nullable
     private final IBone firstPersonHead;
     @Nullable
@@ -49,6 +53,8 @@ public class GeoModelState {
         elytraBones = findBones(model.elytraBones);
         tacPistolBones = findBones(model.tacPistolBones);
         tacRifleBones = findBones(model.tacRifleBones);
+        leftWaistBones = findBones(model.leftWaistBones);
+        rightWaistBones = findBones(model.rightWaistBones);
         firstPersonHead = findBone(model.firstPersonHead);
         firstPersonViewLocator = findBone(model.firstPersonViewLocator);
     }
@@ -56,7 +62,7 @@ public class GeoModelState {
     @Nonnull
     private List<IBone> findBones(@Nonnull List<GeoBone> bones) {
         ReferenceArrayList<IBone> list = new ReferenceArrayList<>(bones.size());
-        for(GeoBone bone : bones) {
+        for (GeoBone bone : bones) {
             list.add(boneMap.get(bone.name()));
         }
         return ReferenceLists.unmodifiable(list);
@@ -64,7 +70,7 @@ public class GeoModelState {
 
     @Nullable
     private IBone findBone(@Nullable GeoBone bone) {
-        if(bone == null) {
+        if (bone == null) {
             return null;
         }
         return boneMap.get(bone.name());
@@ -105,6 +111,16 @@ public class GeoModelState {
     @Nonnull
     public List<IBone> tacRifleBones() {
         return tacRifleBones;
+    }
+
+    @Nonnull
+    public List<IBone> leftWaistBones() {
+        return leftWaistBones;
+    }
+
+    @Nonnull
+    public List<IBone> rightWaistBones() {
+        return rightWaistBones;
     }
 
     @Nullable

@@ -699,6 +699,18 @@
 					]
 				},
 				{
+					"name": "LeftWaistLocator",
+					"parent": "UpperBody",
+					"pivot": [4, 21, 0],
+					"rotation": [-20, 0, 0]
+				},
+				{
+					"name": "RightWaistLocator",
+					"parent": "UpperBody",
+					"pivot": [-4, 21, 0],
+					"rotation": [-5, 0, 0]
+				},
+				{
 					"name": "bow",
 					"parent": "UpperBody",
 					"pivot": [-1.28142, 24.46442, -2.75],

@@ -25,6 +25,10 @@ public class GeoModel {
     public final List<GeoBone> tacPistolBones;
     @Nonnull
     public final List<GeoBone> tacRifleBones;
+    @Nonnull
+    public final List<GeoBone> leftWaistBones;
+    @Nonnull
+    public final List<GeoBone> rightWaistBones;
     @Nullable
     public final GeoBone firstPersonHead;
     @Nullable
@@ -44,7 +48,7 @@ public class GeoModel {
     private long nativeId;
 
     // Native Access
-    public GeoModel(GeoBone[] sortedBones, GeoBone[] leftHandBones, GeoBone[] rightHandBones, GeoBone[] elytraBones, GeoBone[] tacPistolBones, GeoBone[] tacRifleBones, boolean hasFirstPersonLeftArm, boolean hasFirstPersonRightArm, boolean hasfirstPersonBackground, @Nullable GeoBone firstPersonHead, @Nullable GeoBone firstPersonViewLocator, ModelProperties properties) {
+    public GeoModel(GeoBone[] sortedBones, GeoBone[] leftHandBones, GeoBone[] rightHandBones, GeoBone[] elytraBones, GeoBone[] tacPistolBones, GeoBone[] tacRifleBones, GeoBone[] leftWaistBones, GeoBone[] rightWaistBones, boolean hasFirstPersonLeftArm, boolean hasFirstPersonRightArm, boolean hasfirstPersonBackground, @Nullable GeoBone firstPersonHead, @Nullable GeoBone firstPersonViewLocator, ModelProperties properties) {
         this.sortedBones = ObjectArrayList.wrap(sortedBones);
 
         this.leftHandBones = ObjectArrayList.wrap(leftHandBones);
@@ -52,6 +56,8 @@ public class GeoModel {
         this.elytraBones = ObjectArrayList.wrap(elytraBones);
         this.tacPistolBones = ObjectArrayList.wrap(tacPistolBones);
         this.tacRifleBones = ObjectArrayList.wrap(tacRifleBones);
+        this.leftWaistBones = ObjectArrayList.wrap(leftWaistBones);
+        this.rightWaistBones = ObjectArrayList.wrap(rightWaistBones);
         this.hasFirstPersonLeftArm = hasFirstPersonLeftArm;
         this.hasFirstPersonRightArm = hasFirstPersonRightArm;
         this.hasfirstPersonBackground = hasfirstPersonBackground;
@@ -69,7 +75,9 @@ public class GeoModel {
     }
 
     @Nonnull
-    public float[] getInitialState() { return initialState; }
+    public float[] getInitialState() {
+        return initialState;
+    }
 
     private native void free();
 }

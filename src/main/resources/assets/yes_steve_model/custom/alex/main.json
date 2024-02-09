@@ -80,6 +80,18 @@
 					]
 				},
 				{
+					"name": "LeftWaistLocator",
+					"parent": "UpperBody",
+					"pivot": [4, 13, 0],
+					"rotation": [-20, 0, 0]
+				},
+				{
+					"name": "RightWaistLocator",
+					"parent": "UpperBody",
+					"pivot": [-4, 13, 0],
+					"rotation": [-5, 0, 0]
+				},
+				{
 					"name": "AllHead",
 					"parent": "UpperBody",
 					"pivot": [0, 24, 0]

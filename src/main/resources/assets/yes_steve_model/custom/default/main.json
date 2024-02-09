@@ -12,7 +12,7 @@
 				"ysm_extra_info": {
 					"name": "Default",
 					"tips": "默认模型（Default Model）",
-					"authors": ["哥斯拉", "端木", "甜粽子","星屑海螺"],
+					"authors": ["哥斯拉", "端木", "甜粽子", "星屑海螺"],
 					"license": "CC 0"
 				}
 			},
@@ -409,6 +409,18 @@
 					"parent": "UpBody",
 					"pivot": [-4, 24.75, -1.6],
 					"rotation": [-30, 0, 0]
+				},
+				{
+					"name": "LeftWaistLocator",
+					"parent": "UpBody",
+					"pivot": [4, 23, 0],
+					"rotation": [-20, 0, 0]
+				},
+				{
+					"name": "RightWaistLocator",
+					"parent": "UpBody",
+					"pivot": [-4, 23, 0],
+					"rotation": [-5, 0, 0]
 				},
 				{
 					"name": "DownBody",
