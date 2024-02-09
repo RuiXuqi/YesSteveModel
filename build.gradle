@@ -151,7 +151,7 @@ tasks.register('buildWindowsTestJar', Exec) {
     dependsOn tasks.reobfJar
     commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-test',
             tasks.reobfJar.input.asFile.get().path,
-     //       '-c', "${projectDir}/protected-classes.txt",
+            '-c', "${projectDir}/protected-classes.txt",
             '-l', tasks.createMcpToSrg.output.asFile.get().path
 }
 
@@ -203,7 +203,7 @@ tasks.register('buildWindowsProductionJar', Exec) {
                 StandardCopyOption.REPLACE_EXISTING)
     }
 
-    description "构建经过混淆的模组，可以公开发布"
+    description "构建经过混淆的模组，仅可用于 windows 端"
     group buildTaskGroup
     dependsOn tasks.reobfTempJar
     outputs.upToDateWhen { false }
