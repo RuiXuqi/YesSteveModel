@@ -30,7 +30,7 @@ plugins {
 }
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.1.6-snapshot2'
+version = mod_version
 group = 'com.elfmcys.yesstevemodel'
 archivesBaseName = 'yesstevemodel-1.20'
 
