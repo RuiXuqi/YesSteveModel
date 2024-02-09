@@ -5,6 +5,7 @@
 
 com.elfmcys.yesstevemodel.molang.lexer.MolangLexerImpl* 2002 client
 com.elfmcys.yesstevemodel.molang.parser.MolangParserImpl* 2001 client
+com.elfmcys.yesstevemodel.compat.slashblade.SlashBladeCompat* 2000 client
 com.elfmcys.yesstevemodel.network.message.RequestServerModelInfo* 2000
 com.elfmcys.yesstevemodel.client.compat.IrisCompat 2000 client
 com.elfmcys.yesstevemodel.model.SyncModelResult* 2000
@@ -124,6 +125,7 @@ com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone 2496 client
 com.elfmcys.yesstevemodel.geckolib3.model.GeoBoneState 2490 client
 com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel 2480 client
 com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState 2470 client
+com.elfmcys.yesstevemodel.compat.slashblade.SlashBladeRender* 2460 client
 
 com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile 2300 client
 com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation 2299 client

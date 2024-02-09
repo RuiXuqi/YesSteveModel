@@ -151,7 +151,7 @@ tasks.register('buildWindowsTestJar', Exec) {
     dependsOn tasks.reobfJar
     commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-test',
             tasks.reobfJar.input.asFile.get().path,
-            '-c', "${projectDir}/protected-classes.txt",
+     //       '-c', "${projectDir}/protected-classes.txt",
             '-l', tasks.createMcpToSrg.output.asFile.get().path
 }
 
@@ -194,6 +194,26 @@ tasks.register('proguardJar', ProGuardTask) {
                 inJarFileCollection.singleFile.toPath(),
                 StandardCopyOption.REPLACE_EXISTING)
     }
+}
+
+tasks.register('buildWindowsProductionJar', Exec) {
+    doFirst {
+        Files.move(tempJar.archiveFile.get().asFile.toPath(),
+                tasks.proguardJar.outJarFileCollection.singleFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    description "构建经过混淆的模组，可以公开发布"
+    group buildTaskGroup
+    dependsOn tasks.reobfTempJar
+    outputs.upToDateWhen { false }
+
+    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-production',
+            tasks.proguardJar.outJarFileCollection.singleFile.path,
+            '-c', "${projectDir}/protected-classes.txt",
+            '-p', "${projectDir}/ysm.vmp",
+            '-l', tasks.createMcpToSrg.output.asFile.get().path,
+            '-g', tasks.proguardJar.printMappingFile.path
 }
 
 tasks.register('buildProductionJar', Exec) {
