@@ -31,7 +31,9 @@ public interface IGeoRenderer<T extends GeoInstance<?, ?>> {
         }
         renderLate(instance, poseStack, partialTick, bufferSource, buffer, packedLight,
                 packedOverlay, red, green, blue, alpha);
-        IrisCompat.setupState();
+        if (IrisCompat.isInstalled()) {
+            IrisCompat.setupState();
+        }
         // 渲染所有骨骼
         NativeRenderer.renderModel(buffer, poseStack.last(), modelState.model(), modelState.state(), NativeRenderer.RENDER_MODE_ALL, packedLight, packedOverlay, red, green, blue, alpha);
         // 由于此时我们至少渲染了一次，因此让我们将循环设置为重复
@@ -70,5 +72,9 @@ public interface IGeoRenderer<T extends GeoInstance<?, ?>> {
     }
 
     default void setCurrentModelRenderCycle(IRenderCycle cycle) {
+    }
+
+    default boolean isAsyncScope() {
+        return NativeRenderer.isAsyncScope();
     }
 }

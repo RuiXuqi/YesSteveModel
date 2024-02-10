@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.coderbot.iris.pipeline.ShadowRenderer;
 import net.coderbot.iris.uniforms.CapturedRenderingState;
 import net.coderbot.iris.vertices.IrisVertexFormats;
 import net.minecraftforge.fml.ModList;
@@ -22,14 +23,15 @@ public class IrisCompat {
         }
     }
 
-    public static void setupState() {
-        if (!INSTALLED) {
-            return;
-        }
-        setupEntityId();
+    public static boolean isInstalled() {
+        return INSTALLED;
     }
 
-    private static void setupEntityId() {
+    public static boolean isRenderingShadow() {
+        return ShadowRenderer.ACTIVE;
+    }
+
+    public static void setupState() {
         short s0 = (short) CapturedRenderingState.INSTANCE.getCurrentRenderedEntity();
         short s1 = (short) CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity();
         short s2 = (short) CapturedRenderingState.INSTANCE.getCurrentRenderedItem();

@@ -19,7 +19,7 @@ public class CustomArrowInstance extends GeoInstance<CustomArrowEntity, CustomAr
     @Override
     public DebugSource getDebugSource() {
         if(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
-            return YSMDebugSource.INSTANCE;
+            return CustomDebugSource.INSTANCE;
         } else {
             return null;
         }

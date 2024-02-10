@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.compat;
 
 import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
-import dev.tr7zw.firstperson.FirstPersonModelCore;
 import dev.tr7zw.firstperson.api.FirstPersonAPI;
 import dev.tr7zw.firstperson.api.PlayerOffsetHandler;
 import net.minecraft.world.phys.Vec3;
@@ -38,8 +37,10 @@ public class FirstPersonCompat {
     }
 
     public static boolean shouldHideHead() {
-        return FirstPersonModelCore.isRenderingPlayer;
+        return FirstPersonAPI.isRenderingPlayer();
     }
 
-    public static boolean isEnabled() { return FirstPersonModelCore.enabled; }
+    public static boolean isEnabled() {
+        return FirstPersonAPI.isEnabled();
+    }
 }
