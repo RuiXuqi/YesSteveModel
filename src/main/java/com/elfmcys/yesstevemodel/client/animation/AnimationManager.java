@@ -113,7 +113,7 @@ public final class AnimationManager {
         if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
-        if (!player.getOffhandItem().isEmpty() && checkSwingAndUse(player, InteractionHand.OFF_HAND)) {
+        if (checkSwingAndUse(player, InteractionHand.OFF_HAND)) {
             ResourceLocation id = event.getAnimatable().getAnimation();
             ConditionalHold conditionalHold = ConditionManager.getHoldOffhand(id);
             if (conditionalHold != null) {
@@ -145,7 +145,7 @@ public final class AnimationManager {
             }
         }
 
-        if (!player.getMainHandItem().isEmpty() && checkSwingAndUse(player, InteractionHand.MAIN_HAND)) {
+        if (checkSwingAndUse(player, InteractionHand.MAIN_HAND)) {
             ResourceLocation id = event.getAnimatable().getAnimation();
             ConditionalHold conditionalHold = ConditionManager.getHoldMainhand(id);
             if (conditionalHold != null) {
@@ -165,21 +165,21 @@ public final class AnimationManager {
         }
         if (player.swinging && !player.isSleeping()) {
             if (player.swingTime == 0) {
-                event.getController().shouldResetTick = true;
-                event.getController().adjustTick(0);
+                // 空动画用于重置 PLAY_ONCE 动画
+                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             ResourceLocation id = event.getAnimatable().getAnimation();
             ConditionalSwing conditionalSwing = (player.swingingArm == InteractionHand.MAIN_HAND) ? ConditionManager.getSwingMainhand(id) : ConditionManager.getSwingOffhand(id);
             if (conditionalSwing != null) {
                 String name = conditionalSwing.doTest(player, player.swingingArm);
                 if (StringUtils.isNoneBlank(name)) {
-                    return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                    return playAnimation(event, name, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
                 }
             }
             String defaultSwing = (player.swingingArm == InteractionHand.MAIN_HAND) ? "swing_hand" : "swing_offhand";
-            return playAnimation(event, defaultSwing, ILoopType.EDefaultLoopTypes.LOOP);
+            return playAnimation(event, defaultSwing, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         }
-        return PlayState.STOP;
+        return PlayState.CONTINUE;
     }
 
     public PlayState predicateUse(AnimationEvent<CustomPlayerEntity> event) {

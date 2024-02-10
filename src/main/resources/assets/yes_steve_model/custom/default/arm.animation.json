@@ -1468,6 +1468,14 @@
 				}
 			}
 		},
+		"hold_mainhand:empty": {
+			"loop": true,
+			"animation_length": 2
+		},
+		"hold_offhand:empty": {
+			"loop": true,
+			"animation_length": 2
+		},
 		"hold_mainhand:charged_crossbow": {
 			"loop": true,
 			"animation_length": 2,
