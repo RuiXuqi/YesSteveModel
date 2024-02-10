@@ -8,10 +8,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nullable;
+
 public class ConfigScreen extends Screen {
+    @Nullable
     private final PlayerModelScreen parent;
 
-    public ConfigScreen(PlayerModelScreen parent) {
+    public ConfigScreen(@Nullable PlayerModelScreen parent) {
         super(Component.literal("YSM Config GUI"));
         this.parent = parent;
     }

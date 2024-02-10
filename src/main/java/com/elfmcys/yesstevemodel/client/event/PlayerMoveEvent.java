@@ -20,7 +20,7 @@ public class PlayerMoveEvent {
         }
     }
 
-    private static boolean isMoveKey() {
+    public static boolean isMoveKey() {
         Options options = Minecraft.getInstance().options;
         return options.keyUp.isDown() || options.keyDown.isDown() || options.keyLeft.isDown() || options.keyRight.isDown()
                 || options.keyJump.isDown() || options.keyShift.isDown();

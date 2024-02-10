@@ -10,7 +10,7 @@ license="All rights reserved"
     # displayURL="https://change.me.to.your.mods.homepage.example.invalid/"
     # logoFile="yesstevemodel.png"
     credits="bernie-g (GeckoLib), fadookie (mclib), TT432 & SQwatermark (helped me solve many difficult problems)"
-    authors="YS Group, TartaricAcid, AryochiL"
+    authors="YS Group, TartaricAcid, TomatoPuddin, AryochiL"
     description="A mod based on GeckoLib that modifies the player model"
 
 [[dependencies.yes_steve_model]]

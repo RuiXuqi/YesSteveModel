@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.client.gui.ConfigScreen;
 import com.elfmcys.yesstevemodel.client.gui.DisclaimerScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
 import com.elfmcys.yesstevemodel.config.DisableSwitch;
@@ -21,7 +22,11 @@ public class PlayerModelScreenKey {
             "key.category.yes_steve_model");
 
     public static void onKeyboardInput(InputEvent.Key event) {
-        if (PLAYER_MODEL_KEY.isDown() && DisableSwitch.CAN_SWITCH) {
+        if (PLAYER_MODEL_KEY.isDown()) {
+            if (!DisableSwitch.CAN_SWITCH) {
+                Minecraft.getInstance().setScreen(new ConfigScreen(null));
+                return;
+            }
             if (GeneralConfig.DISCLAIMER_SHOW.get()) {
                 Minecraft.getInstance().setScreen(new DisclaimerScreen());
             } else {

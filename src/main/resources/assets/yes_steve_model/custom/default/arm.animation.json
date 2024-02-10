@@ -1378,7 +1378,7 @@
 				}
 			}
 		},
-		"use_mainhand:block": {
+		"use_mainhand:shield": {
 			"loop": true,
 			"animation_length": 0.375,
 			"bones": {
@@ -1423,7 +1423,7 @@
 				}
 			}
 		},
-		"use_offhand:block": {
+		"use_offhand:shield": {
 			"loop": true,
 			"animation_length": 0.375,
 			"bones": {

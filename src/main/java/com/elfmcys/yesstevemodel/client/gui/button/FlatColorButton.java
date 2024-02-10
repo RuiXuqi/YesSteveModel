@@ -49,7 +49,7 @@ public class FlatColorButton extends Button {
             graphics.fillGradient(this.getX() + this.width - 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height - 1, 0xff_F3EFE0, 0xff_F3EFE0);
             graphics.fillGradient(this.getX(), this.getY() + this.height - 1, this.getX() + this.width, this.getY() + this.height, 0xff_F3EFE0, 0xff_F3EFE0);
         }
-        graphics.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2, this.getY() + (this.height - 8) / 2, 0xF3EFE0);
+        this.renderScrollingString(graphics, font, 2, 0xF3EFE0);
     }
 
     public void setSelect(boolean select) {

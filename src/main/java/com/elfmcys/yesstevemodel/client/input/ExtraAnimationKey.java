@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
 import com.google.common.collect.Lists;
@@ -32,7 +33,7 @@ public class ExtraAnimationKey {
 
     public static void onKeyboardInput(InputEvent.Key event) {
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
-            if (key.isDown()) {
+            if (key.isDown() && !PlayerMoveEvent.isMoveKey()) {
                 NetworkHandler.sendToServer(new SetPlayAnimation(EXTRA_ANIMATION_KEYS.indexOf(key)));
                 return;
             }

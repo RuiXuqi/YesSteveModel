@@ -38,7 +38,7 @@
 				}
 			}
 		},
-		"use_offhand:block": {
+		"use_offhand:shield": {
 			"loop": true,
 			"bones": {
 				"LeftArm": {

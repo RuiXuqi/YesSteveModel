@@ -7,9 +7,6 @@
 				"Root": {
 					"rotation": [2, 0, 0]
 				},
-				"AllBody": {
-					"rotation": [0, 0, 0]
-				},
 				"UpBody": {
 					"rotation": [-15, 0, 0]
 				},
@@ -53,9 +50,6 @@
 				"Root": {
 					"rotation": [2, 0, 0]
 				},
-				"AllBody": {
-					"rotation": [0, 0, 0]
-				},
 				"UpBody": {
 					"rotation": [-20, 0, 0]
 				},
@@ -98,9 +92,6 @@
 			"bones": {
 				"Root": {
 					"rotation": [2, 0, 0]
-				},
-				"AllBody": {
-					"rotation": [0, 0, 0]
 				},
 				"UpBody": {
 					"rotation": [-10, 0, 0]
