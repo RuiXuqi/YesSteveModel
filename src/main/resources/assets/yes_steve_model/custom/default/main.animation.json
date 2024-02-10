@@ -3696,23 +3696,23 @@
 					"scale": 1
 				},
 				"UpBody": {
-					"rotation": [0, 0, "ysm.head_yaw"],
+					"rotation": [5, 0, "ysm.head_yaw"],
 					"position": [0, 0, 0]
 				},
 				"LeftArm": {
-					"rotation": [0, 0, -145],
+					"rotation": [-180, 0, 30],
 					"position": [0, 0, 0]
 				},
 				"LeftForeArm": {
-					"rotation": [0, 0, -60],
+					"rotation": [0, 0, 50],
 					"position": [0, 0, 0]
 				},
 				"RightArm": {
-					"rotation": [0, 0, 145],
+					"rotation": [-180, 0, -30],
 					"position": [0, 0, 0]
 				},
 				"RightForeArm": {
-					"rotation": [0, 0, 60],
+					"rotation": [0, 0, -50],
 					"position": [0, 0, 0]
 				},
 				"LeftLeg": {
@@ -5059,6 +5059,33 @@
 			}
 		},
 		"use_offhand": {
+			"animation_length": 0.375,
+			"bones": {
+				"LeftArm": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0833": [3.52, -1.12, -18.13],
+						"0.125": [-7.5, 0, -35],
+						"0.2083": [-43.79, 17.87, -24.92],
+						"0.25": [-45.07, 31.77, -9.3],
+						"0.2917": [-22.62, 16.75, -3.67],
+						"0.375": [0, 0, 0]
+					}
+				},
+				"LeftForeArm": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0833": [-17.97, 0, 0],
+						"0.125": [-122.5, 0, 0],
+						"0.2083": [-76.22, 0, 0],
+						"0.25": [-15, 0, 0],
+						"0.2917": [-0.78, 0, 0],
+						"0.375": [0, 0, 0]
+					}
+				}
+			}
+		},
+		"swing_offhand": {
 			"animation_length": 0.375,
 			"bones": {
 				"LeftArm": {

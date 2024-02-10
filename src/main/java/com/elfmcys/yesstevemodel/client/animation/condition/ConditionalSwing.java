@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
 import com.google.common.collect.Lists;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -14,22 +13,34 @@ import net.minecraftforge.registries.tags.ITagManager;
 import java.util.List;
 
 public class ConditionalSwing {
-    private static final String ID_PRE = "swing$";
-    private static final String TAG_PRE = "swing#";
     private static final String EMPTY = "";
-    private static final int PRE_SIZE = 6;
+    private final int preSize;
+    private final String idPre;
+    private final String tagPre;
     private final List<ResourceLocation> idTest = Lists.newArrayList();
     private final List<TagKey<Item>> tagTest = Lists.newArrayList();
 
+    public ConditionalSwing(InteractionHand hand) {
+        if (hand == InteractionHand.MAIN_HAND) {
+            idPre = "swing$";
+            tagPre = "swing#";
+            preSize = 6;
+        } else {
+            idPre = "swing_offhand$";
+            tagPre = "swing_offhand#";
+            preSize = 14;
+        }
+    }
+
     public void addTest(String name) {
-        if (name.length() <= PRE_SIZE) {
+        if (name.length() <= preSize) {
             return;
         }
-        String substring = name.substring(PRE_SIZE);
-        if (name.startsWith(ID_PRE) && ResourceLocation.isValidResourceLocation(substring)) {
-            idTest.add(new ResourceLocation(name.substring(PRE_SIZE)));
+        String substring = name.substring(preSize);
+        if (name.startsWith(idPre) && ResourceLocation.isValidResourceLocation(substring)) {
+            idTest.add(new ResourceLocation(substring));
         }
-        if (name.startsWith(TAG_PRE) && ResourceLocation.isValidResourceLocation(substring)) {
+        if (name.startsWith(tagPre) && ResourceLocation.isValidResourceLocation(substring)) {
             ITagManager<Item> tags = ForgeRegistries.ITEMS.tags();
             if (tags == null) {
                 return;
@@ -60,7 +71,7 @@ public class ConditionalSwing {
             return EMPTY;
         }
         if (idTest.contains(registryName)) {
-            return ID_PRE + registryName;
+            return idPre + registryName;
         }
         return EMPTY;
     }
@@ -74,6 +85,6 @@ public class ConditionalSwing {
         if (tags == null) {
             return EMPTY;
         }
-        return tagTest.stream().filter(itemInHand::is).findFirst().map(itemTagKey -> TAG_PRE + itemTagKey.location()).orElse(EMPTY);
+        return tagTest.stream().filter(itemInHand::is).findFirst().map(itemTagKey -> tagPre + itemTagKey.location()).orElse(EMPTY);
     }
 }

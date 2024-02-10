@@ -10,6 +10,7 @@ public class ConditionManager {
     public static ConditionManager INSTANCE = new ConditionManager();
 
     private final Map<ResourceLocation, ConditionalSwing> swing = Maps.newHashMap();
+    private final Map<ResourceLocation, ConditionalSwing> swingOffhand = Maps.newHashMap();
     private final Map<ResourceLocation, ConditionalUse> useMainHand = Maps.newHashMap();
     private final Map<ResourceLocation, ConditionalUse> useOffHand = Maps.newHashMap();
     private final Map<ResourceLocation, ConditionalHold> holdMainHand = Maps.newHashMap();
@@ -17,7 +18,8 @@ public class ConditionManager {
     private final Map<ResourceLocation, ConditionArmor> amor = Maps.newHashMap();
 
     public void addTest(ResourceLocation id, String name) {
-        swing.putIfAbsent(id, new ConditionalSwing());
+        swing.putIfAbsent(id, new ConditionalSwing(InteractionHand.MAIN_HAND));
+        swingOffhand.putIfAbsent(id, new ConditionalSwing(InteractionHand.OFF_HAND));
         useMainHand.putIfAbsent(id, new ConditionalUse(InteractionHand.MAIN_HAND));
         useOffHand.putIfAbsent(id, new ConditionalUse(InteractionHand.OFF_HAND));
         holdMainHand.putIfAbsent(id, new ConditionalHold(InteractionHand.MAIN_HAND));
@@ -25,6 +27,7 @@ public class ConditionManager {
         amor.putIfAbsent(id, new ConditionArmor());
 
         ConditionalSwing conditionalSwing = swing.get(id);
+        ConditionalSwing conditionalSwingOffhand = swingOffhand.get(id);
         ConditionalUse conditionalUseMainhand = useMainHand.get(id);
         ConditionalUse conditionalUseOffhand = useOffHand.get(id);
         ConditionalHold conditionalHoldMainhand = holdMainHand.get(id);
@@ -32,6 +35,7 @@ public class ConditionManager {
         ConditionArmor conditionArmor = amor.get(id);
 
         conditionalSwing.addTest(name);
+        conditionalSwingOffhand.addTest(name);
         conditionalUseMainhand.addTest(name);
         conditionalUseOffhand.addTest(name);
         conditionalHoldMainhand.addTest(name);
@@ -43,8 +47,12 @@ public class ConditionManager {
         INSTANCE = instance;
     }
 
-    public static ConditionalSwing getSwing(ResourceLocation id) {
+    public static ConditionalSwing getSwingMainhand(ResourceLocation id) {
         return INSTANCE.swing.get(id);
+    }
+
+    public static ConditionalSwing getSwingOffhand(ResourceLocation id) {
+        return INSTANCE.swingOffhand.get(id);
     }
 
     public static ConditionalUse getUseMainhand(ResourceLocation id) {
