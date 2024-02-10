@@ -14,7 +14,8 @@
       "client.MinecraftAccessor",
       "client.TimerAccessor",
       "client.WorldRendererMixin",
-      "client.ArrowEntityAccessor"
+      "client.ArrowEntityAccessor",
+      "client.AbstractClientPlayerMixin"
     ],
     "mixins": [
       "AbstractArrowEntityMixin"

@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
+import com.elfmcys.yesstevemodel.api.IPlayerExtraInfo;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
@@ -113,12 +114,23 @@ public final class AnimationManager {
         if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
+        if (!player.swinging && !player.isUsingItem()) {
+            ItemStack offhandItem = player.getItemInHand(InteractionHand.OFF_HAND);
+            if (offhandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(offhandItem)) {
+                return playAnimation(event, "hold_offhand:charged_crossbow", ILoopType.EDefaultLoopTypes.LOOP);
+            }
+        }
         if (checkSwingAndUse(player, InteractionHand.OFF_HAND)) {
             ResourceLocation id = event.getAnimatable().getAnimation();
             ConditionalHold conditionalHold = ConditionManager.getHoldOffhand(id);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.OFF_HAND);
                 if (StringUtils.isNoneBlank(name)) {
+                    ItemStack offhandItem = player.getItemInHand(InteractionHand.OFF_HAND);
+                    if (player instanceof IPlayerExtraInfo info && !offhandItem.equals(info.getHandItem(InteractionHand.OFF_HAND))) {
+                        info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
+                        return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
+                    }
                     return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
                 }
             }
@@ -136,10 +148,6 @@ public final class AnimationManager {
             if (mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(mainHandItem)) {
                 return playAnimation(event, "hold_mainhand:charged_crossbow", ILoopType.EDefaultLoopTypes.LOOP);
             }
-            ItemStack offhandItem = player.getItemInHand(InteractionHand.OFF_HAND);
-            if (offhandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(offhandItem)) {
-                return playAnimation(event, "hold_offhand:charged_crossbow", ILoopType.EDefaultLoopTypes.LOOP);
-            }
             if (player.fishing != null) {
                 return playAnimation(event, "hold_mainhand:fishing", ILoopType.EDefaultLoopTypes.LOOP);
             }
@@ -151,6 +159,11 @@ public final class AnimationManager {
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.MAIN_HAND);
                 if (StringUtils.isNoneBlank(name)) {
+                    ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+                    if (player instanceof IPlayerExtraInfo info && !mainHandItem.equals(info.getHandItem(InteractionHand.MAIN_HAND))) {
+                        info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
+                        return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
+                    }
                     return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
                 }
             }
