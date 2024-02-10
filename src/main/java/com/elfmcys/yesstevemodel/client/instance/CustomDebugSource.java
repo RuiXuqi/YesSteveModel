@@ -4,10 +4,10 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
-public class YSMDebugSource implements DebugSource {
-    public static final YSMDebugSource INSTANCE = new YSMDebugSource();
+public class CustomDebugSource implements DebugSource {
+    public static final CustomDebugSource INSTANCE = new CustomDebugSource();
 
-    private YSMDebugSource() {
+    private CustomDebugSource() {
     }
 
     @Override

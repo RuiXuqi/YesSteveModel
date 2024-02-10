@@ -41,7 +41,7 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
     public void render(AbstractArrow entity, float yaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
             T instance = getGeoInstance(entity);
-            AnimationEvent<?> event = NativeRenderer.isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
+            AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
             if(event != null) {
                 this.dispatchedMat = new Matrix4f(poseStack.last().pose());
                 setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);

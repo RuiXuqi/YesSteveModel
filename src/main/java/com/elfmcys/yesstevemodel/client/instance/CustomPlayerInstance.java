@@ -29,7 +29,7 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
     @Override
     public DebugSource getDebugSource() {
         if(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
-            return YSMDebugSource.INSTANCE;
+            return CustomDebugSource.INSTANCE;
         } else {
             return null;
         }
