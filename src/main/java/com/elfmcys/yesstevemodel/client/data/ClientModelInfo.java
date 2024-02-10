@@ -17,8 +17,9 @@ public class ClientModelInfo {
     private final double heightScale;
     private final List<Component> extraInfo;
     private final List<String> extraAnimationNames;
+    private final boolean free;
 
-    public ClientModelInfo(List<ResourceLocation> textureIds, String hash, Set<String> features, double widthScale, double heightScale, List<Component> extraInfo, List<String> extraAnimationNames) {
+    public ClientModelInfo(List<ResourceLocation> textureIds, String hash, Set<String> features, double widthScale, double heightScale, List<Component> extraInfo, List<String> extraAnimationNames, boolean free) {
         this.textureIds = ImmutableList.copyOf(textureIds);
         this.hash = hash;
         this.features = ImmutableSet.copyOf(features);
@@ -26,6 +27,7 @@ public class ClientModelInfo {
         this.heightScale = heightScale;
         this.extraInfo = ImmutableList.copyOf(extraInfo);
         this.extraAnimationNames = ImmutableList.copyOf(extraAnimationNames);
+        this.free = free;
     }
 
     public List<ResourceLocation> textureIds() {
@@ -54,5 +56,9 @@ public class ClientModelInfo {
 
     public List<String> extraAnimationNames() {
         return extraAnimationNames;
+    }
+
+    public boolean isFree() {
+        return free;
     }
 }

@@ -14,8 +14,9 @@ public class ServerModel {
     private final String hash;
     private final boolean isDefault;
     private final boolean isNeedAuth;
+    private final boolean free;
 
-    public ServerModel(String name, String[] geoModels, String[] animationFiles, String[] textures, String[] features, String hash, boolean isDefault, boolean isNeedAuth) {
+    public ServerModel(String name, String[] geoModels, String[] animationFiles, String[] textures, String[] features, String hash, boolean isDefault, boolean isNeedAuth, boolean free) {
         this.name = name;
         this.geoModels = ImmutableSet.copyOf(geoModels);
         this.animationFiles = ImmutableSet.copyOf(animationFiles);
@@ -24,6 +25,7 @@ public class ServerModel {
         this.hash = hash;
         this.isDefault = isDefault;
         this.isNeedAuth = isNeedAuth;
+        this.free = free;
     }
 
     public String name() {
@@ -56,5 +58,9 @@ public class ServerModel {
 
     public boolean isNeedAuth() {
         return isNeedAuth;
+    }
+
+    public boolean isFree() {
+        return free;
     }
 }

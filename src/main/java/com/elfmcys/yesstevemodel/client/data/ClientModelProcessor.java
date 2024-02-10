@@ -89,7 +89,8 @@ public class ClientModelProcessor {
                         entry.getValue().properties.getWidthScale(),
                         entry.getValue().properties.getHeightScale(),
                         extraInfo.getLeft(),
-                        extraInfo.getRight());
+                        extraInfo.getRight(),
+                        entry.getValue().properties.getExtraInfo() != null && entry.getValue().properties.getExtraInfo().isFree());
             }
             geoModels.put(geoModelId, entry.getValue());
         }
