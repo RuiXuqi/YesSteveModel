@@ -283,6 +283,7 @@
   "error.yes_steve_model.parse_ysm_model": "无法解析模型文件 %s",
   "error.yes_steve_model.parse_geo_model": "无法解析模型文件 %s",
   "error.yes_steve_model.parse_animation": "无法解析动画文件 %s",
+  "error.yes_steve_model.parse_info": "无法解析模型信息文件 %s",
   "error.yes_steve_model.parse_zip": "无法解析压缩包 %s",
   "error.yes_steve_model.extract_zip": "无法解压文件 %s",
   "error.yes_steve_model.validation": "模型文件校验失败",

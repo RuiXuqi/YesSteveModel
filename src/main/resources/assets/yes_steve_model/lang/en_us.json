@@ -283,6 +283,7 @@
   "error.yes_steve_model.parse_ysm_model": "Failed to parse ysm model file %s",
   "error.yes_steve_model.parse_geo_model": "Failed to parse model file %s",
   "error.yes_steve_model.parse_animation": "Failed to parse animation file %s",
+  "error.yes_steve_model.parse_info": "Failed to parse model info file %s",
   "error.yes_steve_model.parse_zip": "Failed to parse zip file %s",
   "error.yes_steve_model.extract_zip": "Failed to extract zip file %s",
   "error.yes_steve_model.validation": "Failed to validate file",
