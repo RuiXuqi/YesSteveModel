@@ -49,6 +49,7 @@ com.elfmcys.yesstevemodel.capability.StarModelsCapability$* 1801
 com.elfmcys.yesstevemodel.capability.ModelInfoCapability 1800
 com.elfmcys.yesstevemodel.capability.AuthModelsCapability 1800
 com.elfmcys.yesstevemodel.capability.StarModelsCapability 1800
+com.elfmcys.yesstevemodel.network.message.SubmitVariableChanges* 1700
 
 com.elfmcys.yesstevemodel.model.ServerModelManager* 1000
 com.elfmcys.yesstevemodel.event.LoggedOutEvent* 999
