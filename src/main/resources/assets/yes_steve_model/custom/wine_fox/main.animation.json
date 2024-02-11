@@ -9879,10 +9879,10 @@
 					"position": ["ysm.head_yaw/180", "ysm.head_pitch/720", 0]
 				},
 				"AllBody": {
-					"scale": "1-v.a"
+					"scale": "1-v.roaming.a"
 				},
 				"FOX": {
-					"scale": "v.a"
+					"scale": "v.roaming.a"
 				},
 				"RightEyePublic": {
 					"position": ["ysm.head_yaw/360", "ysm.head_pitch/360", 0]
