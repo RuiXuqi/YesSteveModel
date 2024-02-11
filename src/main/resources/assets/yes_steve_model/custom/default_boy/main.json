@@ -8,14 +8,7 @@
 				"texture_height": 128,
 				"visible_bounds_width": 4,
 				"visible_bounds_height": 4.5,
-				"visible_bounds_offset": [0, 1.75, 0],
-				"ysm_extra_info": {
-					"name": "Default Boy",
-					"tips": "默认男版模型（Default Boy Model）",
-					"authors": ["哥斯拉", "端木"],
-					"license": "CC 0",
-					"free": true
-				}
+				"visible_bounds_offset": [0, 1.75, 0]
 			},
 			"bones": [
 				{

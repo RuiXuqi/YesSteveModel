@@ -1,0 +1,8 @@
+{
+  "name": "Wine Fox（酒狐）",
+  "tips": "A fox girl who loves to drink wine.\n一只爱喝葡萄酒的狐娘。",
+  "authors": ["哥斯拉", "星屑海螺"],
+  "license": "CC BY-NC-SA 4.0",
+  "extra_animation_names": ["变身", "打招呼", "鼓掌", "是的", "不行", "卖萌", "御笔摇", "舞蹈"],
+  "free": true
+}

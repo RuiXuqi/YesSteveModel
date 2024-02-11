@@ -10,14 +10,7 @@
 				"visible_bounds_height": 3,
 				"visible_bounds_offset": [0, 1.5, 0],
 				"ysm_height_scale": 1,
-				"ysm_width_scale": 1,
-				"ysm_extra_info": {
-					"name": "Steve",
-					"tips": "原版史蒂夫模型（Minecraft Steve Model）",
-					"authors": ["哥斯拉", "端木", "甜粽子"],
-					"license": "CC 0",
-					"free": true
-				}
+				"ysm_width_scale": 1
 			},
 			"bones": [
 				{

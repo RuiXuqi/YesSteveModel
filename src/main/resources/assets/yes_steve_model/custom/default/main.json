@@ -8,14 +8,7 @@
 				"texture_height": 128,
 				"visible_bounds_width": 7,
 				"visible_bounds_height": 5,
-				"visible_bounds_offset": [0, 1.5, 0],
-				"ysm_extra_info": {
-					"name": "Default",
-					"tips": "默认模型（Default Model）",
-					"authors": ["哥斯拉", "端木", "甜粽子", "星屑海螺"],
-					"license": "CC 0",
-                    "free": true
-                }
+				"visible_bounds_offset": [0, 1.5, 0]
 			},
 			"bones": [
 				{
@@ -35,6 +28,16 @@
 				{
 					"name": "UpBody",
 					"parent": "AllBody",
+					"pivot": [0, 20.65, 0]
+				},
+				{
+					"name": "MUpperBody",
+					"parent": "UpBody",
+					"pivot": [0, 20.65, 0]
+				},
+				{
+					"name": "UpperBody",
+					"parent": "MUpperBody",
 					"pivot": [0, 20.65, 0],
 					"cubes": [
 						{"origin": [0.35, 23.82247, -2.15834], "size": [0.7, 0.7, 0.7], "pivot": [0.5, 24.42247, -1.73334], "rotation": [-7.5, 0, 0], "uv": [1, 83], "mirror": true},
@@ -52,7 +55,7 @@
 				},
 				{
 					"name": "AllHead",
-					"parent": "UpBody",
+					"parent": "UpperBody",
 					"pivot": [0, 32.425, -0.025],
 					"cubes": [
 						{"origin": [-1.5, 31.925, -1.525], "size": [3, 2, 3], "uv": [68, 0]}
@@ -312,7 +315,7 @@
 				},
 				{
 					"name": "Breast",
-					"parent": "UpBody",
+					"parent": "UpperBody",
 					"pivot": [-0.0125, 28.74747, -2.15834],
 					"rotation": [-32.5, 0, 0],
 					"cubes": [
@@ -326,7 +329,7 @@
 				},
 				{
 					"name": "Arm",
-					"parent": "UpBody",
+					"parent": "UpperBody",
 					"pivot": [-0.2, 31.275, 0]
 				},
 				{
@@ -351,8 +354,13 @@
 					]
 				},
 				{
-					"name": "LeftHandLocator",
+					"name": "LeftHand",
 					"parent": "LeftForeArm",
+					"pivot": [4.125, 19.575, 0.025]
+				},
+				{
+					"name": "LeftHandLocator",
+					"parent": "LeftHand",
 					"pivot": [4.125, 19.575, 0.025]
 				},
 				{
@@ -377,13 +385,18 @@
 					]
 				},
 				{
-					"name": "RightHandLocator",
+					"name": "RightHand",
 					"parent": "RightForeArm",
 					"pivot": [-4.125, 19.575, 0.025]
 				},
 				{
+					"name": "RightHandLocator",
+					"parent": "RightHand",
+					"pivot": [-4.125, 19.575, 0.025]
+				},
+				{
 					"name": "Collar",
-					"parent": "UpBody",
+					"parent": "UpperBody",
 					"pivot": [0, 30.925, -0.025],
 					"rotation": [-15, 0, 0],
 					"cubes": [
@@ -396,12 +409,12 @@
 				},
 				{
 					"name": "ElytraLocator",
-					"parent": "UpBody",
+					"parent": "UpperBody",
 					"pivot": [0, 31.65, 2]
 				},
 				{
 					"name": "RifleLocator",
-					"parent": "UpBody",
+					"parent": "UpperBody",
 					"pivot": [0, 25.15, 2.3],
 					"rotation": [0, 0, 45]
 				},
