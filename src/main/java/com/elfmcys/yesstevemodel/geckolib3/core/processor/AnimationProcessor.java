@@ -9,12 +9,14 @@ import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.VariableStorage;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.geo.raw.pojo.ModelScript;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
+import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -29,6 +31,8 @@ import java.util.function.Consumer;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AnimationProcessor<T extends IAnimatable<?>> {
+    private static final int ROAMING_STRUCT_NAME = StringPool.computeIfAbsent("roaming");
+
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelRendererList = new ReferenceArrayList<>();
     private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelRendererMap = new Object2ReferenceOpenHashMap<>();
     private final VariableStorage animationStorage = new VariableStorage();
@@ -187,7 +191,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
         this.modelRendererMap.clear();
         this.modelRendererList.clear();
         this.modelRendererList.ensureCapacity(boneMap.size());
-        for(Map.Entry<String, IBone> entry : boneMap.entrySet()) {
+        for (Map.Entry<String, IBone> entry : boneMap.entrySet()) {
             BoneTopLevelSnapshot renderer = new BoneTopLevelSnapshot(entry.getValue());
             this.modelRendererMap.put(entry.getKey(), renderer);
             this.modelRendererList.add(renderer);
@@ -196,6 +200,12 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
         this.preAnimationValues = scripts.preAnimationValues();
         this.animationStorage.initialize(scripts.publicVariableNames());
         this.rendererDirty = true;
+    }
+
+    public void putRemoteStruct(@Nullable Struct remoteStruct) {
+        if (remoteStruct != null) {
+            animationStorage.setScoped(ROAMING_STRUCT_NAME, remoteStruct);
+        }
     }
 
     public boolean isModelRendererEmpty() {

@@ -18,8 +18,8 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
     protected String animationName = "idle";
     protected boolean isAnimationDirty = false;
 
-    public CustomPlayerInstance(AbstractClientPlayer player, boolean asyncUpdate) {
-        super(new CustomPlayerModel(), new CustomPlayerEntity(player), asyncUpdate);
+    public CustomPlayerInstance(AbstractClientPlayer player, boolean asyncUpdate, boolean localPlayer) {
+        super(new CustomPlayerModel(), new CustomPlayerEntity(player, localPlayer), asyncUpdate);
         animatableModel.getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
         if (player instanceof LocalPlayer) {
             setInitialized();

@@ -17,7 +17,7 @@ public class PlayerGeoCapability extends CustomPlayerInstance {
     private AnimationEvent<CustomPlayerEntity> lastEvent;
 
     public PlayerGeoCapability(AbstractClientPlayer player) {
-        super(player, true);
+        super(player, true, player instanceof LocalPlayer);
     }
 
     @Override

@@ -14,15 +14,21 @@ import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationFactory;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import com.elfmcys.yesstevemodel.geckolib3.util.GeckoLibUtil;
+import com.elfmcys.yesstevemodel.molang.runtime.HashMapStruct;
+import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
@@ -31,11 +37,20 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
     private ResourceLocation mainModel = CustomPlayerModel.DEFAULT_MAIN_MODEL;
     private ResourceLocation modelId = CustomPlayerModel.DEFAULT_MODEL;
     private ResourceLocation texture = CustomPlayerModel.DEFAULT_TEXTURE;
+    private Struct remoteStruct;
     private String previewAnimation = "";
     private AbstractClientPlayer player;
 
-    public CustomPlayerEntity(AbstractClientPlayer player) {
+    private int instanceIdOverride;
+    private Object2FloatOpenHashMap<String> initialVariables;
+
+    public CustomPlayerEntity(AbstractClientPlayer player, boolean localPlayer) {
         this.player = player;
+        if (localPlayer) {
+            remoteStruct = new RoamingStruct();
+        } else {
+            remoteStruct = new HashMapStruct();
+        }
     }
 
     // 只允许重置为 LocalPlayer，用于 GUI 渲染
@@ -152,5 +167,26 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
 
     public boolean hasPreviewAnimation(String previewAnimation) {
         return hasPreviewAnimation() && previewAnimation.equals(this.previewAnimation);
+    }
+
+    @Nullable
+    public Struct getRemoteStruct() {
+        if (initialVariables != null) {
+            if (remoteStruct instanceof RoamingStruct roamingStruct) {
+                roamingStruct.reset(instanceIdOverride, initialVariables);
+            } else {
+                remoteStruct = new HashMapStruct();
+                for (var entry : initialVariables.object2FloatEntrySet()) {
+                    this.remoteStruct.putProperty(StringPool.getName(entry.getKey()), entry.getFloatValue());
+                }
+            }
+            initialVariables = null;
+        }
+        return remoteStruct;
+    }
+
+    public void setRemoteVariables(int instanceId, Object2FloatOpenHashMap<String> initialVariables) {
+        this.instanceIdOverride = instanceId;
+        this.initialVariables = initialVariables;
     }
 }

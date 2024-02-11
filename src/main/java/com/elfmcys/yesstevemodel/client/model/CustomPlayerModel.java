@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -91,5 +92,11 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
     @Nullable
     public IBone getBone(String boneName) {
         return getAnimationProcessor().getBone(boneName);
+    }
+
+    @Override
+    @Nullable
+    public Struct getRemoteStruct(CustomPlayerEntity object) {
+        return object.getRemoteStruct();
     }
 }

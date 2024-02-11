@@ -60,11 +60,11 @@ public class SyncModelInfo {
                 PACKET_CACHE.put(message.entityId, message.capability);
                 return;
             }
-            if (entity instanceof Player) {
-                Player player = (Player) entity;
+            if (entity instanceof Player player) {
                 player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                     cap.setModelAndTexture(message.capability.getModelId(), message.capability.getSelectTexture());
-                    if(message.capability.isPlayAnimation()) {
+                    cap.getAnimatable().setRemoteVariables(message.capability.getInstanceId(), message.capability.getVariables());
+                    if (message.capability.isPlayAnimation()) {
                         cap.playAnimation(message.capability.getAnimation());
                     } else {
                         cap.stopAnimation();

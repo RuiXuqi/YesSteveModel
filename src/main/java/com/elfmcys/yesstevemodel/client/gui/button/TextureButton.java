@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
@@ -33,10 +34,13 @@ public class TextureButton extends Button {
     public void onPress() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap ->
-                    cap.setTexture(instance.getTextureLocation()));
+            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                cap.setTexture(instance.getTextureLocation());
+                if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
+                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation(), roamingStruct.getInstanceId()));
+                }
+            });
         }
-        NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation()));
     }
 
     @Override

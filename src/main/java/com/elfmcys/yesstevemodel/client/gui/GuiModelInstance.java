@@ -10,7 +10,7 @@ import net.minecraft.client.player.LocalPlayer;
 
 public class GuiModelInstance extends CustomPlayerInstance {
     public GuiModelInstance() {
-        super(Minecraft.getInstance().player, false);
+        super(Minecraft.getInstance().player, false, false);
     }
 
     @Override

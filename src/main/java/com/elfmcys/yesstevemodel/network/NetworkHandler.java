@@ -89,6 +89,8 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(15, SyncDisableSwitch.class, SyncDisableSwitch::encode, SyncDisableSwitch::decode, SyncDisableSwitch::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(16, SubmitVariableChanges.class, SubmitVariableChanges::encode, SubmitVariableChanges::decode, SubmitVariableChanges::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
     public static void sendToServer(Object message) {

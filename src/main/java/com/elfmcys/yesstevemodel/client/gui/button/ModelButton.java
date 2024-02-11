@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
@@ -46,9 +47,12 @@ public class ModelButton extends Button {
         if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 cap.setModelAndTexture(instance.getModelId(), instance.getTextureLocation());
+                if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
+                    roamingStruct.reset(roamingStruct.getInstanceId() + 1, null);
+                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation(), roamingStruct.getInstanceId()));
+                }
             });
         }
-        NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation()));
     }
 
     @Override

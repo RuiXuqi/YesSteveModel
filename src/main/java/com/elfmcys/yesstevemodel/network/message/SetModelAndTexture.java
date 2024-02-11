@@ -15,19 +15,22 @@ import java.util.function.Supplier;
 public class SetModelAndTexture {
     private final ResourceLocation modelId;
     private final ResourceLocation selectTexture;
+    private final int instanceId;
 
-    public SetModelAndTexture(ResourceLocation modelId, ResourceLocation selectTexture) {
+    public SetModelAndTexture(ResourceLocation modelId, ResourceLocation selectTexture, int instanceId) {
         this.modelId = modelId;
         this.selectTexture = selectTexture;
+        this.instanceId = instanceId;
     }
 
     public static void encode(SetModelAndTexture message, FriendlyByteBuf buf) {
         buf.writeResourceLocation(message.modelId);
         buf.writeResourceLocation(message.selectTexture);
+        buf.writeInt(message.instanceId);
     }
 
     public static SetModelAndTexture decode(FriendlyByteBuf buf) {
-        return new SetModelAndTexture(buf.readResourceLocation(), buf.readResourceLocation());
+        return new SetModelAndTexture(buf.readResourceLocation(), buf.readResourceLocation(), buf.readInt());
     }
 
     public static void handle(SetModelAndTexture message, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -52,8 +55,10 @@ public class SetModelAndTexture {
             if (!ServerModelManager.getModels().containsKey(modelName)
                     || ServerModelManager.getAuthModels().contains(modelName) && !ownModelsCap.containModel(message.modelId)
                     || !ServerModelManager.getModels().get(modelName).textures().contains(ModelIdUtil.getSubNameFromId(message.selectTexture))) {
+                modelIdCap.resetVariables(modelIdCap.getInstanceId() + 1);
                 modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_ID);
             } else {
+                modelIdCap.resetVariables(message.instanceId);
                 modelIdCap.setModelAndTexture(message.modelId, message.selectTexture);
             }
         }));
