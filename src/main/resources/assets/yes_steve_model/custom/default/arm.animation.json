@@ -769,9 +769,6 @@
 				}
 			}
 		},
-		"————swords————": {
-			"loop": true
-		},
 		"hold_mainhand:sword": {
 			"loop": true,
 			"animation_length": 1000,
@@ -1139,9 +1136,6 @@
 			"timeline": {
 				"0.0": ["v.jump=q.is_jumping;", "v.random=math.random(-30,30);"]
 			}
-		},
-		"————bow————": {
-			"loop": true
 		},
 		"hold_offhand:bow": {
 			"loop": true,
@@ -1649,9 +1643,6 @@
 				}
 			}
 		},
-		"————shield————": {
-			"loop": true
-		},
 		"use_mainhand:shield": {
 			"loop": true,
 			"bones": {
@@ -1931,9 +1922,6 @@
 					}
 				}
 			}
-		},
-		"————spear————": {
-			"loop": true
 		},
 		"use_mainhand:spear": {
 			"loop": "hold_on_last_frame",
@@ -2487,9 +2475,6 @@
 				"0.125": "v.qh2=v.qh;"
 			}
 		},
-		"————crossbow————": {
-			"loop": true
-		},
 		"use_mainhand:crossbow": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 60,
@@ -2948,9 +2933,6 @@
 					"position": [0, -4, 1]
 				}
 			}
-		},
-		"————tool————": {
-			"loop": true
 		},
 		"hold_mainhand:pickaxe": {
 			"loop": true,
@@ -3767,9 +3749,6 @@
 					}
 				}
 			}
-		},
-		"————potion————": {
-			"loop": true
 		},
 		"hold_mainhand:throwable_potion": {
 			"loop": true,
