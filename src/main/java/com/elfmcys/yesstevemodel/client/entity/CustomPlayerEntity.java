@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
-import com.elfmcys.yesstevemodel.compat.carryon.CarryOnCompat;
+import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;

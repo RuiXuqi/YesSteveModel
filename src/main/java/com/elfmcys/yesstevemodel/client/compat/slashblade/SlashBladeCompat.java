@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.compat.slashblade;
+package com.elfmcys.yesstevemodel.client.compat.slashblade;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;

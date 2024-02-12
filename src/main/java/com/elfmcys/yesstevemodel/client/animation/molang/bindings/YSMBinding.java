@@ -106,6 +106,7 @@ public class YSMBinding extends ContextBinding {
         return 0;
     }
 
+    @Deprecated
     private String getBiomeCategory(Entity entity) {
         return null;
     }

@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.compat.carryon;
+package com.elfmcys.yesstevemodel.client.compat.carryon;
 
 import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;

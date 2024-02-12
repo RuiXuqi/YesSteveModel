@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
-import com.elfmcys.yesstevemodel.compat.slashblade.SlashBladeCompat;
-import com.elfmcys.yesstevemodel.compat.slashblade.SlashBladeRender;
+import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
+import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeRender;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;

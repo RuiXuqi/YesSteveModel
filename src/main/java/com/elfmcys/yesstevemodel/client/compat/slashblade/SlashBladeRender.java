@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.compat.slashblade;
+package com.elfmcys.yesstevemodel.client.compat.slashblade;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;

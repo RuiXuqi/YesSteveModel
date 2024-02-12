@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.compat.carryon.CarryOnCompat;
+import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.world.entity.Pose;
