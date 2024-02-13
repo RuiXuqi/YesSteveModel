@@ -19,7 +19,7 @@ public class SubmitVariableChanges {
     }
 
     public static void encode(SubmitVariableChanges message, FriendlyByteBuf buf) {
-        buf.writeInt(message.instanceId);
+        buf.writeVarInt(message.instanceId);
         buf.writeByte(message.variables.size());
         for (var variable : message.variables) {
             buf.writeUtf(variable.first());
@@ -28,7 +28,7 @@ public class SubmitVariableChanges {
     }
 
     public static SubmitVariableChanges decode(FriendlyByteBuf buf) {
-        int instanceId = buf.readInt();
+        int instanceId = buf.readVarInt();
         var variableSize = buf.readByte();
         List<ReferenceFloatPair<String>> variables = Lists.newArrayListWithCapacity(variableSize);
         for (var i = 0; i < variableSize; i++) {
