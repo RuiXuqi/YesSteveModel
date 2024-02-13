@@ -121,16 +121,17 @@ public final class AnimationManager {
             }
         }
         if (checkSwingAndUse(player, InteractionHand.OFF_HAND)) {
+            ItemStack offhandItem = player.getItemInHand(InteractionHand.OFF_HAND);
+            if (player instanceof IPlayerExtraInfo info && !isSameItem(offhandItem, info, InteractionHand.OFF_HAND)) {
+                info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
+                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
+            }
+
             ResourceLocation id = event.getAnimatable().getAnimation();
             ConditionalHold conditionalHold = ConditionManager.getHoldOffhand(id);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.OFF_HAND);
                 if (StringUtils.isNoneBlank(name)) {
-                    ItemStack offhandItem = player.getItemInHand(InteractionHand.OFF_HAND);
-                    if (player instanceof IPlayerExtraInfo info && !offhandItem.equals(info.getHandItem(InteractionHand.OFF_HAND))) {
-                        info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
-                        return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
-                    }
                     return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
                 }
             }
@@ -154,21 +155,30 @@ public final class AnimationManager {
         }
 
         if (checkSwingAndUse(player, InteractionHand.MAIN_HAND)) {
+            ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+            if (player instanceof IPlayerExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
+                info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
+                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
+            }
+
             ResourceLocation id = event.getAnimatable().getAnimation();
             ConditionalHold conditionalHold = ConditionManager.getHoldMainhand(id);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.MAIN_HAND);
                 if (StringUtils.isNoneBlank(name)) {
-                    ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
-                    if (player instanceof IPlayerExtraInfo info && !mainHandItem.equals(info.getHandItem(InteractionHand.MAIN_HAND))) {
-                        info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
-                        return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
-                    }
                     return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
                 }
             }
         }
         return PlayState.STOP;
+    }
+
+    private boolean isSameItem(ItemStack playerItem, IPlayerExtraInfo info, InteractionHand hand) {
+        ItemStack preItem = info.getHandItem(hand);
+        if (preItem.isDamaged()) {
+            return ItemStack.isSameItem(playerItem, preItem);
+        }
+        return ItemStack.matches(playerItem, preItem);
     }
 
     public PlayState predicateSwing(AnimationEvent<CustomPlayerEntity> event) {
@@ -202,8 +212,7 @@ public final class AnimationManager {
         }
         if (player.isUsingItem() && !player.isSleeping()) {
             if (player.getTicksUsingItem() == 1) {
-                event.getController().shouldResetTick = true;
-                event.getController().adjustTick(0);
+                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             if (player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
                 ResourceLocation id = event.getAnimatable().getAnimation();

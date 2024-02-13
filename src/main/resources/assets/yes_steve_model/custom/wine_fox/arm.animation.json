@@ -656,7 +656,8 @@
 					"rotation": ["0.2*ysm.head_pitch", "0.5*ysm.head_yaw", 0]
 				},
 				"RightHandLocator": {
-					"rotation": [174.99046, -4.99523, 0.21865]
+					"rotation": [0.99047, 0.01423, -180.21741],
+					"position": [0, -2, 1.5]
 				},
 				"UpBody": {
 					"rotation": ["-0.2*ysm.head_pitch", "-0.5*ysm.head_yaw", 0]
@@ -676,7 +677,7 @@
 					"rotation": ["0.2*ysm.head_pitch", "0.5*ysm.head_yaw", 0]
 				},
 				"LeftHandLocator": {
-					"rotation": [120, 0, 0],
+					"rotation": [0, 0, 0],
 					"position": [0, 0, 0]
 				},
 				"UpBody": {
