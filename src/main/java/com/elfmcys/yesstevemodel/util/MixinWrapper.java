@@ -33,8 +33,4 @@ public class MixinWrapper {
     public static boolean renderArrow(AbstractArrow entity, float pEntityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         return MixinInnerWrapper.renderArrow(entity, pEntityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
-
-    public static Object transformPersonPlayerOffset(Object offset) {
-        return MixinInnerWrapper.transformPersonPlayerOffset(offset);
-    }
 }

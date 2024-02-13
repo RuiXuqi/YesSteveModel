@@ -19,10 +19,6 @@ public class FirstPersonCompat {
         }
     }
 
-    public static Vec3 transformPlayerOffset(Vec3 current) {
-        return new Vec3(current.x(), 1.5 - CustomPlayerModel.FIRST_PERSON_HEAD_POS  / 16, current.z());
-    }
-
     public static boolean isInstalled() {
         return INSTALLED;
     }

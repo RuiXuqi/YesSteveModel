@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.util;
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
-import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.instance.CustomArrowInstance;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
@@ -14,7 +13,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -60,9 +58,5 @@ public class MixinInnerWrapper {
             }
         }
         return false;
-    }
-
-    public static Object transformPersonPlayerOffset(Object offset) {
-        return FirstPersonCompat.transformPlayerOffset((Vec3) offset);
     }
 }
