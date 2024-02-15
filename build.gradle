@@ -32,7 +32,7 @@ apply plugin: 'org.spongepowered.mixin'
 
 version = mod_version
 group = 'com.elfmcys.yesstevemodel'
-archivesBaseName = 'yesstevemodel-1.20'
+archivesBaseName = 'yesstevemodel-forge-1.20'
 
 // 构建工具用到的变量
 var builderPath = "${buildDir}/ysm-native/YSMBuilder.exe"
