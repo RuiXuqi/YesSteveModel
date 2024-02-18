@@ -26,7 +26,7 @@ public class MolangParser {
         try {
             return parseExpressionUnsafe(molangExpression);
         } catch (Exception e) {
-            YesSteveModel.LOGGER.error("Failed to parse value " + molangExpression, e);
+            YesSteveModel.LOGGER.error("Failed to parse value \"{}\": {}", molangExpression, e.getMessage());
             return DoubleValue.ZERO;
         }
     }
