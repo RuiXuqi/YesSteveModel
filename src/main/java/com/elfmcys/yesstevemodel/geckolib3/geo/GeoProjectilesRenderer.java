@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
+import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.resources.ResourceLocation;
@@ -41,19 +43,21 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
     public void render(AbstractArrow entity, float yaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
             T instance = getGeoInstance(entity);
-            AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
-            if(event != null) {
-                this.dispatchedMat = new Matrix4f(poseStack.last().pose());
-                setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
-                poseStack.pushPose();
-                poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
-                poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
-                Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
-                RenderType renderType = getRenderType(instance, partialTick, poseStack, bufferSource, null, packedLight,
-                        instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_ARROW_TEXTURE_ID);
-                GeoModelState model = instance.getAnimatableModel().getCurrentModel();
-                render(model, instance, partialTick, renderType, poseStack, bufferSource, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-                poseStack.popPose();
+            if (instance != null) {
+                AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
+                if (event != null) {
+                    this.dispatchedMat = new Matrix4f(poseStack.last().pose());
+                    setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
+                    poseStack.pushPose();
+                    poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
+                    poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
+                    Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
+                    RenderType renderType = getRenderType(instance, partialTick, poseStack, bufferSource, null, packedLight,
+                            instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_ARROW_TEXTURE_ID);
+                    GeoModelState model = instance.getAnimatableModel().getCurrentModel();
+                    render(model, instance, partialTick, renderType, poseStack, bufferSource, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
+                    poseStack.popPose();
+                }
             }
         }
         super.render(entity, yaw, partialTick, poseStack, bufferSource, packedLight);
@@ -93,6 +97,10 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
     @Override
     @Deprecated
     public ResourceLocation getTextureLocation(AbstractArrow entity) {
-        throw new RuntimeException();
+        if (entity instanceof IArrowExtraInfo extraInfo && extraInfo.getGeoInstance() instanceof GeoInstance<?,?> instance) {
+            return instance.getTextureLocation();
+        } else {
+            return MissingTextureAtlasSprite.getLocation();
+        }
     }
 }

@@ -86,10 +86,10 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
     @SuppressWarnings("unchecked")
     protected void renderGeoInstance(TInstance instance, float entityYaw, float partialTick, PoseStack poseStack,
                                      MultiBufferSource bufferSource, int packedLight) {
+        AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
+
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>((LivingEntity) instance.getAnimatable().getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
-
-        AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
         final TEntity entity = (TEntity) instance.getAnimatable().getEntity();
         if (event != null) {
             final EntityModelData data = (EntityModelData) event.getExtraData().get(0);
