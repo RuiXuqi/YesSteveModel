@@ -7,15 +7,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.Map;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class VanillaPlayerRenderEvent {
     private static final ResourceLocation STEVE_SKIN_LOCATION = new ResourceLocation("textures/entity/player/wide/steve.png");
     private static final ResourceLocation ALEX_SKIN_LOCATION = new ResourceLocation("textures/entity/player/slim/alex.png");
     private static final String STEVE = "steve";
     private static final String ALEX = "alex";
 
+    @SubscribeEvent
     public static void onRenderPlayer(SpecialPlayerRenderEvent event) {
         Player player = event.getPlayer();
         CustomPlayerEntity animatable = event.getCustomPlayer();

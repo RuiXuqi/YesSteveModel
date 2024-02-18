@@ -17,10 +17,15 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ReplacePlayerHandRenderEvent {
+    @SubscribeEvent
     public static void onRenderHand(RenderArmEvent event) {
         if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
             return;

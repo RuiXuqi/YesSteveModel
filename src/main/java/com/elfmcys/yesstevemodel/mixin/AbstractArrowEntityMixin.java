@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.mixin;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
+import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.util.Keep;
 import com.elfmcys.yesstevemodel.util.MixinWrapper;
 import net.minecraft.world.entity.Entity;
@@ -84,7 +85,9 @@ public class AbstractArrowEntityMixin implements IArrowExtraInfo {
     @Inject(at = @At("RETURN"), method = "setOwner(Lnet/minecraft/world/entity/Entity;)V")
     private void setOwner(Entity entity, CallbackInfo callbackInfo) {
         if (entity instanceof ServerPlayer && getYsmModelName().equals(IArrowExtraInfo.EMPTY_MODEL_NAME)) {
-            MixinWrapper.getPlayerModelName(entity, this::setYsmModelName);
+            entity.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+                setYsmModelName(cap.getModelId().getPath());
+            });
         }
     }
 

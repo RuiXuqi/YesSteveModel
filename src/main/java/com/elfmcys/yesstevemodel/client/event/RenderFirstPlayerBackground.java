@@ -20,22 +20,28 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class RenderFirstPlayerBackground {
     /**
      * 因为 RenderHandEvent 可有几率会渲染多次，所以为了避免多次渲染，这样设计
      */
     private static boolean ALREADY_RENDERED = false;
 
+    @SubscribeEvent
     public static void onRenderLevelLase(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
             ALREADY_RENDERED = false;
         }
     }
 
+    @SubscribeEvent
     public static void onRenderHand(RenderHandEvent event) {
         if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
             return;

@@ -10,16 +10,21 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ReferenceFloatPair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class LocalPlayerTickEvent {
     private static float YAW_SPEED;
     private static float LAST_YAW;
     private static long LAST_TIME;
 
+    @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent tick) {
         if (tick.side != LogicalSide.CLIENT || tick.phase != TickEvent.Phase.END || !(tick.player instanceof LocalPlayer player)) {
             return;

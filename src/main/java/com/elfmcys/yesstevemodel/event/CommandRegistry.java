@@ -18,6 +18,8 @@ import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@Mod.EventBusSubscriber
 public final class CommandRegistry {
     public static final SuggestionProvider<CommandSourceStack> ALL_MODELS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "models"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider) {
@@ -75,6 +78,7 @@ public final class CommandRegistry {
         return Suggestions.empty();
     });
 
+    @SubscribeEvent
     public static void onServerStaring(RegisterCommandsEvent event) {
         RootCommand.register(event.getDispatcher());
         if (FMLEnvironment.dist == Dist.CLIENT) {

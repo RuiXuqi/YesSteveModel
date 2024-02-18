@@ -7,9 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ReplacePlayerRenderEvent {
+    @SubscribeEvent
     public static void onRender(RenderPlayerEvent.Pre event) {
         Player playerRender = event.getEntity();
         LocalPlayer playerSelf = Minecraft.getInstance().player;

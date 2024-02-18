@@ -11,19 +11,25 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
+@Mod.EventBusSubscriber
 public final class CapabilityEvent {
     private static final ResourceLocation MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "model_id");
     private static final ResourceLocation AUTH_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "own_models");
     private static final ResourceLocation STAR_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "star_models");
     private static final ResourceLocation GEO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "geo");
 
+    @SubscribeEvent
     public static void onAttachCapabilityEvent(AttachCapabilitiesEvent<Entity> event) {
         Entity entity = event.getObject();
         if (entity instanceof Player player) {
@@ -36,17 +42,13 @@ public final class CapabilityEvent {
             if (!player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).isPresent() && !event.getCapabilities().containsKey(STAR_MODELS_CAP)) {
                 event.addCapability(STAR_MODELS_CAP, new StarModelsCapabilityProvider());
             }
-        }
-    }
-
-    public static void onAttachClientCapabilityEvent(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof AbstractClientPlayer player) {
-            if (!player.getCapability(PlayerGeoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(GEO_CAP)) {
-                event.addCapability(GEO_CAP, new PlayerGeoCapabilityProvider(player));
+            if (FMLEnvironment.dist == Dist.CLIENT && event.getObject() instanceof AbstractClientPlayer clientPlayer && !clientPlayer.getCapability(PlayerGeoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(GEO_CAP)) {
+                event.addCapability(GEO_CAP, new PlayerGeoCapabilityProvider(clientPlayer));
             }
         }
     }
 
+    @SubscribeEvent
     public static void onPlayerCloned(PlayerEvent.Clone event) {
         event.getOriginal().reviveCaps();
         LazyOptional<ModelInfoCapability> oldModelInfoCap = getModelInfoCap(event.getOriginal());
@@ -63,6 +65,7 @@ public final class CapabilityEvent {
         newStarModelsCap.ifPresent((newStarModels) -> oldStarModelsCap.ifPresent(newStarModels::copyFrom));
     }
 
+    @SubscribeEvent
     public static void onTrackingPlayer(PlayerEvent.StartTracking event) {
         if (event.getTarget() instanceof Player trackPlayer) {
             final Player player = event.getEntity();
@@ -73,6 +76,7 @@ public final class CapabilityEvent {
         }
     }
 
+    @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
             getModelInfoCap(player).ifPresent(modelInfoCap -> {
@@ -100,6 +104,7 @@ public final class CapabilityEvent {
     /**
      * 同步客户端服务端数据
      */
+    @SubscribeEvent
     public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
         final Player player = event.player;
         if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {

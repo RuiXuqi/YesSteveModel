@@ -151,7 +151,6 @@ tasks.register('buildWindowsTestJar', Exec) {
     dependsOn tasks.reobfJar
     commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-test',
             tasks.reobfJar.input.asFile.get().path,
-            '-c', "${projectDir}/protected-classes.txt",
             '-l', tasks.createMcpToSrg.output.asFile.get().path
 }
 
@@ -161,7 +160,6 @@ tasks.register('buildLinuxTestJar', Exec) {
     dependsOn tasks.reobfJar
     commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'linux-test',
             tasks.reobfJar.input.asFile.get().path,
-            '-c', "${projectDir}/protected-classes.txt",
             '-l', tasks.createMcpToSrg.output.asFile.get().path
 }
 
@@ -210,7 +208,6 @@ tasks.register('buildWindowsProductionJar', Exec) {
 
     commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-production',
             tasks.proguardJar.outJarFileCollection.singleFile.path,
-            '-c', "${projectDir}/protected-classes.txt",
             '-p', "${projectDir}/ysm.vmp",
             '-l', tasks.createMcpToSrg.output.asFile.get().path,
             '-g', tasks.proguardJar.printMappingFile.path
@@ -230,7 +227,6 @@ tasks.register('buildProductionJar', Exec) {
 
     commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'production',
             tasks.proguardJar.outJarFileCollection.singleFile.path,
-            '-c', "${projectDir}/protected-classes.txt",
             '-p', "${projectDir}/ysm.vmp",
             '-l', tasks.createMcpToSrg.output.asFile.get().path,
             '-g', tasks.proguardJar.printMappingFile.path

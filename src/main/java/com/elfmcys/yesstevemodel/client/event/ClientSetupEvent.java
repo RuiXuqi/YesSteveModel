@@ -9,13 +9,18 @@ import com.elfmcys.yesstevemodel.client.input.*;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import static net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.DEBUG_TEXT;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientSetupEvent {
+    @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         AnimationRegister.registerAnimationState();
         FirstPersonCompat.init();
@@ -23,6 +28,7 @@ public class ClientSetupEvent {
         initCoreClient();
     }
 
+    @SubscribeEvent
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(PlayerModelScreenKey.PLAYER_MODEL_KEY);
         event.register(AnimationRouletteKey.ANIMATION_ROULETTE_KEY);
@@ -31,6 +37,7 @@ public class ClientSetupEvent {
         ExtraAnimationKey.registerKeyBinding(event);
     }
 
+    @SubscribeEvent
     public static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAbove(DEBUG_TEXT.id(), "ysm_debug_info", new DebugAnimationScreen());
         event.registerAbove(DEBUG_TEXT.id(), "ysm_extra_player", new ExtraPlayerScreen());
