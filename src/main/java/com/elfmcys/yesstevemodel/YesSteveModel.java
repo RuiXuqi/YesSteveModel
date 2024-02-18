@@ -35,7 +35,6 @@ public class YesSteveModel {
         // Native Access
         private static void init() {
             ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GeneralConfig.init());
-            CommandRegistry.COMMAND_ARGUMENT_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
 
             FMLJavaModLoadingContext.get().getModEventBus().addListener(CommonEvent::onSetupEvent);
             FMLJavaModLoadingContext.get().getModEventBus().addListener(CommonEvent::registerCapability);

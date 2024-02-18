@@ -3,12 +3,13 @@ package com.elfmcys.yesstevemodel.command.sub;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
-import com.elfmcys.yesstevemodel.command.argument.ModelsArgument;
+import com.elfmcys.yesstevemodel.event.CommandRegistry;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -35,7 +36,7 @@ public class AuthCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
         LiteralArgumentBuilder<CommandSourceStack> auth = Commands.literal(AUTH_NAME);
         RequiredArgumentBuilder<CommandSourceStack, EntitySelector> targets = Commands.argument(TARGETS_NAME, EntityArgument.players());
-        RequiredArgumentBuilder<CommandSourceStack, String> modelId = Commands.argument(MODEL_ID_NAME, ModelsArgument.ids());
+        RequiredArgumentBuilder<CommandSourceStack, String> modelId = Commands.argument(MODEL_ID_NAME, StringArgumentType.string()).suggests(CommandRegistry.ALL_MODELS);
 
         auth.then(targets.then(Commands.literal(ADD_NAME).then(modelId.executes(AuthCommand::addAuthModel))));
         auth.then(targets.then(Commands.literal(REMOVE_NAME).then(modelId.executes(AuthCommand::removeAuthModel))));
@@ -46,7 +47,7 @@ public class AuthCommand {
 
     private static int addAuthModel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
-        String modelName = ModelsArgument.getModel(context, MODEL_ID_NAME);
+        String modelName = StringArgumentType.getString(context, MODEL_ID_NAME);
         if (!ServerModelManager.getModels().containsKey(modelName)) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
                     modelName), true);
@@ -75,7 +76,7 @@ public class AuthCommand {
 
     private static int removeAuthModel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
-        ResourceLocation modelId = new ResourceLocation(YesSteveModel.MOD_ID, ModelsArgument.getModel(context, MODEL_ID_NAME));
+        ResourceLocation modelId = new ResourceLocation(YesSteveModel.MOD_ID, StringArgumentType.getString(context, MODEL_ID_NAME));
         targets.forEach(player -> player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(ownModelsCap -> {
             ownModelsCap.removeModel(modelId);
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {

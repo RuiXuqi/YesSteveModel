@@ -3,8 +3,7 @@ package com.elfmcys.yesstevemodel.command.sub;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
-import com.elfmcys.yesstevemodel.command.argument.ModelsArgument;
-import com.elfmcys.yesstevemodel.command.argument.TexturesArgument;
+import com.elfmcys.yesstevemodel.event.CommandRegistry;
 import com.elfmcys.yesstevemodel.model.ServerModel;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.util.CommandUtil;
@@ -13,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -21,9 +21,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.time.StopWatch;
@@ -49,8 +49,8 @@ public class ModelCommand {
 
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal(SET_NAME);
         RequiredArgumentBuilder<CommandSourceStack, EntitySelector> targets = Commands.argument(TARGETS_NAME, EntityArgument.players());
-        RequiredArgumentBuilder<CommandSourceStack, String> modelId = Commands.argument(MODEL_ID_NAME, ModelsArgument.ids());
-        RequiredArgumentBuilder<CommandSourceStack, String> textureId = Commands.argument(TEXTURE_ID_NAME, TexturesArgument.ids());
+        RequiredArgumentBuilder<CommandSourceStack, String> modelId = Commands.argument(MODEL_ID_NAME, StringArgumentType.string()).suggests(CommandRegistry.ALL_MODELS);
+        RequiredArgumentBuilder<CommandSourceStack, String> textureId = Commands.argument(TEXTURE_ID_NAME, StringArgumentType.string()).suggests(CommandRegistry.ALL_TEXTURES);
         RequiredArgumentBuilder<CommandSourceStack, Boolean> ignoreAuth = Commands.argument(IGNORE_AUTH_NAME, BoolArgumentType.bool());
 
         model.then(set.then(targets.then(modelId.then(textureId.executes(context -> setModel(context, false))))));
@@ -68,8 +68,8 @@ public class ModelCommand {
 
     private static int setModel(CommandContext<CommandSourceStack> context, boolean ignoreAuth) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
-        String modelName = ModelsArgument.getModel(context, MODEL_ID_NAME);
-        String textureName = TexturesArgument.getTexture(context, TEXTURE_ID_NAME);
+        String modelName = StringArgumentType.getString(context, MODEL_ID_NAME);
+        String textureName = StringArgumentType.getString(context, TEXTURE_ID_NAME);
         if (!ServerModelManager.getModels().containsKey(modelName)) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
                     modelName), true);
@@ -119,7 +119,7 @@ public class ModelCommand {
             if (result.message() != null) {
                 CommandUtil.sendAsyncFeedback(context.getSource(), CommandUtil.wrapMessage(result.message()), true);
             }
-            if(result.success()) {
+            if (result.success()) {
                 CommandUtil.sendAsyncFeedback(context.getSource(), Component.translatable("message.yes_steve_model.model.reload.complete", watch.getTime(TimeUnit.MICROSECONDS) / 1000.0), true);
                 watch.reset();
                 watch.start();
@@ -133,12 +133,12 @@ public class ModelCommand {
                 for (Component error : result.playerErrors().values()) {
                     CommandUtil.sendAsyncFeedback(context.getSource(), CommandUtil.wrapMessage(error), true);
                 }
-                if(FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+                if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
                     CommandUtil.sendAsyncFeedback(context.getSource(), Component.translatable("message.yes_steve_model.model.sync.complete", watch.getTime(TimeUnit.MICROSECONDS) / 1000.0), true);
                 }
             }
         });
-        if(!queued) {
+        if (!queued) {
             // 有其它重载任务正在进行
             context.getSource().sendFailure(Component.translatable("message.yes_steve_model.model.reload.in_progress"));
         }

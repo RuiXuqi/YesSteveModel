@@ -1,8 +1,9 @@
 package com.elfmcys.yesstevemodel.command.sub;
 
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
-import com.elfmcys.yesstevemodel.command.argument.AnimationArgument;
+import com.elfmcys.yesstevemodel.event.CommandRegistry;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -24,14 +25,14 @@ public class PlayAnimationCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
         LiteralArgumentBuilder<CommandSourceStack> play = Commands.literal(PLAY_NAME);
         RequiredArgumentBuilder<CommandSourceStack, EntitySelector> targets = Commands.argument(TARGETS_NAME, EntityArgument.players());
-        RequiredArgumentBuilder<CommandSourceStack, String> animation = Commands.argument(ANIMATION_NAME, AnimationArgument.animations());
+        RequiredArgumentBuilder<CommandSourceStack, String> animation = Commands.argument(ANIMATION_NAME, StringArgumentType.string()).suggests(CommandRegistry.ALL_ANIMATIONS);
         play.then(targets.then(animation.executes(PlayAnimationCommand::playAnimation)));
         return play;
     }
 
     private static int playAnimation(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
-        String animation = AnimationArgument.getAnimation(context, ANIMATION_NAME);
+        String animation = StringArgumentType.getString(context, ANIMATION_NAME);
         targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
             if (STOP.equals(animation)) {
                 cap.stopAnimation();
