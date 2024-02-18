@@ -22,8 +22,8 @@ public class ServerConfig {
         builder.comment("Bandwidth limitation during distributing models to players.(In Mbps)");
         BANDWIDTH_LIMIT = builder.defineInRange("BandwidthLimit", 5, 1, 999);
 
-        builder.comment("Timeout for players to respond to synchronization.(In seconds)");
-        CLIENT_SYNC_TIMEOUT = builder.defineInRange("PlayerSyncTimeout", 10, 5, 60);
+        builder.comment("Timeout for players to respond to synchronization. Value not greater than 10 means AUTO.(In seconds)");
+        CLIENT_SYNC_TIMEOUT = builder.defineInRange("PlayerSyncTimeout", 0, 0, 120);
 
         builder.comment("Whether or not players are allowed to switch models");
         CAN_SWITCH_MODEL = builder.define("CanSwitchModel", true);
