@@ -360,6 +360,7 @@
   "commands.yes_steve_model.auth_model.all.info": "为玩家 '%s' 添加所有的模型",
   "commands.yes_steve_model.auth_model.clear.info": "移除玩家 '%s' 的所有模型",
   "commands.yes_steve_model.export.success": "§6§l[§aYSM§6§l] §e已保存为 §r'%s'",
+  "commands.yes_steve_model.export.not_exist": "§6§l[§aYSM§6§l] §r'%s' 不存在",
   "key.yes_steve_model.player_model.desc": "打开玩家模型界面",
   "key.yes_steve_model.animation_roulette.desc": "打开轮盘动画",
   "key.yes_steve_model.extra_animation.none": "无",
