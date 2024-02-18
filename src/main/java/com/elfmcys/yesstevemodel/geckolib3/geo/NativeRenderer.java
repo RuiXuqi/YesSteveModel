@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
+import com.elfmcys.yesstevemodel.client.compat.OptifineCompat;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -19,7 +20,7 @@ public class NativeRenderer {
     public static void renderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState,
                                    GeoModel model, float[] state, int renderMode,
                                    int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        nRenderModel(vertexConsumer, poseState, GeneralConfig.USE_COMPATIBILITY_RENDERER.get(), model, state, renderMode, packedLight, packedOverlay, red, green, blue, alpha);
+        nRenderModel(vertexConsumer, poseState, OptifineCompat.isInstalled() || GeneralConfig.USE_COMPATIBILITY_RENDERER.get(), model, state, renderMode, packedLight, packedOverlay, red, green, blue, alpha);
     }
 
     public static void beginAsyncScope() {

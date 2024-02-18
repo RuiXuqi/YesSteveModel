@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.event;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
+import com.elfmcys.yesstevemodel.client.compat.OptifineCompat;
 import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerScreen;
 import com.elfmcys.yesstevemodel.client.input.*;
@@ -25,6 +26,7 @@ public class ClientSetupEvent {
         AnimationRegister.registerAnimationState();
         FirstPersonCompat.init();
         IrisCompat.init();
+        OptifineCompat.init();
         initCoreClient();
     }
 
