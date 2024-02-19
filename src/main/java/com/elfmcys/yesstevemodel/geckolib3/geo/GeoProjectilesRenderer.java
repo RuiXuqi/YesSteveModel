@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
-import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -15,11 +14,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
@@ -92,15 +89,5 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
     @Override
     public MultiBufferSource getCurrentRTB() {
         return this.rtb;
-    }
-
-    @Override
-    @Deprecated
-    public ResourceLocation getTextureLocation(AbstractArrow entity) {
-        if (entity instanceof IArrowExtraInfo extraInfo && extraInfo.getGeoInstance() instanceof GeoInstance<?,?> instance) {
-            return instance.getTextureLocation();
-        } else {
-            return MissingTextureAtlasSprite.getLocation();
-        }
     }
 }

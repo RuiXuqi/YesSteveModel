@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
-// Native Access
 @Mod(YesSteveModel.MOD_ID)
 public class YesSteveModel {
     public static final String MOD_ID = "yes_steve_model";
