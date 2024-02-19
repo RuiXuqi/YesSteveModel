@@ -48,8 +48,7 @@ public class ClientSetupEvent {
     private static void initCoreClient() {
         Component error = (Component) nInitCoreClient();
         if(error != null) {
-            throw new ReportedException(new CrashReport("YSM Client Initialization Failed,",
-                    new RuntimeException(error.getString())));
+            throw new RuntimeException("YSM Client Initialization Failed: " + error.getString(99));
         }
     }
 
