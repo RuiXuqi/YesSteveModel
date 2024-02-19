@@ -21,6 +21,7 @@ import java.util.List;
 public class ExtraAnimationKey {
     public static final List<KeyMapping> EXTRA_ANIMATION_KEYS = Lists.newArrayList();
 
+    @SubscribeEvent
     public static void registerKeyBinding(RegisterKeyMappingsEvent event) {
         for (int i = 0; i <= 7; i++) {
             String name = String.format("key.yes_steve_model.extra_animation.%d.desc", i);
