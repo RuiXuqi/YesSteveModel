@@ -1597,10 +1597,10 @@
 					}
 				},
 				"LeftEyelid": {
-					"scale": [1, "ysm.food_level<6?0.7:1", 1]
+					"scale": [1, "(ysm.food_level<6?0.7:1)&&!ysm.is_close_eyes", 1]
 				},
 				"RightEyelid": {
-					"scale": [1, "ysm.food_level<6?0.7:1", 1]
+					"scale": [1, "(ysm.food_level<6?0.7:1)&&!ysm.is_close_eyes", 1]
 				},
 				"LeftEyebrow": {
 					"rotation": [0, 0, "ysm.food_level<6?5:0"]
