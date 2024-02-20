@@ -124,7 +124,7 @@ public final class AnimationManager {
             ItemStack offhandItem = player.getItemInHand(InteractionHand.OFF_HAND);
             if (player instanceof IPlayerExtraInfo info && !isSameItem(offhandItem, info, InteractionHand.OFF_HAND)) {
                 info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
-                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
+                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
             }
 
             ResourceLocation id = event.getAnimatable().getAnimation();
@@ -158,7 +158,7 @@ public final class AnimationManager {
             ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
             if (player instanceof IPlayerExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
                 info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
-                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
+                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
             }
 
             ResourceLocation id = event.getAnimatable().getAnimation();
@@ -189,7 +189,7 @@ public final class AnimationManager {
         if (player.swinging && !player.isSleeping()) {
             if (player.swingTime == 0) {
                 // 空动画用于重置 PLAY_ONCE 动画
-                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             ResourceLocation id = event.getAnimatable().getAnimation();
             ConditionalSwing conditionalSwing = (player.swingingArm == InteractionHand.MAIN_HAND) ? ConditionManager.getSwingMainhand(id) : ConditionManager.getSwingOffhand(id);
@@ -212,7 +212,7 @@ public final class AnimationManager {
         }
         if (player.isUsingItem() && !player.isSleeping()) {
             if (player.getTicksUsingItem() == 1) {
-                return playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             if (player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
                 ResourceLocation id = event.getAnimatable().getAnimation();
