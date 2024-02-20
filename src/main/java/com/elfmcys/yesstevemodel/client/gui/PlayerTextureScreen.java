@@ -69,6 +69,10 @@ public class PlayerTextureScreen extends Screen {
         this.textures.sort(ResourceLocation::compareTo);
         this.animations = new ArrayList<>(ClientModelManager.getDefaultAnimationFile().getAnimations().keySet());
         this.animations.sort(String::compareTo);
+        PREVIEW_INSTANCE.getAnimatable().setPlayer(Minecraft.getInstance().player);
+        for (GuiModelInstance instance : TEXTURE_BUTTON_INSTANCE) {
+            instance.getAnimatable().setPlayer(Minecraft.getInstance().player);
+        }
     }
 
     @Override

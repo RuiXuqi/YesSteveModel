@@ -58,6 +58,9 @@ public class PlayerModelScreen extends Screen {
     public PlayerModelScreen() {
         super(Component.literal("YSM Player Model GUI"));
         this.category = Category.ALL;
+        for (GuiModelInstance instance : MODEL_PREVIEW_INSTANCE) {
+            instance.getAnimatable().setPlayer(Minecraft.getInstance().player);
+        }
     }
 
     private void calculateModelList() {
