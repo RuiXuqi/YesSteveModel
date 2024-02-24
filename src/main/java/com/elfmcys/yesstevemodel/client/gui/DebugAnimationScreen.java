@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.event.LocalPlayerTickEvent;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
@@ -150,7 +151,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
         renderText(gui, graphics, y, "query.time_stamp", mc.level.getDayTime());
         renderText(gui, graphics, y, "query.vertical_speed", () -> getVerticalSpeed(player));
         renderText(gui, graphics, y, "query.walk_distance", () -> player.moveDist);
-        renderText(gui, graphics, y, "query.yaw_speed", () -> getYawSpeed(partialTick, player));
+        renderText(gui, graphics, y, "query.yaw_speed", LocalPlayerTickEvent::getYawSpeed);
 
         renderText(gui, graphics, y, "ysm.armor_value", player.getArmorValue());
 
@@ -227,11 +228,6 @@ public class DebugAnimationScreen implements IGuiOverlay {
     private static void renderText(ForgeGui gui, GuiGraphics graphics, int[] y, String name, boolean data) {
         String str = data ? String.format("§c%b", data) : String.format("§a%b", data);
         renderText(gui, graphics, y, name, str);
-    }
-
-    private static float getYawSpeed(float partialTick, Player player) {
-        double seekTime = player.tickCount + partialTick;
-        return player.getViewYRot((float) seekTime - player.getViewYRot((float) seekTime - 0.1f));
     }
 
     private static float getGroundSpeed(Player player) {
