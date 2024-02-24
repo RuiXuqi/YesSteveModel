@@ -15,7 +15,8 @@
       "client.TimerAccessor",
       "client.WorldRendererMixin",
       "client.ArrowEntityAccessor",
-      "client.AbstractClientPlayerMixin"
+      "client.AbstractClientPlayerMixin",
+      "client.InventoryScreenMixin"
     ],
     "mixins": [
       "AbstractArrowEntityMixin"

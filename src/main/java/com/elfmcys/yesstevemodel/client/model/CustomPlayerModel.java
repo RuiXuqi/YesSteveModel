@@ -10,6 +10,7 @@ import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
@@ -21,11 +22,16 @@ import java.util.List;
 
 @SuppressWarnings("all")
 public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
+    private static boolean renderingEntitiesInInventory;
     public static final ResourceLocation DEFAULT_MODEL = ModelIdUtil.DEFAULT_MODEL_ID;
     public static final ResourceLocation DEFAULT_MAIN_MODEL = ModelIdUtil.DEFAULT_MAIN_MODEL_ID;
     public static final ResourceLocation DEFAULT_MAIN_ANIMATION = ModelIdUtil.DEFAULT_MAIN_MODEL_ID;
     public static final ResourceLocation DEFAULT_TEXTURE = ModelIdUtil.DEFAULT_TEXTURE_ID;
     public static float FIRST_PERSON_HEAD_POS;
+
+    public static void setRenderingEntitiesInInventory(boolean value) {
+        renderingEntitiesInInventory = value;
+    }
 
     @Override
     public ResourceLocation getModelLocation(CustomPlayerEntity customPlayer) {
@@ -55,6 +61,11 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
         } else {
             return super.setCustomAnimations(customPlayer, ctx, animationEvent);
         }
+    }
+
+    @Override
+    public boolean forceUpdate() {
+        return RenderSystem.isOnRenderThread() && renderingEntitiesInInventory;
     }
 
     @Deprecated

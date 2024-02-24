@@ -18,6 +18,7 @@ import com.elfmcys.yesstevemodel.geckolib3.model.provider.IAnimatableModelProvid
 import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import com.elfmcys.yesstevemodel.mixin.client.MinecraftAccessor;
 import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
+import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
@@ -95,7 +96,15 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
 
     @Override
     public double getCurrentTick() {
-        return ((TimerAccessor)((MinecraftAccessor) Minecraft.getInstance()).getTimer()).getLastMs() / 50d;
+        if (forceUpdate()) {
+            return Blaze3D.getTime() * 20;
+        } else {
+            return ((TimerAccessor) ((MinecraftAccessor) Minecraft.getInstance()).getTimer()).getLastMs() / 50d;
+        }
+    }
+
+    public boolean forceUpdate() {
+        return false;
     }
 
     public DebugInfo getDebugInfo() {
