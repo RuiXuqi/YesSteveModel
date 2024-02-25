@@ -2907,7 +2907,7 @@
 				}
 			}
 		},
-		"hold_mainhand$minecraft:crossbow": {
+		"hold_mainhand:crossbow": {
 			"loop": true,
 			"animation_length": 1000,
 			"bones": {
@@ -2926,7 +2926,7 @@
 				}
 			}
 		},
-		"hold_offhand$minecraft:crossbow": {
+		"hold_offhand:crossbow": {
 			"loop": true,
 			"animation_length": 1000,
 			"bones": {
