@@ -2,7 +2,9 @@ package com.elfmcys.yesstevemodel.network;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.network.message.*;
+import io.netty.util.AttributeKey;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.Connection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,49 +15,37 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Optional;
 
 public final class NetworkHandler {
-    private static final String VERSION = "1.1.1";
-    private static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION);
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION,
-            NetworkHandler::checkProtocolVersion, NetworkHandler::checkProtocolVersion);
+    public static final String VERSION = "1.1.1";
+    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION);
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION, p -> true, p -> true);
+    private static final AttributeKey<String> ATTRIBUTE_CHANNEL_VERSION = AttributeKey.valueOf(YesSteveModel.MOD_ID + "_channel_version");
 
-    private static boolean checkProtocolVersion(String protocolVersionIn) {
-        // 都安装 YSM 的情况下要求版本相同
-        if (protocolVersionIn.equals(VERSION)) {
-            return true;
-        }
-        // 允许其中一方未安装 YSM
-        if (protocolVersionIn.equals(NetworkRegistry.ABSENT.version())) {
-            return true;
-        }
-        // 允许其中一方是原版端
-        if (protocolVersionIn.equals(NetworkRegistry.ACCEPTVANILLA)) {
-            return true;
-        }
-        return false;
+    public static void setChannelVersion(Connection connection, String channelVersion) {
+        connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).set(channelVersion);
     }
 
-    // 检测客户端是否安装了相同版本的 YSM 模组
     public static boolean isPlayerChannelPresent(ServerPlayer player) {
         return isChannelPresent(player.connection.connection);
     }
 
     public static boolean isRemoteChannelPresent() {
-        return Minecraft.getInstance().player != null && isChannelPresent(Minecraft.getInstance().player.connection.getConnection());
+        ClientPacketListener connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
+            return false;
+        }
+        return isChannelPresent(connection.getConnection());
     }
 
-    private static boolean isChannelPresent(Connection conn) {
-        ConnectionData connectionData = NetworkHooks.getConnectionData(conn);
-        // 原版端
-        if (connectionData == null) {
-            return false;
+    private static boolean isChannelPresent(Connection connection) {
+        ConnectionData connectionData = NetworkHooks.getConnectionData(connection);
+        if (connectionData != null) {
+            String channelVersion = connectionData.getChannels().get(CHANNEL_NAME);
+            if (VERSION.equals(channelVersion)) {
+                // 兼容 1.2.0-hotfix1 - 3 版本
+                return true;
+            }
         }
-        String channelVersion = connectionData.getChannels().get(CHANNEL_NAME);
-        // 未安装 YSM 或版本不匹配
-        if (!VERSION.equals(channelVersion)) {
-            return false;
-        }
-
-        return true;
+        return VERSION.equals(connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).get());
     }
 
     public static void init() {
@@ -91,6 +81,21 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(16, SubmitVariableChanges.class, SubmitVariableChanges::encode, SubmitVariableChanges::decode, SubmitVariableChanges::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+
+        CHANNEL.messageBuilder(ServerInfoPacket.class, 51, NetworkDirection.LOGIN_TO_CLIENT).
+                loginIndex(ServerInfoPacket::getLoginIndex, ServerInfoPacket::setLoginIndex).
+                decoder(ServerInfoPacket::decode).
+                encoder(ServerInfoPacket::encode).
+                noResponse().
+                markAsLoginPacket().
+                consumerNetworkThread(HandshakeHandler.biConsumerFor(ServerInfoPacket::handleOnClient)).
+                add();
+        CHANNEL.messageBuilder(ClientInfoPacket.class, 52, NetworkDirection.LOGIN_TO_SERVER).
+                loginIndex(ClientInfoPacket::getLoginIndex, ClientInfoPacket::setLoginIndex).
+                decoder(ClientInfoPacket::decode).
+                encoder(ClientInfoPacket::encode).
+                consumerNetworkThread(HandshakeHandler.indexFirst(ClientInfoPacket::handleOnServer)).
+                add();
     }
 
     public static void sendToServer(Object message) {
