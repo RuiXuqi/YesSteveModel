@@ -321,6 +321,7 @@
   "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[调试] %s",
   "message.yes_steve_model.model.debug_animation.parser_error": "§6§l[§aYSM§6§l] §r表达式解析失败: %s",
   "message.yes_steve_model.model.debug_animation.result": "§6§l[§aYSM§6§l] §r执行结果: %s",
+  "message.yes_steve_model.client.server_not_found": "§6§l[§aYSM§6§l] §r服务端 YSM 模组版本与客户端不同，部分功能无法使用",
   "error.yes_steve_model.unknown": "发生了未知的错误 %s",
   "error.yes_steve_model.missing_file": "缺失文件 %s",
   "error.yes_steve_model.missing_texture": "缺失材质文件",

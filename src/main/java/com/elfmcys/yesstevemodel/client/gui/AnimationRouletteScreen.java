@@ -12,6 +12,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -60,7 +61,13 @@ public class AnimationRouletteScreen extends Screen {
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (-1 < selectId && selectId < 8 && minecraft != null) {
             minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            NetworkHandler.sendToServer(new SetPlayAnimation(selectId));
+            if (NetworkHandler.isRemoteChannelPresent()) {
+                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId));
+            } else if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                    cap.playAnimation("extra" + selectId);
+                });
+            }
             if (minecraft.player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
                 minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectId));
             }

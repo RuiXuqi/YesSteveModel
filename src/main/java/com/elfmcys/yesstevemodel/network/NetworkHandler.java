@@ -36,7 +36,7 @@ public final class NetworkHandler {
         return isChannelPresent(connection.getConnection());
     }
 
-    private static boolean isChannelPresent(Connection connection) {
+    public static boolean isChannelPresent(Connection connection) {
         ConnectionData connectionData = NetworkHooks.getConnectionData(connection);
         if (connectionData != null) {
             String channelVersion = connectionData.getChannels().get(CHANNEL_NAME);
