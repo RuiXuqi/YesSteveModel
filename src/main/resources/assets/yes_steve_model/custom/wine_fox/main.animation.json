@@ -9892,6 +9892,14 @@
 				}
 			}
 		},
+		"parallel2": {
+			"loop": true,
+			"bones": {
+				"Mask": {
+					"scale": 0
+				}
+			}
+		},
 		"parallel3": {
 			"loop": true,
 			"animation_length": 2,
@@ -10069,6 +10077,14 @@
 					"v.Breast_pitch2=v.Breast_pitch3;",
 					"v.Breast_pitch2dot=v.Breast_pitch3dot;"
 				]
+			}
+		},
+		"head:default": {
+			"loop": true,
+			"bones": {
+				"Mask": {
+					"scale": 1
+				}
 			}
 		}
 	}
