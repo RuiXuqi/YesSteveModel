@@ -4,8 +4,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.LivingEntityFunction;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -30,8 +30,12 @@ public class EquippedEnchantmentLevel extends LivingEntityFunction {
             return 0;
         }
 
-        ItemStack itemStack = context.entity().entity().getItemBySlot(slotType);
-        return EnchantmentHelper.getItemEnchantmentLevel(enchantment, itemStack);
+        ItemStack itemStack = EquipmentUtil.getEquippedItem(context.entity().entity(), slotType);
+        if (itemStack.isEmpty()) {
+            return 0;
+        }
+
+        return itemStack.getEnchantmentLevel(enchantment);
     }
 
     @Override

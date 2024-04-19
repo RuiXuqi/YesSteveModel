@@ -5,10 +5,12 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.query.functions.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.CameraType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -48,7 +50,6 @@ public class QueryBinding extends ContextBinding {
         entityVar("yaw_speed", ctx -> getYawSpeed(ctx.entity()));
         entityVar("cardinal_facing_2d", ctx -> ctx.entity().getDirection().get3DDataValue());
         entityVar("distance_from_camera", ctx -> ctx.mc().gameRenderer.getMainCamera().getPosition().distanceTo(ctx.entity().position()));
-        entityVar("equipment_count", ctx -> getEquipmentCount(ctx.entity()));
         entityVar("eye_target_x_rotation", ctx -> ctx.entity().getViewXRot(0));
         entityVar("eye_target_y_rotation", ctx -> ctx.entity().getViewYRot(0));
         entityVar("ground_speed", ctx -> getGroundSpeed(ctx.entity()));
@@ -77,6 +78,7 @@ public class QueryBinding extends ContextBinding {
         livingEntityVar("item_in_use_duration", ctx -> ctx.entity().getTicksUsingItem() / 20.0);
         livingEntityVar("item_max_use_duration", ctx -> getMaxUseDuration(ctx.entity()) / 20.0);
         livingEntityVar("item_remaining_use_duration", ctx -> ctx.entity().getUseItemRemainingTicks() / 20.0);
+        livingEntityVar("equipment_count", ctx -> getEquipmentCount(ctx.entity()));
 
         playerVar("has_cape", ctx -> hasCape(ctx.entity()));
         playerVar("cape_flap_amount", QueryBinding::getCapeFlapAmount);
@@ -88,11 +90,15 @@ public class QueryBinding extends ContextBinding {
         return player.isCapeLoaded() && !player.isInvisible() && player.isModelPartShown(PlayerModelPart.CAPE) && player.getCloakTextureLocation() != null;
     }
 
-    private static int getEquipmentCount(Entity player) {
+    private static int getEquipmentCount(LivingEntity entity) {
         int count = 0;
-        for (ItemStack s : player.getArmorSlots()) {
-            if (!s.isEmpty()) {
-                count += 1;
+        for (var slot : EquipmentSlot.values()) {
+            if (!slot.isArmor()) {
+                continue;
+            }
+            var stack = EquipmentUtil.getEquippedItem(entity, slot);
+            if (!stack.isEmpty()) {
+                count++;
             }
         }
         return count;

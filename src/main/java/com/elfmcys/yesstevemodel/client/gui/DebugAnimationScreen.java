@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.client.event.LocalPlayerTickEvent;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -22,7 +23,6 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
@@ -162,7 +162,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
         renderText(gui, graphics, y, "ysm.has_mainhand", getSlotValue(player, EquipmentSlot.MAINHAND));
         renderText(gui, graphics, y, "ysm.has_offhand", getSlotValue(player, EquipmentSlot.OFFHAND));
 
-        renderText(gui, graphics, y, "ysm.has_elytra", player.getItemBySlot(EquipmentSlot.CHEST).getItem() == Items.ELYTRA);
+        renderText(gui, graphics, y, "ysm.has_elytra", !EquipmentUtil.getEquippedElytraItem(player).isEmpty());
         renderText(gui, graphics, y, "ysm.elytra_rot_x", () -> Math.toDegrees(player.elytraRotX));
         renderText(gui, graphics, y, "ysm.elytra_rot_y", () -> Math.toDegrees(player.elytraRotY));
         renderText(gui, graphics, y, "ysm.elytra_rot_z", () -> Math.toDegrees(player.elytraRotZ));

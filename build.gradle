@@ -122,6 +122,10 @@ dependencies {
     compileOnly fg.deobf('libs:oculus:mc1.20.1-1.6.13')
     implementation fg.deobf("curse.maven:slashblade-241596:${slashblade_id}")
     implementation fg.deobf("curse.maven:carry-on-274259:${carry_on_id}")
+    implementation fg.deobf("curse.maven:curios-309927:${curios_id}")
+    implementation fg.deobf("curse.maven:caelus-308989:${caelus_id}")
+    implementation fg.deobf("curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}")
+    implementation fg.deobf("curse.maven:elytra-slot-317716:${elytra_slot_id}")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

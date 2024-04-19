@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.LivingEntityFunction;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -21,7 +22,7 @@ public class EquippedItemAllTags extends LivingEntityFunction {
             return null;
         }
 
-        ItemStack itemStack = context.entity().entity().getItemBySlot(slotType);
+        ItemStack itemStack = EquipmentUtil.getEquippedItem(context.entity().entity(), slotType);
         if(itemStack.isEmpty()) {
             return false;
         }

@@ -1,14 +1,10 @@
 package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
-import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
-import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
-import com.elfmcys.yesstevemodel.client.compat.OptifineCompat;
+import com.elfmcys.yesstevemodel.client.compat.*;
 import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerScreen;
 import com.elfmcys.yesstevemodel.client.input.*;
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
@@ -27,6 +23,8 @@ public class ClientSetupEvent {
         FirstPersonCompat.init();
         IrisCompat.init();
         OptifineCompat.init();
+        CosmeticArmorCompat.init();
+        ElytraSlotCompat.init();
         initCoreClient();
     }
 

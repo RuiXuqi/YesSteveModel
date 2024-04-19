@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
@@ -69,7 +70,7 @@ public class ConditionArmor {
     }
 
     public String doTest(Player player, EquipmentSlot slot) {
-        ItemStack item = player.getItemBySlot(slot);
+        ItemStack item = EquipmentUtil.getEquippedItem(player, slot);
         if (item.isEmpty()) {
             return EMPTY;
         }
@@ -88,7 +89,7 @@ public class ConditionArmor {
             return EMPTY;
         }
         List<ResourceLocation> idListTest = idTest.get(slot);
-        ItemStack item = player.getItemBySlot(slot);
+        ItemStack item = EquipmentUtil.getEquippedItem(player, slot);
         ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(item.getItem());
         if (registryName == null) {
             return EMPTY;
@@ -107,7 +108,7 @@ public class ConditionArmor {
             return EMPTY;
         }
         List<TagKey<Item>> tagListTest = tagTest.get(slot);
-        ItemStack item = player.getItemBySlot(slot);
+        ItemStack item = EquipmentUtil.getEquippedItem(player, slot);
         ITagManager<Item> tags = ForgeRegistries.ITEMS.tags();
         if (tags == null) {
             return EMPTY;

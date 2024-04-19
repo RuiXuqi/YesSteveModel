@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -19,7 +20,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.SpectralArrow;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.fml.ModList;
@@ -62,7 +62,7 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("has_boots", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.FEET));
         livingEntityVar("has_mainhand", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.MAINHAND));
         livingEntityVar("has_offhand", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.OFFHAND));
-        livingEntityVar("has_elytra", ctx -> ctx.entity().getItemBySlot(EquipmentSlot.CHEST).getItem() == Items.ELYTRA);
+        livingEntityVar("has_elytra", ctx -> !EquipmentUtil.getEquippedElytraItem(ctx.entity()).isEmpty());
         livingEntityVar("is_riptide", ctx -> ctx.entity().isAutoSpinAttack());
         livingEntityVar("armor_value", ctx -> ctx.entity().getArmorValue());
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
@@ -93,8 +93,8 @@ public class YSMBinding extends ContextBinding {
         return player.isSleeping() || isBlinkTime;
     }
 
-    private static boolean getSlotValue(LivingEntity player, EquipmentSlot slot) {
-        return !player.getItemBySlot(slot).isEmpty();
+    private static boolean getSlotValue(LivingEntity entity, EquipmentSlot slot) {
+        return !EquipmentUtil.getEquippedItem(entity, slot).isEmpty();
     }
 
     private static int getWeather(ClientLevel world) {
@@ -150,7 +150,6 @@ public class YSMBinding extends ContextBinding {
         }
 
         Holder<Biome> biome = context.entity().level().getBiome(context.entity().blockPosition());
-
 
         biome.unwrapKey().ifPresent(p -> {
             context.debugPrint("Name: '%s'", p.location());

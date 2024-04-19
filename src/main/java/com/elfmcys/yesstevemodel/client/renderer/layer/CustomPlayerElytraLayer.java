@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -17,11 +18,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerInstance> {
     private static final ResourceLocation WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
@@ -34,9 +33,9 @@ public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerInstan
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerInstance instance, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
         AbstractClientPlayer player = instance.getAnimatable().getEntity();
-        ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
+        ItemStack stack = EquipmentUtil.getEquippedElytraItem(player);
         GeoModelState geoModel = instance.getAnimatableModel().getCurrentModel();
-        if (stack.getItem() == Items.ELYTRA && geoModel != null) {
+        if (!stack.isEmpty() && geoModel != null) {
             if (!geoModel.elytraBones().isEmpty()) {
                 ResourceLocation texture;
                 if (player.isElytraLoaded() && player.getElytraTextureLocation() != null) {
