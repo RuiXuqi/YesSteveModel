@@ -72,9 +72,9 @@ public final class NetworkHandler {
         CHANNEL.registerMessage(15, SubmitVariableChanges.class, SubmitVariableChanges::encode, SubmitVariableChanges::decode, SubmitVariableChanges::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
-        CHANNEL.registerMessage(51, ServerInfoPacket.class, ServerInfoPacket::encode, ServerInfoPacket::decode, ServerInfoPacket::handleOnClient,
+        CHANNEL.registerMessage(51, ServerInfo.class, ServerInfo::encode, ServerInfo::decode, ServerInfo::handleOnClient,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-        CHANNEL.registerMessage(52, ClientInfoPacket.class, ClientInfoPacket::encode, ClientInfoPacket::decode, ClientInfoPacket::handleOnServer,
+        CHANNEL.registerMessage(52, ClientInfo.class, ClientInfo::encode, ClientInfo::decode, ClientInfo::handleOnServer,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 

@@ -8,29 +8,29 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class ClientInfoPacket {
+public class ClientInfo {
     private final String channelVersion;
 
-    public ClientInfoPacket() {
+    public ClientInfo() {
         this(NetworkHandler.VERSION);
     }
 
-    public ClientInfoPacket(String channelVersion) {
+    public ClientInfo(String channelVersion) {
         this.channelVersion = channelVersion;
     }
 
-    public static ClientInfoPacket decode(FriendlyByteBuf friendlyByteBuf) {
-        return new ClientInfoPacket(friendlyByteBuf.readUtf());
+    public static ClientInfo decode(FriendlyByteBuf friendlyByteBuf) {
+        return new ClientInfo(friendlyByteBuf.readUtf());
     }
 
-    public static void encode(ClientInfoPacket clientInfoPacket, FriendlyByteBuf friendlyByteBuf) {
-        friendlyByteBuf.writeUtf(clientInfoPacket.channelVersion);
+    public static void encode(ClientInfo clientInfo, FriendlyByteBuf friendlyByteBuf) {
+        friendlyByteBuf.writeUtf(clientInfo.channelVersion);
     }
 
-    public static void handleOnServer(ClientInfoPacket clientInfoPacket, Supplier<NetworkEvent.Context> contextSupplier) {
+    public static void handleOnServer(ClientInfo clientInfo, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         ServerPlayer player = context.getSender();
-        if (player != null && NetworkHandler.setChannelVersion(context.getNetworkManager(), clientInfoPacket.channelVersion)
+        if (player != null && NetworkHandler.setChannelVersion(context.getNetworkManager(), clientInfo.channelVersion)
                 && NetworkHandler.isChannelPresent(context.getNetworkManager())) {
             ServerModelManager.syncModelsToPlayer(player, null);
         }
