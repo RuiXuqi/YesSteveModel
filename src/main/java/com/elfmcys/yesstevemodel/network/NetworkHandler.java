@@ -15,13 +15,13 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Optional;
 
 public final class NetworkHandler {
-    public static final String VERSION = "1.1.1";
-    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION);
+    public static final String VERSION = "1.2.0";
+    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, "main");
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION, p -> true, p -> true);
     private static final AttributeKey<String> ATTRIBUTE_CHANNEL_VERSION = AttributeKey.valueOf(YesSteveModel.MOD_ID + "_channel_version");
 
-    public static void setChannelVersion(Connection connection, String channelVersion) {
-        connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).set(channelVersion);
+    public static boolean setChannelVersion(Connection connection, String channelVersion) {
+        return connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).compareAndSet(null, channelVersion);
     }
 
     public static boolean isPlayerChannelPresent(ServerPlayer player) {
@@ -37,14 +37,6 @@ public final class NetworkHandler {
     }
 
     public static boolean isChannelPresent(Connection connection) {
-        ConnectionData connectionData = NetworkHooks.getConnectionData(connection);
-        if (connectionData != null) {
-            String channelVersion = connectionData.getChannels().get(CHANNEL_NAME);
-            if (VERSION.equals(channelVersion)) {
-                // 兼容 1.2.0-hotfix1 - 3 版本
-                return true;
-            }
-        }
         return VERSION.equals(connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).get());
     }
 
@@ -77,25 +69,13 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(14, HandleFile.class, HandleFile::encode, HandleFile::decode, HandleFile::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
-        CHANNEL.registerMessage(15, SyncDisableSwitch.class, SyncDisableSwitch::encode, SyncDisableSwitch::decode, SyncDisableSwitch::handle,
-                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-        CHANNEL.registerMessage(16, SubmitVariableChanges.class, SubmitVariableChanges::encode, SubmitVariableChanges::decode, SubmitVariableChanges::handle,
+        CHANNEL.registerMessage(15, SubmitVariableChanges.class, SubmitVariableChanges::encode, SubmitVariableChanges::decode, SubmitVariableChanges::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
-        CHANNEL.messageBuilder(ServerInfoPacket.class, 51, NetworkDirection.LOGIN_TO_CLIENT).
-                loginIndex(ServerInfoPacket::getLoginIndex, ServerInfoPacket::setLoginIndex).
-                decoder(ServerInfoPacket::decode).
-                encoder(ServerInfoPacket::encode).
-                noResponse().
-                markAsLoginPacket().
-                consumerNetworkThread(HandshakeHandler.biConsumerFor(ServerInfoPacket::handleOnClient)).
-                add();
-        CHANNEL.messageBuilder(ClientInfoPacket.class, 52, NetworkDirection.LOGIN_TO_SERVER).
-                loginIndex(ClientInfoPacket::getLoginIndex, ClientInfoPacket::setLoginIndex).
-                decoder(ClientInfoPacket::decode).
-                encoder(ClientInfoPacket::encode).
-                consumerNetworkThread(HandshakeHandler.indexFirst(ClientInfoPacket::handleOnServer)).
-                add();
+        CHANNEL.registerMessage(51, ServerInfoPacket.class, ServerInfoPacket::encode, ServerInfoPacket::decode, ServerInfoPacket::handleOnClient,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(52, ClientInfoPacket.class, ClientInfoPacket::encode, ClientInfoPacket::decode, ClientInfoPacket::handleOnServer,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
 
     public static void sendToServer(Object message) {

@@ -1,50 +1,41 @@
 package com.elfmcys.yesstevemodel.network.message;
 
+import com.elfmcys.yesstevemodel.config.DisableSwitch;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.HandshakeHandler;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
-public class ServerInfoPacket implements IntSupplier {
+public class ServerInfoPacket {
     private final String channelVersion;
-    private int loginIndex;
+    private final boolean canSwitchModel;
 
-    @SuppressWarnings("unused")
     public ServerInfoPacket() {
-        this(NetworkHandler.VERSION);
+        this(NetworkHandler.VERSION, ServerConfig.CAN_SWITCH_MODEL.get());
     }
 
-    private ServerInfoPacket(String channelVersion) {
+    private ServerInfoPacket(String channelVersion, boolean canSwitchModel) {
         this.channelVersion = channelVersion;
-    }
-
-    public void setLoginIndex(final int loginIndex) {
-        this.loginIndex = loginIndex;
-    }
-
-    public int getLoginIndex() {
-        return loginIndex;
-    }
-
-    @Override
-    public int getAsInt() {
-        return getLoginIndex();
+        this.canSwitchModel = canSwitchModel;
     }
 
     public static ServerInfoPacket decode(FriendlyByteBuf friendlyByteBuf) {
-        return new ServerInfoPacket(friendlyByteBuf.readUtf());
+        String channelVersion = friendlyByteBuf.readUtf();
+        boolean canSwitchModel = friendlyByteBuf.readBoolean();
+        return new ServerInfoPacket(channelVersion, canSwitchModel);
     }
 
     public static void encode(ServerInfoPacket serverInfoPacket, FriendlyByteBuf friendlyByteBuf) {
         friendlyByteBuf.writeUtf(serverInfoPacket.channelVersion);
+        friendlyByteBuf.writeBoolean(serverInfoPacket.canSwitchModel);
     }
 
-    public static void handleOnClient(HandshakeHandler handshakeHandler, ServerInfoPacket serverInfoPacket, Supplier<NetworkEvent.Context> contextSupplier) {
+    public static void handleOnClient(ServerInfoPacket serverInfoPacket, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         NetworkHandler.setChannelVersion(context.getNetworkManager(), serverInfoPacket.channelVersion);
+        context.enqueueWork(() -> DisableSwitch.CAN_SWITCH = serverInfoPacket.canSwitchModel);
         NetworkHandler.CHANNEL.reply(new ClientInfoPacket(), context);
         context.setPacketHandled(true);
     }
