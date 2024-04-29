@@ -18,7 +18,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
@@ -67,7 +66,8 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onTrackingPlayer(PlayerEvent.StartTracking event) {
-        if (event.getTarget() instanceof Player trackPlayer) {
+        if (event.getTarget() instanceof ServerPlayer trackPlayer
+                && NetworkHandler.isPlayerChannelPresent(trackPlayer)) {
             final Player player = event.getEntity();
             getModelInfoCap(trackPlayer).ifPresent(cap -> {
                 SyncModelInfo syncMsg = new SyncModelInfo(trackPlayer.getId(), cap);
@@ -78,26 +78,19 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            getModelInfoCap(player).ifPresent(modelInfoCap -> {
-                if (player instanceof ServerPlayer serverPlayer) {
-                    NetworkHandler.sendToClientPlayer(new SyncModelInfo(serverPlayer.getId(), modelInfoCap), serverPlayer);
-                } else {
-                    modelInfoCap.markDirty();
-                }
+        if (event.getEntity() instanceof ServerPlayer serverPlayer
+                && NetworkHandler.isPlayerChannelPresent(serverPlayer)) {
+            getModelInfoCap(serverPlayer).ifPresent(modelInfoCap -> {
+                NetworkHandler.sendToClientPlayer(new SyncModelInfo(serverPlayer.getId(), modelInfoCap), serverPlayer);
             });
 
-            if (player instanceof ServerPlayer) {
-                final ServerPlayer serverPlayer = (ServerPlayer) player;
+            getAuthModelsCap(serverPlayer).ifPresent(authModelsCap -> {
+                NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelsCap.getAuthModels()), serverPlayer);
+            });
 
-                getAuthModelsCap(player).ifPresent(authModelsCap -> {
-                    NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelsCap.getAuthModels()), serverPlayer);
-                });
-
-                getStarModelsCap(player).ifPresent(starModelCap -> {
-                    NetworkHandler.sendToClientPlayer(new SyncStarModels(starModelCap.getStarModels()), serverPlayer);
-                });
-            }
+            getStarModelsCap(serverPlayer).ifPresent(starModelCap -> {
+                NetworkHandler.sendToClientPlayer(new SyncStarModels(starModelCap.getStarModels()), serverPlayer);
+            });
         }
     }
 
@@ -106,8 +99,9 @@ public final class CapabilityEvent {
      */
     @SubscribeEvent
     public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
-        final Player player = event.player;
-        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {
+        if (event.phase == TickEvent.Phase.END
+                && event.player instanceof ServerPlayer player
+                && NetworkHandler.isPlayerChannelPresent(player)) {
             getModelInfoCap(player).ifPresent(cap -> {
                 if (cap.isDirty()) {
                     SyncModelInfo syncMsg = new SyncModelInfo(player.getId(), cap);
