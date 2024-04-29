@@ -1,14 +1,20 @@
 package com.elfmcys.yesstevemodel.client.compat;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.coderbot.iris.pipeline.ShadowRenderer;
-import net.coderbot.iris.uniforms.CapturedRenderingState;
-import net.coderbot.iris.vertices.IrisVertexFormats;
+import net.irisshaders.iris.shadows.ShadowRenderer;
+import net.irisshaders.iris.uniforms.CapturedRenderingState;
+import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraftforge.fml.ModList;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.LongSupplier;
 
 public class IrisCompat {
     private static final String MOD_ID = "oculus";
-    private static boolean INSTALLED;
+    private static boolean INSTALLED = false;
+    private static BooleanSupplier SHADOW_RENDERER_ACTIVE_FLAG_GETTER;
+    private static LongSupplier ENTITY_ID_GETTER;
     // Native Access
     @SuppressWarnings("all")
     private static long ENTITY_ID = -1;
@@ -17,10 +23,18 @@ public class IrisCompat {
     private static VertexFormat ENTITY_FORMAT;
 
     public static void init() {
-        INSTALLED = ModList.get().isLoaded(MOD_ID);
-        if (INSTALLED) {
-            ENTITY_FORMAT = IrisVertexFormats.ENTITY;
-        }
+        ModList.get().getModContainerById(MOD_ID).ifPresent(mod -> {
+            INSTALLED = true;
+            if (mod.getModInfo().getVersion().compareTo(new DefaultArtifactVersion("1.7.0")) >= 0) {
+                ENTITY_FORMAT = IrisVertexFormats.ENTITY;
+                SHADOW_RENDERER_ACTIVE_FLAG_GETTER = () -> ShadowRenderer.ACTIVE;
+                ENTITY_ID_GETTER = IrisCompat::getEntityId;
+            } else {
+                ENTITY_FORMAT = net.coderbot.iris.vertices.IrisVertexFormats.ENTITY;
+                SHADOW_RENDERER_ACTIVE_FLAG_GETTER = () -> net.coderbot.iris.pipeline.ShadowRenderer.ACTIVE;
+                ENTITY_ID_GETTER = IrisCompat::getEntityIdLegacy;
+            }
+        });
     }
 
     public static boolean isInstalled() {
@@ -28,13 +42,24 @@ public class IrisCompat {
     }
 
     public static boolean isRenderingShadow() {
-        return ShadowRenderer.ACTIVE;
+        return SHADOW_RENDERER_ACTIVE_FLAG_GETTER.getAsBoolean();
     }
 
-    public static void setupState() {
+    private static long getEntityIdLegacy() {
+        short s0 = (short) net.coderbot.iris.uniforms.CapturedRenderingState.INSTANCE.getCurrentRenderedEntity();
+        short s1 = (short) net.coderbot.iris.uniforms.CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity();
+        short s2 = (short) net.coderbot.iris.uniforms.CapturedRenderingState.INSTANCE.getCurrentRenderedItem();
+        return s0 | ((long) s1 << 16) | ((long) s2 << 32);     // little endian
+    }
+
+    private static long getEntityId() {
         short s0 = (short) CapturedRenderingState.INSTANCE.getCurrentRenderedEntity();
         short s1 = (short) CapturedRenderingState.INSTANCE.getCurrentRenderedBlockEntity();
         short s2 = (short) CapturedRenderingState.INSTANCE.getCurrentRenderedItem();
-        ENTITY_ID = s0 | ((long) s1 << 16) | ((long) s2 << 32);     // little endian
+        return s0 | ((long) s1 << 16) | ((long) s2 << 32);     // little endian
+    }
+
+    public static void setupState() {
+        ENTITY_ID = ENTITY_ID_GETTER.getAsLong();
     }
 }
