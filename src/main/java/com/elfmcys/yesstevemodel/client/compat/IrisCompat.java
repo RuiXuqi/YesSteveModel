@@ -1,19 +1,17 @@
 package com.elfmcys.yesstevemodel.client.compat;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.irisshaders.iris.shadows.ShadowRenderer;
+import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
 import net.minecraftforge.fml.ModList;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.LongSupplier;
 
 public class IrisCompat {
     private static final String MOD_ID = "oculus";
     private static boolean INSTALLED = false;
-    private static BooleanSupplier SHADOW_RENDERER_ACTIVE_FLAG_GETTER;
     private static LongSupplier ENTITY_ID_GETTER;
     // Native Access
     @SuppressWarnings("all")
@@ -27,11 +25,9 @@ public class IrisCompat {
             INSTALLED = true;
             if (mod.getModInfo().getVersion().compareTo(new DefaultArtifactVersion("1.7.0")) >= 0) {
                 ENTITY_FORMAT = IrisVertexFormats.ENTITY;
-                SHADOW_RENDERER_ACTIVE_FLAG_GETTER = () -> ShadowRenderer.ACTIVE;
                 ENTITY_ID_GETTER = IrisCompat::getEntityId;
             } else {
                 ENTITY_FORMAT = net.coderbot.iris.vertices.IrisVertexFormats.ENTITY;
-                SHADOW_RENDERER_ACTIVE_FLAG_GETTER = () -> net.coderbot.iris.pipeline.ShadowRenderer.ACTIVE;
                 ENTITY_ID_GETTER = IrisCompat::getEntityIdLegacy;
             }
         });
@@ -42,7 +38,7 @@ public class IrisCompat {
     }
 
     public static boolean isRenderingShadow() {
-        return SHADOW_RENDERER_ACTIVE_FLAG_GETTER.getAsBoolean();
+        return IrisApi.getInstance().isRenderingShadowPass();
     }
 
     private static long getEntityIdLegacy() {
