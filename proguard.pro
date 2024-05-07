@@ -1,5 +1,6 @@
-# 打印更加详细的信息
+# 打印更加详细的信息，忽略警告
 -verbose
+-ignorewarnings
 
 # 不要缩减和优化，否则会导致游戏加载失败
 -dontshrink
