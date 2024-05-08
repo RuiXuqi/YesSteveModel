@@ -18,6 +18,11 @@ public class DoubleValue implements IValue {
     }
 
     @Override
+    public boolean evalAsBoolean(ExpressionEvaluator<?> evaluator) {
+        return value != 0;
+    }
+
+    @Override
     public Object evalUnsafe(ExpressionEvaluator<?> evaluator) {
         return value;
     }
