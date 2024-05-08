@@ -78,6 +78,8 @@
         "parcool": "animations/parcool.animation.json",
         "swem": "animations/swem.animation.json"
       },
+      "animation_controllers": [
+      ],
       "texture": [
         "textures/default.png",
         "textures/blue.png"
