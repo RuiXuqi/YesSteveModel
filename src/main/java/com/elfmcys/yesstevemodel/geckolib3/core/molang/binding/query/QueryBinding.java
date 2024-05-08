@@ -26,7 +26,7 @@ public class QueryBinding extends ContextBinding {
     private QueryBinding() {
         function("debug_output", new DebugOutput());
 
-        function("biome_has_all_tags", new BiomeHasAllTags());      // 占位符，用于保持向前兼容性
+        function("biome_has_all_tags", new BiomeHasAllTags());
         function("biome_has_any_tag", new BiomeHasAnyTag());
         function("relative_block_has_all_tags", new RelativeBlockHasAllTags());
         function("relative_block_has_any_tag", new RelativeBlockHasAnyTag());
@@ -38,7 +38,7 @@ public class QueryBinding extends ContextBinding {
 
         var("actor_count", ctx -> ctx.level().getEntityCount());
         var("anim_time", ctx -> ctx.animationControllerContext().animTime());
-        var("life_time", ctx -> ctx.animationControllerContext().lifeTime());
+        var("life_time", ctx -> ctx.geoInstance().getAnimatableModel().seekTime / 20.0);
         var("head_x_rotation", ctx -> ctx.data().netHeadYaw);
         var("head_y_rotation", ctx -> ctx.data().headPitch);
         var("moon_phase", ctx -> ctx.level().getMoonPhase());

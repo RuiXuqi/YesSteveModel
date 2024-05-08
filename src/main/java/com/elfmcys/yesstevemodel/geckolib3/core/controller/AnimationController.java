@@ -216,7 +216,6 @@ public class AnimationController<T extends IAnimatable<?>> {
     public void process(final double tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationContext<?>> evaluator, List<BoneTopLevelSnapshot> modelRendererList,
                         boolean crashWhenCantFindBone, boolean isRendererDirty) {
         AnimationControllerContext context = new AnimationControllerContext();
-        context.setLifeTime(tick / 20.0f);
         if (this.currentAnimation != null) {
             if (model != null) {
                 Animation animation = model.getAnimation(currentAnimation.animationName, this.animatable);
