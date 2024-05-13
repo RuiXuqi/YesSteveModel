@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.animation.molang.bindings.functions;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.EntityFunction;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +21,10 @@ public class RelativeBlockName extends EntityFunction {
             return false;
         }
 
-        BlockState block = ctx.entity().entity().level().getBlockState(entity.blockPosition());
+        BlockPos pos = new BlockPos((int) entity.getX() + offsetX,
+                (int) entity.getY() + offsetY,
+                (int) entity.getZ() + offsetZ);
+        BlockState block = ctx.entity().entity().level().getBlockState(pos);
         ResourceLocation blockId = ForgeRegistries.BLOCKS.getKey(block.getBlock());
         if (blockId == null) {
             return null;
