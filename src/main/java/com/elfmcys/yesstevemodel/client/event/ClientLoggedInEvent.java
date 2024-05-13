@@ -14,7 +14,7 @@ public class ClientLoggedInEvent {
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
         new Thread(() -> {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(3000);
             } catch (InterruptedException ignored) {
             }
             Minecraft.getInstance().execute(() -> {
