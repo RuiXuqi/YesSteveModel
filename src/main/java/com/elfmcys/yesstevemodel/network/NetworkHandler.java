@@ -86,9 +86,7 @@ public final class NetworkHandler {
     }
 
     public static void sendToClientPlayer(Object message, final Player player) {
-        if (isPlayerChannelPresent((ServerPlayer) player)) {
-            CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), message);
-        }
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), message);
     }
 
     public static void broadcastToAllPlayers(Object message) {

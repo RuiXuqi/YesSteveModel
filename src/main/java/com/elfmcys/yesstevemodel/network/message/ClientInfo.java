@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.ModelInfoCapability;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
@@ -35,9 +36,7 @@ public class ClientInfo {
         ServerPlayer player = context.getSender();
         if (player != null && NetworkHandler.setChannelVersion(context.getNetworkManager(), clientInfo.channelVersion)
                 && NetworkHandler.isChannelPresent(context.getNetworkManager())) {
-            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-                NetworkHandler.sendToClientPlayer(new SyncModelInfo(player.getId(), cap), player);
-            });
+            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(ModelInfoCapability::markDirty);
             player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                 NetworkHandler.sendToClientPlayer(new SyncAuthModels(cap.getAuthModels()), player);
             });
