@@ -1,9 +1,6 @@
 package com.elfmcys.yesstevemodel.event;
 
-import com.elfmcys.yesstevemodel.capability.AuthModelsCapability;
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapability;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
-import com.elfmcys.yesstevemodel.capability.StarModelsCapability;
+import com.elfmcys.yesstevemodel.capability.*;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,12 +21,13 @@ public final class CommonEvent {
     @SubscribeEvent
     public static void registerCapability(RegisterCapabilitiesEvent event) {
         event.register(ModelInfoCapability.class);
+        event.register(ArrowModelInfoCapability.class);
         event.register(AuthModelsCapability.class);
         event.register(StarModelsCapability.class);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             event.register(PlayerGeoCapability.class);
+            event.register(ArrowGeoCapability.class);
         }
-        // PlayerGeoCapability 不需要持久化
     }
 
     private static void initCoreCommon() {

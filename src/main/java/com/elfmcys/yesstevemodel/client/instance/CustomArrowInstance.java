@@ -10,8 +10,8 @@ import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 
 public class CustomArrowInstance extends GeoInstance<CustomArrowEntity, CustomArrowModel> {
-    public CustomArrowInstance(AbstractArrow arrow, String modelName) {
-        super(new CustomArrowModel(), new CustomArrowEntity(arrow, modelName), true);
+    public CustomArrowInstance(AbstractArrow arrow) {
+        super(new CustomArrowModel(), new CustomArrowEntity(arrow), true);
         animatableModel.getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
         setInitialized();
     }

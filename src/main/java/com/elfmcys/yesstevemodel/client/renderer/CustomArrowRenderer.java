@@ -1,37 +1,35 @@
 package com.elfmcys.yesstevemodel.client.renderer;
 
-import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
+import com.elfmcys.yesstevemodel.capability.ArrowGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.instance.CustomArrowInstance;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoProjectilesRenderer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class CustomArrowRenderer extends GeoProjectilesRenderer<CustomArrowInstance> {
     public CustomArrowRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
     }
 
-    @Nullable
     @Override
-    protected CustomArrowInstance getGeoInstance(AbstractArrow entity) {
-        if (entity instanceof IArrowExtraInfo) {
-            return (CustomArrowInstance) ((IArrowExtraInfo) entity).getGeoInstance();
-        } else {
-            return null;
+    public void render(AbstractArrow entity, float yaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        if (Minecraft.getInstance().player == null || entity.isInvisibleTo(Minecraft.getInstance().player)) {
+            return;
         }
+        entity.getCapability(ArrowGeoCapabilityProvider.CAP).ifPresent(cap -> render(cap, yaw, partialTick, poseStack, bufferSource, packedLight));
+        super.render(entity, yaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
+    @NotNull
     public ResourceLocation getTextureLocation(AbstractArrow entity) {
-        if (entity instanceof IArrowExtraInfo extraInfo && extraInfo.getGeoInstance() instanceof GeoInstance<?,?> instance) {
-            return instance.getTextureLocation();
-        } else {
-            return MissingTextureAtlasSprite.getLocation();
-        }
+        return entity.getCapability(ArrowGeoCapabilityProvider.CAP).map(GeoInstance::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
     }
 }

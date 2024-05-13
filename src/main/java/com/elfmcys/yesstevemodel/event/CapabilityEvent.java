@@ -2,7 +2,9 @@ package com.elfmcys.yesstevemodel.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.*;
+import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.network.message.SyncArrowModelInfo;
 import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
 import com.elfmcys.yesstevemodel.network.message.SyncModelInfo;
 import com.elfmcys.yesstevemodel.network.message.SyncStarModels;
@@ -11,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -24,9 +27,11 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 @Mod.EventBusSubscriber
 public final class CapabilityEvent {
     private static final ResourceLocation MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "model_id");
+    private static final ResourceLocation ARROW_MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "arrow_model_id");
     private static final ResourceLocation AUTH_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "own_models");
     private static final ResourceLocation STAR_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "star_models");
     private static final ResourceLocation GEO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "geo");
+    private static final ResourceLocation ARROW_GEO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "arrow_geo");
 
     @SubscribeEvent
     public static void onAttachCapabilityEvent(AttachCapabilitiesEvent<Entity> event) {
@@ -43,6 +48,12 @@ public final class CapabilityEvent {
             }
             if (FMLEnvironment.dist == Dist.CLIENT && event.getObject() instanceof AbstractClientPlayer clientPlayer && !clientPlayer.getCapability(PlayerGeoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(GEO_CAP)) {
                 event.addCapability(GEO_CAP, new PlayerGeoCapabilityProvider(clientPlayer));
+            }
+        } else if (entity instanceof AbstractArrow) {
+            if (entity.level().isClientSide() && !entity.getCapability(ArrowGeoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ARROW_MODEL_INFO_CAP)) {
+                event.addCapability(ARROW_MODEL_INFO_CAP, new ArrowGeoCapabilityProvider((AbstractArrow) entity));
+            } else if (!entity.level().isClientSide() && !entity.getCapability(ArrowModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ARROW_GEO_CAP)) {
+                event.addCapability(ARROW_GEO_CAP, new ArrowModelInfoCapabilityProvider());
             }
         }
     }
@@ -72,6 +83,12 @@ public final class CapabilityEvent {
             getModelInfoCap(trackPlayer).ifPresent(cap -> {
                 SyncModelInfo syncMsg = new SyncModelInfo(trackPlayer.getId(), cap);
                 NetworkHandler.sendToClientPlayer(syncMsg, player);
+            });
+        } else if (event.getTarget() instanceof AbstractArrow arrow) {
+            arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+                if (cap.isInitialized() && ServerModelManager.hasArrowModel(cap.getOwnerModelId().getPath())) {
+                    NetworkHandler.sendToClientPlayer(new SyncArrowModelInfo(arrow.getId(), cap), event.getEntity());
+                }
             });
         }
     }
@@ -113,6 +130,17 @@ public final class CapabilityEvent {
                 }
             });
         }
+    }
+
+    public static void onArrowSetOwner(AbstractArrow arrow, ServerPlayer owner) {
+        owner.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(ownerCap -> {
+            arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(arrowCap -> {
+                arrowCap.init(ownerCap.getModelId());
+                if (ServerModelManager.hasArrowModel(arrowCap.getOwnerModelId().getPath())) {
+                    NetworkHandler.broadcastToVisiblePlayers(new SyncArrowModelInfo(arrow.getId(), arrowCap), arrow);
+                }
+            });
+        });
     }
 
     private static LazyOptional<ModelInfoCapability> getModelInfoCap(Player player) {

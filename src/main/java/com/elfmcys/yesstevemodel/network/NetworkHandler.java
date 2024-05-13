@@ -8,6 +8,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.Connection;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.*;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -71,6 +72,8 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(15, SubmitVariableChanges.class, SubmitVariableChanges::encode, SubmitVariableChanges::decode, SubmitVariableChanges::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(16, SyncArrowModelInfo.class, SyncArrowModelInfo::encode, SyncArrowModelInfo::decode, SyncArrowModelInfo::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
         CHANNEL.registerMessage(51, ServerInfo.class, ServerInfo::encode, ServerInfo::decode, ServerInfo::handleOnClient,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
@@ -91,6 +94,10 @@ public final class NetworkHandler {
 
     public static void broadcastToAllPlayers(Object message) {
         CHANNEL.send(PacketDistributor.ALL.noArg(), message);
+    }
+
+    public static void broadcastToVisiblePlayers(Object message, final Entity centerEntity) {
+        CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> centerEntity), message);
     }
 
     public static void broadcastToVisiblePlayersAndSelf(Object message, final Player self) {

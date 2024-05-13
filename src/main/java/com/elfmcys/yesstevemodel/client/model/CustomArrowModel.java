@@ -6,9 +6,9 @@ import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.resources.ResourceLocation;
 
 public class CustomArrowModel extends AnimatedGeoModel<CustomArrowEntity> {
-    public static final ResourceLocation DEFAULT_ARROW_MODEL = ModelIdUtil.DEFAULT_ARROW_MODEL_ID;
-    public static final ResourceLocation DEFAULT_ARROW_ANIMATION = ModelIdUtil.DEFAULT_ARROW_MODEL_ID;
-    public static final ResourceLocation DEFAULT_TEXTURE = ModelIdUtil.DEFAULT_TEXTURE_ID;
+    public static final ResourceLocation DEFAULT_MODEL = ModelIdUtil.DEFAULT_ARROW_MODEL_ID;
+    public static final ResourceLocation DEFAULT_ANIMATION = ModelIdUtil.DEFAULT_ARROW_MODEL_ID;
+    public static final ResourceLocation DEFAULT_TEXTURE = ModelIdUtil.DEFAULT_ARROW_TEXTURE_ID;
 
     @Override
     public ResourceLocation getModelLocation(CustomArrowEntity arrowEntity) {

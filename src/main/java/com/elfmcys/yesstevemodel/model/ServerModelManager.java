@@ -47,6 +47,14 @@ public final class ServerModelManager {
         return MODELS;
     }
 
+    public static boolean hasArrowModel(String modelName) {
+        var info = MODELS.get(modelName);
+        if (info == null) {
+            return false;
+        }
+        return info.geoModels().contains(ModelIdUtil.ARROW_MODEL_NAME);
+    }
+
     public static Set<String> getAuthModels() {
         return AUTH_MODELS;
     }

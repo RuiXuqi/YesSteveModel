@@ -20,15 +20,12 @@ import net.minecraft.resources.ResourceLocation;
 
 public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this, false);
-    private final ResourceLocation mainModel;
-    private final ResourceLocation texture;
+    private ResourceLocation mainModel = CustomArrowModel.DEFAULT_MODEL;
+    private ResourceLocation texture = CustomArrowModel.DEFAULT_TEXTURE;
     private final AbstractArrow arrow;
 
-    public CustomArrowEntity(AbstractArrow arrow, String modelName) {
+    public CustomArrowEntity(AbstractArrow arrow) {
         this.arrow = arrow;
-        ResourceLocation modelId = ModelIdUtil.getModelId(modelName);
-        this.mainModel = ModelIdUtil.getArrowId(modelId);
-        this.texture = ModelIdUtil.getArrowTextureId(modelId);
     }
 
     @Override
@@ -50,7 +47,7 @@ public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
         if (GeckoLibCache.getInstance().getAnimations().containsKey(this.mainModel)) {
             return mainModel;
         }
-        return CustomArrowModel.DEFAULT_ARROW_ANIMATION;
+        return CustomArrowModel.DEFAULT_ANIMATION;
     }
 
     public ResourceLocation getTexture() {
@@ -65,6 +62,11 @@ public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
     @Override
     public AbstractArrow getEntity() {
         return arrow;
+    }
+
+    public void setModelId(ResourceLocation ownerModelId) {
+        this.mainModel = ModelIdUtil.getArrowId(ownerModelId);
+        this.texture = ModelIdUtil.getArrowTextureId(ownerModelId);
     }
 
     public PlayState predicateMain(AnimationEvent<CustomArrowEntity> event) {
