@@ -182,9 +182,13 @@ public class DebugAnimationScreen implements IGuiOverlay {
 
     private static int getEquipmentCount(Player player) {
         int count = 0;
-        for (ItemStack s : player.getArmorSlots()) {
-            if (!s.isEmpty()) {
-                count += 1;
+        for (var slot : EquipmentSlot.values()) {
+            if (!slot.isArmor()) {
+                continue;
+            }
+            var stack = EquipmentUtil.getEquippedItem(player, slot);
+            if (!stack.isEmpty()) {
+                count++;
             }
         }
         return count;
