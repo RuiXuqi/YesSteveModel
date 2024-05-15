@@ -38,9 +38,9 @@ archivesBaseName = 'yesstevemodel-forge-1.20'
 var builderPath = "${buildDir}/ysm-native/YSMBuilder.exe"
 var buildTaskGroup = "ysm"
 var buildModLoader = "forge"
-var buildGameVersion = "1120"
+var buildGameVersion = "1200"
 var javaHome = System.properties['java.home']
-var devLib = "${buildDir}/ysm-native/lib/ysm-core_forge-1120-dev.dll"
+var devLib = "${buildDir}/ysm-native/lib/ysm-core_forge-1200-dev.dll"
 
 if(!file(builderPath).exists()) {
     System.err.println("Please put YSMBuilder to ${builderPath}")
