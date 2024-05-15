@@ -16,8 +16,8 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Optional;
 
 public final class NetworkHandler {
-    public static final String VERSION = "1.2.0";
-    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, "main");
+    public static final String VERSION = "1.2.1";
+    public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION.replace('.', '_'));
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION, p -> true, p -> true);
     private static final AttributeKey<String> ATTRIBUTE_CHANNEL_VERSION = AttributeKey.valueOf(YesSteveModel.MOD_ID + "_channel_version");
 
