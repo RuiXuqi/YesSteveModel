@@ -1,11 +1,14 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -39,8 +42,13 @@ public class ExtraAnimationKey {
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
-            if (key.isDown() && !PlayerMoveEvent.isMoveKey()) {
-                NetworkHandler.sendToServer(new SetPlayAnimation(EXTRA_ANIMATION_KEYS.indexOf(key)));
+            if (key.isDown() && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                    int index = EXTRA_ANIMATION_KEYS.indexOf(key);
+                    if (model.modelInfo().properties().extraAnimationOrderMap().size() > index) {
+                        NetworkHandler.sendToServer(new SetPlayAnimation(index));
+                    }
+                }));
                 return;
             }
         }

@@ -17,6 +17,7 @@ public class ReloadModelResult {
     private final Map<String, ServerModel> models;
     private final Set<String> authModels;
 
+    // Native Access
     public ReloadModelResult(boolean success, @Nullable Object message, Map<String, ServerModel> models, String[] authModels) {
         this.success = success;
         this.message = (Component) message;

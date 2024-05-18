@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.capability;
 
 import com.elfmcys.yesstevemodel.client.instance.CustomArrowInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,7 +13,7 @@ public class ArrowGeoCapability extends CustomArrowInstance {
         super(arrow);
     }
 
-    public void init(ResourceLocation ownerModelId) {
+    public void init(String ownerModelId) {
         animatable.setModelId(ownerModelId);
         initialized = true;
     }

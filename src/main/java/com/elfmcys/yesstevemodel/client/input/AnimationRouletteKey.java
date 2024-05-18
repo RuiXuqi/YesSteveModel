@@ -1,5 +1,7 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
 import com.elfmcys.yesstevemodel.config.DisableSwitch;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -25,7 +27,14 @@ public class AnimationRouletteKey {
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
         if (ANIMATION_ROULETTE_KEY.isDown() && DisableSwitch.CAN_SWITCH) {
-            Minecraft.getInstance().setScreen(new AnimationRouletteScreen());
+            if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                    var model = ClientModelManager.getModels().get(cap.getModelId());
+                    if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
+                        Minecraft.getInstance().setScreen(new AnimationRouletteScreen(model.modelInfo().properties().extraAnimationOrderMap()));
+                    }
+                });
+            }
         }
     }
 }

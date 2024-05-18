@@ -1,12 +1,11 @@
 package com.elfmcys.yesstevemodel.client.instance;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.entity.CustomArrowEntity;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.CustomArrowModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 
 public class CustomArrowInstance extends GeoInstance<CustomArrowEntity, CustomArrowModel> {
@@ -27,12 +26,7 @@ public class CustomArrowInstance extends GeoInstance<CustomArrowEntity, CustomAr
 
     @Override
     public boolean isModelPresent() {
-        return GeckoLibCache.getInstance().getGeoModels().get(animatable.getMainModel()) != null;
-    }
-
-    @Override
-    public String getTextureName() {
-        return ModelIdUtil.ARROW_TEXTURE_NAME;
+        return ClientModelManager.getModel(animatable.getModelId()).map(model -> model.arrowModel() != null).orElse(false);
     }
 
     @Override

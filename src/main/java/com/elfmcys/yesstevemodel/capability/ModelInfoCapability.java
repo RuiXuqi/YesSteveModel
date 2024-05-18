@@ -1,24 +1,22 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.network.message.SubmitVariableChanges;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ModelInfoCapability {
-    private ResourceLocation modelId = new ResourceLocation(YesSteveModel.MOD_ID, GeneralConfig.DEFAULT_MODEL_ID.get());
-    private ResourceLocation selectTexture = new ResourceLocation(YesSteveModel.MOD_ID, GeneralConfig.DEFAULT_MODEL_ID.get() + "/" + GeneralConfig.DEFAULT_MODEL_TEXTURE.get());
+    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+    private String selectTexture = ModelIdUtil.DEFAULT_TEXTURE_NAME;
     private String animation = "idle";
     private boolean playAnimation = false;
     private Object2FloatOpenHashMap<String> variables = new Object2FloatOpenHashMap<>();
     private int instanceId;
     private boolean dirty;
 
-    public void setModelAndTexture(ResourceLocation modelId, ResourceLocation selectTexture) {
+    public void setModelAndTexture(String modelId, String selectTexture) {
         this.modelId = modelId;
         this.selectTexture = selectTexture;
         markDirty();
@@ -34,15 +32,15 @@ public class ModelInfoCapability {
         markDirty();
     }
 
-    public ResourceLocation getModelId() {
+    public String getModelId() {
         return modelId;
     }
 
-    public ResourceLocation getSelectTexture() {
+    public String getSelectTexture() {
         return selectTexture;
     }
 
-    public void setSelectTexture(ResourceLocation selectTexture) {
+    public void setSelectTexture(String selectTexture) {
         this.selectTexture = selectTexture;
         markDirty();
     }
@@ -111,8 +109,8 @@ public class ModelInfoCapability {
 
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("model_id", this.modelId.toString());
-        tag.putString("select_texture", this.selectTexture.toString());
+        tag.putString("model_id", this.modelId);
+        tag.putString("select_texture", this.selectTexture);
         tag.putString("animation", this.animation);
         tag.putBoolean("play_animation", this.playAnimation);
         tag.putInt("instance_id", instanceId);
@@ -127,8 +125,11 @@ public class ModelInfoCapability {
     }
 
     public void deserializeNBT(CompoundTag nbt) {
-        this.modelId = new ResourceLocation(nbt.getString("model_id"));
-        this.selectTexture = new ResourceLocation(nbt.getString("select_texture"));
+        this.modelId = ModelIdUtil.stripLegacyPrefix(nbt.getString("model_id"));
+        this.selectTexture = nbt.getString("select_texture");
+        if (selectTexture.length() > 4 && selectTexture.toLowerCase().endsWith(".png")) {
+            this.selectTexture = this.selectTexture.substring(0, this.selectTexture.length() - 4);
+        }
         this.animation = nbt.getString("animation");
         this.playAnimation = nbt.getBoolean("play_animation");
         this.instanceId = nbt.getInt("instance_id");

@@ -2,24 +2,23 @@ package com.elfmcys.yesstevemodel.capability;
 
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 
 public class ArrowModelInfoCapability {
-    private ResourceLocation ownerModelId = ModelIdUtil.DEFAULT_MODEL_ID;
+    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private boolean initialized = false;
 
-    public void init(ResourceLocation ownerModelId) {
-        this.ownerModelId = ownerModelId;
+    public void init(String modelId) {
+        this.modelId = modelId;
         this.initialized = true;
     }
 
     public void copyFrom(ArrowModelInfoCapability source) {
-        this.ownerModelId = source.ownerModelId;
+        this.modelId = source.modelId;
         this.initialized = source.initialized;
     }
 
-    public ResourceLocation getOwnerModelId() {
-        return ownerModelId;
+    public String getOwnerModelId() {
+        return modelId;
     }
 
     public boolean isInitialized() {
@@ -28,16 +27,13 @@ public class ArrowModelInfoCapability {
 
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("owner_model_id", this.ownerModelId.toString());
+        tag.putString("owner_model_id", modelId);
         tag.putBoolean("initialized", initialized);
         return tag;
     }
 
     public void deserializeNBT(CompoundTag nbt) {
-        var ownerModelId = ResourceLocation.tryParse(nbt.getString("owner_model_id"));
-        if (ownerModelId != null) {
-            this.ownerModelId = ownerModelId;
-            this.initialized = nbt.getBoolean("initialized");
-        }
+        this.modelId = ModelIdUtil.stripLegacyPrefix(nbt.getString("owner_model_id"));
+        this.initialized = nbt.getBoolean("initialized");
     }
 }

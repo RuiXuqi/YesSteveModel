@@ -1,31 +1,34 @@
 package com.elfmcys.yesstevemodel.model;
 
-import com.google.common.collect.ImmutableSet;
+import com.elfmcys.yesstevemodel.info.ModelInfo;
+import it.unimi.dsi.fastutil.objects.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+// Native Access
 public class ServerModel {
     private final String name;
     private final Set<String> geoModels;
-    private final Set<String> animationFiles;
-    private final Set<String> textures;
-    private final Set<String> features;
-    // 模型哈希
-    private final String hash;
+    private final Map<String, Set<String>> animations;
+    private final List<String> textures;
+    private final ModelInfo info;
     private final boolean isDefault;
     private final boolean isNeedAuth;
-    private final boolean free;
 
-    public ServerModel(String name, String[] geoModels, String[] animationFiles, String[] textures, String[] features, String hash, boolean isDefault, boolean isNeedAuth, boolean free) {
+    // Native Access
+    public ServerModel(String name, String[] geoModels, Map<String, String[]> animations, String[] textures, ModelInfo info, boolean isDefault, boolean isNeedAuth) {
         this.name = name;
-        this.geoModels = ImmutableSet.copyOf(geoModels);
-        this.animationFiles = ImmutableSet.copyOf(animationFiles);
-        this.textures = ImmutableSet.copyOf(textures);
-        this.features = ImmutableSet.copyOf(features);
-        this.hash = hash;
+        this.geoModels = ObjectSets.unmodifiable(ObjectOpenHashSet.of(geoModels));
+        this.animations = Object2ObjectMaps.unmodifiable(new Object2ObjectOpenHashMap<>(animations.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> ObjectSets.unmodifiable(ObjectOpenHashSet.of(entry.getValue()))))));
+        this.textures = ObjectLists.unmodifiable(ObjectArrayList.of(textures));
+        this.info = info;
         this.isDefault = isDefault;
         this.isNeedAuth = isNeedAuth;
-        this.free = free;
     }
 
     public String name() {
@@ -36,20 +39,16 @@ public class ServerModel {
         return geoModels;
     }
 
-    public Set<String> animationFiles() {
-        return animationFiles;
+    public Map<String, Set<String>> animations() {
+        return animations;
     }
 
-    public Set<String> textures() {
+    public List<String> textures() {
         return textures;
     }
 
-    public Set<String> features() {
-        return features;
-    }
-
-    public String hash() {
-        return hash;
+    public ModelInfo info() {
+        return info;
     }
 
     public boolean isDefault() {
@@ -58,9 +57,5 @@ public class ServerModel {
 
     public boolean isNeedAuth() {
         return isNeedAuth;
-    }
-
-    public boolean isFree() {
-        return free;
     }
 }

@@ -2,8 +2,6 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
-import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
-import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
@@ -16,7 +14,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationFactory;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import com.elfmcys.yesstevemodel.geckolib3.util.GeckoLibUtil;
 import com.elfmcys.yesstevemodel.molang.runtime.HashMapStruct;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
@@ -24,7 +21,6 @@ import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -34,9 +30,8 @@ import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
 public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this, false);
-    private ResourceLocation mainModel = CustomPlayerModel.DEFAULT_MAIN_MODEL;
-    private ResourceLocation modelId = CustomPlayerModel.DEFAULT_MODEL;
-    private ResourceLocation texture = CustomPlayerModel.DEFAULT_TEXTURE;
+    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+    private String texture = ModelIdUtil.DEFAULT_TEXTURE_NAME;
     private Struct remoteStruct;
     private String previewAnimation = "";
     private AbstractClientPlayer player;
@@ -98,37 +93,27 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         }
     }
 
-    public ResourceLocation getMainModel() {
-        if (GeckoLibCache.getInstance().getGeoModels().containsKey(this.mainModel)) {
-            return mainModel;
+    public String getModelId() {
+        if (ClientModelManager.getModel(modelId).isPresent()) {
+            return modelId;
         }
-        return CustomPlayerModel.DEFAULT_MAIN_MODEL;
+        return ModelIdUtil.DEFAULT_MODEL_ID;
     }
 
-    public ResourceLocation getMainModelUnsafe() {
-        return this.mainModel;
+    public String getModelIdUnsafe() {
+        return this.modelId;
     }
 
-    public void setMainModel(ResourceLocation mainModel) {
-        this.mainModel = mainModel;
-        this.modelId = ModelIdUtil.getModelIdFromMainId(mainModel);
-    }
-
-    public ResourceLocation getAnimation() {
-        if (GeckoLibCache.getInstance().getAnimations().containsKey(this.mainModel)) {
-            return mainModel;
-        }
-        return CustomPlayerModel.DEFAULT_MAIN_ANIMATION;
+    public void setModel(String modelId) {
+        this.modelId = modelId;
     }
 
     public float getHeightScale() {
-        ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
-        return modelInfo == null ? 0.7f : (float) modelInfo.heightScale();
+        return ClientModelManager.getModel(modelId).map(model -> model.modelInfo().properties().heightScale()).orElse(0.7f);
     }
 
     public float getWidthScale() {
-        ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
-        return modelInfo == null ? 0.7f : (float) modelInfo.widthScale();
+        return ClientModelManager.getModel(modelId).map(model -> model.modelInfo().properties().widthScale()).orElse(0.7f);
     }
 
     @Override
@@ -141,11 +126,11 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         return this.factory;
     }
 
-    public ResourceLocation getTexture() {
+    public String getTexture() {
         return texture;
     }
 
-    public void setTexture(ResourceLocation texture) {
+    public void setTexture(String texture) {
         this.texture = texture;
     }
 

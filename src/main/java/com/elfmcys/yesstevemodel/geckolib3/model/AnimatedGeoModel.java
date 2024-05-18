@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.geckolib3.model;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
@@ -10,23 +9,18 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableS
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
-import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
-import com.elfmcys.yesstevemodel.geckolib3.geo.exception.GeckoLibException;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.GeoModelProvider;
-import com.elfmcys.yesstevemodel.geckolib3.model.provider.IAnimatableModelProvider;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import com.elfmcys.yesstevemodel.mixin.client.MinecraftAccessor;
 import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
 import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
-public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoModelProvider<T> implements IAnimatableModel<T>, IAnimatableModelProvider<T> {
+public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoModelProvider<T> implements IAnimatableModel<T> {
     private final AnimationProcessor<T> animationProcessor;
     private GeoModelState currentModel;
 
@@ -67,25 +61,16 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
         return this.animationProcessor;
     }
 
-    @Override
-    public Animation getAnimation(String name, T animatable) {
-        AnimationFile animation = GeckoLibCache.getInstance().getAnimations().get(this.getAnimationFileLocation(animatable));
-        if (animation == null) {
-            throw new GeckoLibException(this.getAnimationFileLocation(animatable), "Could not find animation file. Please double check name.");
-        }
-        return animation.getAnimation(name);
-    }
-
     public boolean updateCurrentModel(T animatable) {
-        ResourceLocation mainModelId = getModelLocation(animatable);
-        GeoModel model = super.getModel(mainModelId);
+        String mainModelId = getModelLocation(animatable);
+        GeoModel model = getModel(mainModelId);
         if (model == null) {
             this.currentModel = null;
             return false;
         }
         if (this.currentModel == null || model != this.currentModel.model()) {
             this.currentModel = new GeoModelState(model);
-            this.animationProcessor.registerModelRenderer(currentModel.boneMap(), model.properties.scripts());
+            this.animationProcessor.registerModelRenderer(currentModel.boneMap());
         }
         return true;
     }

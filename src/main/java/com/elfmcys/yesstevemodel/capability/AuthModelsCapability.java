@@ -1,17 +1,18 @@
 package com.elfmcys.yesstevemodel.capability;
 
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Sets;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AuthModelsCapability {
-    private Set<ResourceLocation> authModels = Sets.newHashSet();
+    private Set<String> authModels = Sets.newHashSet();
 
-    public void addModel(ResourceLocation modelId) {
+    public void addModel(String modelId) {
         authModels.add(modelId);
     }
 
@@ -19,19 +20,19 @@ public class AuthModelsCapability {
         this.authModels = source.authModels;
     }
 
-    public void removeModel(ResourceLocation modelId) {
+    public void removeModel(String modelId) {
         authModels.remove(modelId);
     }
 
-    public boolean containModel(ResourceLocation modelId) {
+    public boolean containModel(String modelId) {
         return authModels.contains(modelId);
     }
 
-    public Set<ResourceLocation> getAuthModels() {
+    public Set<String> getAuthModels() {
         return authModels;
     }
 
-    public void setAuthModels(Set<ResourceLocation> authModels) {
+    public void setAuthModels(Set<String> authModels) {
         this.authModels = authModels;
     }
 
@@ -41,8 +42,8 @@ public class AuthModelsCapability {
 
     public ListTag serializeNBT() {
         ListTag listTag = new ListTag();
-        for (ResourceLocation modelId : authModels) {
-            listTag.add(StringTag.valueOf(modelId.toString()));
+        for (String modelId : authModels) {
+            listTag.add(StringTag.valueOf(modelId));
         }
         return listTag;
     }
@@ -50,7 +51,8 @@ public class AuthModelsCapability {
     public void deserializeNBT(ListTag nbt) {
         this.authModels.clear();
         for (Tag tag : nbt) {
-            authModels.add(new ResourceLocation(tag.getAsString()));
+            authModels.add(tag.getAsString());
         }
+        authModels = authModels.stream().map(ModelIdUtil::stripLegacyPrefix).collect(Collectors.toSet());
     }
 }

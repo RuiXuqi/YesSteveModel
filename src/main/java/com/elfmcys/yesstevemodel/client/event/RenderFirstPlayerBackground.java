@@ -1,14 +1,13 @@
 package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
-import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -17,7 +16,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -55,9 +53,9 @@ public class RenderFirstPlayerBackground {
         }
         ALREADY_RENDERED = true;
         player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            ResourceLocation modelId = cap.getModelId();
-            final GeoModel geoModel = GeckoLibCache.getInstance().getGeoModels().get(ModelIdUtil.getArmId(modelId));
-            if (geoModel == null || !geoModel.hasfirstPersonBackground) {
+            String modelId = cap.getModelId();
+            ClientModel model = ClientModelManager.getModel(modelId).orElse(null);
+            if (model == null || !model.armModel().hasFirstPersonBackground) {
                 return;
             }
             CustomPlayerRenderer instance = RegisterEntityRenderersEvent.getPlayerRenderer();
@@ -67,7 +65,7 @@ public class RenderFirstPlayerBackground {
             if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, customPlayer, modelId))) {
                 return;
             }
-            RenderType renderType = RenderType.entityTranslucent(customPlayer.getTexture());
+            RenderType renderType = RenderType.entityTranslucent(model.textures().get(customPlayer.getTexture()));
             final VertexConsumer buffer = multiBufferSource.getBuffer(renderType);
             final int packedLight = event.getPackedLight();
             if (instance != null) {
@@ -76,7 +74,7 @@ public class RenderFirstPlayerBackground {
                     bobView(poseStack, event.getPartialTick(), player);
                 }
                 poseStack.translate(0, -1.5, 0);
-                NativeRenderer.renderModel(buffer, poseStack.last(), geoModel, geoModel.getInitialState(), NativeRenderer.RENDER_MODE_BACKGROUND, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                NativeRenderer.renderModel(buffer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), NativeRenderer.RENDER_MODE_BACKGROUND, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                 poseStack.popPose();
             }
         });

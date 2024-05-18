@@ -2,11 +2,9 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 public class TextureCountButton extends FlatColorButton {
     public TextureCountButton(int x, int y) {
@@ -18,15 +16,10 @@ public class TextureCountButton extends FlatColorButton {
     public Component getMessage() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            return player.getCapability(PlayerGeoCapabilityProvider.CAP).map(cap -> {
-                ResourceLocation modelId = cap.getModelId();
-                ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
-                if (modelInfo != null) {
-                    String countText = String.valueOf(modelInfo.textureIds().size());
-                    return Component.literal(countText);
-                }
-                return super.getMessage();
-            }).orElse(super.getMessage());
+            return player.getCapability(PlayerGeoCapabilityProvider.CAP).map(cap -> ClientModelManager.getModel(cap.getModelId()).map(model -> {
+                String countText = String.valueOf(model.textures().size());
+                return (Component) Component.literal(countText);
+            }).orElseGet(super::getMessage)).orElse(super.getMessage());
         }
         return super.getMessage();
     }

@@ -1,19 +1,16 @@
 package com.elfmcys.yesstevemodel.client.instance;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 
 public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, CustomPlayerModel> {
-    protected ResourceLocation modelId = CustomPlayerModel.DEFAULT_MAIN_MODEL;
-    protected String textureName = ModelIdUtil.getSubNameFromId(CustomPlayerModel.DEFAULT_TEXTURE);
     protected boolean isPlayingAnimation = false;
     protected String animationName = "idle";
     protected boolean isAnimationDirty = false;
@@ -37,13 +34,17 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
 
     @Override
     public boolean isModelPresent() {
-        ResourceLocation modelId = animatable.getMainModelUnsafe();
-        return modelId != null && GeckoLibCache.getInstance().getGeoModels().get(modelId) != null;
+        String modelId = animatable.getModelIdUnsafe();
+        return modelId != null && ClientModelManager.getModels().containsKey(modelId);
     }
 
     @Override
+    public ResourceLocation getTextureLocation() {
+        return animatableModel.getTextureLocation(animatable);
+    }
+
     public String getTextureName() {
-        return textureName;
+        return animatable.getTexture();
     }
 
     @Override
@@ -56,24 +57,27 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
         return animatable.getHeightScale();
     }
 
-    public void setModelAndTexture(ResourceLocation modelId, ResourceLocation textureLocation) {
+    public void setModelAndTexture(String modelId, String textureName) {
         setInitialized();
         setModel(modelId);
-        setTexture(textureLocation);
+        setTexture(textureName);
     }
 
-    public void setTexture(ResourceLocation textureLocation) {
+    public void setTexture(String textureLocation) {
         animatable.setTexture(textureLocation);
-        textureName = ModelIdUtil.getSubNameFromId(textureLocation);
     }
 
-    public void setModel(ResourceLocation modelId) {
-        this.modelId = modelId;
-        this.animatableModel.getModelLocation(animatable);
-        animatable.setMainModel(ModelIdUtil.getMainId(modelId));
+    public void setModel(String modelId) {
+        animatable.setModel(modelId);
     }
 
     public void playAnimation(String animationName) {
+        this.animationName = animationName;
+        this.isPlayingAnimation = true;
+        this.isAnimationDirty = true;
+    }
+
+    public void playExtraAnimation(int index) {
         this.animationName = animationName;
         this.isPlayingAnimation = true;
         this.isAnimationDirty = true;
@@ -99,7 +103,7 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
         this.isPlayingAnimation = false;
     }
 
-    public ResourceLocation getModelId() {
-        return this.modelId;
+    public String getModelId() {
+        return this.animatable.getModelId();
     }
 }

@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
-import com.elfmcys.yesstevemodel.client.model.CustomArrowModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
@@ -11,17 +10,14 @@ import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationFactory;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import com.elfmcys.yesstevemodel.geckolib3.util.GeckoLibUtil;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.resources.ResourceLocation;
 
 public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this, false);
-    private ResourceLocation mainModel = CustomArrowModel.DEFAULT_MODEL;
-    private ResourceLocation texture = CustomArrowModel.DEFAULT_TEXTURE;
+    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private final AbstractArrow arrow;
 
     public CustomArrowEntity(AbstractArrow arrow) {
@@ -39,19 +35,8 @@ public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
         }
     }
 
-    public ResourceLocation getMainModel() {
-        return mainModel;
-    }
-
-    public ResourceLocation getAnimation() {
-        if (GeckoLibCache.getInstance().getAnimations().containsKey(this.mainModel)) {
-            return mainModel;
-        }
-        return CustomArrowModel.DEFAULT_ANIMATION;
-    }
-
-    public ResourceLocation getTexture() {
-        return texture;
+    public String getModelId() {
+        return modelId;
     }
 
     @Override
@@ -64,9 +49,8 @@ public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
         return arrow;
     }
 
-    public void setModelId(ResourceLocation ownerModelId) {
-        this.mainModel = ModelIdUtil.getArrowId(ownerModelId);
-        this.texture = ModelIdUtil.getArrowTextureId(ownerModelId);
+    public void setModelId(String ownerModelId) {
+        this.modelId = ownerModelId;
     }
 
     public PlayState predicateMain(AnimationEvent<CustomArrowEntity> event) {

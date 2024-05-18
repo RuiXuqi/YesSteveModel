@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -8,23 +9,22 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class SetPlayAnimation {
-    private static final int STOP = -1;
-    private final int extraAnimationId;
+    private final int extraAnimationIndex;
 
-    public SetPlayAnimation(int extraAnimationId) {
-        this.extraAnimationId = extraAnimationId;
+    public SetPlayAnimation(int extraAnimationIndex) {
+        this.extraAnimationIndex = extraAnimationIndex;
     }
 
     public static SetPlayAnimation stop() {
-        return new SetPlayAnimation(STOP);
+        return new SetPlayAnimation(-1);
     }
 
     public static void encode(SetPlayAnimation message, FriendlyByteBuf buf) {
-        buf.writeInt(message.extraAnimationId);
+        buf.writeVarInt(message.extraAnimationIndex);
     }
 
     public static SetPlayAnimation decode(FriendlyByteBuf buf) {
-        return new SetPlayAnimation(buf.readInt());
+        return new SetPlayAnimation(buf.readVarInt());
     }
 
     public static void handle(SetPlayAnimation message, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -35,9 +35,7 @@ public class SetPlayAnimation {
                 if (sender == null) {
                     return;
                 }
-                if (STOP <= message.extraAnimationId && message.extraAnimationId < 8) {
-                    handleCapability(message, sender);
-                }
+                handleCapability(message, sender);
             });
         }
         context.setPacketHandled(true);
@@ -45,10 +43,14 @@ public class SetPlayAnimation {
 
     private static void handleCapability(SetPlayAnimation message, ServerPlayer sender) {
         sender.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
-            if (message.extraAnimationId == STOP) {
+            if (message.extraAnimationIndex == -1) {
                 modelIdCap.stopAnimation();
             } else {
-                modelIdCap.playAnimation("extra" + message.extraAnimationId);
+                ServerModelManager.getModel(modelIdCap.getModelId()).ifPresent(model -> {
+                    if (model.info().properties().extraAnimationOrderMap().size() > message.extraAnimationIndex) {
+                        modelIdCap.playAnimation(model.info().properties().extraAnimationOrderMap().getKeyAt(message.extraAnimationIndex));
+                    }
+                });
             }
         });
     }

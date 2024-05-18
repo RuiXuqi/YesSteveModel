@@ -1,12 +1,13 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
+import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -19,7 +20,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
@@ -29,26 +29,17 @@ public class AnimationRouletteScreen extends Screen {
     private int x;
     private int y;
     private int selectId = -1;
-    private String[] names;
+    private final FifoHashMap<String, String> extraAnimationMap;
 
-    public AnimationRouletteScreen() {
+    public AnimationRouletteScreen(FifoHashMap<String, String> extraAnimationMap) {
         super(Component.literal("Animation Roulette GUI"));
+        this.extraAnimationMap = extraAnimationMap;
     }
 
     @Override
     protected void init() {
         this.x = width / 2;
         this.y = height / 2 - 8;
-
-        if (minecraft != null && minecraft.player != null) {
-            minecraft.player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                ResourceLocation modelId = cap.getModelId();
-                ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(modelId);
-                if(modelInfo != null && !modelInfo.extraAnimationNames().isEmpty()) {
-                    this.names = modelInfo.extraAnimationNames().toArray(new String[0]);
-                }
-            });
-        }
     }
 
     @Override
@@ -60,16 +51,18 @@ public class AnimationRouletteScreen extends Screen {
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (-1 < selectId && selectId < 8 && minecraft != null) {
-            minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            if (NetworkHandler.isRemoteChannelPresent()) {
-                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId));
-            } else if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                    cap.playAnimation("extra" + selectId);
-                });
-            }
-            if (minecraft.player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
-                minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectId));
+            if (selectId < extraAnimationMap.size()) {
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                if (NetworkHandler.isRemoteChannelPresent()) {
+                    NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId));
+                } else if (Minecraft.getInstance().player != null) {
+                    Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                        cap.playAnimation(extraAnimationMap.getKeyAt(selectId));
+                    });
+                }
+                if (minecraft.player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
+                    minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectId));
+                }
             }
             minecraft.setScreen(null);
         }
@@ -94,10 +87,12 @@ public class AnimationRouletteScreen extends Screen {
                 keyText.append(keyMapping.getTranslatedKeyMessage());
             }
             keyText.append(" ]");
-            if (this.names != null && this.names.length > i && StringUtils.isNoneBlank(this.names[i])) {
-                graphics.drawCenteredString(font, Component.literal(this.names[i]), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
-            } else {
-                graphics.drawCenteredString(font, String.valueOf(i), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
+            if (extraAnimationMap.size() > i) {
+                if (StringUtils.isNoneBlank(extraAnimationMap.getValueAt(i))) {
+                    graphics.drawCenteredString(font, Component.literal(extraAnimationMap.getValueAt(i)), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
+                } else {
+                    graphics.drawCenteredString(font, String.valueOf(i), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
+                }
             }
             graphics.drawCenteredString(font, keyText, (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 + 4), 0xF3EFE0);
             startDeg = startDeg + 2 * Mth.PI / count;

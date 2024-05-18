@@ -21,10 +21,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
@@ -84,7 +86,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
     }
 
     @SuppressWarnings("unchecked")
-    protected void renderGeoInstance(TInstance instance, float entityYaw, float partialTick, PoseStack poseStack,
+    protected void renderGeoInstance(TInstance instance, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
                                      MultiBufferSource bufferSource, int packedLight) {
         AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
 
@@ -112,7 +114,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
 
             Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
             RenderType renderType = getRenderType(instance, partialTick, poseStack, bufferSource, null, packedLight,
-                    instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
+                    textureLocationOverride != null ? textureLocationOverride : (instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID));
 
             GeoModelState model = instance.getAnimatableModel().getCurrentModel();
             if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {

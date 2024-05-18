@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -26,15 +27,15 @@ public class ModelButton extends Button {
     private final static ResourceLocation ICON = new ResourceLocation(YesSteveModel.MOD_ID, "texture/icon.png");
     private final boolean needAuth;
     private final int color;
-    private final List<Component> tooltips;
+    private final ClientModel model;
     private final GuiModelInstance instance;
 
-    public ModelButton(int pX, int pY, boolean needAuth, GuiModelInstance instance, List<Component> tooltips) {
-        super(pX, pY, 52, 90, Component.literal(instance.getModelId().getPath()), (b) -> {
+    public ModelButton(int pX, int pY, boolean needAuth, GuiModelInstance instance, ClientModel model) {
+        super(pX, pY, 52, 90, Component.literal(instance.getModelId()), (b) -> {
         }, DEFAULT_NARRATION);
         this.needAuth = needAuth;
         this.color = needAuth ? 0x7F_000000 : 0xFF_434242;
-        this.tooltips = tooltips;
+        this.model = model;
         this.instance = instance;
     }
 
@@ -46,10 +47,10 @@ public class ModelButton extends Button {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.setModelAndTexture(instance.getModelId(), instance.getTextureLocation());
+                cap.setModelAndTexture(instance.getModelId(), instance.getTextureName());
                 if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
                     roamingStruct.reset(roamingStruct.getInstanceId() + 1, null);
-                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation(), roamingStruct.getInstanceId()));
+                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureName(), roamingStruct.getInstanceId()));
                 }
             });
         }
@@ -100,8 +101,8 @@ public class ModelButton extends Button {
     }
 
     public void renderComponentTooltip(GuiGraphics graphics, Screen screen, int pMouseX, int pMouseY) {
-        if (this.isHovered() && tooltips != null) {
-            graphics.renderComponentTooltip(screen.getMinecraft().font, tooltips, pMouseX, pMouseY);
+        if (this.isHovered()) {
+            graphics.renderComponentTooltip(screen.getMinecraft().font, model.clientModelInfo().displayInfo(), pMouseX, pMouseY);
         }
     }
 

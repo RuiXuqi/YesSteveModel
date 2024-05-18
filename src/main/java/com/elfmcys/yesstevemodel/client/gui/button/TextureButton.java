@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -20,13 +19,11 @@ import net.minecraft.util.FormattedCharSequence;
 import java.util.List;
 
 public class TextureButton extends Button {
-    private final String name;
     private final GuiModelInstance instance;
 
     public TextureButton(int pX, int pY, GuiModelInstance instance) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
         }, DEFAULT_NARRATION);
-        this.name = ModelIdUtil.getSubNameFromId(instance.getTextureLocation());
         this.instance = instance;
     }
 
@@ -35,9 +32,9 @@ public class TextureButton extends Button {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.setTexture(instance.getTextureLocation());
+                cap.setTexture(instance.getTextureName());
                 if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
-                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureLocation(), roamingStruct.getInstanceId()));
+                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureName(), roamingStruct.getInstanceId()));
                 }
             });
         }
@@ -59,7 +56,7 @@ public class TextureButton extends Button {
         RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, instance);
         RenderSystem.disableScissor();
 
-        Component message = Component.literal(name);
+        Component message = Component.literal(instance.getTextureName());
         List<FormattedCharSequence> split = font.split(message, 50);
         if (split.size() > 1) {
             graphics.drawCenteredString(font, split.get(0), this.getX() + this.width / 2, this.getY() + this.height - 19, 0xF3EFE0);

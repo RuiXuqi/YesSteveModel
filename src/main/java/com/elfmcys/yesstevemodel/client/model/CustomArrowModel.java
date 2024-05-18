@@ -1,27 +1,33 @@
 package com.elfmcys.yesstevemodel.client.model;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomArrowEntity;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 
 public class CustomArrowModel extends AnimatedGeoModel<CustomArrowEntity> {
-    public static final ResourceLocation DEFAULT_MODEL = ModelIdUtil.DEFAULT_ARROW_MODEL_ID;
-    public static final ResourceLocation DEFAULT_ANIMATION = ModelIdUtil.DEFAULT_ARROW_MODEL_ID;
-    public static final ResourceLocation DEFAULT_TEXTURE = ModelIdUtil.DEFAULT_ARROW_TEXTURE_ID;
+    @Override
+    public GeoModel getModel(String location) {
+        return ClientModelManager.getModel(location).map(ClientModel::arrowModel).orElse(null);
+    }
 
     @Override
-    public ResourceLocation getModelLocation(CustomArrowEntity arrowEntity) {
-        return arrowEntity.getMainModel();
+    public String getModelLocation(CustomArrowEntity arrowEntity) {
+        return arrowEntity.getModelId();
     }
 
     @Override
     public ResourceLocation getTextureLocation(CustomArrowEntity arrowEntity) {
-        return arrowEntity.getTexture();
+        return ClientModelManager.getModel(arrowEntity.getModelId()).map(ClientModel::arrowTexture).orElse(MissingTextureAtlasSprite.getLocation());
     }
 
     @Override
-    public ResourceLocation getAnimationFileLocation(CustomArrowEntity arrowEntity) {
-        return arrowEntity.getAnimation();
+    public Animation getAnimation(String name, CustomArrowEntity animatable) {
+        return ClientModelManager.getArrowAnimation(animatable.getModelId(), name)
+                .orElse(null);
     }
 }

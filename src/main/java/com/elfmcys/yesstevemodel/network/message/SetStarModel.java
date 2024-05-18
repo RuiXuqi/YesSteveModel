@@ -2,36 +2,37 @@ package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class SetStarModel {
-    private final ResourceLocation modelId;
+    private final String modelId;
     private final boolean isAdd;
 
-    private SetStarModel(ResourceLocation modelId, boolean isAdd) {
+    private SetStarModel(String modelId, boolean isAdd) {
         this.modelId = modelId;
         this.isAdd = isAdd;
     }
 
-    public static SetStarModel add(ResourceLocation modelId) {
+    public static SetStarModel add(String modelId) {
         return new SetStarModel(modelId, true);
     }
 
-    public static SetStarModel remove(ResourceLocation modelId) {
+    public static SetStarModel remove(String modelId) {
         return new SetStarModel(modelId, false);
     }
 
     public static void encode(SetStarModel message, FriendlyByteBuf buf) {
-        buf.writeResourceLocation(message.modelId);
+        buf.writeUtf(message.modelId);
         buf.writeBoolean(message.isAdd);
     }
 
     public static SetStarModel decode(FriendlyByteBuf buf) {
-        return new SetStarModel(buf.readResourceLocation(), buf.readBoolean());
+        String modelId = buf.readUtf();
+        boolean isAdd = buf.readBoolean();
+        return new SetStarModel(modelId, isAdd);
     }
 
     public static void handle(SetStarModel message, Supplier<NetworkEvent.Context> contextSupplier) {

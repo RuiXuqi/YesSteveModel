@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.animation.molang.bindings;
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.client.animation.molang.bindings.functions.*;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
@@ -44,7 +45,6 @@ public class YSMBinding extends ContextBinding {
         function("effect_level", new EffectLevel());
         function("relative_block_name", new RelativeBlockName());
 
-        var("texture_name", ctx -> ctx.geoInstance().getTextureName());
         var("head_yaw", ctx -> ctx.data().netHeadYaw);
         var("head_pitch", ctx -> ctx.data().headPitch);
         var("weather", ctx -> getWeather(ctx.level()));
@@ -68,6 +68,13 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
         livingEntityVar("is_close_eyes", ctx -> getEyeCloseState(ctx.animationEvent(), ctx.entity()));
 
+        playerVar("texture_name", ctx -> {
+            if (ctx.geoInstance() instanceof CustomPlayerInstance instance) {
+                return instance.getTextureName();
+            } else {
+                return null;
+            }
+        });
         playerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
         playerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
         playerVar("elytra_rot_z", ctx -> Math.toDegrees(ctx.entity().elytraRotZ));

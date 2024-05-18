@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
@@ -13,24 +12,24 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class SyncAuthModels {
-    private final Set<ResourceLocation> authModels;
+    private final Set<String> authModels;
 
-    public SyncAuthModels(Set<ResourceLocation> authModels) {
+    public SyncAuthModels(Set<String> authModels) {
         this.authModels = authModels;
     }
 
     public static void encode(SyncAuthModels message, FriendlyByteBuf buf) {
         buf.writeVarInt(message.authModels.size());
-        for (ResourceLocation modelId : message.authModels) {
-            buf.writeResourceLocation(modelId);
+        for (String modelId : message.authModels) {
+            buf.writeUtf(modelId);
         }
     }
 
     public static SyncAuthModels decode(FriendlyByteBuf buf) {
         int size = buf.readVarInt();
-        Set<ResourceLocation> tmp = Sets.newHashSet();
+        Set<String> tmp = Sets.newHashSet();
         for (int i = 0; i < size; i++) {
-            tmp.add(buf.readResourceLocation());
+            tmp.add(buf.readUtf());
         }
         return new SyncAuthModels(tmp);
     }

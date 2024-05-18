@@ -14,7 +14,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
-import com.elfmcys.yesstevemodel.geckolib3.geo.raw.pojo.ModelScript;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
@@ -187,7 +186,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
         return renderer != null ? renderer.bone : null;
     }
 
-    public void registerModelRenderer(Map<String, IBone> boneMap, ModelScript scripts) {
+    public void registerModelRenderer(Map<String, IBone> boneMap) {
         this.modelRendererMap.clear();
         this.modelRendererList.clear();
         this.modelRendererList.ensureCapacity(boneMap.size());
@@ -196,9 +195,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
             this.modelRendererMap.put(entry.getKey(), renderer);
             this.modelRendererList.add(renderer);
         }
-        this.initializationValues = scripts.initializationValues();
-        this.preAnimationValues = scripts.preAnimationValues();
-        this.animationStorage.initialize(scripts.publicVariableNames());
+        this.animationStorage.initialize(null);
         this.rendererDirty = true;
     }
 
@@ -217,14 +214,16 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
     }
 
     private void preProcess(ExpressionEvaluator<AnimationContext<?>> evaluator) {
-        if (rendererDirty) {
+        if (rendererDirty && initializationValues != null) {
             for (IValue value : initializationValues) {
                 value.evalAsDouble(evaluator);
             }
             initializationValues = null;
         }
-        for (IValue value : preAnimationValues) {
-            value.evalAsDouble(evaluator);
+        if (preAnimationValues != null) {
+            for (IValue value : preAnimationValues) {
+                value.evalAsDouble(evaluator);
+            }
         }
         debugInfo.evaluatePre(evaluator);
     }

@@ -1,81 +1,76 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo.render.built;
 
-import com.elfmcys.yesstevemodel.geckolib3.geo.raw.pojo.ModelProperties;
+import com.elfmcys.yesstevemodel.geckolib3.geo.raw.pojo.GeoModelProperties;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.util.CleanerUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 // Native Access
 // 模型对象一定不能用 java 代码构建，否则无法渲染
 public class GeoModel {
-    @Nonnull
+    @NotNull
     public final List<GeoBone> sortedBones;
 
-    @Nonnull
-    public final List<GeoBone> leftHandBones;
-    @Nonnull
-    public final List<GeoBone> rightHandBones;
-    @Nonnull
-    public final List<GeoBone> elytraBones;
-    @Nonnull
-    public final List<GeoBone> tacPistolBones;
-    @Nonnull
-    public final List<GeoBone> tacRifleBones;
-    @Nonnull
-    public final List<GeoBone> leftWaistBones;
-    @Nonnull
-    public final List<GeoBone> rightWaistBones;
-    @Nullable
-    public final GeoBone firstPersonHead;
-    @Nullable
-    public final GeoBone firstPersonViewLocator;
-    @Nonnull
-    public final ModelProperties properties;
+    @NotNull
+    public final List<String> leftHandBones;
+    @NotNull
+    public final List<String> rightHandBones;
+    @NotNull
+    public final List<String> elytraBones;
+    @NotNull
+    public final List<String> tacPistolBones;
+    @NotNull
+    public final List<String> tacRifleBones;
+    @NotNull
+    public final List<String> leftWaistBones;
+    @NotNull
+    public final List<String> rightWaistBones;
 
     public final boolean hasFirstPersonLeftArm;
     public final boolean hasFirstPersonRightArm;
-    public final boolean hasfirstPersonBackground;
+    public final boolean hasFirstPersonBackground;
 
-    @Nonnull
-    public final float[] initialState;
+    @NotNull
+    public final GeoModelProperties properties;
+
+    public final float @NotNull [] initialState;
 
     // Native Access
     @SuppressWarnings("all")
     private long nativeId;
 
     // Native Access
-    public GeoModel(GeoBone[] sortedBones, GeoBone[] leftHandBones, GeoBone[] rightHandBones, GeoBone[] elytraBones, GeoBone[] tacPistolBones, GeoBone[] tacRifleBones, GeoBone[] leftWaistBones, GeoBone[] rightWaistBones, boolean hasFirstPersonLeftArm, boolean hasFirstPersonRightArm, boolean hasfirstPersonBackground, @Nullable GeoBone firstPersonHead, @Nullable GeoBone firstPersonViewLocator, ModelProperties properties) {
-        this.sortedBones = ObjectArrayList.wrap(sortedBones);
+    public GeoModel(GeoBone[] sortedBones, String[][] locatorHierarchy, boolean[] hasRendererFeature, @NotNull GeoModelProperties properties) {
+        this.sortedBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(sortedBones));
 
-        this.leftHandBones = ObjectArrayList.wrap(leftHandBones);
-        this.rightHandBones = ObjectArrayList.wrap(rightHandBones);
-        this.elytraBones = ObjectArrayList.wrap(elytraBones);
-        this.tacPistolBones = ObjectArrayList.wrap(tacPistolBones);
-        this.tacRifleBones = ObjectArrayList.wrap(tacRifleBones);
-        this.leftWaistBones = ObjectArrayList.wrap(leftWaistBones);
-        this.rightWaistBones = ObjectArrayList.wrap(rightWaistBones);
-        this.hasFirstPersonLeftArm = hasFirstPersonLeftArm;
-        this.hasFirstPersonRightArm = hasFirstPersonRightArm;
-        this.hasfirstPersonBackground = hasfirstPersonBackground;
-        this.firstPersonHead = firstPersonHead;
-        this.firstPersonViewLocator = firstPersonViewLocator;
+        this.leftHandBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[0]));
+        this.rightHandBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[1]));
+        this.elytraBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[2]));
+        this.tacPistolBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[3]));
+        this.tacRifleBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[4]));
+        this.leftWaistBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[5]));
+        this.rightWaistBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[6]));
+
+        hasFirstPersonLeftArm = hasRendererFeature[0];
+        hasFirstPersonRightArm = hasRendererFeature[1];
+        hasFirstPersonBackground = hasRendererFeature[2];
+
         this.properties = properties;
 
         this.initialState = new GeoModelState(this).state();
         CleanerUtil.ref(this, GeoModel::free);
     }
 
-    @Nonnull
+    @NotNull
     public List<GeoBone> getSortedBones() {
         return sortedBones;
     }
 
-    @Nonnull
-    public float[] getInitialState() {
+    public float @NotNull [] getInitialState() {
         return initialState;
     }
 

@@ -1,10 +1,11 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
 import com.elfmcys.yesstevemodel.client.gui.button.TextureButton;
+import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.Window;
@@ -35,8 +36,8 @@ public class PlayerTextureScreen extends Screen {
     private static final int RIGHT_MOUSE_BUTTON = 1;
 
     private final PlayerModelScreen parent;
-    private final ResourceLocation modelId;
-    private final List<ResourceLocation> textures;
+    private final String modelId;
+    private final FifoHashMap<String, ResourceLocation> textures;
     private final List<String> animations;
     private String animation = "";
     private int maxTexturePage;
@@ -61,13 +62,12 @@ public class PlayerTextureScreen extends Screen {
         }
     }
 
-    public PlayerTextureScreen(PlayerModelScreen parent, ResourceLocation modelId, List<ResourceLocation> textures) {
+    public PlayerTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
         super(Component.literal("Player Texture GUI"));
         this.parent = parent;
         this.modelId = modelId;
-        this.textures = Lists.newArrayList(textures);
-        this.textures.sort(ResourceLocation::compareTo);
-        this.animations = new ArrayList<>(ClientModelManager.getDefaultAnimationFile().getAnimations().keySet());
+        this.textures = model.textures();
+        this.animations = new ArrayList<>(model.mainAnimations().keySet());
         this.animations.sort(String::compareTo);
         PREVIEW_INSTANCE.getAnimatable().setPlayer(Minecraft.getInstance().player);
         for (GuiModelInstance instance : TEXTURE_BUTTON_INSTANCE) {
@@ -155,7 +155,7 @@ public class PlayerTextureScreen extends Screen {
             int xStart = x + 306 + 56 * (i % 2);
             int yStart = y + 5 + 104 * (i / 2);
             GuiModelInstance instance = TEXTURE_BUTTON_INSTANCE[i];
-            instance.setModelAndTexture(modelId, textures.get(modelIndex));
+            instance.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
             addRenderableWidget(new TextureButton(xStart, yStart, instance));
         }
     }
@@ -184,7 +184,7 @@ public class PlayerTextureScreen extends Screen {
         }
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
         PREVIEW_INSTANCE.getAnimatable().getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            PREVIEW_INSTANCE.setModelAndTexture(modelId, cap.getTextureLocation());
+            PREVIEW_INSTANCE.setModelAndTexture(modelId, cap.getTextureName());
             RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_INSTANCE, showGround);
         });
         RenderSystem.disableScissor();

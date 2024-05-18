@@ -9,9 +9,9 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
@@ -161,7 +161,7 @@ public abstract class GeoInstance<TAnimatable extends IAnimatable<?>, TModel ext
         return !animatable.getEntity().isRemoved();
     }
 
-    public ResourceLocation getModelLocation() {
+    public String getModelId() {
         return this.animatableModel.getModelLocation(animatable);
     }
 
@@ -170,8 +170,6 @@ public abstract class GeoInstance<TAnimatable extends IAnimatable<?>, TModel ext
     }
 
     public abstract boolean isModelPresent();
-
-    public abstract String getTextureName();
 
     public abstract float getWidthScale();
 

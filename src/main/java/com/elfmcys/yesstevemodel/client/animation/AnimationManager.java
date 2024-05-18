@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.animation;
 
 import com.elfmcys.yesstevemodel.api.IPlayerExtraInfo;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
@@ -9,10 +10,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -21,8 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 
 public final class AnimationManager {
     private static AnimationManager MANAGER;
@@ -42,18 +39,18 @@ public final class AnimationManager {
         return MANAGER;
     }
 
-    @Nonnull
+    @NotNull
     public static <P extends IAnimatable<?>> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
         return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.LOOP);
     }
 
-    @Nonnull
+    @NotNull
     private static <P extends IAnimatable<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName, ILoopType loopType) {
         event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
         return PlayState.CONTINUE;
     }
 
-    @Nonnull
+    @NotNull
     private static <P extends IAnimatable<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
         event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName));
         return PlayState.CONTINUE;
@@ -127,7 +124,7 @@ public final class AnimationManager {
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
             }
 
-            ResourceLocation id = event.getAnimatable().getAnimation();
+            String id = event.getAnimatable().getModelId();
             ConditionalHold conditionalHold = ConditionManager.getHoldOffhand(id);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.OFF_HAND);
@@ -161,7 +158,7 @@ public final class AnimationManager {
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
             }
 
-            ResourceLocation id = event.getAnimatable().getAnimation();
+            String id = event.getAnimatable().getModelId();
             ConditionalHold conditionalHold = ConditionManager.getHoldMainhand(id);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.MAIN_HAND);
@@ -191,7 +188,7 @@ public final class AnimationManager {
                 // 空动画用于重置 PLAY_ONCE 动画
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
-            ResourceLocation id = event.getAnimatable().getAnimation();
+            String id = event.getAnimatable().getModelId();
             ConditionalSwing conditionalSwing = (player.swingingArm == InteractionHand.MAIN_HAND) ? ConditionManager.getSwingMainhand(id) : ConditionManager.getSwingOffhand(id);
             if (conditionalSwing != null) {
                 String name = conditionalSwing.doTest(player, player.swingingArm);
@@ -215,7 +212,7 @@ public final class AnimationManager {
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             if (player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
-                ResourceLocation id = event.getAnimatable().getAnimation();
+                String id = event.getAnimatable().getModelId();
                 ConditionalUse conditionalUse = ConditionManager.getUseMainhand(id);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(player, InteractionHand.MAIN_HAND);
@@ -225,7 +222,7 @@ public final class AnimationManager {
                 }
                 return playAnimation(event, "use_mainhand", ILoopType.EDefaultLoopTypes.LOOP);
             } else {
-                ResourceLocation id = event.getAnimatable().getAnimation();
+                String id = event.getAnimatable().getModelId();
                 ConditionalUse conditionalUse = ConditionManager.getUseOffhand(id);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(player, InteractionHand.OFF_HAND);
@@ -249,7 +246,7 @@ public final class AnimationManager {
             return PlayState.STOP;
         }
 
-        ResourceLocation id = event.getAnimatable().getAnimation();
+        String id = event.getAnimatable().getModelId();
         ConditionArmor conditionArmor = ConditionManager.getArmor(id);
         if (conditionArmor != null) {
             String name = conditionArmor.doTest(player, slot);
@@ -258,9 +255,9 @@ public final class AnimationManager {
             }
         }
 
-        ResourceLocation animation = event.getAnimatable().getAnimation();
+        String modelId = event.getAnimatable().getModelId();
         String defaultName = slot.getName() + ":default";
-        if (GeckoLibCache.getInstance().getAnimations().get(animation).getAnimations().containsKey(defaultName)) {
+        if (ClientModelManager.getPlayerAnimation(modelId, defaultName).isPresent()) {
             return playAnimation(event, defaultName, ILoopType.EDefaultLoopTypes.LOOP);
         }
         return PlayState.STOP;

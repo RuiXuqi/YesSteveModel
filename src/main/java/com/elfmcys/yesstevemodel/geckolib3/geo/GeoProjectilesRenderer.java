@@ -44,7 +44,7 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
         Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
         RenderType renderType = getRenderType(instance, partialTick, poseStack, bufferSource, null, packedLight,
-                instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_ARROW_TEXTURE_ID);
+                instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
         GeoModelState model = instance.getAnimatableModel().getCurrentModel();
         render(model, instance, partialTick, renderType, poseStack, bufferSource, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
         poseStack.popPose();

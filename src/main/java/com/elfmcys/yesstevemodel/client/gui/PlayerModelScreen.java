@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.gui.button.*;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
@@ -38,8 +39,8 @@ import java.util.stream.Collectors;
 public class PlayerModelScreen extends Screen {
     private static final GuiModelInstance[] MODEL_PREVIEW_INSTANCE = new GuiModelInstance[10];
 
-    private Map<ResourceLocation, List<ResourceLocation>> models = Maps.newHashMap();
-    private List<ResourceLocation> modelOrderList;
+    private Map<String, ClientModel> models = Maps.newHashMap();
+    private List<String> modelOrderList;
     private int maxPage;
     private EditBox textField;
     private Category category;
@@ -66,14 +67,14 @@ public class PlayerModelScreen extends Screen {
     private void calculateModelList() {
         models = Maps.newHashMap();
         if (this.category == Category.ALL) {
-            this.models = ClientModelManager.getModelInfo().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().textureIds()));
+            this.models = Maps.newHashMap(ClientModelManager.getModels());
         }
         if (this.category == Category.AUTH) {
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-                    for (ResourceLocation modelId : ClientModelManager.getModelInfo().keySet()) {
-                        if (cap.containModel(modelId) || !ClientModelManager.getAuthModelNames().contains(modelId.getPath())) {
-                            this.models.put(modelId, ClientModelManager.getModelInfo().get(modelId).textureIds());
+                    for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
+                        if (cap.containModel(entry.getKey()) || !entry.getValue().clientModelInfo().isNeedAuth()) {
+                            this.models.put(entry.getKey(), entry.getValue());
                         }
                     }
                 });
@@ -82,9 +83,9 @@ public class PlayerModelScreen extends Screen {
         if (this.category == Category.STAR) {
             if (minecraft != null && minecraft.player != null) {
                 minecraft.player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
-                    for (ResourceLocation modelId : ClientModelManager.getModelInfo().keySet()) {
-                        if (cap.containModel(modelId)) {
-                            this.models.put(modelId, ClientModelManager.getModelInfo().get(modelId).textureIds());
+                    for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
+                        if (cap.containModel(entry.getKey())) {
+                            this.models.put(entry.getKey(), entry.getValue());
                         }
                     }
                 });
@@ -93,10 +94,10 @@ public class PlayerModelScreen extends Screen {
 
         if (textField != null) {
             String search = this.textField.getValue().toLowerCase(Locale.US);
-            models.entrySet().removeIf(next -> !next.getKey().getPath().contains(search));
+            models.entrySet().removeIf(next -> !next.getKey().contains(search));
         }
         this.modelOrderList = Lists.newArrayList(models.keySet());
-        this.modelOrderList.sort(ResourceLocation::compareTo);
+        this.modelOrderList.sort(String::compareTo);
         this.maxPage = (models.size() - 1) / 10;
     }
 
@@ -126,10 +127,9 @@ public class PlayerModelScreen extends Screen {
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;
                 player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                    ClientModelInfo modelInfo = ClientModelManager.getModelInfo().get(cap.getModelId());
-                    if (modelInfo != null) {
-                        Minecraft.getInstance().setScreen(new PlayerTextureScreen(this, cap.getModelId(), modelInfo.textureIds()));
-                    }
+                    ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                        Minecraft.getInstance().setScreen(new PlayerTextureScreen(this, cap.getModelId(), model));
+                    });
                 });
             }
         }).setTooltips("gui.yes_steve_model.model.texture"));
@@ -189,15 +189,15 @@ public class PlayerModelScreen extends Screen {
             if (modelIndex >= models.size()) {
                 break;
             }
-            ResourceLocation id = modelOrderList.get(modelIndex);
+            String id = modelOrderList.get(modelIndex);
             int xStart = x + 143 + 55 * (i % 5);
             int yStart = y + 28 + 93 * (i / 5);
             if (minecraft != null && minecraft.player != null) {
                 final GuiModelInstance instance = MODEL_PREVIEW_INSTANCE[i];
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-                    instance.setModelAndTexture(id, models.get(id).get(0));
-                    boolean isNeedAuth = ClientModelManager.getAuthModelNames().contains(id.getPath()) && !cap.containModel(id);
-                    addRenderableWidget(new ModelButton(xStart, yStart, isNeedAuth, instance, ClientModelManager.getModelInfo().get(id).extraInfo()));
+                    var model = models.get(id);
+                    instance.setModelAndTexture(id, model.defaultTextureName());
+                    addRenderableWidget(new ModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth(), instance, model));
                 });
             }
         }
@@ -226,7 +226,7 @@ public class PlayerModelScreen extends Screen {
             RenderSystem.disableScissor();
 
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                String modelName = cap.getModelId().getPath();
+                String modelName = cap.getModelId();
                 List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
                 int lineY = y + 205;
                 for (FormattedCharSequence line : modelNameSplit) {

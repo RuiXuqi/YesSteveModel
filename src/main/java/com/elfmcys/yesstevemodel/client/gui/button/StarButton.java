@@ -27,7 +27,7 @@ public class StarButton extends FlatColorButton {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
-                ResourceLocation modelId = modelInfoCap.getModelId();
+                String modelId = modelInfoCap.getModelId();
                 if (starModelsCap.containModel(modelId)) {
                     graphics.blit(ICON, this.getX() + startX, this.getY() + startY, 16, 16, 16, 0, 16, 16, 256, 256);
                 } else {
@@ -42,7 +42,7 @@ public class StarButton extends FlatColorButton {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
-                ResourceLocation modelId = modelInfoCap.getModelId();
+                String modelId = modelInfoCap.getModelId();
                 if (starModelsCap.containModel(modelId)) {
                     starModelsCap.removeModel(modelId);
                     NetworkHandler.sendToServer(SetStarModel.remove(modelId));

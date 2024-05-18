@@ -1,32 +1,30 @@
 package com.elfmcys.yesstevemodel.client.model;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 @SuppressWarnings("all")
 public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
     private static boolean renderingEntitiesInInventory;
-    public static final ResourceLocation DEFAULT_MODEL = ModelIdUtil.DEFAULT_MODEL_ID;
-    public static final ResourceLocation DEFAULT_MAIN_MODEL = ModelIdUtil.DEFAULT_MAIN_MODEL_ID;
-    public static final ResourceLocation DEFAULT_MAIN_ANIMATION = ModelIdUtil.DEFAULT_MAIN_MODEL_ID;
-    public static final ResourceLocation DEFAULT_TEXTURE = ModelIdUtil.DEFAULT_TEXTURE_ID;
     public static float FIRST_PERSON_HEAD_POS;
 
     public static void setRenderingEntitiesInInventory(boolean value) {
@@ -34,22 +32,29 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
     }
 
     @Override
-    public ResourceLocation getModelLocation(CustomPlayerEntity customPlayer) {
-        return customPlayer.getMainModel();
+    public GeoModel getModel(String location) {
+        return ClientModelManager.getModel(location).map(model -> model.mainModel()).orElse(ClientModelManager.getDefaultModel().mainModel());
+    }
+
+    @Nullable
+    @Override
+    public Animation getAnimation(String name, CustomPlayerEntity animatable) {
+        return ClientModelManager.getPlayerAnimation(animatable.getModelId(), name)
+                .orElse(null);
+    }
+
+    @Override
+    public String getModelLocation(CustomPlayerEntity customPlayer) {
+        return customPlayer.getModelId();
     }
 
     @Override
     public ResourceLocation getTextureLocation(CustomPlayerEntity customPlayer) {
-        return customPlayer.getTexture();
+        return ClientModelManager.getModel(customPlayer.getModelId()).map(model -> model.textures().get(customPlayer.getTexture())).orElse(null);
     }
 
     @Override
-    public ResourceLocation getAnimationFileLocation(CustomPlayerEntity customPlayer) {
-        return customPlayer.getAnimation();
-    }
-
-    @Override
-    public boolean setCustomAnimations(CustomPlayerEntity customPlayer, AnimationContext<?> ctx, @Nonnull AnimationEvent<CustomPlayerEntity> animationEvent) {
+    public boolean setCustomAnimations(CustomPlayerEntity customPlayer, AnimationContext<?> ctx, @NotNull AnimationEvent<CustomPlayerEntity> animationEvent) {
         List extraData = animationEvent.getExtraData();
         if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
                 && customPlayer.getEntity() != null) {

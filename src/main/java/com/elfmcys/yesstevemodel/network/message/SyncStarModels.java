@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
@@ -13,24 +12,24 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class SyncStarModels {
-    private final Set<ResourceLocation> starModels;
+    private final Set<String> starModels;
 
-    public SyncStarModels(Set<ResourceLocation> starModels) {
+    public SyncStarModels(Set<String> starModels) {
         this.starModels = starModels;
     }
 
     public static void encode(SyncStarModels message, FriendlyByteBuf buf) {
         buf.writeVarInt(message.starModels.size());
-        for (ResourceLocation modelId : message.starModels) {
-            buf.writeResourceLocation(modelId);
+        for (String modelId : message.starModels) {
+            buf.writeUtf(modelId);
         }
     }
 
     public static SyncStarModels decode(FriendlyByteBuf buf) {
         int size = buf.readVarInt();
-        Set<ResourceLocation> tmp = Sets.newHashSet();
+        Set<String> tmp = Sets.newHashSet();
         for (int i = 0; i < size; i++) {
-            tmp.add(buf.readResourceLocation());
+            tmp.add(buf.readUtf());
         }
         return new SyncStarModels(tmp);
     }

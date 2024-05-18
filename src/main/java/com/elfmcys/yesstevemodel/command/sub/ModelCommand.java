@@ -1,13 +1,11 @@
 package com.elfmcys.yesstevemodel.command.sub;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.event.CommandRegistry;
 import com.elfmcys.yesstevemodel.model.ServerModel;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.util.CommandUtil;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.Command;
@@ -22,7 +20,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -81,12 +78,9 @@ public class ModelCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        ResourceLocation modelId = new ResourceLocation(YesSteveModel.MOD_ID, modelName);
-        ResourceLocation textureId = ModelIdUtil.getSubModelId(modelId, textureName);
-
         if (ignoreAuth) {
             targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-                cap.setModelAndTexture(modelId, textureId);
+                cap.setModelAndTexture(modelName, textureName);
                 context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
                         modelName, player.getScoreboardName()), true);
             }));
@@ -95,8 +89,8 @@ public class ModelCommand {
 
         targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap ->
                 player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authCap -> {
-                    if (!ServerModelManager.getAuthModels().contains(modelName) || authCap.containModel(modelId)) {
-                        cap.setModelAndTexture(modelId, textureId);
+                    if (!ServerModelManager.getAuthModels().contains(modelName) || authCap.containModel(modelName)) {
+                        cap.setModelAndTexture(modelName, textureName);
                         context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
                                 modelName, player.getScoreboardName()), true);
                     } else {

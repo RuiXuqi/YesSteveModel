@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.event;
 
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.minecraft.client.Minecraft;
@@ -23,7 +22,6 @@ public class VanillaPlayerRenderEvent {
     @SubscribeEvent
     public static void onRenderPlayer(SpecialPlayerRenderEvent event) {
         Player player = event.getPlayer();
-        CustomPlayerEntity animatable = event.getCustomPlayer();
         if (isVanillaPlayer(event.getModelId()) && player instanceof AbstractClientPlayer) {
             AbstractClientPlayer clientPlayer = (AbstractClientPlayer) player;
             ResourceLocation location;
@@ -34,15 +32,15 @@ public class VanillaPlayerRenderEvent {
             } else {
                 location = getDefaultSkin(event.getModelId());
             }
-            animatable.setTexture(location);
+            event.setTextureLocationOverride(location);
         }
     }
 
-    private static boolean isVanillaPlayer(ResourceLocation modelId) {
-        return modelId.getPath().equals(STEVE) || modelId.getPath().equals(ALEX);
+    private static boolean isVanillaPlayer(String modelId) {
+        return modelId.equals(STEVE) || modelId.equals(ALEX);
     }
 
-    private static ResourceLocation getDefaultSkin(ResourceLocation modelId) {
-        return modelId.getPath().equals(STEVE) ? STEVE_SKIN_LOCATION : ALEX_SKIN_LOCATION;
+    private static ResourceLocation getDefaultSkin(String modelId) {
+        return modelId.equals(STEVE) ? STEVE_SKIN_LOCATION : ALEX_SKIN_LOCATION;
     }
 }

@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.storage;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.PooledStringHashMap;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.PooledStringHashSet;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -61,15 +62,17 @@ public class VariableStorage implements ITempVariableStorage, IScopedVariableSto
     }
 
     // 注意 this.publicMap 线程安全
-    public void initialize(PooledStringHashSet publicVariableNames) {
+    public void initialize(@Nullable PooledStringHashSet publicVariableNames) {
         Arrays.fill(stackFrame, null);
         scopedMap.clear();
 
         PooledStringHashMap<VariableValueHolder> newPublicMap = new PooledStringHashMap<>();
-        for (int publicVariableName : publicVariableNames) {
-            VariableValueHolder value = new VariableValueHolder();
-            scopedMap.put(publicVariableName, value);
-            newPublicMap.put(publicVariableName, value);
+        if (publicVariableNames != null) {
+            for (int publicVariableName : publicVariableNames) {
+                VariableValueHolder value = new VariableValueHolder();
+                scopedMap.put(publicVariableName, value);
+                newPublicMap.put(publicVariableName, value);
+            }
         }
         newPublicMap.trim();
         this.publicMap = newPublicMap;

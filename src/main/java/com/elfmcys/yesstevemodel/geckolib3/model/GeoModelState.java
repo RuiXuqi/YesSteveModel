@@ -55,25 +55,17 @@ public class GeoModelState {
         tacRifleBones = findBones(model.tacRifleBones);
         leftWaistBones = findBones(model.leftWaistBones);
         rightWaistBones = findBones(model.rightWaistBones);
-        firstPersonHead = findBone(model.firstPersonHead);
-        firstPersonViewLocator = findBone(model.firstPersonViewLocator);
+        firstPersonHead = boneMap.get("AllHead");
+        firstPersonViewLocator = boneMap.get("ViewLocator");
     }
 
     @Nonnull
-    private List<IBone> findBones(@Nonnull List<GeoBone> bones) {
-        ReferenceArrayList<IBone> list = new ReferenceArrayList<>(bones.size());
-        for (GeoBone bone : bones) {
-            list.add(boneMap.get(bone.name()));
+    private List<IBone> findBones(@Nonnull List<String> boneNames) {
+        ReferenceArrayList<IBone> list = new ReferenceArrayList<>(boneNames.size());
+        for (String boneName : boneNames) {
+            list.add(boneMap.get(boneName));
         }
         return ReferenceLists.unmodifiable(list);
-    }
-
-    @Nullable
-    private IBone findBone(@Nullable GeoBone bone) {
-        if (bone == null) {
-            return null;
-        }
-        return boneMap.get(bone.name());
     }
 
     public float[] state() {

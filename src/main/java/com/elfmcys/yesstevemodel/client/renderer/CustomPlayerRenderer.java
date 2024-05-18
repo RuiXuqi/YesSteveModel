@@ -45,16 +45,17 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
             return;
         }
 
-        if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, cap.getAnimatable(), cap.getModelId()))) {
+        var event = new SpecialPlayerRenderEvent(player, cap.getAnimatable(), cap.getModelId());
+        if (MinecraftForge.EVENT_BUS.post(event)) {
             return;
         }
 
-        renderGeoInstance(cap, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        renderGeoInstance(cap, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     public void renderModelInGui(GuiModelInstance instance, float entityYaw, float partialTick, PoseStack poseStack,
                                  MultiBufferSource bufferSource, int packedLight) {
-        renderGeoInstance(instance, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        renderGeoInstance(instance, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override

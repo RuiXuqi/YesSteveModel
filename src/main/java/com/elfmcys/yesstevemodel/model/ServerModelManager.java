@@ -43,6 +43,10 @@ public final class ServerModelManager {
      */
     private static Set<String> AUTH_MODELS = Sets.newHashSet();
 
+    public static Optional<ServerModel> getModel(String modelId) {
+        return Optional.ofNullable(MODELS.get(modelId));
+    }
+
     public static Map<String, ServerModel> getModels() {
         return MODELS;
     }
@@ -52,7 +56,7 @@ public final class ServerModelManager {
         if (info == null) {
             return false;
         }
-        return info.geoModels().contains(ModelIdUtil.ARROW_MODEL_NAME);
+        return info.geoModels().contains(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER);
     }
 
     public static Set<String> getAuthModels() {
@@ -177,15 +181,15 @@ public final class ServerModelManager {
                 }
                 player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
                     player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authModelCap -> {
-                        if (authModelCap.getAuthModels().removeIf(authModel -> !MODELS.containsKey(authModel.getPath()) || !AUTH_MODELS.contains(authModel.getPath()))) {
+                        if (authModelCap.getAuthModels().removeIf(authModel -> !MODELS.containsKey(authModel) || !AUTH_MODELS.contains(authModel))) {
                             NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelCap.getAuthModels()), player);
                         }
 
-                        String modelName = modelIdCap.getModelId().getPath();
+                        String modelName = modelIdCap.getModelId();
                         if (!ServerModelManager.getModels().containsKey(modelName)
                                 || AUTH_MODELS.contains(modelName) && !authModelCap.containModel(modelIdCap.getModelId())
-                                || !MODELS.get(modelName).textures().contains(ModelIdUtil.getSubNameFromId(modelIdCap.getSelectTexture()))) {
-                            modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_ID);
+                                || !MODELS.get(modelName).textures().contains(modelIdCap.getSelectTexture())) {
+                            modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
                         }
                     });
                 });

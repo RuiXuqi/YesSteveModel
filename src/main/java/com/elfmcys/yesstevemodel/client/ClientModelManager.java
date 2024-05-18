@@ -1,53 +1,68 @@
 package com.elfmcys.yesstevemodel.client;
 
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult;
 import com.elfmcys.yesstevemodel.client.gui.ModelManageScreen;
-import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
-import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
-import com.elfmcys.yesstevemodel.geckolib3.resource.GeckoLibCache;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.RequestServerModelInfo;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToServer;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 // Native Access
 public class ClientModelManager {
     // 以 Model Id 为索引
-    private static Map<ResourceLocation, ClientModelInfo> MODEL_INFO = Maps.newHashMap();
-    // 存储 Model Name
-    private static Set<String> AUTH_MODEL_NAMES = Sets.newHashSet();
-    private static AnimationFile DEFAULT_ANIMATION_FILE = new AnimationFile(Maps.newHashMap());
-    private static GeoModel DEFAULT_MAIN_MODEL;
+    private static Map<String, ClientModel> MODELS = Maps.newHashMap();
+    private static ClientModel DEFAULT_MODEL;
 
     private static volatile Connection LAST_CONNECTION;
 
-    public static Set<String> getAuthModelNames() {
-        return AUTH_MODEL_NAMES;
+    public static Map<String, ClientModel> getModels() {
+        return MODELS;
     }
 
-    public static Map<ResourceLocation, ClientModelInfo> getModelInfo() {
-        return MODEL_INFO;
+    public static Optional<ClientModel> getModel(String modelName) {
+        return Optional.ofNullable(MODELS.get(modelName));
     }
 
-    public static AnimationFile getDefaultAnimationFile() {
-        return DEFAULT_ANIMATION_FILE;
+    public static ClientModel getDefaultModel() {
+        return DEFAULT_MODEL;
     }
 
-    public static GeoModel getDefaultMainModel() {
-        return DEFAULT_MAIN_MODEL;
+    public static Optional<Animation> getPlayerAnimation(String modelName, String animationName) {
+        var model = MODELS.get(modelName);
+        if (model == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(model.mainAnimations().get(animationName));
+    }
+
+    public static Optional<Animation> getArrowAnimation(String modelName, String animationName) {
+        var model = MODELS.get(modelName);
+        if (model == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(model.arrowAnimations().get(animationName));
+    }
+
+    public static boolean isModelNeedAuth(String modelName) {
+        var model = MODELS.get(modelName);
+        if (model == null) {
+            return false;
+        }
+        return model.clientModelInfo().isNeedAuth();
     }
 
     public static void syncAbort() {
@@ -65,14 +80,12 @@ public class ClientModelManager {
             if (!result.success) {
                 return;
             }
-            MODEL_INFO = result.modelInfo;
-            AUTH_MODEL_NAMES = result.authModels;
-            GeckoLibCache.getInstance().setAll(result.geoModels, result.animations);
+            MODELS = result.models;
+            if (result.defaultModel != null) {
+                DEFAULT_MODEL = result.defaultModel;
+            }
             ConditionManager.setInstance(result.conditionManager);
-            DEFAULT_ANIMATION_FILE = result.defaultMainAnimationFile;
-            DEFAULT_MAIN_MODEL = result.defaultMainModel;
             result.releaseRemovedTextures();
-            result.replaceDuplicatedTextures();
         });
     }
 
