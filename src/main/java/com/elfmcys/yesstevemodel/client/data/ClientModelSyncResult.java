@@ -7,11 +7,12 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.message.StringFormattedMessage;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 // Native Access: 所有方法都在 c++ 线程池上调用
@@ -45,35 +46,41 @@ public class ClientModelSyncResult {
     }
 
     // Native Access
-    // Default 模型必须第一个传入
+    // Default 模型在首次同步时最先传入
     @SuppressWarnings("unused")
-    public void registerModel(String name, ClientModelData data, boolean isDefault, boolean isNeedAuth, boolean isNew) {
+    public void registerModel(String modelId, ClientModelData data, boolean isDefault, boolean isNeedAuth, boolean isNew) {
         ClientModel model;
         try {
             model = ClientModelBuilder.build(data, isDefault, isNeedAuth);
         } catch (Exception e) {
-            YesSteveModel.LOGGER.error(new StringFormattedMessage("Failed to process {}", name), e);
+            YesSteveModel.LOGGER.error(new StringFormattedMessage("Failed to process {}", modelId), e);
             return;
         }
 
+        model.mainAnimations().keySet().forEach(name -> conditionManager.addTest(modelId, name));
         if (isNew) {
             registerTextures(data, model);
         }
-        models.put(name, model);
+
+        models.put(modelId, model);
         if (isDefault) {
             defaultModel = model;
         }
     }
 
-    // 统一注册可能导致严重掉帧，所以提前在这里注册
+    // 集中注册可能导致严重掉帧，所以提前到这里分散注册
     private void registerTextures(ClientModelData data, ClientModel model) {
         Minecraft.getInstance().execute(() -> {
             for (final var entry : model.textures().entrySet()) {
-                var texture = data.textures().get(entry.getKey());
-                Minecraft.getInstance().getTextureManager().register(entry.getValue(), texture);
+                if (Minecraft.getInstance().getTextureManager().getTexture(entry.getValue(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
+                    var texture = data.textures().get(entry.getKey());
+                    Minecraft.getInstance().getTextureManager().register(entry.getValue(), texture);
+                    newTextureIds.add(entry.getValue());
+                } else {
+                    removedTextures.remove(entry.getValue());
+                }
             }
         });
-        newTextureIds.addAll(model.textures().values());
     }
 
     // Native Access: 同步结束后，commit 之前调用
