@@ -5,13 +5,13 @@ import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import net.minecraftforge.common.util.MavenVersionStringHelper;
 import net.minecraftforge.fml.ModList;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ModVersion implements Function {
     @Nullable
     @Override
-    public Object evaluate(@Nonnull ExecutionContext<?> context, @Nonnull ArgumentCollection arguments) {
+    public Object evaluate(@NotNull ExecutionContext<?> context, @NotNull ArgumentCollection arguments) {
         String modId = arguments.getAsString(context, 0);
         if (modId == null) {
             return null;

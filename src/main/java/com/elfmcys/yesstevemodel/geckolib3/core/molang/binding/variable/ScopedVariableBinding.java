@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class ScopedVariableBinding implements ObjectBinding {
     private final Int2ReferenceOpenHashMap<ScopedVariable> variableMap = new Int2ReferenceOpenHashMap<>();
@@ -30,13 +30,13 @@ public class ScopedVariableBinding implements ObjectBinding {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Object evaluate(final @Nonnull ExecutionContext<?> context) {
+        public Object evaluate(final @NotNull ExecutionContext<?> context) {
             return ((IContext<Object>) context.entity()).scopedStorage().getScoped(name);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public void assign(@Nonnull ExecutionContext<?> context, Object value) {
+        public void assign(@NotNull ExecutionContext<?> context, Object value) {
             ((IContext<Object>) context.entity()).scopedStorage().setScoped(name, value);
         }
     }

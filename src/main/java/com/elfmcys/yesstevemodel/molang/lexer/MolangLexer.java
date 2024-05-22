@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.lexer;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -72,7 +72,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @return The lexer cursor
      * @since 3.0.0
      */
-    @Nonnull Cursor cursor();
+    @NotNull Cursor cursor();
 
     /**
      * Returns the last emitted token (the last token value
@@ -85,7 +85,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @throws IllegalStateException If there is no current token
      * @since 3.0.0
      */
-    @Nonnull Token current();
+    @NotNull Token current();
 
     /**
      * Reads the internal reader until it gets a token and
@@ -101,7 +101,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @throws IOException If reading fails
      * @since 3.0.0
      */
-    @Nonnull Token next() throws IOException;
+    @NotNull Token next() throws IOException;
 
     /**
      * Reads all the tokens until it finds a {@link TokenKind#EOF}.
@@ -113,7 +113,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @throws IOException If reading fails
      * @since 3.0.0
      */
-    default @Nonnull List<Token> tokenizeAll() throws IOException {
+    default @NotNull List<Token> tokenizeAll() throws IOException {
         List<Token> tokens = new ArrayList<>();
         Token token;
         while ((token = next()).kind() != TokenKind.EOF) {
@@ -140,7 +140,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @throws IOException If lexer initialization fails.
      * @since 3.0.0
      */
-    static @Nonnull MolangLexer lexer(final @Nonnull Reader reader) throws IOException {
+    static @NotNull MolangLexer lexer(final @NotNull Reader reader) throws IOException {
         return new MolangLexerImpl(reader);
     }
 
@@ -153,7 +153,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @throws IOException If lexer initialization fails.
      * @since 3.0.0
      */
-    static @Nonnull MolangLexer lexer(final @Nonnull String string) throws IOException {
+    static @NotNull MolangLexer lexer(final @NotNull String string) throws IOException {
         return lexer(new StringReader(string));
     }
 
@@ -165,7 +165,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @throws IOException If reading fails.
      * @since 3.0.0
      */
-    static @Nonnull List<Token> tokenizeAll(final @Nonnull Reader reader) throws IOException {
+    static @NotNull List<Token> tokenizeAll(final @NotNull Reader reader) throws IOException {
         try (MolangLexer lexer = lexer(reader)) {
             return lexer.tokenizeAll();
         }
@@ -179,7 +179,7 @@ public /* sealed */ interface MolangLexer /* permits MolangLexerImpl */ extends 
      * @throws IOException If reading fails.
      * @since 3.0.0
      */
-    static @Nonnull List<Token> tokenizeAll(final @Nonnull String string) throws IOException {
+    static @NotNull List<Token> tokenizeAll(final @NotNull String string) throws IOException {
         try (MolangLexer lexer = lexer(string)) {
             return lexer.tokenizeAll();
         }

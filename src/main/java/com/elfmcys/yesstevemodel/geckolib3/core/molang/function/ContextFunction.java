@@ -4,8 +4,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class ContextFunction<TEntity> implements Function {
     protected boolean validateContext(IContext<?> context) {
@@ -15,7 +15,7 @@ public abstract class ContextFunction<TEntity> implements Function {
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
-    public final Object evaluate(@Nonnull ExecutionContext<?> context, @Nonnull ArgumentCollection arguments) {
+    public final Object evaluate(@NotNull ExecutionContext<?> context, @NotNull ArgumentCollection arguments) {
         Object entity = context.entity();
         if (entity instanceof IContext && validateContext((IContext<?>) entity)) {
             return eval((ExecutionContext<IContext<TEntity>>) context, arguments);

@@ -24,12 +24,12 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
 
 public interface ExecutionContext<TEntity> {
     TEntity entity();
 
-    @Nullable Object eval(final @Nonnull Expression expression);
+    @Nullable Object eval(final @NotNull Expression expression);
 }

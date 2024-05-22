@@ -5,9 +5,9 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class ClientModel {
@@ -17,7 +17,7 @@ public class ClientModel {
     private final GeoModel arrowModel;
 
     private final Map<String, Animation> mainAnimations;
-    @Nonnull
+    @NotNull
     private final Map<String, Animation> arrowAnimations;
 
     private final FifoHashMap<String, ResourceLocation> textures;
@@ -28,7 +28,7 @@ public class ClientModel {
 
     private final ClientModelInfo clientModelInfo;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, @Nullable GeoModel arrowModel, Map<String, Animation> mainAnimations, @Nonnull Map<String, Animation> arrowAnimations, FifoHashMap<String, ResourceLocation> textures, @Nullable ResourceLocation arrowTexture, ModelInfo modelInfo, ClientModelInfo clientModelInfo) {
+    public ClientModel(GeoModel mainModel, GeoModel armModel, @Nullable GeoModel arrowModel, Map<String, Animation> mainAnimations, @NotNull Map<String, Animation> arrowAnimations, FifoHashMap<String, ResourceLocation> textures, @Nullable ResourceLocation arrowTexture, ModelInfo modelInfo, ClientModelInfo clientModelInfo) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.arrowModel = arrowModel;
@@ -57,7 +57,7 @@ public class ClientModel {
         return mainAnimations;
     }
 
-    @Nonnull
+    @NotNull
     public Map<String, Animation> arrowAnimations() {
         return arrowAnimations;
     }

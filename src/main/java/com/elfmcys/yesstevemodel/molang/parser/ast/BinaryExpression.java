@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import static java.util.Objects.requireNonNull;
 
@@ -44,9 +44,9 @@ public final class BinaryExpression implements Expression {
     private final Expression right;
 
     public BinaryExpression(
-            final @Nonnull Op op,
-            final @Nonnull Expression left,
-            final @Nonnull Expression right
+            final @NotNull Op op,
+            final @NotNull Expression left,
+            final @NotNull Expression right
     ) {
         this.op = requireNonNull(op, "op");
         this.left = requireNonNull(left, "left");
@@ -59,7 +59,7 @@ public final class BinaryExpression implements Expression {
      * @return The expression operation.
      * @since 3.0.0
      */
-    public @Nonnull Op op() {
+    public @NotNull Op op() {
         return op;
     }
 
@@ -70,7 +70,7 @@ public final class BinaryExpression implements Expression {
      * @return The left-hand expression
      * @since 3.0.0
      */
-    public @Nonnull Expression left() {
+    public @NotNull Expression left() {
         return left;
     }
 
@@ -81,12 +81,12 @@ public final class BinaryExpression implements Expression {
      * @return The right-hand expression
      * @since 3.0.0
      */
-    public @Nonnull Expression right() {
+    public @NotNull Expression right() {
         return right;
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitBinary(this);
     }
 

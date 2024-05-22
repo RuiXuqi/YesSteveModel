@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client;
 
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult;
 import com.elfmcys.yesstevemodel.client.gui.ModelManageScreen;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
@@ -14,7 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraftforge.network.NetworkDirection;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -33,36 +31,28 @@ public class ClientModelManager {
         return MODELS;
     }
 
-    public static Optional<ClientModel> getModel(String modelName) {
-        return Optional.ofNullable(MODELS.get(modelName));
+    public static Optional<ClientModel> getModel(String modelId) {
+        return Optional.ofNullable(MODELS.get(modelId));
     }
 
     public static ClientModel getDefaultModel() {
         return DEFAULT_MODEL;
     }
 
-    public static Optional<Animation> getPlayerAnimation(String modelName, String animationName) {
-        var model = MODELS.get(modelName);
+    public static Optional<Animation> getPlayerAnimation(String modelId, String animationName) {
+        var model = MODELS.get(modelId);
         if (model == null) {
             return Optional.empty();
         }
         return Optional.ofNullable(model.mainAnimations().get(animationName));
     }
 
-    public static Optional<Animation> getArrowAnimation(String modelName, String animationName) {
-        var model = MODELS.get(modelName);
+    public static Optional<Animation> getArrowAnimation(String modelId, String animationName) {
+        var model = MODELS.get(modelId);
         if (model == null) {
             return Optional.empty();
         }
         return Optional.ofNullable(model.arrowAnimations().get(animationName));
-    }
-
-    public static boolean isModelNeedAuth(String modelName) {
-        var model = MODELS.get(modelName);
-        if (model == null) {
-            return false;
-        }
-        return model.clientModelInfo().isNeedAuth();
     }
 
     public static void syncAbort() {

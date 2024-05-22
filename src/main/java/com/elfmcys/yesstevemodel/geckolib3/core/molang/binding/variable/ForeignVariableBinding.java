@@ -8,7 +8,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.Variable;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class ForeignVariableBinding implements ObjectBinding {
     private final Int2ReferenceOpenHashMap<ForeignVariable> variableMap = new Int2ReferenceOpenHashMap<>();
@@ -31,7 +31,7 @@ public class ForeignVariableBinding implements ObjectBinding {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Object evaluate(final @Nonnull ExecutionContext<?> context) {
+        public Object evaluate(final @NotNull ExecutionContext<?> context) {
             IForeignVariableStorage storage = ((IContext<Object>) context.entity()).foreignStorage();
             if(storage != null) {
                 return storage.getPublic(name);

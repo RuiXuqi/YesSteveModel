@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -50,9 +50,9 @@ public final class TernaryConditionalExpression implements Expression {
     private final Expression falseExpression;
 
     public TernaryConditionalExpression(
-            final @Nonnull Expression conditional,
-            final @Nonnull Expression trueExpression,
-            final @Nonnull Expression falseExpression
+            final @NotNull Expression conditional,
+            final @NotNull Expression trueExpression,
+            final @NotNull Expression falseExpression
     ) {
         this.conditional = requireNonNull(conditional, "conditional");
         this.trueExpression = requireNonNull(trueExpression, "trueExpression");
@@ -64,7 +64,7 @@ public final class TernaryConditionalExpression implements Expression {
      *
      * @since 3.0.0
      */
-    public @Nonnull Expression condition() {
+    public @NotNull Expression condition() {
         return conditional;
     }
 
@@ -74,7 +74,7 @@ public final class TernaryConditionalExpression implements Expression {
      *
      * @since 3.0.0
      */
-    public @Nonnull Expression trueExpression() {
+    public @NotNull Expression trueExpression() {
         return trueExpression;
     }
 
@@ -85,12 +85,12 @@ public final class TernaryConditionalExpression implements Expression {
      *
      * @since 3.0.0
      */
-    public @Nonnull Expression falseExpression() {
+    public @NotNull Expression falseExpression() {
         return falseExpression;
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitTernaryConditional(this);
     }
 

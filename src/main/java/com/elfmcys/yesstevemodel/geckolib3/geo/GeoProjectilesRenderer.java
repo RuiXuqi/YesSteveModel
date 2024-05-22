@@ -19,7 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.joml.Matrix4f;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extends EntityRenderer<AbstractArrow> implements IGeoRenderer<T> {
     protected Matrix4f dispatchedMat = new Matrix4f();
@@ -61,7 +61,7 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
     }
 
     @Override
-    @Nonnull
+    @NotNull
     public IRenderCycle getCurrentModelRenderCycle() {
         return this.currentModelRenderCycle;
     }

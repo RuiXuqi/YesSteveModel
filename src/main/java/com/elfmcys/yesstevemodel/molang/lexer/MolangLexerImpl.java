@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.lexer;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -46,18 +46,18 @@ final class MolangLexerImpl implements MolangLexer {
     private Token lastToken = null;
     private Token token = null;
 
-    MolangLexerImpl(final @Nonnull Reader reader) throws IOException {
+    MolangLexerImpl(final @NotNull Reader reader) throws IOException {
         this.reader = requireNonNull(reader, "reader");
         this.next = reader.read();
     }
 
     @Override
-    public @Nonnull Cursor cursor() {
+    public @NotNull Cursor cursor() {
         return cursor;
     }
 
     @Override
-    public @Nonnull Token current() {
+    public @NotNull Token current() {
         if (token == null) {
             throw new IllegalStateException("No current token, please call next() at least once");
         }
@@ -65,7 +65,7 @@ final class MolangLexerImpl implements MolangLexer {
     }
 
     @Override
-    public @Nonnull Token next() throws IOException {
+    public @NotNull Token next() throws IOException {
         lastToken = token;
         return token = next0();
     }
@@ -75,7 +75,7 @@ final class MolangLexerImpl implements MolangLexer {
         this.reader.close();
     }
 
-    private @Nonnull Token next0() throws IOException {
+    private @NotNull Token next0() throws IOException {
         int c = next;
         if (c == -1) {
             // EOF reached

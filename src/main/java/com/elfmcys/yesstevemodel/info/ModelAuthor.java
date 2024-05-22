@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.info;
 
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
-import org.apache.commons.lang3.tuple.Pair;
 
 // Native Access
 public class ModelAuthor {

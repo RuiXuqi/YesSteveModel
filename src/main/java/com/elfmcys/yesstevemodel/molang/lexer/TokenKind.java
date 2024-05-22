@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.lexer;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -174,7 +174,7 @@ public enum TokenKind {
      * the given tag
      * @since 3.0.0
      */
-    public boolean hasTag(final @Nonnull Tag tag) {
+    public boolean hasTag(final @NotNull Tag tag) {
         Objects.requireNonNull(tag, "tag");
         return tags.contains(tag);
     }

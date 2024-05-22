@@ -53,10 +53,10 @@ public class SetModelAndTexture {
 
     private static void handleCapability(SetModelAndTexture message, ServerPlayer sender) {
         sender.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> sender.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(ownModelsCap -> {
-            String modelName = message.modelId;
-            if (!ServerModelManager.getModels().containsKey(modelName)
-                    || (ServerModelManager.getAuthModels().contains(modelName) && !ownModelsCap.containModel(message.modelId))
-                    || !ServerModelManager.getModels().get(modelName).textures().contains(message.selectTexture)) {
+            String modelId = message.modelId;
+            if (!ServerModelManager.getModels().containsKey(modelId)
+                    || (ServerModelManager.getAuthModels().contains(modelId) && !ownModelsCap.containModel(message.modelId))
+                    || !ServerModelManager.getModels().get(modelId).textures().contains(message.selectTexture)) {
                 modelIdCap.resetVariables(modelIdCap.getInstanceId() + 1);
                 modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
             } else {

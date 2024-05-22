@@ -1,8 +1,6 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;

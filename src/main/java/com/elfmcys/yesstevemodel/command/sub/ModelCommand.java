@@ -65,37 +65,37 @@ public class ModelCommand {
 
     private static int setModel(CommandContext<CommandSourceStack> context, boolean ignoreAuth) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
-        String modelName = StringArgumentType.getString(context, MODEL_ID_NAME);
+        String modelId = StringArgumentType.getString(context, MODEL_ID_NAME);
         String textureName = StringArgumentType.getString(context, TEXTURE_ID_NAME);
-        if (!ServerModelManager.getModels().containsKey(modelName)) {
+        if (!ServerModelManager.getModels().containsKey(modelId)) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
-                    modelName), true);
+                    modelId), true);
             return Command.SINGLE_SUCCESS;
         }
 
-        ServerModel info = ServerModelManager.getModels().get(modelName);
+        ServerModel info = ServerModelManager.getModels().get(modelId);
         if (info.textures().isEmpty()) {
             return Command.SINGLE_SUCCESS;
         }
 
         if (ignoreAuth) {
             targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-                cap.setModelAndTexture(modelName, textureName);
+                cap.setModelAndTexture(modelId, textureName);
                 context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
-                        modelName, player.getScoreboardName()), true);
+                        modelId, player.getScoreboardName()), true);
             }));
             return Command.SINGLE_SUCCESS;
         }
 
         targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap ->
                 player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authCap -> {
-                    if (!ServerModelManager.getAuthModels().contains(modelName) || authCap.containModel(modelName)) {
-                        cap.setModelAndTexture(modelName, textureName);
+                    if (!ServerModelManager.getAuthModels().contains(modelId) || authCap.containModel(modelId)) {
+                        cap.setModelAndTexture(modelId, textureName);
                         context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
-                                modelName, player.getScoreboardName()), true);
+                                modelId, player.getScoreboardName()), true);
                     } else {
                         context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.need_auth",
-                                modelName, player.getScoreboardName()), true);
+                                modelId, player.getScoreboardName()), true);
                     }
                 })));
         return Command.SINGLE_SUCCESS;

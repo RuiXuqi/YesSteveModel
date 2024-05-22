@@ -24,8 +24,8 @@
 
 package com.elfmcys.yesstevemodel.molang.lexer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -46,7 +46,7 @@ public final class Token {
     private final int end;
 
     public Token(
-            final @Nonnull TokenKind kind,
+            final @NotNull TokenKind kind,
             final @Nullable String value,
             final int start,
             final int end
@@ -69,7 +69,7 @@ public final class Token {
      * @return The token kind
      * @since 3.0.0
      */
-    public @Nonnull TokenKind kind() {
+    public @NotNull TokenKind kind() {
         return kind;
     }
 

@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime.binding;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public final class ValueConversions {
 

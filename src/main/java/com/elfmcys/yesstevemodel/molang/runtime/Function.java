@@ -24,8 +24,8 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ValueConversions;
 
@@ -53,7 +53,7 @@ public interface Function {
      * @return The function result
      * @since 3.0.0
      */
-    @Nullable Object evaluate(final @Nonnull ExecutionContext<?> context, final @Nonnull ArgumentCollection arguments);
+    @Nullable Object evaluate(final @NotNull ExecutionContext<?> context, final @NotNull ArgumentCollection arguments);
 
     default boolean validateArgumentSize(int size) {
         return true;
@@ -72,27 +72,27 @@ public interface Function {
             return arguments.size();
         }
 
-        public String getAsString(@Nonnull ExecutionContext<?> ctx, final int index) {
+        public String getAsString(@NotNull ExecutionContext<?> ctx, final int index) {
             return ValueConversions.asString(ctx.eval(arguments.get(index)));
         }
 
-        public double getAsDouble(@Nonnull ExecutionContext<?> ctx, final int index) {
+        public double getAsDouble(@NotNull ExecutionContext<?> ctx, final int index) {
             return ValueConversions.asDouble(ctx.eval(arguments.get(index)));
         }
 
-        public int getAsInt(@Nonnull ExecutionContext<?> ctx, final int index) {
+        public int getAsInt(@NotNull ExecutionContext<?> ctx, final int index) {
             return ValueConversions.asInt(ctx.eval(arguments.get(index)));
         }
 
-        public float getAsFloat(@Nonnull ExecutionContext<?> ctx, final int index) {
+        public float getAsFloat(@NotNull ExecutionContext<?> ctx, final int index) {
             return ValueConversions.asFloat(ctx.eval(arguments.get(index)));
         }
 
-        public boolean getAsBoolean(@Nonnull ExecutionContext<?> ctx, final int index) {
+        public boolean getAsBoolean(@NotNull ExecutionContext<?> ctx, final int index) {
             return ValueConversions.asBoolean(ctx.eval(arguments.get(index)));
         }
 
-        public Object getValue(@Nonnull ExecutionContext<?> ctx, final int index) {
+        public Object getValue(@NotNull ExecutionContext<?> ctx, final int index) {
             return ctx.eval(arguments.get(index));
         }
 

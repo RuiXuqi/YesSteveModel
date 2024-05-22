@@ -24,8 +24,8 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.parser.ast.*;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ValueConversions;
 
@@ -171,12 +171,12 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public @Nonnull <TNewEntity> ExpressionEvaluator<TNewEntity> createChild(final @Nullable TNewEntity entity) {
+    public @NotNull <TNewEntity> ExpressionEvaluator<TNewEntity> createChild(final @Nullable TNewEntity entity) {
         return new ExpressionEvaluatorImpl<>(entity);
     }
 
     @Override
-    public @Nonnull ExpressionEvaluator<TEntity> createChild() {
+    public @NotNull ExpressionEvaluator<TEntity> createChild() {
         // Note that it will have its own returnValue, but same bindings
         // (Should we create new bindings?)
         return new ExpressionEvaluatorImpl<>(this.entity);
@@ -190,18 +190,18 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public @Nullable Object visitCall(final @Nonnull CallExpression expression) {
+    public @Nullable Object visitCall(final @NotNull CallExpression expression) {
         final Function function = expression.function();
         return function.evaluate(this, expression.arguments());
     }
 
     @Override
-    public Object visitDouble(@Nonnull DoubleExpression expression) {
+    public Object visitDouble(@NotNull DoubleExpression expression) {
         return expression.value();
     }
 
     @Override
-    public Object visitExecutionScope(@Nonnull ExecutionScopeExpression executionScope) {
+    public Object visitExecutionScope(@NotNull ExecutionScopeExpression executionScope) {
         List<Expression> expressions = executionScope.expressions();
         ExpressionEvaluator<TEntity> evaluatorForThisScope = createChild();
         return (Function) (context, arguments) -> {
@@ -220,21 +220,21 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public Object visitIdentifier(@Nonnull IdentifierExpression expression) {
+    public Object visitIdentifier(@NotNull IdentifierExpression expression) {
         throw new RuntimeException("Unknown identifier type");
     }
 
     @Override
-    public Object visitVariable(final @Nonnull VariableExpression expression) {
+    public Object visitVariable(final @NotNull VariableExpression expression) {
         return expression.target().evaluate(this);
     }
 
-    public Object visitAssignableVariable(final @Nonnull AssignableVariableExpression expression) {
+    public Object visitAssignableVariable(final @NotNull AssignableVariableExpression expression) {
         return expression.target().evaluate(this);
     }
 
     @Override
-    public Object visitStruct(final @Nonnull StructAccessExpression expression) {
+    public Object visitStruct(final @NotNull StructAccessExpression expression) {
         Object value = expression.left().visit(this);
         if (value instanceof Struct) {
             return ((Struct) value).getProperty(expression.path());
@@ -244,7 +244,7 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public Object visitBinary(@Nonnull BinaryExpression expression) {
+    public Object visitBinary(@NotNull BinaryExpression expression) {
         return BINARY_EVALUATORS[expression.op().index()].eval(
                 this,
                 expression.left(),
@@ -253,7 +253,7 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public Object visitUnary(@Nonnull UnaryExpression expression) {
+    public Object visitUnary(@NotNull UnaryExpression expression) {
         Object value = expression.expression().visit(this);
         switch (expression.op()) {
             case LOGICAL_NEGATION:
@@ -270,7 +270,7 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public Object visitStatement(@Nonnull StatementExpression expression) {
+    public Object visitStatement(@NotNull StatementExpression expression) {
         switch (expression.op()) {
             case BREAK: {
                 this.returnValue = StatementExpression.Op.BREAK;
@@ -285,12 +285,12 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public Object visitString(@Nonnull StringExpression expression) {
+    public Object visitString(@NotNull StringExpression expression) {
         return expression.value();
     }
 
     @Override
-    public Object visitTernaryConditional(@Nonnull TernaryConditionalExpression expression) {
+    public Object visitTernaryConditional(@NotNull TernaryConditionalExpression expression) {
         Object obj = expression.condition().visit(this);
         obj = ValueConversions.asBoolean(obj)
                 ? expression.trueExpression().visit(this)
@@ -299,7 +299,7 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public Object visit(@Nonnull Expression expression) {
+    public Object visit(@NotNull Expression expression) {
         throw new UnsupportedOperationException("Unsupported expression type: " + expression);
     }
 

@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import com.elfmcys.yesstevemodel.molang.runtime.Variable;
 
 import java.util.Objects;
@@ -18,7 +18,7 @@ public class VariableExpression  implements Expression {
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitVariable(this);
     }
 

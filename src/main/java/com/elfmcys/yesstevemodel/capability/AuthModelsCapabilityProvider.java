@@ -10,8 +10,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-
 public class AuthModelsCapabilityProvider implements ICapabilitySerializable<ListTag> {
     public static Capability<AuthModelsCapability> AUTH_MODELS_CAP = CapabilityManager.get(new CapabilityToken<>() {
     });
@@ -32,7 +30,7 @@ public class AuthModelsCapabilityProvider implements ICapabilitySerializable<Lis
         return getCapability(cap, null);
     }
 
-    @Nonnull
+    @NotNull
     private AuthModelsCapability createCapability() {
         if (instance == null) {
             this.instance = new AuthModelsCapability();

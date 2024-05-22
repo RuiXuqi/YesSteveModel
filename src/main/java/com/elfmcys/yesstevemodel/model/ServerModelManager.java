@@ -16,7 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.*;
@@ -51,8 +51,8 @@ public final class ServerModelManager {
         return MODELS;
     }
 
-    public static boolean hasArrowModel(String modelName) {
-        var info = MODELS.get(modelName);
+    public static boolean hasArrowModel(String modelId) {
+        var info = MODELS.get(modelId);
         if (info == null) {
             return false;
         }
@@ -68,7 +68,7 @@ public final class ServerModelManager {
         syncTaskEnqueue(new UUID[]{player.getUUID()}, new String[]{player.getGameProfile().getName()}, completeCallback);
     }
 
-    public static native ExportModelResult exportModel(String modelName);
+    public static native ExportModelResult exportModel(String modelId);
 
     // 非阻塞
     // 如果有其它 reload 任务正在进行，将忽略本次重载并返回 false
@@ -185,10 +185,10 @@ public final class ServerModelManager {
                             NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelCap.getAuthModels()), player);
                         }
 
-                        String modelName = modelIdCap.getModelId();
-                        if (!ServerModelManager.getModels().containsKey(modelName)
-                                || AUTH_MODELS.contains(modelName) && !authModelCap.containModel(modelIdCap.getModelId())
-                                || !MODELS.get(modelName).textures().contains(modelIdCap.getSelectTexture())) {
+                        String modelId = modelIdCap.getModelId();
+                        if (!ServerModelManager.getModels().containsKey(modelId)
+                                || AUTH_MODELS.contains(modelId) && !authModelCap.containModel(modelIdCap.getModelId())
+                                || !MODELS.get(modelId).textures().contains(modelIdCap.getSelectTexture())) {
                             modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
                         }
                     });

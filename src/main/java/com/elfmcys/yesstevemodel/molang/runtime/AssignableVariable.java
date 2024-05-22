@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.molang.runtime;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public interface AssignableVariable extends Variable {
-    void assign(final @Nonnull ExecutionContext<?> context, Object value);
+    void assign(final @NotNull ExecutionContext<?> context, Object value);
 }

@@ -13,7 +13,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameVisitor;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.ParticleKeyFrameEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -29,7 +29,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import org.joml.Vector3f;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -43,7 +43,7 @@ public class AnimationController<T extends IAnimatable<?>> {
     private final String name;
     private final Object2ReferenceOpenHashMap<String, BoneAnimationQueue> boneAnimationQueues = new Object2ReferenceOpenHashMap<>();
     private final ReferenceArrayList<BoneAnimationQueue> activeBoneAnimationQueues = new ReferenceArrayList<>();
-    private InstructionKeyFrameVisitor instructionKeyFrameVisitor;
+    private InstructionKeyFrameExecutor instructionKeyFrameExecutor;
     /**
      * 在动画之间过渡需要多长时间
      */
@@ -221,7 +221,7 @@ public class AnimationController<T extends IAnimatable<?>> {
                 Animation animation = model.getAnimation(currentAnimation.animationName, this.animatable);
                 if (animation != null && this.currentAnimation != animation) {
                     this.currentAnimation = animation;
-                    this.instructionKeyFrameVisitor = new InstructionKeyFrameVisitor(animation.customInstructionKeyframes);
+                    this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(animation.customInstructionKeyframes);
                 }
             }
         }
@@ -273,12 +273,12 @@ public class AnimationController<T extends IAnimatable<?>> {
                 if(current != null) {
                     this.currentAnimationLoop = current.getFirst();
                     this.currentAnimation = current.getSecond();
-                    this.instructionKeyFrameVisitor = new InstructionKeyFrameVisitor(current.getSecond().customInstructionKeyframes);
+                    this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(current.getSecond().customInstructionKeyframes);
                     resetEventKeyFrames(false, null);
                     switchAnimation();
                 } else {
                     this.currentAnimation = null;
-                    this.instructionKeyFrameVisitor = null;
+                    this.instructionKeyFrameExecutor = null;
                 }
             }
             if (this.currentAnimation != null) {
@@ -354,7 +354,7 @@ public class AnimationController<T extends IAnimatable<?>> {
                     this.animationState = AnimationState.TRANSITIONING;
                     this.shouldResetTick = true;
                     this.currentAnimation = peek.getSecond();
-                    this.instructionKeyFrameVisitor = new InstructionKeyFrameVisitor(peek.getSecond().customInstructionKeyframes);
+                    this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(peek.getSecond().customInstructionKeyframes);
                     this.currentAnimationLoop = peek.getFirst();
                 }
             } else {
@@ -404,8 +404,8 @@ public class AnimationController<T extends IAnimatable<?>> {
         }
 */
 
-        if(instructionKeyFrameVisitor != null) {
-            instructionKeyFrameVisitor.visit(evaluator, tick);
+        if(instructionKeyFrameExecutor != null) {
+            instructionKeyFrameExecutor.executeTo(evaluator, tick);
         }
 
         if (this.transitionLengthTicks == 0 && shouldResetTick && this.animationState == AnimationState.TRANSITIONING) {
@@ -413,10 +413,10 @@ public class AnimationController<T extends IAnimatable<?>> {
             if(current != null) {
                 this.currentAnimation = current.getSecond();
                 this.currentAnimationLoop = current.getFirst();
-                this.instructionKeyFrameVisitor = new InstructionKeyFrameVisitor(current.getSecond().customInstructionKeyframes);
+                this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(current.getSecond().customInstructionKeyframes);
             } else {
                 this.currentAnimation = null;
-                this.instructionKeyFrameVisitor = null;
+                this.instructionKeyFrameExecutor = null;
             }
         }
     }
@@ -490,11 +490,11 @@ public class AnimationController<T extends IAnimatable<?>> {
     }
 
     private void resetEventKeyFrames(boolean reachEnd, ExpressionEvaluator<AnimationContext<?>> evaluator) {
-        if(instructionKeyFrameVisitor != null) {
+        if(instructionKeyFrameExecutor != null) {
             if (reachEnd) {
-                instructionKeyFrameVisitor.visitRemaining(evaluator);
+                instructionKeyFrameExecutor.executeRemaining(evaluator);
             }
-            instructionKeyFrameVisitor.reset();
+            instructionKeyFrameExecutor.reset();
         }
     }
 

@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An {@link Expression} visitor. Provides a way to add
@@ -53,7 +53,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    R visit(final @Nonnull Expression expression);
+    R visit(final @NotNull Expression expression);
 
     /**
      * Evaluate for double expression.
@@ -62,7 +62,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitDouble(final @Nonnull DoubleExpression expression) {
+    default R visitDouble(final @NotNull DoubleExpression expression) {
         return visit(expression);
     }
 
@@ -73,7 +73,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitString(final @Nonnull StringExpression expression) {
+    default R visitString(final @NotNull StringExpression expression) {
         return visit(expression);
     }
 
@@ -84,19 +84,19 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitIdentifier(final @Nonnull IdentifierExpression expression) {
+    default R visitIdentifier(final @NotNull IdentifierExpression expression) {
         return visit(expression);
     }
 
-    default R visitVariable(final @Nonnull VariableExpression expression) {
+    default R visitVariable(final @NotNull VariableExpression expression) {
         return visit(expression);
     }
 
-    default R visitAssignableVariable(final @Nonnull AssignableVariableExpression expression) {
+    default R visitAssignableVariable(final @NotNull AssignableVariableExpression expression) {
         return visit(expression);
     }
 
-    default R visitStruct(final @Nonnull StructAccessExpression expression) {
+    default R visitStruct(final @NotNull StructAccessExpression expression) {
         return visit(expression);
     }
 
@@ -107,7 +107,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitTernaryConditional(final @Nonnull TernaryConditionalExpression expression) {
+    default R visitTernaryConditional(final @NotNull TernaryConditionalExpression expression) {
         return visit(expression);
     }
 
@@ -118,7 +118,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitUnary(final @Nonnull UnaryExpression expression) {
+    default R visitUnary(final @NotNull UnaryExpression expression) {
         return visit(expression);
     }
 
@@ -129,7 +129,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitExecutionScope(final @Nonnull ExecutionScopeExpression expression) {
+    default R visitExecutionScope(final @NotNull ExecutionScopeExpression expression) {
         return visit(expression);
     }
 
@@ -140,7 +140,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitBinary(final @Nonnull BinaryExpression expression) {
+    default R visitBinary(final @NotNull BinaryExpression expression) {
         return visit(expression);
     }
 
@@ -151,7 +151,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitCall(final @Nonnull CallExpression expression) {
+    default R visitCall(final @NotNull CallExpression expression) {
         return visit(expression);
     }
 
@@ -162,7 +162,7 @@ public interface ExpressionVisitor<R> {
      * @return The result.
      * @since 3.0.0
      */
-    default R visitStatement(final @Nonnull StatementExpression expression) {
+    default R visitStatement(final @NotNull StatementExpression expression) {
         return visit(expression);
     }
 

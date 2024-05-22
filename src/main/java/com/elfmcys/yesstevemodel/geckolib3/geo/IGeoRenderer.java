@@ -11,8 +11,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface IGeoRenderer<T extends GeoInstance<?, ?>> {
     MultiBufferSource getCurrentRTB();
@@ -66,7 +66,7 @@ public interface IGeoRenderer<T extends GeoInstance<?, ?>> {
         return Color.WHITE;
     }
 
-    @Nonnull
+    @NotNull
     default IRenderCycle getCurrentModelRenderCycle() {
         return EModelRenderCycle.INITIAL;
     }

@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.molang.parser.ast;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class StructAccessExpression implements Expression {
     private final Expression left;
@@ -14,7 +14,7 @@ public class StructAccessExpression implements Expression {
     }
 
     @Override
-    public <R> R visit(@Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(@NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitStruct(this);
     }
 

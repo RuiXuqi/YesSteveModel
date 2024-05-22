@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -57,7 +57,7 @@ public final class DoubleExpression implements Expression {
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitDouble(this);
     }
 

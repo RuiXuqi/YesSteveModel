@@ -29,7 +29,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TInstance extends GeoInstance<?, ?>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<TInstance> {
@@ -67,7 +67,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
     }
 
     @Override
-    @Nonnull
+    @NotNull
     public IRenderCycle getCurrentModelRenderCycle() {
         return this.currentModelRenderCycle;
     }

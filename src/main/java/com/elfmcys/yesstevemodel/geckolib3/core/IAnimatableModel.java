@@ -6,7 +6,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public interface IAnimatableModel<E extends IAnimatable<?>> {
     /**
@@ -26,7 +26,7 @@ public interface IAnimatableModel<E extends IAnimatable<?>> {
      * @param animationEvent 动画事件
      * @return               是否更新
      */
-    default boolean setCustomAnimations(E animatable, AnimationContext<?> ctx, @Nonnull AnimationEvent<E> animationEvent) {
+    default boolean setCustomAnimations(E animatable, AnimationContext<?> ctx, @NotNull AnimationEvent<E> animationEvent) {
         return false;
     }
 

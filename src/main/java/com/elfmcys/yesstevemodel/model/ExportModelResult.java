@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.model;
 
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 // Native Access
 public class ExportModelResult {

@@ -5,8 +5,8 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import it.unimi.dsi.fastutil.objects.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -17,19 +17,19 @@ public class GeoModelState {
     private final float[] state;
     private final GeoModel model;
 
-    @Nonnull
+    @NotNull
     private final List<IBone> leftHandBones;
-    @Nonnull
+    @NotNull
     private final List<IBone> rightHandBones;
-    @Nonnull
+    @NotNull
     private final List<IBone> elytraBones;
-    @Nonnull
+    @NotNull
     private final List<IBone> tacPistolBones;
-    @Nonnull
+    @NotNull
     private final List<IBone> tacRifleBones;
-    @Nonnull
+    @NotNull
     private final List<IBone> leftWaistBones;
-    @Nonnull
+    @NotNull
     private final List<IBone> rightWaistBones;
     @Nullable
     private final IBone firstPersonHead;
@@ -59,8 +59,8 @@ public class GeoModelState {
         firstPersonViewLocator = boneMap.get("ViewLocator");
     }
 
-    @Nonnull
-    private List<IBone> findBones(@Nonnull List<String> boneNames) {
+    @NotNull
+    private List<IBone> findBones(@NotNull List<String> boneNames) {
         ReferenceArrayList<IBone> list = new ReferenceArrayList<>(boneNames.size());
         for (String boneName : boneNames) {
             list.add(boneMap.get(boneName));
@@ -80,37 +80,37 @@ public class GeoModelState {
         return model;
     }
 
-    @Nonnull
+    @NotNull
     public List<IBone> leftHandBones() {
         return leftHandBones;
     }
 
-    @Nonnull
+    @NotNull
     public List<IBone> rightHandBones() {
         return rightHandBones;
     }
 
-    @Nonnull
+    @NotNull
     public List<IBone> elytraBones() {
         return elytraBones;
     }
 
-    @Nonnull
+    @NotNull
     public List<IBone> tacPistolBones() {
         return tacPistolBones;
     }
 
-    @Nonnull
+    @NotNull
     public List<IBone> tacRifleBones() {
         return tacRifleBones;
     }
 
-    @Nonnull
+    @NotNull
     public List<IBone> leftWaistBones() {
         return leftWaistBones;
     }
 
-    @Nonnull
+    @NotNull
     public List<IBone> rightWaistBones() {
         return rightWaistBones;
     }

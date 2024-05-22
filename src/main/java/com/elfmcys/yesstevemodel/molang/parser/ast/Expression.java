@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The expression interface. It's the super-interface for
@@ -48,6 +48,6 @@ public interface Expression {
      * @return The visit result
      * @since 3.0.0
      */
-    <R> R visit(final @Nonnull ExpressionVisitor<R> visitor);
+    <R> R visit(final @NotNull ExpressionVisitor<R> visitor);
 
 }

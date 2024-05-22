@@ -24,8 +24,8 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
 import com.elfmcys.yesstevemodel.molang.parser.ast.ExpressionVisitor;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
@@ -47,7 +47,7 @@ public /* sealed */ interface ExpressionEvaluator<TEntity> /* permits Expression
      * @return The created expression evaluator.
      * @since 3.0.0
      */
-    static @Nonnull <TEntity> ExpressionEvaluator<TEntity> evaluator(final @Nullable TEntity entity) {
+    static @NotNull <TEntity> ExpressionEvaluator<TEntity> evaluator(final @Nullable TEntity entity) {
         return new ExpressionEvaluatorImpl<>(entity);
     }
 
@@ -58,12 +58,12 @@ public /* sealed */ interface ExpressionEvaluator<TEntity> /* permits Expression
      * @return The created expression evaluator.
      * @since 3.0.0
      */
-    static @Nonnull ExpressionEvaluator evaluator() {
+    static @NotNull ExpressionEvaluator evaluator() {
         return evaluator(ObjectBinding.EMPTY);
     }
 
     @Override
-    default @Nullable Object eval(final @Nonnull Expression expression) {
+    default @Nullable Object eval(final @NotNull Expression expression) {
         return expression.visit(this);
     }
 
@@ -78,7 +78,7 @@ public /* sealed */ interface ExpressionEvaluator<TEntity> /* permits Expression
      * @return The child expression evaluator.
      * @since 3.0.0
      */
-    @Nonnull ExpressionEvaluator<TEntity> createChild();
+    @NotNull ExpressionEvaluator<TEntity> createChild();
 
     /**
      * Creates a new, child, expression evaluator.
@@ -92,7 +92,7 @@ public /* sealed */ interface ExpressionEvaluator<TEntity> /* permits Expression
      * @return The child expression evaluator.
      * @since 3.0.0
      */
-    @Nonnull <TNewEntity> ExpressionEvaluator<TNewEntity> createChild(final @Nullable TNewEntity entity);
+    @NotNull <TNewEntity> ExpressionEvaluator<TNewEntity> createChild(final @Nullable TNewEntity entity);
 
     /**
      * Pops the return value, set by the last "return"

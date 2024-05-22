@@ -10,8 +10,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-
 public class StarModelsCapabilityProvider implements ICapabilitySerializable<ListTag> {
     public static Capability<StarModelsCapability> STAR_MODELS_CAP = CapabilityManager.get(new CapabilityToken<>() {
     });
@@ -32,7 +30,7 @@ public class StarModelsCapabilityProvider implements ICapabilitySerializable<Lis
         return getCapability(cap, null);
     }
 
-    @Nonnull
+    @NotNull
     private StarModelsCapability createCapability() {
         if (instance == null) {
             this.instance = new StarModelsCapability();

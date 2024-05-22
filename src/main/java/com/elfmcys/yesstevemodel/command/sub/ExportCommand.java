@@ -26,9 +26,9 @@ public class ExportCommand {
     }
 
     private static int exportModel(final CommandContext<CommandSourceStack> context) {
-        final String modelName = StringArgumentType.getString(context, MODEL_ID_NAME);
+        final String modelId = StringArgumentType.getString(context, MODEL_ID_NAME);
         ThreadTools.submit(() -> {
-            ExportModelResult result = ServerModelManager.exportModel(modelName);
+            ExportModelResult result = ServerModelManager.exportModel(modelId);
             if (result.message() != null) {
                 CommandUtil.sendAsyncFeedback(context.getSource(), CommandUtil.wrapMessage(result.message()), true);
             }

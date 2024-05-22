@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.server.packs.resources.ResourceManager;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 // Native access
 public class NativeTexture extends AbstractTexture {
@@ -21,7 +21,7 @@ public class NativeTexture extends AbstractTexture {
     }
 
     @Override
-    public void load(@Nonnull ResourceManager resourceManager) {
+    public void load(@NotNull ResourceManager resourceManager) {
         if (!RenderSystem.isOnRenderThreadOrInit()) {
             RenderSystem.recordRenderCall(this::doLoad);
         } else {

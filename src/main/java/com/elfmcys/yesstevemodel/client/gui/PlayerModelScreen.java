@@ -6,7 +6,6 @@ import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.data.ClientModelInfo;
 import com.elfmcys.yesstevemodel.client.gui.button.*;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
 import com.google.common.collect.Lists;
@@ -25,7 +24,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.fml.ModList;
@@ -34,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class PlayerModelScreen extends Screen {
     private static final GuiModelInstance[] MODEL_PREVIEW_INSTANCE = new GuiModelInstance[10];
@@ -226,8 +223,8 @@ public class PlayerModelScreen extends Screen {
             RenderSystem.disableScissor();
 
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                String modelName = cap.getModelId();
-                List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
+                String modelId = cap.getModelId();
+                List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelId), 125);
                 int lineY = y + 205;
                 for (FormattedCharSequence line : modelNameSplit) {
                     int nameWidth = font.width(line);

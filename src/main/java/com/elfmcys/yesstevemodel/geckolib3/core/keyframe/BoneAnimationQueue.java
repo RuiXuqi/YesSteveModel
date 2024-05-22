@@ -8,7 +8,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class BoneAnimationQueue {
     public final BoneTopLevelSnapshot topLevelSnapshot;

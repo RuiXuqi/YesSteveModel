@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
 import com.elfmcys.yesstevemodel.molang.runtime.Variable;
@@ -47,7 +47,7 @@ public final class IdentifierExpression implements Expression {
     private final String name;
     private final Object target;
 
-    private IdentifierExpression(final @Nonnull String name, Object target) {
+    private IdentifierExpression(final @NotNull String name, Object target) {
         Objects.requireNonNull(name, "name");
 
         this.name = name.toLowerCase(); // case-insensitive
@@ -73,7 +73,7 @@ public final class IdentifierExpression implements Expression {
      * @return The identifier name.
      * @since 3.0.0
      */
-    public @Nonnull String name() {
+    public @NotNull String name() {
         return name;
     }
 
@@ -82,7 +82,7 @@ public final class IdentifierExpression implements Expression {
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitIdentifier(this);
     }
 

@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import static java.util.Objects.requireNonNull;
 
@@ -45,8 +45,8 @@ public final class UnaryExpression implements Expression {
     private final Expression expression;
 
     public UnaryExpression(
-            final @Nonnull Op op,
-            final @Nonnull Expression expression
+            final @NotNull Op op,
+            final @NotNull Expression expression
     ) {
         this.op = requireNonNull(op, "op");
         this.expression = requireNonNull(expression, "expression");
@@ -58,7 +58,7 @@ public final class UnaryExpression implements Expression {
      * @return The unary expression operation.
      * @since 3.0.0
      */
-    public @Nonnull Op op() {
+    public @NotNull Op op() {
         return op;
     }
 
@@ -68,12 +68,12 @@ public final class UnaryExpression implements Expression {
      * @return The operated expression.
      * @since 3.0.0
      */
-    public @Nonnull Expression expression() {
+    public @NotNull Expression expression() {
         return expression;
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitUnary(this);
     }
 

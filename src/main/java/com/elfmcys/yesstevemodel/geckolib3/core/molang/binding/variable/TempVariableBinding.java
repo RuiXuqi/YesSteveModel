@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class TempVariableBinding implements ObjectBinding {
     private final Object2ReferenceMap<String, TempVariable> variableMap = new Object2ReferenceOpenHashMap<>();
@@ -32,13 +32,13 @@ public class TempVariableBinding implements ObjectBinding {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Object evaluate(final @Nonnull ExecutionContext<?> context) {
+        public Object evaluate(final @NotNull ExecutionContext<?> context) {
             return ((IContext<Object>) context.entity()).tempStorage().getTemp(address);
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public void assign(@Nonnull ExecutionContext<?> context, Object value) {
+        public void assign(@NotNull ExecutionContext<?> context, Object value) {
             ((IContext<Object>) context.entity()).tempStorage().setTemp(address, value);
         }
     }

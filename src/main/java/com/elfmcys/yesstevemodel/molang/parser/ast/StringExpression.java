@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -40,7 +40,7 @@ public final class StringExpression implements Expression {
 
     private final String value;
 
-    public StringExpression(final @Nonnull String value) {
+    public StringExpression(final @NotNull String value) {
         this.value = Objects.requireNonNull(value, "value");
     }
 
@@ -50,12 +50,12 @@ public final class StringExpression implements Expression {
      * @return The string value.
      * @since 3.0.0
      */
-    public @Nonnull String value() {
+    public @NotNull String value() {
         return value;
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitString(this);
     }
     @Override

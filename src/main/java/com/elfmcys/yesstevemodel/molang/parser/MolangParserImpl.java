@@ -24,8 +24,8 @@
 
 package com.elfmcys.yesstevemodel.molang.parser;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.lexer.MolangLexer;
 import com.elfmcys.yesstevemodel.molang.lexer.Token;
 import com.elfmcys.yesstevemodel.molang.lexer.TokenKind;
@@ -50,7 +50,7 @@ final class MolangParserImpl implements MolangParser {
     // we have to use Object and a flag since null is a valid value too
     private @Nullable Object current = UNSET_FLAG;
 
-    MolangParserImpl(final @Nonnull MolangLexer lexer, @Nonnull ObjectBinding binding) {
+    MolangParserImpl(final @NotNull MolangLexer lexer, @NotNull ObjectBinding binding) {
         this.lexer = requireNonNull(lexer, "lexer");
         this.binding = requireNonNull(binding, "binding");
     }
@@ -61,8 +61,8 @@ final class MolangParserImpl implements MolangParser {
     // to be parsed, e.g. literals, statements, identifiers,
     // wrapped expressions and execution scopes
     //
-    @Nonnull
-    Expression parseSingle(final @Nonnull MolangLexer lexer) throws IOException {
+    @NotNull
+    Expression parseSingle(final @NotNull MolangLexer lexer) throws IOException {
         Token token = lexer.current();
         switch (token.kind()) {
             case FLOAT:
@@ -163,9 +163,9 @@ final class MolangParserImpl implements MolangParser {
         throw new ParseException("Expected an expression.", lexer.cursor());
     }
 
-    @Nonnull
+    @NotNull
     Expression parseCompoundExpression(
-            final @Nonnull MolangLexer lexer,
+            final @NotNull MolangLexer lexer,
             final int lastPrecedence
     ) throws IOException {
         Expression expr = parseSingle(lexer);
@@ -185,10 +185,10 @@ final class MolangParserImpl implements MolangParser {
         }
     }
 
-    @Nonnull
+    @NotNull
     Expression parseCompound(
-            final @Nonnull MolangLexer lexer,
-            final @Nonnull Expression left,
+            final @NotNull MolangLexer lexer,
+            final @NotNull Expression left,
             final int lastPrecedence
     ) throws IOException {
         Token current = lexer.current();
@@ -302,7 +302,7 @@ final class MolangParserImpl implements MolangParser {
     }
 
     @Override
-    public @Nonnull MolangLexer lexer() {
+    public @NotNull MolangLexer lexer() {
         return lexer;
     }
 

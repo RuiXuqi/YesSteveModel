@@ -56,18 +56,18 @@ public final class CommandRegistry {
 
     public static final SuggestionProvider<CommandSourceStack> ALL_TEXTURES = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "textures"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider) {
-            String modelName = source.getArgument("model_id", String.class);
+            String modelId = source.getArgument("model_id", String.class);
             if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-                if (ServerModelManager.getModels().containsKey(modelName)) {
-                    List<String> textures = ServerModelManager.getModels().get(modelName).textures();
+                if (ServerModelManager.getModels().containsKey(modelId)) {
+                    List<String> textures = ServerModelManager.getModels().get(modelId).textures();
                     return SharedSuggestionProvider.suggest(textures.stream()
                                     .filter(name -> !name.equals(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER))
                                     .map(str -> '"' + str + '"').toList()
                             , builder);
                 }
             } else {
-                if (ClientModelManager.getModels().containsKey(modelName)) {
-                    return SharedSuggestionProvider.suggest(ClientModelManager.getModel(modelName).map(model -> model.textures().keyList().stream()
+                if (ClientModelManager.getModels().containsKey(modelId)) {
+                    return SharedSuggestionProvider.suggest(ClientModelManager.getModel(modelId).map(model -> model.textures().keyList().stream()
                                     .map(str -> '"' + str + '"').toList())
                             .orElseGet(Lists::newArrayList), builder);
                 }

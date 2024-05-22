@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 
 import static java.util.Objects.requireNonNull;
@@ -44,8 +44,8 @@ public final class CallExpression implements Expression {
     private final Function.ArgumentCollection arguments;
 
     public CallExpression(
-            final @Nonnull Function function,
-            final @Nonnull Function.ArgumentCollection arguments
+            final @NotNull Function function,
+            final @NotNull Function.ArgumentCollection arguments
     ) {
         this.function = requireNonNull(function, "function");
         this.arguments = requireNonNull(arguments, "arguments");
@@ -56,7 +56,7 @@ public final class CallExpression implements Expression {
      *
      * @since 3.0.0
      */
-    public @Nonnull Function function() {
+    public @NotNull Function function() {
         return function;
     }
 
@@ -66,12 +66,12 @@ public final class CallExpression implements Expression {
      *
      * @since 3.0.0
      */
-    public @Nonnull Function.ArgumentCollection arguments() {
+    public @NotNull Function.ArgumentCollection arguments() {
         return arguments;
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitCall(this);
     }
 

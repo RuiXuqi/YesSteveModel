@@ -45,17 +45,17 @@ public class AuthCommand {
 
     private static int addAuthModel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
-        String modelName = StringArgumentType.getString(context, MODEL_ID_NAME);
-        if (!ServerModelManager.getModels().containsKey(modelName)) {
+        String modelId = StringArgumentType.getString(context, MODEL_ID_NAME);
+        if (!ServerModelManager.getModels().containsKey(modelId)) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
-                    modelName), true);
+                    modelId), true);
             return Command.SINGLE_SUCCESS;
         }
         targets.forEach(player -> player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-            cap.addModel(modelName);
+            cap.addModel(modelId);
             NetworkHandler.sendToClientPlayer(new SyncAuthModels(cap.getAuthModels()), player);
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.auth_model.add.info",
-                    modelName, player.getScoreboardName()), true);
+                    modelId, player.getScoreboardName()), true);
         }));
         return Command.SINGLE_SUCCESS;
     }

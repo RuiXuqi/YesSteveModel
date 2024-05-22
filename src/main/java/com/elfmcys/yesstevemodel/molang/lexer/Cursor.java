@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.lexer;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -76,7 +76,7 @@ public final class Cursor implements Cloneable {
     }
 
     @Override
-    public @Nonnull Cursor clone() {
+    public @NotNull Cursor clone() {
         return new Cursor(line, column);
     }
 

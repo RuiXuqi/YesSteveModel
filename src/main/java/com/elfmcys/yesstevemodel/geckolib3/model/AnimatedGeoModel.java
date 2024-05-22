@@ -16,8 +16,8 @@ import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
 import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoModelProvider<T> implements IAnimatableModel<T> {
@@ -29,7 +29,7 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
     }
 
     @Override
-    public boolean setCustomAnimations(T animatable, AnimationContext<?> ctx, @Nonnull AnimationEvent<T> animationEvent) {
+    public boolean setCustomAnimations(T animatable, AnimationContext<?> ctx, @NotNull AnimationEvent<T> animationEvent) {
         Minecraft mc = Minecraft.getInstance();
         AnimationData manager = animatable.getFactory().getOrCreateAnimationData(0, this);
         AnimationEvent<T> predicate;

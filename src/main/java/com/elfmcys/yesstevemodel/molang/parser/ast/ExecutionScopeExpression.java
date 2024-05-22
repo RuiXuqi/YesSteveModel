@@ -24,7 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +43,7 @@ public final class ExecutionScopeExpression implements Expression {
 
     private final List<Expression> expressions;
 
-    public ExecutionScopeExpression(final @Nonnull List<Expression> expressions) {
+    public ExecutionScopeExpression(final @NotNull List<Expression> expressions) {
         this.expressions = Objects.requireNonNull(expressions, "expressions");
     }
 
@@ -51,12 +51,12 @@ public final class ExecutionScopeExpression implements Expression {
      * Returns the expressions inside this
      * execution scope, never null
      */
-    public @Nonnull List<Expression> expressions() {
+    public @NotNull List<Expression> expressions() {
         return expressions;
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitExecutionScope(this);
     }
 

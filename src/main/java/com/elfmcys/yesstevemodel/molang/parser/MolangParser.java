@@ -24,8 +24,8 @@
 
 package com.elfmcys.yesstevemodel.molang.parser;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.lexer.Cursor;
 import com.elfmcys.yesstevemodel.molang.lexer.MolangLexer;
 import com.elfmcys.yesstevemodel.molang.lexer.TokenKind;
@@ -58,7 +58,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @return The lexer for this parser.
      * @since 3.0.0
      */
-    @Nonnull MolangLexer lexer();
+    @NotNull MolangLexer lexer();
 
     /**
      * Returns the cursor for this parser, the cursor maintains
@@ -68,7 +68,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @return The cursor.
      * @since 3.0.0
      */
-    default @Nonnull Cursor cursor() {
+    default @NotNull Cursor cursor() {
         //noinspection resource
         return lexer().cursor();
     }
@@ -109,7 +109,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @throws IOException If reading or parsing fails
      * @since 3.0.0
      */
-    default @Nonnull List<Expression> parseAll() throws IOException {
+    default @NotNull List<Expression> parseAll() throws IOException {
         List<Expression> tokens = new ArrayList<>();
         Expression expr;
         while ((expr = next()) != null) {
@@ -136,7 +136,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @throws IOException If parser initialization fails.
      * @since 3.0.0
      */
-    static @Nonnull MolangParser parser(final @Nonnull MolangLexer lexer, @Nonnull ObjectBinding binding) throws IOException {
+    static @NotNull MolangParser parser(final @NotNull MolangLexer lexer, @NotNull ObjectBinding binding) throws IOException {
         return new MolangParserImpl(lexer, binding);
     }
 
@@ -149,7 +149,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @throws IOException If parser initialization fails.
      * @since 3.0.0
      */
-    static @Nonnull MolangParser parser(final @Nonnull Reader reader, @Nonnull ObjectBinding binding) throws IOException {
+    static @NotNull MolangParser parser(final @NotNull Reader reader, @NotNull ObjectBinding binding) throws IOException {
         return parser(MolangLexer.lexer(reader), binding);
     }
 
@@ -163,7 +163,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @throws IOException If parser initialization fails.
      * @since 3.0.0
      */
-    static @Nonnull MolangParser parser(final @Nonnull String string, @Nonnull ObjectBinding binding) throws IOException {
+    static @NotNull MolangParser parser(final @NotNull String string, @NotNull ObjectBinding binding) throws IOException {
         return parser(MolangLexer.lexer(string), binding);
     }
 
@@ -175,7 +175,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @throws IOException If reading or parsing fails.
      * @since 3.0.0
      */
-    static @Nonnull List<Expression> parseAll(final @Nonnull Reader reader, @Nonnull ObjectBinding binding) throws IOException {
+    static @NotNull List<Expression> parseAll(final @NotNull Reader reader, @NotNull ObjectBinding binding) throws IOException {
         try (MolangParser parser = parser(reader, binding)) {
             return parser.parseAll();
         }
@@ -189,7 +189,7 @@ public /* sealed */ interface MolangParser /* permits MolangParserImpl */ extend
      * @throws IOException If reading or parsing fails.
      * @since 3.0.0
      */
-    static @Nonnull List<Expression> parseAll(final @Nonnull String string, @Nonnull ObjectBinding binding) throws IOException {
+    static @NotNull List<Expression> parseAll(final @NotNull String string, @NotNull ObjectBinding binding) throws IOException {
         try (MolangParser parser = parser(string, binding)) {
             return parser.parseAll();
         }

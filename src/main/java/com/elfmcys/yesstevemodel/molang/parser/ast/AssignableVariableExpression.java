@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.molang.parser.ast;
 
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class AssignableVariableExpression implements Expression {
@@ -18,7 +18,7 @@ public class AssignableVariableExpression implements Expression {
     }
 
     @Override
-    public <R> R visit(final @Nonnull ExpressionVisitor<R> visitor) {
+    public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitAssignableVariable(this);
     }
 
