@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
@@ -22,13 +23,22 @@ public class IrisCompat {
 
     public static void init() {
         ModList.get().getModContainerById(MOD_ID).ifPresent(mod -> {
-            INSTALLED = true;
-            if (mod.getModInfo().getVersion().compareTo(new DefaultArtifactVersion("1.7.0")) >= 0) {
-                ENTITY_FORMAT = IrisVertexFormats.ENTITY;
-                ENTITY_ID_GETTER = IrisCompat::getEntityId;
-            } else {
-                ENTITY_FORMAT = net.coderbot.iris.vertices.IrisVertexFormats.ENTITY;
-                ENTITY_ID_GETTER = IrisCompat::getEntityIdLegacy;
+            try {
+                if (mod.getModInfo().getVersion().compareTo(new DefaultArtifactVersion("1.7.0")) >= 0) {
+                    ENTITY_FORMAT = IrisVertexFormats.ENTITY;
+                    ENTITY_ID_GETTER = IrisCompat::getEntityId;
+                } else {
+                    ENTITY_FORMAT = net.coderbot.iris.vertices.IrisVertexFormats.ENTITY;
+                    ENTITY_ID_GETTER = IrisCompat::getEntityIdLegacy;
+                }
+                ENTITY_ID_GETTER.getAsLong();
+                isRenderingShadow();
+                INSTALLED = true;
+            } catch (Throwable e) {
+                YesSteveModel.LOGGER.error("Failed to setup oculus compat", e);
+                ENTITY_FORMAT = null;
+                ENTITY_ID_GETTER = null;
+                INSTALLED = false;
             }
         });
     }
