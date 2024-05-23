@@ -9,6 +9,7 @@ import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -40,18 +41,19 @@ public class ReplacePlayerHandRenderEvent {
             if (model == null || !hasArmBone(event.getArm(), model.armModel())) {
                 return;
             }
-            CustomPlayerRenderer instance = RegisterEntityRenderersEvent.getPlayerRenderer();
+            CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
             final PoseStack poseStack = event.getPoseStack();
             MultiBufferSource multiBufferSource = event.getMultiBufferSource();
 
             CustomPlayerEntity customPlayer = cap.getAnimatable();
-            if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, customPlayer, modelId))) {
+            SpecialPlayerRenderEvent renderEvent = new SpecialPlayerRenderEvent(player, customPlayer, modelId);
+            if (MinecraftForge.EVENT_BUS.post(renderEvent)) {
                 return;
             }
-            RenderType renderType = RenderType.entityTranslucent(model.textures().get(customPlayer.getTexture()));
+            RenderType renderType = RenderType.entityTranslucent(renderEvent.getTextureLocationOverride() != null ? renderEvent.getTextureLocationOverride() : (cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID));
             final VertexConsumer buffer = multiBufferSource.getBuffer(renderType);
             final int packedLight = event.getPackedLight();
-            if (instance != null) {
+            if (renderer != null) {
                 if (event.getArm() == HumanoidArm.LEFT) {
                     poseStack.pushPose();
                     poseStack.translate(0.25, 1.8, 0);

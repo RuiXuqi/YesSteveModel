@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -58,17 +59,17 @@ public class RenderFirstPlayerBackground {
             if (model == null || !model.armModel().hasFirstPersonBackground) {
                 return;
             }
-            CustomPlayerRenderer instance = RegisterEntityRenderersEvent.getPlayerRenderer();
+            CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
             final PoseStack poseStack = event.getPoseStack();
             MultiBufferSource multiBufferSource = event.getMultiBufferSource();
             CustomPlayerEntity customPlayer = cap.getAnimatable();
             if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, customPlayer, modelId))) {
                 return;
             }
-            RenderType renderType = RenderType.entityTranslucent(model.textures().get(customPlayer.getTexture()));
+            RenderType renderType = RenderType.entityTranslucent(cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
             final VertexConsumer buffer = multiBufferSource.getBuffer(renderType);
             final int packedLight = event.getPackedLight();
-            if (instance != null) {
+            if (renderer != null) {
                 poseStack.pushPose();
                 if (Minecraft.getInstance().options.bobView().get()) {
                     bobView(poseStack, event.getPartialTick(), player);
