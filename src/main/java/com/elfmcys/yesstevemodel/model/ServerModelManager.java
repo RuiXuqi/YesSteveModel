@@ -51,14 +51,6 @@ public final class ServerModelManager {
         return MODELS;
     }
 
-    public static boolean hasArrowModel(String modelId) {
-        var info = MODELS.get(modelId);
-        if (info == null) {
-            return false;
-        }
-        return info.geoModels().contains(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER);
-    }
-
     public static Set<String> getAuthModels() {
         return AUTH_MODELS;
     }

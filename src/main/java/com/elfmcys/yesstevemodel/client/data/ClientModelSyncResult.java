@@ -2,11 +2,13 @@ package com.elfmcys.yesstevemodel.client.data;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +45,9 @@ public class ClientModelSyncResult {
     public void removeModel(final ClientModelData data) {
         var textureMap = ClientModelBuilder.buildTextureMap(data, false);
         removedTextures.addAll(textureMap.values());
+        if (data.textures().containsKey(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER)) {
+            removedTextures.add(ModelIdUtil.getTextureId(data.info().hash()));
+        }
     }
 
     // Native Access
@@ -59,7 +64,7 @@ public class ClientModelSyncResult {
 
         model.mainAnimations().keySet().forEach(name -> conditionManager.addTest(modelId, name));
         if (isNew) {
-            registerTextures(data, model);
+            registerModelTextures(data, model);
         }
 
         models.put(modelId, model);
@@ -69,24 +74,33 @@ public class ClientModelSyncResult {
     }
 
     // 集中注册可能导致严重掉帧，所以提前到这里分散注册
-    private void registerTextures(ClientModelData data, ClientModel model) {
+    private void registerModelTextures(ClientModelData data, ClientModel model) {
         Minecraft.getInstance().execute(() -> {
             for (final var entry : model.textures().entrySet()) {
-                if (Minecraft.getInstance().getTextureManager().getTexture(entry.getValue(), MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
-                    var texture = data.textures().get(entry.getKey());
-                    Minecraft.getInstance().getTextureManager().register(entry.getValue(), texture);
-                    newTextureIds.add(entry.getValue());
-                } else {
-                    removedTextures.remove(entry.getValue());
-                }
+                var texture = data.textures().get(entry.getKey());
+                tryRegisterTexture(entry.getValue(), texture);
+            }
+            if (model.arrowTexture() != null) {
+                var texture = data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER);
+                tryRegisterTexture(model.arrowTexture(), texture);
             }
         });
+    }
+
+    private void tryRegisterTexture(ResourceLocation id, AbstractTexture texture) {
+        if (Minecraft.getInstance().getTextureManager().getTexture(id, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
+            Minecraft.getInstance().getTextureManager().register(id, texture);
+            newTextureIds.add(id);
+        } else {
+            removedTextures.remove(id);
+        }
     }
 
     // Native Access: 同步结束后，commit 之前调用
     @SuppressWarnings("unused")
     public void freeze() {
         if (!models.containsKey("default") && ClientModelBuilder.getDefaultModel() != null) {
+            ClientModelBuilder.getDefaultModel().mainAnimations().keySet().forEach(name -> conditionManager.addTest("default", name));
             models.put("default", ClientModelBuilder.getDefaultModel());
         }
         models = Object2ReferenceMaps.unmodifiable(models);

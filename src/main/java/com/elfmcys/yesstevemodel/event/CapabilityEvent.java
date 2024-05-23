@@ -86,7 +86,7 @@ public final class CapabilityEvent {
             });
         } else if (event.getTarget() instanceof AbstractArrow arrow) {
             arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
-                if (cap.isInitialized() && ServerModelManager.hasArrowModel(cap.getOwnerModelId())) {
+                if (cap.isInitialized()) {
                     NetworkHandler.sendToClientPlayer(new SyncArrowModelInfo(arrow.getId(), cap), event.getEntity());
                 }
             });
@@ -133,12 +133,13 @@ public final class CapabilityEvent {
     }
 
     public static void onArrowSetOwner(AbstractArrow arrow, ServerPlayer owner) {
+        if (!NetworkHandler.isPlayerChannelPresent(owner)) {
+            return;
+        }
         owner.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(ownerCap -> {
             arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(arrowCap -> {
                 arrowCap.init(ownerCap.getModelId());
-                if (ServerModelManager.hasArrowModel(arrowCap.getOwnerModelId())) {
-                    NetworkHandler.broadcastToVisiblePlayers(new SyncArrowModelInfo(arrow.getId(), arrowCap), arrow);
-                }
+                NetworkHandler.broadcastToVisiblePlayers(new SyncArrowModelInfo(arrow.getId(), arrowCap), arrow);
             });
         });
     }
