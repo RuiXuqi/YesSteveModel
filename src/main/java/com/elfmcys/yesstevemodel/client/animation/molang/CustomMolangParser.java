@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
-import com.elfmcys.yesstevemodel.client.animation.molang.bindings.YSMBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.MolangParser;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;

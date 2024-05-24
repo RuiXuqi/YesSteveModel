@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.binding;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.math.MathBinding;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.query.QueryBinding;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.MathBinding;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.QueryBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable.ForeignVariableBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable.ScopedVariableBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable.TempVariableBinding;
