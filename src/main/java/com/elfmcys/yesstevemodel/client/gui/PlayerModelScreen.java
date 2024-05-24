@@ -194,6 +194,7 @@ public class PlayerModelScreen extends Screen {
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                     var model = models.get(id);
                     instance.setModelAndTexture(id, model.defaultTextureName());
+                    instance.getAnimatable().setPreviewAnimation(model.modelInfo().properties().previewAnimation());
                     addRenderableWidget(new ModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth(), instance, model));
                 });
             }

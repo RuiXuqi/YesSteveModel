@@ -38,6 +38,7 @@
       "extra6": "",
       "extra7": ""
     },
+    "preview_animation": "idle",
     "default_texture": "default",
     "free": true
   },
