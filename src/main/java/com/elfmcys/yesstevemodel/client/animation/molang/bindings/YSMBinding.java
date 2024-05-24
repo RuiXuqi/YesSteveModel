@@ -9,6 +9,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -67,6 +68,7 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("armor_value", ctx -> ctx.entity().getArmorValue());
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
         livingEntityVar("is_close_eyes", ctx -> getEyeCloseState(ctx.animationEvent(), ctx.entity()));
+        livingEntityVar("rendering_in_inventory", ctx -> RenderUtil.isRenderingEntitiesInInventory());
 
         playerVar("texture_name", ctx -> {
             if (ctx.geoInstance() instanceof CustomPlayerInstance instance) {

@@ -12,6 +12,7 @@ import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,12 +25,7 @@ import java.util.List;
 
 @SuppressWarnings("all")
 public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
-    private static boolean renderingEntitiesInInventory;
     public static float FIRST_PERSON_HEAD_POS;
-
-    public static void setRenderingEntitiesInInventory(boolean value) {
-        renderingEntitiesInInventory = value;
-    }
 
     @Override
     public GeoModel getModel(String location) {
@@ -70,7 +66,7 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
 
     @Override
     public boolean forceUpdate() {
-        return RenderSystem.isOnRenderThread() && renderingEntitiesInInventory;
+        return RenderUtil.isRenderingEntitiesInInventory();
     }
 
     @Deprecated

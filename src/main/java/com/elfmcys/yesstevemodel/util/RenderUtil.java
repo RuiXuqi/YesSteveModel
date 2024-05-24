@@ -26,6 +26,16 @@ import java.util.concurrent.ExecutionException;
 
 @SuppressWarnings("all")
 public final class RenderUtil {
+    private static boolean renderingEntitiesInInventory = false;
+
+    public static void setRenderingEntitiesInInventory(boolean value) {
+        renderingEntitiesInInventory = value;
+    }
+
+    public static boolean isRenderingEntitiesInInventory() {
+        return RenderSystem.isOnRenderThread() && renderingEntitiesInInventory;
+    }
+
     public static void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, GuiModelInstance instance, boolean showGround) {
         CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
         CustomPlayerEntity entity = instance.getAnimatable();
