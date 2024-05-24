@@ -36,28 +36,25 @@ public class ClientModelBuilder {
     public static ClientModel build(ClientModelData data, boolean isDefault, boolean isNeedAuth) {
         GeoModel mainModel = data.geoModels().get(MODEL_MAIN_INDEX);
         GeoModel armModel = data.geoModels().get(MODEL_ARM_INDEX);
-        GeoModel arrowModel = data.geoModels().get(MODEL_ARROW_INDEX);
-
-        var mainAnimations = buildMainAnimationMap(data, isDefault);
-        var arrowAnimations = buildArrowAnimationMap(data, isDefault);
-
+        var animations = buildAnimationMap(data, isDefault);
         var textures = buildTextureMap(data, isDefault);
-        var arrowTexture = getArrowTextureId(data, isDefault);
+
+        var projectileModels = buildProjectileModels(data, isDefault);
 
         var displayInfo = buildDisplayInfo(data);
-
         var info = new ClientModelInfo(displayInfo, isNeedAuth);
-        var model = new ClientModel(mainModel, armModel, arrowModel, mainAnimations, arrowAnimations, textures, arrowTexture, data.info(), info);
+
+        var model = new ClientModel(mainModel, armModel, animations, textures, projectileModels, data.info(), info);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
         return model;
     }
 
-    private static Map<String, Animation> buildMainAnimationMap(ClientModelData data, boolean isDefaultModel) {
+    private static Map<String, Animation> buildAnimationMap(ClientModelData data, boolean isDefaultModel) {
         Object2ReferenceOpenHashMap<String, Animation> map = new Object2ReferenceOpenHashMap<>();
         if (!isDefaultModel) {
-            map.putAll(DEFAULT_MODEL.mainAnimations());
+            map.putAll(DEFAULT_MODEL.animations());
         }
         for (var i = 0; i < data.animationFiles().size(); i++) {
             if (i == ANIMATION_ARROW_INDEX) {
@@ -71,16 +68,36 @@ public class ClientModelBuilder {
         return Object2ReferenceMaps.unmodifiable(map);
     }
 
-    private static Map<String, Animation> buildArrowAnimationMap(ClientModelData data, boolean isDefaultModel) {
-        Object2ReferenceOpenHashMap<String, Animation> map = new Object2ReferenceOpenHashMap<>();
-        if (!isDefaultModel) {
-            map.putAll(DEFAULT_MODEL.arrowAnimations());
+    private static Map<ProjectileType, ProjectileModel> buildProjectileModels(ClientModelData data, boolean isDefaultModel) {
+        Object2ReferenceOpenHashMap<ProjectileType, ProjectileModel> map = new Object2ReferenceOpenHashMap<>();
+
+        var arrowModel = buildArrowModel(data, isDefaultModel);
+        if (arrowModel != null) {
+            map.put(ProjectileType.ARROW, arrowModel);
         }
-        var file = data.animationFiles().get(ANIMATION_ARROW_INDEX);
-        if (file != null) {
-            map.putAll(file.animations());
-        }
+
         return Object2ReferenceMaps.unmodifiable(map);
+    }
+
+    @Nullable
+    private static ProjectileModel buildArrowModel(ClientModelData data, boolean isDefaultModel) {
+        var model = data.geoModels().get(MODEL_ARROW_INDEX);
+        if (model == null) {
+            return null;
+        }
+
+        Object2ReferenceOpenHashMap<String, Animation> animationMap = new Object2ReferenceOpenHashMap<>();
+        if (!isDefaultModel) {
+            animationMap.putAll(DEFAULT_MODEL.projectileModels().get(ProjectileType.ARROW).animations());
+        }
+        var animationFile = data.animationFiles().get(ANIMATION_ARROW_INDEX);
+        if (animationFile != null) {
+            animationMap.putAll(animationFile.animations());
+        }
+
+        var texture = ModelIdUtil.getTextureId(data.info().hash());
+
+        return new ProjectileModel(model, Object2ReferenceMaps.unmodifiable(animationMap), texture);
     }
 
     public static FifoHashMap<String, ResourceLocation> buildTextureMap(ClientModelData data, boolean isDefault) {
@@ -94,11 +111,6 @@ public class ClientModelBuilder {
             map.put(entry.getKey(), id);
         }
         return new FifoHashMap<>(map);
-    }
-
-    @Nullable
-    public static ResourceLocation getArrowTextureId(ClientModelData data, boolean isDefault) {
-        return data.textures().containsKey(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER) ? ModelIdUtil.getTextureId(isDefault ? "default" : data.info().hash()) : null;
     }
 
     private static List<Component> buildDisplayInfo(ClientModelData data) {

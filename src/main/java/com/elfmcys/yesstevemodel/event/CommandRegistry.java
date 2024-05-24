@@ -43,7 +43,7 @@ public final class CommandRegistry {
                 // Fixme: 应该为服务器后台也添加提示功能
                 return Suggestions.empty();
             } else {
-                var main = ClientModelManager.getModels().get(ModelIdUtil.DEFAULT_MODEL_ID).mainAnimations();
+                var main = ClientModelManager.getModels().get(ModelIdUtil.DEFAULT_MODEL_ID).animations();
                 Set<String> animations = Sets.newHashSet();
                 animations.addAll(main.keySet().stream().map(str -> '"' + str + '"').toList());
                 animations.add("stop");

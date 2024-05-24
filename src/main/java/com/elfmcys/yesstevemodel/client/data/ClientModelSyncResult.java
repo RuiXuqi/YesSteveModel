@@ -62,7 +62,7 @@ public class ClientModelSyncResult {
             return;
         }
 
-        model.mainAnimations().keySet().forEach(name -> conditionManager.addTest(modelId, name));
+        model.animations().keySet().forEach(name -> conditionManager.addTest(modelId, name));
         if (isNew) {
             registerModelTextures(data, model);
         }
@@ -80,9 +80,11 @@ public class ClientModelSyncResult {
                 var texture = data.textures().get(entry.getKey());
                 tryRegisterTexture(entry.getValue(), texture);
             }
-            if (model.arrowTexture() != null) {
-                var texture = data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER);
-                tryRegisterTexture(model.arrowTexture(), texture);
+            for (final var entry : model.projectileModels().entrySet()) {
+                if (entry.getKey() == ProjectileType.ARROW) {
+                    var texture = data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER);
+                    tryRegisterTexture(entry.getValue().texture(), texture);
+                }
             }
         });
     }
@@ -100,7 +102,7 @@ public class ClientModelSyncResult {
     @SuppressWarnings("unused")
     public void freeze() {
         if (!models.containsKey("default") && ClientModelBuilder.getDefaultModel() != null) {
-            ClientModelBuilder.getDefaultModel().mainAnimations().keySet().forEach(name -> conditionManager.addTest("default", name));
+            ClientModelBuilder.getDefaultModel().animations().keySet().forEach(name -> conditionManager.addTest("default", name));
             models.put("default", ClientModelBuilder.getDefaultModel());
         }
         models = Object2ReferenceMaps.unmodifiable(models);

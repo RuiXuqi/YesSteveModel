@@ -3,6 +3,8 @@ package com.elfmcys.yesstevemodel.client;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult;
+import com.elfmcys.yesstevemodel.client.data.ProjectileModel;
+import com.elfmcys.yesstevemodel.client.data.ProjectileType;
 import com.elfmcys.yesstevemodel.client.gui.ModelManageScreen;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -44,15 +46,15 @@ public class ClientModelManager {
         if (model == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(model.mainAnimations().get(animationName));
+        return Optional.ofNullable(model.animations().get(animationName));
     }
 
-    public static Optional<Animation> getArrowAnimation(String modelId, String animationName) {
+    public static Optional<ProjectileModel> getProjectileModel(String modelId, ProjectileType type) {
         var model = MODELS.get(modelId);
         if (model == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(model.arrowAnimations().get(animationName));
+        return Optional.ofNullable(model.projectileModels().get(type));
     }
 
     public static void syncAbort() {

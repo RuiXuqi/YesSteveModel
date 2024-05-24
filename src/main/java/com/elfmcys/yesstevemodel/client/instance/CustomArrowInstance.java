@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.instance;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.data.ProjectileType;
 import com.elfmcys.yesstevemodel.client.entity.CustomArrowEntity;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.CustomArrowModel;
@@ -26,7 +27,7 @@ public class CustomArrowInstance extends GeoInstance<CustomArrowEntity, CustomAr
 
     @Override
     public boolean isModelPresent() {
-        return ClientModelManager.getModel(animatable.getModelId()).map(model -> model.arrowModel() != null).orElse(false);
+        return ClientModelManager.getModel(animatable.getModelId()).map(model -> model.projectileModels().containsKey(ProjectileType.ARROW)).orElse(false);
     }
 
     @Override

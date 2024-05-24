@@ -5,37 +5,30 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
 public class ClientModel {
     private final GeoModel mainModel;
-    private final GeoModel armModel;
-    @Nullable
-    private final GeoModel arrowModel;
 
-    private final Map<String, Animation> mainAnimations;
-    @NotNull
-    private final Map<String, Animation> arrowAnimations;
+    private final GeoModel armModel;
+
+    private final Map<String, Animation> animations;
 
     private final FifoHashMap<String, ResourceLocation> textures;
-    @Nullable
-    private final ResourceLocation arrowTexture;
+
+    private final Map<ProjectileType, ProjectileModel> projectileModels;
 
     private final ModelInfo modelInfo;
 
     private final ClientModelInfo clientModelInfo;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, @Nullable GeoModel arrowModel, Map<String, Animation> mainAnimations, @NotNull Map<String, Animation> arrowAnimations, FifoHashMap<String, ResourceLocation> textures, @Nullable ResourceLocation arrowTexture, ModelInfo modelInfo, ClientModelInfo clientModelInfo) {
+    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, FifoHashMap<String, ResourceLocation> textures, Map<ProjectileType, ProjectileModel> projectileModels, ModelInfo modelInfo, ClientModelInfo clientModelInfo) {
         this.mainModel = mainModel;
         this.armModel = armModel;
-        this.arrowModel = arrowModel;
-        this.mainAnimations = mainAnimations;
-        this.arrowAnimations = arrowAnimations;
+        this.animations = animations;
         this.textures = textures;
-        this.arrowTexture = arrowTexture;
+        this.projectileModels = projectileModels;
         this.modelInfo = modelInfo;
         this.clientModelInfo = clientModelInfo;
     }
@@ -48,27 +41,16 @@ public class ClientModel {
         return armModel;
     }
 
-    @Nullable
-    public GeoModel arrowModel() {
-        return arrowModel;
-    }
-
-    public Map<String, Animation> mainAnimations() {
-        return mainAnimations;
-    }
-
-    @NotNull
-    public Map<String, Animation> arrowAnimations() {
-        return arrowAnimations;
+    public Map<String, Animation> animations() {
+        return animations;
     }
 
     public FifoHashMap<String, ResourceLocation> textures() {
         return textures;
     }
 
-    @Nullable
-    public ResourceLocation arrowTexture() {
-        return arrowTexture;
+    public Map<ProjectileType, ProjectileModel> projectileModels() {
+        return projectileModels;
     }
 
     public ModelInfo modelInfo() {

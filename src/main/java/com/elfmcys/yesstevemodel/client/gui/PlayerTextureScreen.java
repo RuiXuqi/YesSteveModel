@@ -67,7 +67,7 @@ public class PlayerTextureScreen extends Screen {
         this.parent = parent;
         this.modelId = modelId;
         this.textures = model.textures();
-        this.animations = new ArrayList<>(model.mainAnimations().keySet());
+        this.animations = new ArrayList<>(model.animations().keySet());
         this.animations.sort(String::compareTo);
         PREVIEW_INSTANCE.getAnimatable().setPlayer(Minecraft.getInstance().player);
         for (GuiModelInstance instance : TEXTURE_BUTTON_INSTANCE) {
