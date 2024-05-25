@@ -120,12 +120,12 @@ public class ClientModelBuilder {
             if(!StringUtils.isBlank(extraInfo.name())) {
                 component.add(Component.literal(extraInfo.name()).withStyle(ChatFormatting.GOLD));
                 if (StringUtils.isNoneBlank(extraInfo.tips())) {
-                    String[] split = extraInfo.tips().split("\n");
+                    String[] split = extraInfo.tips().replace("\r", "").split("\n");
                     Arrays.stream(split).forEach(s -> component.add(Component.literal(s).withStyle(ChatFormatting.GRAY)));
                 }
                 if (!extraInfo.authors().isEmpty()) {
                     component.add(Component.translatable("gui.yes_steve_model.model.authors", StringUtils.join(
-                            extraInfo.authors().stream().map(author -> author.role().isEmpty() ? author.name() : (author.role() + ":" + author.name())).toArray(String[]::new), "丨")));
+                            extraInfo.authors().stream().map(author -> author.role().isEmpty() ? author.name() : (author.role() + ": " + author.name())).toArray(String[]::new), "丨")));
                 }
                 if (StringUtils.isNoneBlank(extraInfo.license().type())) {
                     component.add(Component.translatable("gui.yes_steve_model.model.license", extraInfo.license().type()));
