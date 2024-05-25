@@ -75,7 +75,7 @@ public class AnimationRouletteScreen extends Screen {
     private void drawRouletteText(GuiGraphics graphics) {
         int count = 8;
         float startDeg = Mth.PI / count;
-        for (int i = 0; i < extraAnimationMap.size(); i++) {
+        for (int i = 0; i < Math.min(8, extraAnimationMap.size()); i++) {
             int r = 65;
             MutableComponent keyText = Component.literal("[ ").withStyle(ChatFormatting.YELLOW);
             KeyMapping keyMapping = ExtraAnimationKey.EXTRA_ANIMATION_KEYS.get(i);
