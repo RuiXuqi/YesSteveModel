@@ -26,6 +26,7 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClientPlayer, CustomPlayerInstance> {
@@ -95,7 +96,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
     }
 
     @Override
-    @Deprecated
+    @NotNull
     public ResourceLocation getTextureLocation(AbstractClientPlayer pEntity) {
         return pEntity.getCapability(PlayerGeoCapabilityProvider.CAP).map(GeoInstance::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
     }

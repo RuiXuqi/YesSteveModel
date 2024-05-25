@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.yesstevemodel.geckolib3.util.IRenderCycle;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -43,8 +42,7 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
         poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
         Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
-        RenderType renderType = getRenderType(instance, partialTick, poseStack, bufferSource, null, packedLight,
-                instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
+        RenderType renderType = getRenderType(instance, partialTick, poseStack, bufferSource, null, packedLight, instance.getTextureLocation());
         GeoModelState model = instance.getAnimatableModel().getCurrentModel();
         render(model, instance, partialTick, renderType, poseStack, bufferSource, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
         poseStack.popPose();

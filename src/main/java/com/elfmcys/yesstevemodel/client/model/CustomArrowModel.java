@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 public class CustomArrowModel extends AnimatedGeoModel<CustomArrowEntity> {
     @Override
@@ -21,6 +22,7 @@ public class CustomArrowModel extends AnimatedGeoModel<CustomArrowEntity> {
     }
 
     @Override
+    @NotNull
     public ResourceLocation getTextureLocation(CustomArrowEntity arrowEntity) {
         return ClientModelManager.getModel(arrowEntity.getModelId()).map(model -> model.projectileModels().get(ProjectileType.ARROW).texture()).orElse(MissingTextureAtlasSprite.getLocation());
     }

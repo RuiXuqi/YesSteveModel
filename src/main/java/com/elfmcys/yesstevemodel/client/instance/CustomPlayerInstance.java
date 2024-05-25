@@ -8,7 +8,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
 
 public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, CustomPlayerModel> {
     protected boolean isPlayingAnimation = false;
@@ -38,11 +37,6 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
         return modelId != null && ClientModelManager.getModels().containsKey(modelId);
     }
 
-    @Override
-    public ResourceLocation getTextureLocation() {
-        return animatableModel.getTextureLocation(animatable);
-    }
-
     public String getTextureName() {
         return animatable.getTexture();
     }
@@ -59,16 +53,12 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
 
     public void setModelAndTexture(String modelId, String textureName) {
         setInitialized();
-        setModel(modelId);
+        animatable.setModel(modelId);
         setTexture(textureName);
     }
 
     public void setTexture(String textureLocation) {
         animatable.setTexture(textureLocation);
-    }
-
-    public void setModel(String modelId) {
-        animatable.setModel(modelId);
     }
 
     public void playAnimation(String animationName) {

@@ -179,7 +179,7 @@ public final class ServerModelManager {
 
                         String modelId = modelIdCap.getModelId();
                         if (!ServerModelManager.getModels().containsKey(modelId)
-                                || AUTH_MODELS.contains(modelId) && !authModelCap.containModel(modelIdCap.getModelId())
+                                || (AUTH_MODELS.contains(modelId) && !authModelCap.containModel(modelIdCap.getModelId()))
                                 || !MODELS.get(modelId).textures().contains(modelIdCap.getSelectTexture())) {
                             modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
                         }

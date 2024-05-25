@@ -14,6 +14,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
 
 import java.nio.ByteBuffer;
@@ -55,6 +56,14 @@ public class ClientModelManager {
             return Optional.empty();
         }
         return Optional.ofNullable(model.projectileModels().get(type));
+    }
+
+    public static Optional<ResourceLocation> getPlayerTextureLocation(String modelId, String textureName) {
+        var model = MODELS.get(modelId);
+        if (model == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(model.textures().get(textureName));
     }
 
     public static void syncAbort() {

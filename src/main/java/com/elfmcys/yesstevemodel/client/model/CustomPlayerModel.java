@@ -13,9 +13,9 @@ import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -45,8 +45,9 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
     }
 
     @Override
+    @NotNull
     public ResourceLocation getTextureLocation(CustomPlayerEntity customPlayer) {
-        return ClientModelManager.getModel(customPlayer.getModelId()).map(model -> model.textures().get(customPlayer.getTexture())).orElse(null);
+        return ClientModelManager.getPlayerTextureLocation(customPlayer.getModelId(), customPlayer.getTexture()).orElse(MissingTextureAtlasSprite.getLocation());
     }
 
     @Override
