@@ -315,7 +315,7 @@
   "message.yes_steve_model.model.sync.complete": "§6§l【§aYSM§6§l】§eSuccessfully distributed models to players，use time：%.2fms",
   "message.yes_steve_model.model.set.success": "§6§l[§aYSM§6§l] §rSet '%s' models for player '%s'",
   "message.yes_steve_model.model.set.need_auth": "§6§l[§aYSM§6§l] §rUnable set '%s' models for player '%s', need model auth",
-  "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §rPlay 'extra%d' animation",
+  "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §rPlay '%s' animation",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §rAnimation debug enable",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §rAnimation debug disable",
   "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[Debug] %s",

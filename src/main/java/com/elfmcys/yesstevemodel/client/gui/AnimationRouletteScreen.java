@@ -59,7 +59,7 @@ public class AnimationRouletteScreen extends Screen {
                     });
                 }
                 if (minecraft.player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
-                    minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectId));
+                    minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", extraAnimationMap.getKeyAt(selectId)));
                 }
             }
             minecraft.setScreen(null);
@@ -75,7 +75,7 @@ public class AnimationRouletteScreen extends Screen {
     private void drawRouletteText(GuiGraphics graphics) {
         int count = 8;
         float startDeg = Mth.PI / count;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < extraAnimationMap.size(); i++) {
             int r = 65;
             MutableComponent keyText = Component.literal("[ ").withStyle(ChatFormatting.YELLOW);
             KeyMapping keyMapping = ExtraAnimationKey.EXTRA_ANIMATION_KEYS.get(i);
@@ -85,12 +85,10 @@ public class AnimationRouletteScreen extends Screen {
                 keyText.append(keyMapping.getTranslatedKeyMessage());
             }
             keyText.append(" ]");
-            if (extraAnimationMap.size() > i) {
-                if (StringUtils.isNoneBlank(extraAnimationMap.getValueAt(i))) {
-                    graphics.drawCenteredString(font, Component.literal(extraAnimationMap.getValueAt(i)), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
-                } else {
-                    graphics.drawCenteredString(font, String.valueOf(i), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
-                }
+            if (StringUtils.isNoneBlank(extraAnimationMap.getValueAt(i))) {
+                graphics.drawCenteredString(font, Component.literal(extraAnimationMap.getValueAt(i)), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
+            } else {
+                graphics.drawCenteredString(font, String.valueOf(i), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
             }
             graphics.drawCenteredString(font, keyText, (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 + 4), 0xF3EFE0);
             startDeg = startDeg + 2 * Mth.PI / count;
@@ -117,10 +115,13 @@ public class AnimationRouletteScreen extends Screen {
             float spacingDeg = Mth.PI / 90;
             float startDeg = (2 * Mth.PI / count) * i + spacingDeg;
             float endDeg = (2 * Mth.PI / count) * (i + 1) - spacingDeg;
-            if (startDeg < theta && theta < endDeg && 50 < distance && distance < 100) {
-                drawFan(bufferbuilder, pMatrix, 25, 105, startDeg, endDeg, 0xf0FFB100);
+            boolean hovered = startDeg < theta && theta < endDeg && 50 < distance && distance < 100;
+            if (hovered) {
                 isSelected = true;
                 this.selectId = i;
+            }
+            if (hovered && i < extraAnimationMap.size()) {
+                drawFan(bufferbuilder, pMatrix, 25, 105, startDeg, endDeg, 0xf0FFB100);
             } else {
                 drawFan(bufferbuilder, pMatrix, 25, 105, startDeg, endDeg, 0x90000000);
             }

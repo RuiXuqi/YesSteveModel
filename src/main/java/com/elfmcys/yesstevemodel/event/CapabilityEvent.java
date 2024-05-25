@@ -98,6 +98,7 @@ public final class CapabilityEvent {
         if (event.getEntity() instanceof ServerPlayer serverPlayer
                 && NetworkHandler.isPlayerChannelPresent(serverPlayer)) {
             getModelInfoCap(serverPlayer).ifPresent(modelInfoCap -> {
+                modelInfoCap.stopAnimation();
                 NetworkHandler.sendToClientPlayer(new SyncModelInfo(serverPlayer.getId(), modelInfoCap), serverPlayer);
             });
 

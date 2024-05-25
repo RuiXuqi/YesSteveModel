@@ -315,7 +315,7 @@
   "message.yes_steve_model.model.sync.complete": "§6§l【§aYSM§6§l】§e成功同步模型至玩家，耗时：%.2fms",
   "message.yes_steve_model.model.set.success": "§6§l[§aYSM§6§l] §r已将玩家 '%2$s' 的模型设置为 '%1$s'",
   "message.yes_steve_model.model.set.need_auth": "§6§l[§aYSM§6§l] §r无法将玩家 '%2$s' 的模型设置为 '%1$s'，缺少权限",
-  "message.yes_steve_model.model.animation_roulette.play": "§6§l【§aYSM§6§l】§r播放“extra%d”动画",
+  "message.yes_steve_model.model.animation_roulette.play": "§6§l【§aYSM§6§l】§r播放“%s”动画",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §r动画调试模式启用",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §r动画调试模式关闭",
   "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[调试] %s",

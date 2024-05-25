@@ -72,15 +72,13 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
     }
 
     public void playAnimation(String animationName) {
-        this.animationName = animationName;
-        this.isPlayingAnimation = true;
-        this.isAnimationDirty = true;
-    }
-
-    public void playExtraAnimation(int index) {
-        this.animationName = animationName;
-        this.isPlayingAnimation = true;
-        this.isAnimationDirty = true;
+        if (ClientModelManager.getPlayerAnimation(getModelId(), animationName).isPresent()) {
+            this.animationName = animationName;
+            this.isPlayingAnimation = true;
+            this.isAnimationDirty = true;
+        } else {
+            this.isPlayingAnimation = false;
+        }
     }
 
     public boolean isAnimationDirty() {
