@@ -134,11 +134,11 @@
 			"loop": true,
 			"bones": {
 				"Root": {
-					"rotation": [0, 0, 0]
+					"rotation": [0, -90, -115],
+					"position": [15, 30.5, 11]
 				},
 				"AllBody": {
-					"rotation": [0, -90, -115],
-					"position": [-1, -4.5, 6]
+					"rotation": [0, 0, 0]
 				},
 				"UpBody": {
 					"rotation": [50, 0, 0],
@@ -193,6 +193,9 @@
 				"clothe": {
 					"rotation": [-37.5, 0, 0],
 					"scale": [1.065, 1, 1]
+				},
+				"bone": {
+					"position": [-6, 19, 13]
 				}
 			}
 		}
