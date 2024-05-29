@@ -1,10 +1,15 @@
 package com.elfmcys.yesstevemodel.client.compat;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.client.data.PBRTextureType;
+import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.irisshaders.iris.api.v0.IrisApi;
+import net.irisshaders.iris.texture.pbr.loader.PBRTextureLoader;
+import net.irisshaders.iris.texture.pbr.loader.PBRTextureLoaderRegistry;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.irisshaders.iris.vertices.IrisVertexFormats;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.fml.ModList;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
@@ -27,9 +32,11 @@ public class IrisCompat {
                 if (mod.getModInfo().getVersion().compareTo(new DefaultArtifactVersion("1.7.0")) >= 0) {
                     ENTITY_FORMAT = IrisVertexFormats.ENTITY;
                     ENTITY_ID_GETTER = IrisCompat::getEntityId;
+                    PBRLoader.register();
                 } else {
                     ENTITY_FORMAT = net.coderbot.iris.vertices.IrisVertexFormats.ENTITY;
                     ENTITY_ID_GETTER = IrisCompat::getEntityIdLegacy;
+                    LegacyPBRLoader.register();
                 }
                 ENTITY_ID_GETTER.getAsLong();
                 isRenderingShadow();
@@ -67,5 +74,51 @@ public class IrisCompat {
 
     public static void setupState() {
         ENTITY_ID = ENTITY_ID_GETTER.getAsLong();
+    }
+
+    private static class LegacyPBRLoader implements net.coderbot.iris.texture.pbr.loader.PBRTextureLoader<NativeTexture> {
+        private static final LegacyPBRLoader INSTANCE = new LegacyPBRLoader();
+
+        private LegacyPBRLoader() {
+        }
+
+        @Override
+        public void load(NativeTexture texture, ResourceManager resourceManager, PBRTextureConsumer pbrTextureConsumer) {
+            var normalTexture = texture.getPBRTextures().get(PBRTextureType.NORMAL);
+            if (normalTexture != null) {
+                pbrTextureConsumer.acceptNormalTexture(normalTexture);
+            }
+            var specularTexture = texture.getPBRTextures().get(PBRTextureType.SPECULAR);
+            if (specularTexture != null) {
+                pbrTextureConsumer.acceptSpecularTexture(specularTexture);
+            }
+        }
+
+        public static void register() {
+            net.coderbot.iris.texture.pbr.loader.PBRTextureLoaderRegistry.INSTANCE.register(NativeTexture.class, INSTANCE);
+        }
+    }
+
+    private static class PBRLoader implements PBRTextureLoader<NativeTexture> {
+        private static final PBRLoader INSTANCE = new PBRLoader();
+
+        private PBRLoader(){
+        }
+
+        @Override
+        public void load(NativeTexture texture, ResourceManager resourceManager, PBRTextureConsumer pbrTextureConsumer) {
+            var normalTexture = texture.getPBRTextures().get(PBRTextureType.NORMAL);
+            if (normalTexture != null) {
+                pbrTextureConsumer.acceptNormalTexture(normalTexture);
+            }
+            var specularTexture = texture.getPBRTextures().get(PBRTextureType.SPECULAR);
+            if (specularTexture != null) {
+                pbrTextureConsumer.acceptSpecularTexture(specularTexture);
+            }
+        }
+
+        public static void register() {
+            PBRTextureLoaderRegistry.INSTANCE.register(NativeTexture.class, INSTANCE);
+        }
     }
 }

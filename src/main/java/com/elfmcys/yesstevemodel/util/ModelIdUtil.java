@@ -10,7 +10,7 @@ public final class ModelIdUtil {
     public static final ResourceLocation DEFAULT_TEXTURE_ID = new ResourceLocation(YesSteveModel.MOD_ID, "default/0");
     public static final String ARROW_TEXTURE_NAME_PLACEHOLDER = "/ARROW\\";
 
-    public static ResourceLocation getTextureId(String hash) {
+    public static ResourceLocation getArrowTextureId(String hash) {
         return new ResourceLocation(YesSteveModel.MOD_ID, hash + "/arrow");
     }
 

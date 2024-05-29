@@ -95,7 +95,7 @@ public class ClientModelBuilder {
             animationMap.putAll(animationFile.animations());
         }
 
-        var texture = ModelIdUtil.getTextureId(data.info().hash());
+        var texture = ModelIdUtil.getArrowTextureId(data.info().hash());
 
         return new ProjectileModel(model, Object2ReferenceMaps.unmodifiable(animationMap), texture);
     }

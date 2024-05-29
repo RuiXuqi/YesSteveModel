@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.data;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
@@ -44,9 +45,16 @@ public class ClientModelSyncResult {
     @SuppressWarnings("unused")
     public void removeModel(final ClientModelData data) {
         var textureMap = ClientModelBuilder.buildTextureMap(data, false);
-        removedTextures.addAll(textureMap.values());
+        textureMap.forEach((key, value) -> removeTextureSet(value, data.textures().get(key)));
         if (data.textures().containsKey(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER)) {
-            removedTextures.add(ModelIdUtil.getTextureId(data.info().hash()));
+            removeTextureSet(ModelIdUtil.getArrowTextureId(data.info().hash()), data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER));
+        }
+    }
+
+    private void removeTextureSet(ResourceLocation id, NativeTexture uv) {
+        removedTextures.add(id);
+        for (var type : uv.getPBRTextures().keySet()) {
+            removedTextures.add(type.getId(id));
         }
     }
 
@@ -77,16 +85,23 @@ public class ClientModelSyncResult {
     private void registerModelTextures(ClientModelData data, ClientModel model) {
         Minecraft.getInstance().execute(() -> {
             for (final var entry : model.textures().entrySet()) {
-                var texture = data.textures().get(entry.getKey());
-                tryRegisterTexture(entry.getValue(), texture);
+                var textures = data.textures().get(entry.getKey());
+                registerTextureSet(entry.getValue(), textures);
             }
             for (final var entry : model.projectileModels().entrySet()) {
                 if (entry.getKey() == ProjectileType.ARROW) {
                     var texture = data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER);
-                    tryRegisterTexture(entry.getValue().texture(), texture);
+                    registerTextureSet(entry.getValue().texture(), texture);
                 }
             }
         });
+    }
+
+    private void registerTextureSet(ResourceLocation uvId, NativeTexture uvTexture) {
+        tryRegisterTexture(uvId, uvTexture);
+        for (var entry : uvTexture.getPBRTextures().entrySet()) {
+            tryRegisterTexture(entry.getKey().getId(uvId), entry.getValue());
+        }
     }
 
     private void tryRegisterTexture(ResourceLocation id, AbstractTexture texture) {
