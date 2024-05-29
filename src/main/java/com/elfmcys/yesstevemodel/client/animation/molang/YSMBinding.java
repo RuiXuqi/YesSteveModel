@@ -2,8 +2,9 @@ package com.elfmcys.yesstevemodel.client.animation.molang;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.*;
-import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
-import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.client.animation.molang.variable.FirstPersonModHideVariable;
+import com.elfmcys.yesstevemodel.client.animation.molang.variable.LadderFacingVariable;
+import com.elfmcys.yesstevemodel.client.animation.molang.variable.TextureNameVariable;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
@@ -11,7 +12,6 @@ import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -55,7 +55,7 @@ public class YSMBinding extends ContextBinding {
         entityVar("is_sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);
         entityVar("is_sneak", ctx -> ctx.entity().onGround() && ctx.entity().getPose() == Pose.CROUCHING);
         entityVar("biome_category", ctx -> getBiomeCategory(ctx.entity()));
-        entityVar("is_open_air", ctx-> isOpenAir(ctx.entity()));
+        entityVar("is_open_air", ctx -> isOpenAir(ctx.entity()));
 
         livingEntityVar("has_helmet", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.HEAD));
         livingEntityVar("has_chest_plate", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.CHEST));
@@ -69,31 +69,22 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
         livingEntityVar("is_close_eyes", ctx -> getEyeCloseState(ctx.animationEvent(), ctx.entity()));
         livingEntityVar("rendering_in_inventory", ctx -> RenderUtil.isRenderingEntitiesInInventory());
+        livingEntityVar("on_ladder", ctx -> ctx.entity().onClimbable());
+        livingEntityVar("ladder_facing", new LadderFacingVariable());
 
-        playerVar("texture_name", ctx -> {
-            if (ctx.geoInstance() instanceof CustomPlayerInstance instance) {
-                return instance.getTextureName();
-            } else {
-                return null;
-            }
-        });
+        playerVar("texture_name", new TextureNameVariable());
         playerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
         playerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
         playerVar("elytra_rot_z", ctx -> Math.toDegrees(ctx.entity().elytraRotZ));
-        playerVar("food_level", ctx -> ctx.entity().getFoodData().getFoodLevel());    // 之前默认值是 2
-        playerVar("first_person_mod_hide", ctx -> {
-            if (ctx.entity() instanceof LocalPlayer && FirstPersonCompat.isInstalled()) {
-                return FirstPersonCompat.shouldHideHead();
-            } else {
-                return false;
-            }
-        });
+        // 之前默认值是 2
+        playerVar("food_level", ctx -> ctx.entity().getFoodData().getFoodLevel());
+        playerVar("first_person_mod_hide", new FirstPersonModHideVariable());
 
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());
         abstractArrowVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));
         abstractArrowVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
-        abstractArrowVar("is_spectral_arrow", ctx-> ctx.entity() instanceof SpectralArrow);
+        abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
     }
 
     private static boolean getEyeCloseState(AnimationEvent<?> animationEvent, LivingEntity player) {
@@ -139,14 +130,12 @@ public class YSMBinding extends ContextBinding {
         if (context.entity() instanceof Arrow) {
             for (MobEffectInstance instance : ((ArrowEntityAccessor) context.entity()).getEffects()) {
                 ResourceLocation id = ForgeRegistries.MOB_EFFECTS.getKey(instance.getEffect());
-                context.debugPrint("Effect: display='%s' name='%s' lv=%s",
-                        instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier());
+                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier());
             }
         } else if (context.entity() instanceof LivingEntity) {
             for (MobEffectInstance instance : ((LivingEntity) context.entity()).getActiveEffects()) {
                 ResourceLocation id = ForgeRegistries.MOB_EFFECTS.getKey(instance.getEffect());
-                context.debugPrint("Effect: display='%s' name='%s' lv=%s",
-                        instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier());
+                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier());
             }
         }
 

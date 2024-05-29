@@ -13,24 +13,28 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
-import org.jetbrains.annotations.NotNull;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TInstance extends GeoInstance<?, ?>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<TInstance> {
     protected final List<GeoLayerRenderer<TInstance>> layerRenderers = new ObjectArrayList<>();
@@ -151,6 +155,18 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
         }
         if (autoSpineAttach) {
             ((LivingEntityAccessor) pEntityLiving).setFlag(4, false);
+        }
+
+        // 爬梯时，禁止旋转
+        if (pEntityLiving.onClimbable()) {
+            Optional<BlockPos> climbablePos = pEntityLiving.getLastClimbablePos();
+            if (climbablePos.isPresent()) {
+                BlockState blockState = pEntityLiving.level().getBlockState(climbablePos.get());
+                Optional<Direction> optionalValue = blockState.getOptionalValue(HorizontalDirectionalBlock.FACING);
+                if (optionalValue.isPresent()) {
+                    pRotationYaw = optionalValue.get().getOpposite().get2DDataValue() * 90;
+                }
+            }
         }
 
         super.setupRotations(pEntityLiving, pMatrixStack, pAgeInTicks, pRotationYaw, pPartialTicks);

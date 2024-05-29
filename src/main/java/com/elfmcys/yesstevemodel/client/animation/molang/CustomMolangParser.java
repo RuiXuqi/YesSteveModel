@@ -17,7 +17,7 @@ public class CustomMolangParser {
     // Native Access
     public static MolangParser rentInstance() {
         MolangParser parser = PARSER_POOL.poll();
-        if(parser == null) {
+        if (parser == null) {
             return createMolangParser();
         } else {
             return parser;
@@ -35,7 +35,7 @@ public class CustomMolangParser {
         try {
             return parser.parseExpressionUnsafe(expression);
         } finally {
-             returnInstance(parser);
+            returnInstance(parser);
         }
     }
 
