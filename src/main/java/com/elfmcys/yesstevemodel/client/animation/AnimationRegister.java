@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.world.entity.Pose;
@@ -23,6 +23,10 @@ public class AnimationRegister {
         register("climb", Priority.HIGHEST, (player, event) -> player.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) > MIN_SPEED);
         register("climbing", Priority.HIGHEST, (player, event) -> player.getPose() == Pose.SWIMMING);
 
+        register("ladder_up", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) > 0);
+        register("ladder_stillness", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) == 0);
+        register("ladder_down", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) < 0);
+
         register("ride_pig", Priority.HIGH, (player, event) -> player.getVehicle() instanceof Pig);
         register("ride", Priority.HIGH, (player, event) -> player.getVehicle() instanceof Saddleable);
         register("boat", Priority.HIGH, (player, event) -> player.getVehicle() instanceof Boat);
@@ -34,7 +38,7 @@ public class AnimationRegister {
         register("fly", Priority.HIGH, (player, event) -> player.getAbilities().flying);
         register("elytra_fly", Priority.HIGH, (player, event) -> player.getPose() == Pose.FALL_FLYING && player.isFallFlying());
 
-        register("swim_stand", Priority.NORMAL, (player, event) -> player.isInWater());
+        register("swim_stand", Priority.NORMAL, (player, event) -> player.isInWater() && !player.onGround());
         register("attacked", ILoopType.EDefaultLoopTypes.PLAY_ONCE, Priority.NORMAL, (player, event) -> player.hurtTime > 0);
         register("jump", Priority.NORMAL, (player, event) -> !player.onGround() && !player.isInWater());
         register("sneak", Priority.NORMAL, (player, event) -> player.onGround() && player.getPose() == Pose.CROUCHING && Math.abs(event.getLimbSwingAmount()) > MIN_SPEED);
@@ -53,5 +57,9 @@ public class AnimationRegister {
 
     private static void register(String animationName, int priority, BiPredicate<Player, AnimationEvent<CustomPlayerEntity>> predicate) {
         register(animationName, ILoopType.EDefaultLoopTypes.LOOP, priority, predicate);
+    }
+
+    private static float getVerticalSpeed(Player player) {
+        return 20 * (float) (player.position().y - player.yo);
     }
 }
