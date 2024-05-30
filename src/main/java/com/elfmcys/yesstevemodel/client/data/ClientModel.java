@@ -17,20 +17,17 @@ public class ClientModel {
 
     private final FifoHashMap<String, ResourceLocation> textures;
 
-    private final Map<String, ResourceLocation> authorAvatars;
-
     private final Map<ProjectileType, ProjectileModel> projectileModels;
 
     private final ModelInfo modelInfo;
 
     private final ClientModelInfo clientModelInfo;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, FifoHashMap<String, ResourceLocation> textures, Map<String, ResourceLocation> authorAvatars, Map<ProjectileType, ProjectileModel> projectileModels, ModelInfo modelInfo, ClientModelInfo clientModelInfo) {
+    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, FifoHashMap<String, ResourceLocation> textures, Map<ProjectileType, ProjectileModel> projectileModels, ModelInfo modelInfo, ClientModelInfo clientModelInfo) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
         this.textures = textures;
-        this.authorAvatars = authorAvatars;
         this.projectileModels = projectileModels;
         this.modelInfo = modelInfo;
         this.clientModelInfo = clientModelInfo;
@@ -50,10 +47,6 @@ public class ClientModel {
 
     public FifoHashMap<String, ResourceLocation> textures() {
         return textures;
-    }
-
-    public Map<String, ResourceLocation> authorAvatars() {
-        return authorAvatars;
     }
 
     public Map<ProjectileType, ProjectileModel> projectileModels() {

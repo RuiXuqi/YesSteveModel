@@ -89,7 +89,7 @@ public class ClientModelSyncResult {
                 var textures = data.textures().get(entry.getKey());
                 registerTextureSet(entry.getValue(), textures);
             }
-            for (final var entry : model.authorAvatars().entrySet()) {
+            for (final var entry : model.clientModelInfo().authorAvatars().entrySet()) {
                 var texture = data.authorAvatars().get(entry.getKey());
                 tryRegisterTexture(entry.getValue(), texture);
             }

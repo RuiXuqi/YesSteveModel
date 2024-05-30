@@ -41,9 +41,9 @@ public class ClientModelBuilder {
         var projectileModels = buildProjectileModels(data, isDefault);
 
         var displayInfo = buildDisplayInfo(data);
-        var info = new ClientModelInfo(displayInfo, isNeedAuth);
+        var info = new ClientModelInfo(displayInfo, isNeedAuth, authorAvatars);
 
-        var model = new ClientModel(mainModel, armModel, animations, textures, authorAvatars, projectileModels, data.info(), info);
+        var model = new ClientModel(mainModel, armModel, animations, textures, projectileModels, data.info(), info);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
