@@ -6,13 +6,15 @@ import com.elfmcys.yesstevemodel.util.FifoHashMap;
 public class ModelAuthor {
     private final String name;
     private final String role;
+    private final String avatar;
     private final FifoHashMap<String, String> contact;
     private final String comment;
 
     // Native Access
-    public ModelAuthor(String name, String role, FifoHashMap<String, String> contact, String comment) {
+    public ModelAuthor(String name, String role, String avatar, FifoHashMap<String, String> contact, String comment) {
         this.name = name;
         this.role = role;
+        this.avatar = avatar;
         this.contact = contact;
         this.comment = comment;
     }
@@ -23,6 +25,10 @@ public class ModelAuthor {
 
     public String role() {
         return role;
+    }
+
+    public String avatar() {
+        return avatar;
     }
 
     public FifoHashMap<String, String> contact() {
