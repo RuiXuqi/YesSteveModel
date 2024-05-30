@@ -6,9 +6,7 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -38,13 +36,14 @@ public class ClientModelBuilder {
         GeoModel armModel = data.geoModels().get(MODEL_ARM_INDEX);
         var animations = buildAnimationMap(data, isDefault);
         var textures = buildTextureMap(data, isDefault);
+        var authorAvatars = buildAuthorAvatarMap(data);
 
         var projectileModels = buildProjectileModels(data, isDefault);
 
         var displayInfo = buildDisplayInfo(data);
         var info = new ClientModelInfo(displayInfo, isNeedAuth);
 
-        var model = new ClientModel(mainModel, armModel, animations, textures, projectileModels, data.info(), info);
+        var model = new ClientModel(mainModel, armModel, animations, textures, authorAvatars, projectileModels, data.info(), info);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
@@ -111,6 +110,19 @@ public class ClientModelBuilder {
             map.put(entry.getKey(), id);
         }
         return new FifoHashMap<>(map);
+    }
+
+    public static Map<String, ResourceLocation> buildAuthorAvatarMap(ClientModelData data) {
+        Object2ObjectOpenHashMap<String, ResourceLocation> map = new Object2ObjectOpenHashMap<>();
+        if (data.info().metadata() != null) {
+            int counter = 0;
+            for (var author : data.info().metadata().authors()) {
+                if (data.authorAvatars().containsKey(author.name())) {
+                    map.put(author.name(), new ResourceLocation(YesSteveModel.MOD_ID, data.info().hash() + "/author/" + counter++));
+                }
+            }
+        }
+        return Object2ObjectMaps.unmodifiable(map);
     }
 
     private static List<Component> buildDisplayInfo(ClientModelData data) {

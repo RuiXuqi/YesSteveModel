@@ -49,6 +49,7 @@ public class ClientModelSyncResult {
         if (data.textures().containsKey(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER)) {
             removeTextureSet(ModelIdUtil.getArrowTextureId(data.info().hash()), data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER));
         }
+        removedTextures.addAll(ClientModelBuilder.buildAuthorAvatarMap(data).values());
     }
 
     private void removeTextureSet(ResourceLocation id, NativeTexture uv) {
@@ -87,6 +88,10 @@ public class ClientModelSyncResult {
             for (final var entry : model.textures().entrySet()) {
                 var textures = data.textures().get(entry.getKey());
                 registerTextureSet(entry.getValue(), textures);
+            }
+            for (final var entry : model.authorAvatars().entrySet()) {
+                var texture = data.authorAvatars().get(entry.getKey());
+                tryRegisterTexture(entry.getValue(), texture);
             }
             for (final var entry : model.projectileModels().entrySet()) {
                 if (entry.getKey() == ProjectileType.ARROW) {
