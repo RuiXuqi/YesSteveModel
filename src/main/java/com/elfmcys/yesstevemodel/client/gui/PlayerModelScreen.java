@@ -6,7 +6,10 @@ import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.gui.button.*;
+import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
+import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
+import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
+import com.elfmcys.yesstevemodel.client.gui.button.StarButton;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -119,7 +122,16 @@ public class PlayerModelScreen extends Screen {
         textField.moveCursorToEnd();
         this.addWidget(this.textField);
 
-        addRenderableWidget(new TextureCountButton(x + 5, y + 5));
+        addRenderableWidget(new FlatIconButton(x + 5, y + 5, 20, 20, 80, 16, b -> {
+            if (Minecraft.getInstance().player != null) {
+                LocalPlayer player = Minecraft.getInstance().player;
+                player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                    ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                        Minecraft.getInstance().setScreen(new ModelInfoScreen(this, model));
+                    });
+                });
+            }
+        })).setTooltips("gui.yes_steve_model.model.info");
         addRenderableWidget(new FlatIconButton(x + 28, y + 5, 79, 20, 32, 16, (b) -> {
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;

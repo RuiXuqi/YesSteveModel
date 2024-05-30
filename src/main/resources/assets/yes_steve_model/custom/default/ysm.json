@@ -9,21 +9,37 @@
     "authors": [
       {
         "name": "哥斯拉",
-        "role": "模型"
+        "role": "模型",
+        "avatar": "avatar/gsl.png",
+        "comment": "落日无边江不尽，此身此日更须忙"
       },
       {
         "name": "端木",
-        "role": "模型"
+        "role": "动画",
+        "avatar": "avatar/dm.png",
+        "comment": "全欺芳蕙晚，似妒寒梅疾"
       },
       {
         "name": "甜粽子",
-        "role": "动画"
+        "role": "动画",
+        "avatar": "avatar/tzz.png",
+        "comment": "今日乐相乐，别后莫相忘"
       },
       {
         "name": "星屑海螺",
-        "role": "动画"
+        "role": "动画",
+        "avatar": "avatar/hl.png",
+        "contact": {
+          "qq": "1234",
+          "email": ""
+        },
+        "comment": "青春活泼的心，决不作悲哀的留滞"
       }
-    ]
+    ],
+    "link": {
+      "home": "https://www.baidu.com",
+      "donate": "https://www.baidu.com"
+    }
   },
   "properties": {
     "height_scale": 0.7,
