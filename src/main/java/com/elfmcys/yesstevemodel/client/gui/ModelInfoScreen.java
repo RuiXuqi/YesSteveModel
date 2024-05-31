@@ -13,6 +13,7 @@ import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class ModelInfoScreen extends Screen {
     private final PlayerModelScreen parent;
     private final ClientModel model;
     private final ModelInfo modelInfo;
+    private int startAuthorIndex = 0;
     private int x;
     private int y;
 
@@ -43,23 +45,31 @@ public class ModelInfoScreen extends Screen {
         if (metadata == null) {
             return;
         }
+        List<ModelAuthor> authors = metadata.authors();
+        if (authors.size() <= startAuthorIndex) {
+            startAuthorIndex = 0;
+        }
 
         for (int i = 0; i < 5; i++) {
-            List<ModelAuthor> authors = metadata.authors();
-            if (i >= authors.size()) {
+            int index = startAuthorIndex + i;
+            if (index >= authors.size()) {
                 for (; i < 5; i++) {
                     addRenderableWidget(AuthorButton.empty(this.x + 25 + 75 * i, this.y + 15));
                 }
                 continue;
             }
-            ModelAuthor author = authors.get(i);
+            ModelAuthor author = authors.get(index);
             ResourceLocation avatar = model.clientModelInfo().authorAvatars().getOrDefault(author.name(), DEFAULT_AVATAR);
             addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, avatar));
         }
 
         addRenderableWidget(new FlatColorButton(x + 2, y + 25, 18, 100, Component.literal("<"), (b) -> {
+            startAuthorIndex = Math.max(0, startAuthorIndex - 5);
+            this.init();
         }).setTooltips("gui.yes_steve_model.pre_page"));
         addRenderableWidget(new FlatColorButton(x + 25 + 75 * 5, y + 25, 18, 100, Component.literal(">"), (b) -> {
+            startAuthorIndex = startAuthorIndex + 5;
+            this.init();
         }).setTooltips("gui.yes_steve_model.next_page"));
         addRenderableWidget(new FlatColorButton(this.x + 310, this.y + 150, 85, 20, Component.translatable("gui.yes_steve_model.url.home"), (b) -> {
             openUrl(metadata.links().get("home"));
@@ -92,9 +102,20 @@ public class ModelInfoScreen extends Screen {
         ModelMetadata metadata = this.modelInfo.metadata();
         if (metadata != null) {
             String tips = metadata.tips();
-            graphics.drawWordWrap(font, Component.literal(tips), this.x + 30, this.y + 155, 270, 0xFFFFFF);
+            List<FormattedCharSequence> splitDesc = font.split(Component.literal(tips), 270);
+            int offset = 0;
+            for (FormattedCharSequence desc : splitDesc) {
+                graphics.drawString(font, desc, this.x + 30, this.y + 154 + offset, 0xFFFFFFFF);
+                offset += font.lineHeight;
+                if (offset > font.lineHeight * 7) {
+                    break;
+                }
+            }
         }
         super.render(graphics, mouseX, mouseY, partialTick);
+
+        this.renderables.stream().filter(r -> r instanceof AuthorButton)
+                .forEach(r -> ((AuthorButton) r).renderToolTip(graphics, this, mouseX, mouseY));
     }
 
     @Override
