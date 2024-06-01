@@ -112,6 +112,10 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        // Add jitpack to repositories
+        url 'https://jitpack.io'
+    }
 }
 
 dependencies {
@@ -127,6 +131,10 @@ dependencies {
     implementation fg.deobf("curse.maven:caelus-308989:${caelus_id}")
     implementation fg.deobf("curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}")
     implementation fg.deobf("curse.maven:elytra-slot-317716:${elytra_slot_id}")
+
+    // Apache Commons Math 库，TACZ 需要
+    minecraftLibrary 'org.apache.commons:commons-math3:3.6.1'
+    implementation "com.github.MCModderAnchor:TACZ:${tacz_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
