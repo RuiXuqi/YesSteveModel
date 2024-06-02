@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.api.IPlayerExtraInfo;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
+import com.elfmcys.yesstevemodel.client.compat.TacGunRenderer;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
@@ -18,10 +19,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 public final class AnimationManager {
+    public final static String TACZ_ID = "tacz";
     private static AnimationManager MANAGER;
     @SuppressWarnings("unchecked")
     private final ReferenceArrayList<AnimationState>[] data = new ReferenceArrayList[Priority.LOWEST + 1];
@@ -99,6 +102,9 @@ public final class AnimationManager {
                 if (state.getPredicate().test(player, event)) {
                     String animationName = state.getAnimationName();
                     ILoopType loopType = state.getLoopType();
+                    if (ModList.get().isLoaded(TACZ_ID) && TacGunRenderer.isGun(player.getMainHandItem())) {
+                        return TacGunRenderer.playGunMainAnimation(event, animationName, loopType);
+                    }
                     return playAnimation(event, animationName, loopType);
                 }
             }
@@ -143,6 +149,9 @@ public final class AnimationManager {
         }
         if (!player.swinging && !player.isUsingItem()) {
             ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+            if (ModList.get().isLoaded(TACZ_ID) && TacGunRenderer.isGun(mainHandItem)) {
+                return TacGunRenderer.playGunHoldAnimation(event, mainHandItem);
+            }
             if (mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(mainHandItem)) {
                 return playAnimation(event, "hold_mainhand:charged_crossbow", ILoopType.EDefaultLoopTypes.LOOP);
             }
