@@ -1,6 +1,8 @@
-package com.elfmcys.yesstevemodel.client.compat;
+package com.elfmcys.yesstevemodel.client.compat.tacz;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
@@ -24,28 +26,31 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Optional;
 
-public class TacGunRenderer {
-    public static boolean isGun(ItemStack itemStack) {
+class TacCompatInner {
+    static boolean isGun(ItemStack itemStack) {
         return itemStack.getItem() instanceof IGun;
     }
 
-    public static boolean isGrenade(ItemStack itemStack) {
+    static boolean isGrenade(ItemStack itemStack) {
         // TODO 手雷还没有
         return false;
     }
 
-    public static void renderOffhandGun(ItemStack heldItem, GeoModelState geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
+    static void renderOffhandGun(ItemStack heldItem, GeoModelState geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return;
@@ -90,7 +95,8 @@ public class TacGunRenderer {
         });
     }
 
-    public static PlayState playGrenadeAnimation(AnimationEvent<CustomPlayerEntity> event, InteractionHand hand) {
+    static PlayState playGrenadeAnimation(AnimationEvent<CustomPlayerEntity> event, InteractionHand hand) {
+        // TODO 手雷还没有
         if (hand == InteractionHand.MAIN_HAND) {
             return playLoopAnimation(event, "tac:mainhand:grenade");
         }
@@ -102,7 +108,7 @@ public class TacGunRenderer {
      * tac:run
      * tac:walk
      */
-    public static PlayState playGunMainAnimation(AnimationEvent<CustomPlayerEntity> event, String animationName, ILoopType loopType) {
+    static PlayState playGunMainAnimation(AnimationEvent<CustomPlayerEntity> event, String animationName, ILoopType loopType) {
         String tacName = "tac:" + animationName;
         String modelId = event.getAnimatable().getModelId();
         Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, tacName);
@@ -120,7 +126,7 @@ public class TacGunRenderer {
      * tac:hold_shoot:pistol
      * tac:run:pistol
      */
-    public static PlayState playGunHoldAnimation(AnimationEvent<CustomPlayerEntity> event, ItemStack heldItem) {
+    static PlayState playGunHoldAnimation(AnimationEvent<CustomPlayerEntity> event, ItemStack heldItem) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return PlayState.STOP;
@@ -172,7 +178,7 @@ public class TacGunRenderer {
         }
     }
 
-    public static void openFlashShellRender(LivingEntity livingEntity) {
+    static void openFlashShellRender(LivingEntity livingEntity) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (livingEntity.equals(player)) {
             MuzzleFlashRender.isSelf = true;
@@ -180,13 +186,31 @@ public class TacGunRenderer {
         }
     }
 
-    public static void stopFlashShellRender() {
+    static void stopFlashShellRender() {
         MuzzleFlashRender.isSelf = false;
         ShellRender.isSelf = false;
     }
 
+    @Nullable
+    static ResourceLocation getGunId(ItemStack itemInHand) {
+        IGun iGun = IGun.getIGunOrNull(itemInHand);
+        if (iGun == null) {
+            return null;
+        }
+        return iGun.getGunId(itemInHand);
+    }
+
     @NotNull
     private static PlayState getGunTypeAnimation(AnimationEvent<CustomPlayerEntity> event, String weaponType, String prefix) {
+        String modelId = event.getAnimatable().getModelId();
+        ConditionTAC conditionTAC = ConditionManager.getTAC(modelId);
+        if (conditionTAC != null) {
+            ItemStack stack = event.getAnimatable().getEntity().getMainHandItem();
+            String name = conditionTAC.doTest(stack, prefix);
+            if (StringUtils.isNoneBlank(name)) {
+                return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+            }
+        }
         if (isType(weaponType, GunTabType.PISTOL)) {
             return playLoopAnimation(event, prefix + "pistol");
         }

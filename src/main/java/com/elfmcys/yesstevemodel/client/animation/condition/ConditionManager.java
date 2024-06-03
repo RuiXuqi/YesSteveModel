@@ -15,6 +15,7 @@ public class ConditionManager {
     private final Map<String, ConditionalHold> holdMainHand = Maps.newHashMap();
     private final Map<String, ConditionalHold> holdOffHand = Maps.newHashMap();
     private final Map<String, ConditionArmor> amor = Maps.newHashMap();
+    private final Map<String, ConditionTAC> tac = Maps.newHashMap();
 
     public void addTest(String modelId, String name) {
         ConditionalSwing conditionalSwing = swing.computeIfAbsent(modelId, id -> new ConditionalSwing(InteractionHand.MAIN_HAND));
@@ -24,6 +25,7 @@ public class ConditionManager {
         ConditionalHold conditionalHoldMainhand = holdMainHand.computeIfAbsent(modelId, id -> new ConditionalHold(InteractionHand.MAIN_HAND));
         ConditionalHold conditionalHoldOffhand = holdOffHand.computeIfAbsent(modelId, id -> new ConditionalHold(InteractionHand.OFF_HAND));
         ConditionArmor conditionArmor = amor.computeIfAbsent(modelId, id -> new ConditionArmor());
+        ConditionTAC conditionTAC = tac.computeIfAbsent(modelId, id -> new ConditionTAC());
 
         conditionalSwing.addTest(name);
         conditionalSwingOffhand.addTest(name);
@@ -32,6 +34,7 @@ public class ConditionManager {
         conditionalHoldMainhand.addTest(name);
         conditionalHoldOffhand.addTest(name);
         conditionArmor.addTest(name);
+        conditionTAC.addTest(name);
     }
 
     public static void setInstance(ConditionManager instance) {
@@ -64,5 +67,9 @@ public class ConditionManager {
 
     public static ConditionArmor getArmor(String modelId) {
         return INSTANCE.amor.get(modelId);
+    }
+
+    public static ConditionTAC getTAC(String modelId) {
+        return INSTANCE.tac.get(modelId);
     }
 }

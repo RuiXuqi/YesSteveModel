@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.*;
+import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerScreen;
 import com.elfmcys.yesstevemodel.client.input.*;
@@ -25,6 +26,7 @@ public class ClientSetupEvent {
         OptifineCompat.init();
         CosmeticArmorCompat.init();
         ElytraSlotCompat.init();
+        TACZCompat.init();
         initCoreClient();
     }
 
@@ -45,7 +47,7 @@ public class ClientSetupEvent {
 
     private static void initCoreClient() {
         Component error = (Component) nInitCoreClient();
-        if(error != null) {
+        if (error != null) {
             throw new RuntimeException("YSM Client Initialization Failed: " + error.getString(99));
         }
     }

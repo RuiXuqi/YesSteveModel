@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
-import com.elfmcys.yesstevemodel.client.compat.TacGunRenderer;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeRender;
+import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
@@ -16,9 +16,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.ModList;
-
-import static com.elfmcys.yesstevemodel.client.animation.AnimationManager.TACZ_ID;
 
 public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerInstance> {
     private final ItemInHandRenderer itemInHandRenderer;
@@ -42,13 +39,9 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
                 if (SlashBladeCompat.isSlashBladeItem(mainHandItem)) {
                     SlashBladeRender.renderMainhandSlashBlade(entityLivingBaseIn, geoModel, poseStack, bufferIn, packedLightIn, mainHandItem, partialTicks);
                 } else {
-                    if (ModList.get().isLoaded(TACZ_ID) && TacGunRenderer.isGun(mainHandItem)) {
-                        TacGunRenderer.openFlashShellRender(entityLivingBaseIn);
-                    }
+                    TACZCompat.openFlashShellRender(entityLivingBaseIn, mainHandItem);
                     this.renderArmWithItem(geoModel, entityLivingBaseIn, mainHandItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, poseStack, bufferIn, packedLightIn);
-                    if (ModList.get().isLoaded(TACZ_ID) && TacGunRenderer.isGun(mainHandItem)) {
-                        TacGunRenderer.stopFlashShellRender();
-                    }
+                    TACZCompat.stopFlashShellRender(mainHandItem);
                 }
             }
             if (!geoModel.leftHandBones().isEmpty()) {
@@ -59,12 +52,8 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
                 }
             }
             poseStack.popPose();
-
-            if (ModList.get().isLoaded(TACZ_ID) && TacGunRenderer.isGun(offhandItem)) {
-                poseStack.pushPose();
-                TacGunRenderer.renderOffhandGun(offhandItem, geoModel, entityLivingBaseIn, poseStack, packedLightIn, partialTicks);
-                poseStack.popPose();
-            }
+            // TACZ 副手枪械渲染
+            TACZCompat.renderOffsetHand(offhandItem, geoModel, entityLivingBaseIn, poseStack, packedLightIn, partialTicks);
         }
     }
 
