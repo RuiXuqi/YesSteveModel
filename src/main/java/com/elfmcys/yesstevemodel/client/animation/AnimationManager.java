@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.api.IPlayerExtraInfo;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
+import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
@@ -14,13 +15,18 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Saddleable;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -99,6 +105,13 @@ public final class AnimationManager {
             return PlayState.STOP;
         }
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {
+            // 载具动画单独检查
+            if (i == Priority.HIGH) {
+                PlayState vehicleAnimation = getVehicleAnimation(event);
+                if (vehicleAnimation != null) {
+                    return vehicleAnimation;
+                }
+            }
             for (AnimationState state : data[i]) {
                 if (state.getPredicate().test(player, event)) {
                     String animationName = state.getAnimationName();
@@ -268,6 +281,62 @@ public final class AnimationManager {
         String defaultName = slot.getName() + ":default";
         if (ClientModelManager.getPlayerAnimation(modelId, defaultName).isPresent()) {
             return playAnimation(event, defaultName, ILoopType.EDefaultLoopTypes.LOOP);
+        }
+        return PlayState.STOP;
+    }
+
+    @Nullable
+    public PlayState getVehicleAnimation(AnimationEvent<CustomPlayerEntity> event) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+            return null;
+        }
+        Entity vehicle = player.getVehicle();
+        if (vehicle == null || !vehicle.isAlive()) {
+            return null;
+        }
+        String id = event.getAnimatable().getModelId();
+        ConditionalVehicle vehicleCondition = ConditionManager.getVehicle(id);
+        if (vehicleCondition != null) {
+            String name = vehicleCondition.doTest(player);
+            if (StringUtils.isNoneBlank(name)) {
+                return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+            }
+        }
+
+        // 兼容旧版本的几个动画
+        if (vehicle instanceof Pig) {
+            return playAnimation(event, "ride_pig", ILoopType.EDefaultLoopTypes.LOOP);
+        }
+        if (vehicle instanceof Saddleable) {
+            return playAnimation(event, "ride", ILoopType.EDefaultLoopTypes.LOOP);
+        }
+        if (vehicle instanceof Boat) {
+            return playAnimation(event, "boat", ILoopType.EDefaultLoopTypes.LOOP);
+        }
+        if (CarryOnCompat.isCarryOnLoaded() && CarryOnCompat.isCarryOnPrincess(player, event)) {
+            return playAnimation(event, "carryon:princess", ILoopType.EDefaultLoopTypes.LOOP);
+        }
+        return playAnimation(event, "sit", ILoopType.EDefaultLoopTypes.LOOP);
+    }
+
+    public PlayState predicatePassengerAnimation(AnimationEvent<CustomPlayerEntity> event) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+            return PlayState.STOP;
+        }
+        Entity passenger = player.getFirstPassenger();
+        if (passenger == null || !passenger.isAlive()) {
+            return PlayState.STOP;
+        }
+
+        String id = event.getAnimatable().getModelId();
+        ConditionalPassenger conditionalPassenger = ConditionManager.getPassenger(id);
+        if (conditionalPassenger != null) {
+            String name = conditionalPassenger.doTest(player);
+            if (StringUtils.isNoneBlank(name)) {
+                return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+            }
         }
         return PlayState.STOP;
     }

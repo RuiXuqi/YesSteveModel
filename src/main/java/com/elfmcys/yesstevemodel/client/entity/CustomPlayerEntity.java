@@ -79,6 +79,7 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         if (CarryOnCompat.isCarryOnLoaded()) {
             data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2, CarryOnCompat::predicateCarryOn));
         }
+        data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2, manager::predicatePassengerAnimation));
         data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, manager::predicateCap));
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);

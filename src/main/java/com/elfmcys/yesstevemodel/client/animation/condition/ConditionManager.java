@@ -16,6 +16,8 @@ public class ConditionManager {
     private final Map<String, ConditionalHold> holdOffHand = Maps.newHashMap();
     private final Map<String, ConditionArmor> amor = Maps.newHashMap();
     private final Map<String, ConditionTAC> tac = Maps.newHashMap();
+    private final Map<String, ConditionalVehicle> vehicle = Maps.newHashMap();
+    private final Map<String, ConditionalPassenger> passenger = Maps.newHashMap();
 
     public void addTest(String modelId, String name) {
         ConditionalSwing conditionalSwing = swing.computeIfAbsent(modelId, id -> new ConditionalSwing(InteractionHand.MAIN_HAND));
@@ -26,6 +28,8 @@ public class ConditionManager {
         ConditionalHold conditionalHoldOffhand = holdOffHand.computeIfAbsent(modelId, id -> new ConditionalHold(InteractionHand.OFF_HAND));
         ConditionArmor conditionArmor = amor.computeIfAbsent(modelId, id -> new ConditionArmor());
         ConditionTAC conditionTAC = tac.computeIfAbsent(modelId, id -> new ConditionTAC());
+        ConditionalVehicle conditionVehicle = vehicle.computeIfAbsent(modelId, id -> new ConditionalVehicle());
+        ConditionalPassenger conditionPassenger = passenger.computeIfAbsent(modelId, id -> new ConditionalPassenger());
 
         conditionalSwing.addTest(name);
         conditionalSwingOffhand.addTest(name);
@@ -35,6 +39,8 @@ public class ConditionManager {
         conditionalHoldOffhand.addTest(name);
         conditionArmor.addTest(name);
         conditionTAC.addTest(name);
+        conditionVehicle.addTest(name);
+        conditionPassenger.addTest(name);
     }
 
     public static void setInstance(ConditionManager instance) {
@@ -71,5 +77,13 @@ public class ConditionManager {
 
     public static ConditionTAC getTAC(String modelId) {
         return INSTANCE.tac.get(modelId);
+    }
+
+    public static ConditionalVehicle getVehicle(String modelId) {
+        return INSTANCE.vehicle.get(modelId);
+    }
+
+    public static ConditionalPassenger getPassenger(String modelId) {
+        return INSTANCE.passenger.get(modelId);
     }
 }
