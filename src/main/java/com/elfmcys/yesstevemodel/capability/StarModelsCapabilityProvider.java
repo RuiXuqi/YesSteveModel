@@ -18,10 +18,7 @@ public class StarModelsCapabilityProvider implements ICapabilitySerializable<Lis
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == STAR_MODELS_CAP) {
-            return LazyOptional.of(this::createCapability).cast();
-        }
-        return LazyOptional.empty();
+        return STAR_MODELS_CAP.orEmpty(cap, LazyOptional.of(this::createCapability));
     }
 
     @NotNull

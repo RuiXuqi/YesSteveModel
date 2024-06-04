@@ -17,11 +17,7 @@ public class ArrowModelInfoCapabilityProvider implements ICapabilitySerializable
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CAP) {
-            return LazyOptional.of(this::createCapability).cast();
-        } else {
-            return LazyOptional.empty();
-        }
+        return CAP.orEmpty(cap, LazyOptional.of(this::createCapability));
     }
 
     @NotNull

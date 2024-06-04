@@ -18,10 +18,7 @@ public class ModelInfoCapabilityProvider implements ICapabilitySerializable<Comp
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == MODEL_INFO_CAP) {
-            return LazyOptional.of(this::createCapability).cast();
-        }
-        return LazyOptional.empty();
+        return MODEL_INFO_CAP.orEmpty(cap, LazyOptional.of(this::createCapability));
     }
 
     @NotNull

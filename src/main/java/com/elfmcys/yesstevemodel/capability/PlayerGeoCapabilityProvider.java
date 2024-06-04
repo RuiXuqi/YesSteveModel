@@ -33,11 +33,7 @@ public class PlayerGeoCapabilityProvider implements ICapabilityProvider {
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-        if(cap == CAP) {
-            return LazyOptional.of(this::createCapability).cast();
-        } else {
-            return LazyOptional.empty();
-        }
+        return CAP.orEmpty(cap, LazyOptional.of(this::createCapability));
     }
 
     @NotNull
