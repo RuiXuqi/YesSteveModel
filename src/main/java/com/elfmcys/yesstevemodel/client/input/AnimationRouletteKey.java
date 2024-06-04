@@ -26,12 +26,18 @@ public class AnimationRouletteKey {
 
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
-        if (ANIMATION_ROULETTE_KEY.isDown() && DisableSwitch.CAN_SWITCH) {
+        if (event.getAction() == GLFW.GLFW_PRESS && ANIMATION_ROULETTE_KEY.matches(event.getKey(), event.getScanCode()) && DisableSwitch.CAN_SWITCH) {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                     var model = ClientModelManager.getModels().get(cap.getModelId());
                     if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
-                        Minecraft.getInstance().setScreen(new AnimationRouletteScreen(model.modelInfo().properties().extraAnimationOrderMap()));
+                        if (Minecraft.getInstance().screen == null) {
+                            Minecraft.getInstance().setScreen(new AnimationRouletteScreen(model.modelInfo().properties().extraAnimationOrderMap()));
+                            return;
+                        }
+                        if (Minecraft.getInstance().screen instanceof AnimationRouletteScreen) {
+                            Minecraft.getInstance().setScreen(null);
+                        }
                     }
                 });
             }

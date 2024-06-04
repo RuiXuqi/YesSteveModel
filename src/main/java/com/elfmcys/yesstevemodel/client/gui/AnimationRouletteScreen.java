@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.joml.Matrix4f;
 
 public class AnimationRouletteScreen extends Screen {
+    private static int PAGE = 0;
     private int x;
     private int y;
     private int selectId = -1;
@@ -38,29 +39,50 @@ public class AnimationRouletteScreen extends Screen {
     protected void init() {
         this.x = width / 2;
         this.y = height / 2 - 8;
+        if (this.extraAnimationMap.size() < (PAGE * 8 + 1)) {
+            PAGE = 0;
+        }
+        if (this.extraAnimationMap.size() <= this.selectId) {
+            this.selectId = 0;
+        }
     }
 
     @Override
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         drawRoulette(graphics.pose(), pMouseX, pMouseY);
         drawRouletteText(graphics);
+        graphics.fill(this.x - 15, this.y - 10, this.x + 15, this.y + 10, 0, 0xCF000000);
+        graphics.drawCenteredString(font, String.format("%d/%d", PAGE + 1, (this.extraAnimationMap.size() - 1) / 8 + 1), this.x, this.y - 4, ChatFormatting.AQUA.getColor());
+    }
+
+    @Override
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double scroll) {
+        if (scroll > 0) {
+            if (this.extraAnimationMap.size() > (PAGE * 8 + 8)) {
+                PAGE++;
+            }
+            return true;
+        }
+        if (scroll < 0) {
+            PAGE = Math.max(0, PAGE - 1);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        if (-1 < selectId && selectId < 8 && minecraft != null) {
-            if (selectId < extraAnimationMap.size()) {
-                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                if (NetworkHandler.isRemoteChannelPresent()) {
-                    NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId));
-                } else if (Minecraft.getInstance().player != null) {
-                    Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                        cap.playAnimation(extraAnimationMap.getKeyAt(selectId));
-                    });
-                }
-                if (minecraft.player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
-                    minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", extraAnimationMap.getKeyAt(selectId)));
-                }
+        if (-1 < selectId && selectId < extraAnimationMap.size() && minecraft != null) {
+            minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            if (NetworkHandler.isRemoteChannelPresent()) {
+                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId));
+            } else if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                    cap.playAnimation(extraAnimationMap.getKeyAt(selectId));
+                });
+            }
+            if (minecraft.player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
+                minecraft.player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.animation_roulette.play", extraAnimationMap.getKeyAt(selectId)));
             }
             minecraft.setScreen(null);
         }
@@ -75,22 +97,26 @@ public class AnimationRouletteScreen extends Screen {
     private void drawRouletteText(GuiGraphics graphics) {
         int count = 8;
         float startDeg = Mth.PI / count;
-        for (int i = 0; i < Math.min(8, extraAnimationMap.size()); i++) {
+        for (int i = 0; i < Math.min(8, extraAnimationMap.size() - PAGE * 8); i++) {
             int r = 65;
-            MutableComponent keyText = Component.literal("[ ").withStyle(ChatFormatting.YELLOW);
-            KeyMapping keyMapping = ExtraAnimationKey.EXTRA_ANIMATION_KEYS.get(i);
-            if (keyMapping.getKey() == InputConstants.UNKNOWN) {
-                keyText.append(Component.translatable("key.yes_steve_model.extra_animation.none"));
+            int index = i + PAGE * 8;
+            if (StringUtils.isNoneBlank(extraAnimationMap.getValueAt(index))) {
+                graphics.drawCenteredString(font, Component.literal(extraAnimationMap.getValueAt(index)), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
             } else {
-                keyText.append(keyMapping.getTranslatedKeyMessage());
+                graphics.drawCenteredString(font, String.valueOf(index), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
             }
-            keyText.append(" ]");
-            if (StringUtils.isNoneBlank(extraAnimationMap.getValueAt(i))) {
-                graphics.drawCenteredString(font, Component.literal(extraAnimationMap.getValueAt(i)), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
-            } else {
-                graphics.drawCenteredString(font, String.valueOf(i), (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 - 8), 0xF3EFE0);
+            // 只有第 0 页显示按键绑定
+            if (PAGE == 0) {
+                MutableComponent keyText = Component.literal("[ ").withStyle(ChatFormatting.YELLOW);
+                KeyMapping keyMapping = ExtraAnimationKey.EXTRA_ANIMATION_KEYS.get(index);
+                if (keyMapping.getKey() == InputConstants.UNKNOWN) {
+                    keyText.append(Component.translatable("key.yes_steve_model.extra_animation.none"));
+                } else {
+                    keyText.append(keyMapping.getTranslatedKeyMessage());
+                }
+                keyText.append(" ]");
+                graphics.drawCenteredString(font, keyText, (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 + 4), 0xF3EFE0);
             }
-            graphics.drawCenteredString(font, keyText, (int) (x + r * Mth.cos(startDeg)), (int) (y + r * Mth.sin(startDeg) - font.lineHeight / 2 + 4), 0xF3EFE0);
             startDeg = startDeg + 2 * Mth.PI / count;
         }
     }
@@ -111,14 +137,14 @@ public class AnimationRouletteScreen extends Screen {
         }
         float distance = Mth.sqrt(Mth.square(mouseY - y) + Mth.square(mouseX - x));
         boolean isSelected = false;
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < Math.min(8, extraAnimationMap.size() - PAGE * 8); i++) {
             float spacingDeg = Mth.PI / 90;
             float startDeg = (2 * Mth.PI / count) * i + spacingDeg;
             float endDeg = (2 * Mth.PI / count) * (i + 1) - spacingDeg;
             boolean hovered = startDeg < theta && theta < endDeg && 50 < distance && distance < 100;
             if (hovered) {
                 isSelected = true;
-                this.selectId = i;
+                this.selectId = i + PAGE * 8;
             }
             if (hovered && i < extraAnimationMap.size()) {
                 drawFan(bufferbuilder, pMatrix, 25, 105, startDeg, endDeg, 0xf0FFB100);
