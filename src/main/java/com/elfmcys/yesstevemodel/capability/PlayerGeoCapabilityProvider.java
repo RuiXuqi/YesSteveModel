@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class PlayerGeoCapabilityProvider implements ICapabilityProvider {
     public static Capability<PlayerGeoCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
     });
-    private LazyOptional<PlayerGeoCapability> holder;
+    private PlayerGeoCapability instance;
     private AbstractClientPlayer player;
 
     public PlayerGeoCapabilityProvider(AbstractClientPlayer player) {
@@ -33,14 +33,19 @@ public class PlayerGeoCapabilityProvider implements ICapabilityProvider {
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-        if(cap != CAP) {
+        if(cap == CAP) {
+            return LazyOptional.of(this::createCapability).cast();
+        } else {
             return LazyOptional.empty();
         }
-        if(holder == null) {
-            final PlayerGeoCapability instance = new PlayerGeoCapability(player);
-            this.holder = LazyOptional.of(() -> instance);
+    }
+
+    @NotNull
+    private PlayerGeoCapability createCapability() {
+        if (instance == null) {
+            this.instance = new PlayerGeoCapability(player);
             player = null;
         }
-        return this.holder.cast();
+        return instance;
     }
 }

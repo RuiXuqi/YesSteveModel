@@ -22,10 +22,19 @@ public class ArrowGeoCapabilityProvider implements ICapabilityProvider {
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == CAP) {
+            return LazyOptional.of(this::createCapability).cast();
+        } else {
+            return LazyOptional.empty();
+        }
+    }
+
+    @NotNull
+    private ArrowGeoCapability createCapability() {
         if (instance == null) {
-            instance = new ArrowGeoCapability(arrow);
+            this.instance = new ArrowGeoCapability(arrow);
             arrow = null;
         }
-        return LazyOptional.of(() -> instance).cast();
+        return instance;
     }
 }
