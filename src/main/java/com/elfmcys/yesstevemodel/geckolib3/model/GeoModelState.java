@@ -4,9 +4,9 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import it.unimi.dsi.fastutil.objects.*;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +31,10 @@ public class GeoModelState {
     private final List<IBone> leftWaistBones;
     @NotNull
     private final List<IBone> rightWaistBones;
+    @NotNull
+    private final List<IBone> leftShoulderBones;
+    @NotNull
+    private final List<IBone> rightShoulderBones;
     @Nullable
     private final IBone firstPersonHead;
     @Nullable
@@ -55,6 +59,8 @@ public class GeoModelState {
         tacRifleBones = findBones(model.tacRifleBones);
         leftWaistBones = findBones(model.leftWaistBones);
         rightWaistBones = findBones(model.rightWaistBones);
+        leftShoulderBones = findBones(model.leftShoulderBones);
+        rightShoulderBones = findBones(model.rightShoulderBones);
         firstPersonHead = boneMap.get("AllHead");
         firstPersonViewLocator = boneMap.get("ViewLocator");
     }
@@ -113,6 +119,16 @@ public class GeoModelState {
     @NotNull
     public List<IBone> rightWaistBones() {
         return rightWaistBones;
+    }
+
+    @NotNull
+    public List<IBone> leftShoulderBones() {
+        return leftShoulderBones;
+    }
+
+    @NotNull
+    public List<IBone> rightShoulderBones() {
+        return rightShoulderBones;
     }
 
     @Nullable

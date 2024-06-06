@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerElytraLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerItemInHandLayer;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
@@ -25,7 +26,6 @@ import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +36,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
         super(ctx);
         addLayer(new CustomPlayerItemInHandLayer(ctx.getItemInHandRenderer()));
         addLayer(new CustomPlayerElytraLayer(ctx));
+        addLayer(new CustomParrotOnShoulderLayer(ctx));
     }
 
     @Override

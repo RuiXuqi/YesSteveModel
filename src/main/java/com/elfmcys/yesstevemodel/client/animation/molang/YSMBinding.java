@@ -14,12 +14,12 @@ import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.SpectralArrow;
 import net.minecraft.world.level.biome.Biome;
@@ -29,6 +29,7 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Comparator;
+import java.util.Locale;
 
 public class YSMBinding extends ContextBinding {
     public static final YSMBinding INSTANCE = new YSMBinding();
@@ -79,6 +80,10 @@ public class YSMBinding extends ContextBinding {
         // 之前默认值是 2
         playerVar("food_level", ctx -> ctx.entity().getFoodData().getFoodLevel());
         playerVar("first_person_mod_hide", new FirstPersonModHideVariable());
+        playerVar("has_left_shoulder_parrot", ctx -> hasParrot(ctx.entity(), true));
+        playerVar("has_right_shoulder_parrot", ctx -> hasParrot(ctx.entity(), false));
+        playerVar("left_shoulder_parrot_variant", ctx -> getParrotVariant(ctx.entity(), true));
+        playerVar("right_shoulder_parrot_variant", ctx -> getParrotVariant(ctx.entity(), false));
 
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());
@@ -168,5 +173,18 @@ public class YSMBinding extends ContextBinding {
             return false;
         }
         return true;
+    }
+
+    private static String getParrotVariant(Player player, boolean leftShoulder) {
+        CompoundTag shoulderTag = leftShoulder ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
+        return EntityType.byString(shoulderTag.getString("id"))
+                .filter(type -> type == EntityType.PARROT)
+                .map(type -> Parrot.Variant.byId(shoulderTag.getInt("Variant")).name().toLowerCase(Locale.ENGLISH))
+                .orElse("empty");
+    }
+
+    private static boolean hasParrot(Player player, boolean leftShoulder) {
+        CompoundTag shoulderTag = leftShoulder ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
+        return !shoulderTag.isEmpty();
     }
 }
