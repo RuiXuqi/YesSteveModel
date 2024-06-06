@@ -710,6 +710,16 @@
 					"rotation": [-30, 0, 0]
 				},
 				{
+					"name": "LeftShoulderLocator",
+					"parent": "UpperBody",
+					"pivot": [5.5, 23.5, 0]
+				},
+				{
+					"name": "RightShoulderLocator",
+					"parent": "UpperBody",
+					"pivot": [-5.5, 23.5, 0]
+				},
+				{
 					"name": "DownBody",
 					"parent": "AllBody",
 					"pivot": [-1.9, 12, 0]

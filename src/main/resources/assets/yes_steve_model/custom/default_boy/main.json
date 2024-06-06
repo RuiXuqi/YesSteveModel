@@ -330,6 +330,16 @@
 					]
 				},
 				{
+					"name": "LeftShoulderLocator",
+					"parent": "Head",
+					"pivot": [3, 41.5, 0]
+				},
+				{
+					"name": "RightShoulderLocator",
+					"parent": "Head",
+					"pivot": [-3, 41.5, 0]
+				},
+				{
 					"name": "Arm",
 					"parent": "UpBody",
 					"pivot": [0, 31.2, 0]
