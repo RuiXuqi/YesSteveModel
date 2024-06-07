@@ -207,7 +207,7 @@ public class PlayerModelScreen extends Screen {
                     var model = models.get(id);
                     instance.setModelAndTexture(id, model.defaultTextureName());
                     instance.getAnimatable().setPreviewAnimation(model.modelInfo().properties().previewAnimation());
-                    addRenderableWidget(new ModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth(), instance, model));
+                    addRenderableWidget(new ModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), instance, model));
                 });
             }
         }
