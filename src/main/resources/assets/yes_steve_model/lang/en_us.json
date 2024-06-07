@@ -344,7 +344,7 @@
   "error.yes_steve_model.file_too_large": "File size must be smaller then 32MB %s",
   "error.yes_steve_model.invalid_model_name": "Illegal model file name. It must be §c§nlowercase English characters, underscores or numbers",
   "error.yes_steve_model.invalid_texture_name": "Illegal texture file name. It must be §c§nlowercase English characters, underscores or numbers",
-  "error.yes_steve_model.parse_json": "Failed to parse json file",
+  "error.yes_steve_model.parse_json": "Failed to parse json file %s",
   "error.yes_steve_model.duplicated_model": "Duplicated model %s",
   "error.yes_steve_model.duplicated_model_name": "Duplicated model name %s",
   "error.yes_steve_model.reload_failed": "Reloading task failed.",

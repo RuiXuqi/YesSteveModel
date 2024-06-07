@@ -341,7 +341,7 @@
   "error.yes_steve_model.file_too_large": "文件不能大于 32MB %s",
   "error.yes_steve_model.invalid_model_name": "模型名称不合法，必须是§c§n小写英文字符、数字、下划线 %s",
   "error.yes_steve_model.invalid_texture_name": "材质文件名不合法，必须是§c§n小写英文字符、数字、下划线 %s",
-  "error.yes_steve_model.parse_json": "无法解析 JSON 文件",
+  "error.yes_steve_model.parse_json": "无法解析 JSON 文件 %s",
   "error.yes_steve_model.duplicated_model": "重复的模型 %s",
   "error.yes_steve_model.duplicated_model_name": "重复的模型名称 %s",
   "error.yes_steve_model.reload_failed": "重载模型失败",
