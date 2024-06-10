@@ -11,6 +11,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -51,6 +52,7 @@ public class YSMBinding extends ContextBinding {
         var("head_pitch", ctx -> ctx.data().headPitch);
         var("weather", ctx -> getWeather(ctx.level()));
         var("dimension_name", ctx -> ctx.level().dimension().location().toString());
+        var("fps", ctx -> Minecraft.getInstance().getFps());
 
         entityVar("is_passenger", ctx -> ctx.entity().isPassenger());
         entityVar("is_sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);
