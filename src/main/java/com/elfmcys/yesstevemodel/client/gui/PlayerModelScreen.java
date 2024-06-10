@@ -39,12 +39,13 @@ import java.util.Objects;
 public class PlayerModelScreen extends Screen {
     private static final GuiModelInstance[] MODEL_PREVIEW_INSTANCE = new GuiModelInstance[10];
 
+    private static int page = 0;
+
     private Map<String, ClientModel> models = Maps.newHashMap();
     private List<String> modelOrderList;
     private int maxPage;
     private EditBox textField;
     private Category category;
-    private int page;
     private int x;
     private int y;
 
@@ -106,6 +107,10 @@ public class PlayerModelScreen extends Screen {
         this.clearWidgets();
         this.calculateModelList();
 
+        if (page * 10 >= this.models.size()) {
+            page = 0;
+        }
+
         this.x = (width - 420) / 2;
         this.y = (height - 235) / 2;
 
@@ -147,21 +152,21 @@ public class PlayerModelScreen extends Screen {
         addRenderableWidget(new FlatIconButton(x + 328, y + 5, 18, 18, 32, 0, (b) -> {
             if (this.category != Category.ALL) {
                 this.category = Category.ALL;
-                this.page = 0;
+                page = 0;
                 this.init();
             }
         }).setTooltips("gui.yes_steve_model.all_models"));
         addRenderableWidget(new FlatIconButton(x + 308, y + 5, 18, 18, 48, 0, (b) -> {
             if (this.category != Category.AUTH) {
                 this.category = Category.AUTH;
-                this.page = 0;
+                page = 0;
                 this.init();
             }
         }).setTooltips("gui.yes_steve_model.auth_models"));
         addRenderableWidget(new FlatIconButton(x + 288, y + 5, 18, 18, 0, 0, (b) -> {
             if (this.category != Category.STAR) {
                 this.category = Category.STAR;
-                this.page = 0;
+                page = 0;
                 this.init();
             }
         }).setTooltips("gui.yes_steve_model.star_models"));
@@ -177,24 +182,24 @@ public class PlayerModelScreen extends Screen {
         }).setTooltips("gui.yes_steve_model.open_model_folder.open"));
 
         addRenderableWidget(new FlatColorButton(x + 198, y + 215, 52, 14, Component.translatable("gui.yes_steve_model.pre_page"), (b) -> {
-            if (this.page > 0) {
-                this.page--;
+            if (page > 0) {
+                page--;
                 this.init();
             }
         }));
         addRenderableWidget(new FlatColorButton(x + 308, y + 215, 52, 14, Component.translatable("gui.yes_steve_model.next_page"), (b) -> {
-            if (this.page < this.maxPage) {
-                this.page++;
+            if (page < this.maxPage) {
+                page++;
                 this.init();
             }
         }));
 
-        if (this.page > this.maxPage) {
-            this.page = 0;
+        if (page > this.maxPage) {
+            page = 0;
         }
 
         for (int i = 0; i < 10; i++) {
-            int modelIndex = i + this.page * 10;
+            int modelIndex = i + page * 10;
             if (modelIndex >= models.size()) {
                 break;
             }
@@ -295,7 +300,7 @@ public class PlayerModelScreen extends Screen {
         String perText = this.textField.getValue();
         if (this.textField.charTyped(codePoint, modifiers)) {
             if (!Objects.equals(perText, this.textField.getValue())) {
-                this.page = 0;
+                page = 0;
                 this.init();
             }
             return true;
@@ -315,7 +320,7 @@ public class PlayerModelScreen extends Screen {
         }
         if (this.textField.keyPressed(keyCode, scanCode, modifiers)) {
             if (!Objects.equals(preText, this.textField.getValue())) {
-                this.page = 0;
+                page = 0;
                 this.init();
             }
             return true;
@@ -359,13 +364,13 @@ public class PlayerModelScreen extends Screen {
     }
 
     private boolean scrollPage(double delta) {
-        if (delta > 0 && this.page > 0) {
-            this.page--;
+        if (delta > 0 && page > 0) {
+            page--;
             getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.init();
         }
-        if (delta < 0 && this.page < this.maxPage) {
-            this.page++;
+        if (delta < 0 && page < this.maxPage) {
+            page++;
             getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.init();
         }
