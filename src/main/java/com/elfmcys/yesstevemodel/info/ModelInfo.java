@@ -11,13 +11,15 @@ public class ModelInfo {
     @Nullable
     private final ModelMetadata metadata;
     private final ModelProperties properties;
+    private final ModelStats stats;
     private final Set<String> features;
     private final String hash;
 
     // Native Access
-    public ModelInfo(@Nullable ModelMetadata metadata, ModelProperties properties, String[] features, String hash) {
+    public ModelInfo(@Nullable ModelMetadata metadata, ModelProperties properties, ModelStats stats, String[] features, String hash) {
         this.metadata = metadata;
         this.properties = properties;
+        this.stats = stats;
         this.features = ObjectSets.unmodifiable(ObjectOpenHashSet.of(features));
         this.hash = hash;
     }
@@ -29,6 +31,10 @@ public class ModelInfo {
 
     public ModelProperties properties() {
         return properties;
+    }
+
+    public ModelStats stats() {
+        return stats;
     }
 
     public Set<String> features() {

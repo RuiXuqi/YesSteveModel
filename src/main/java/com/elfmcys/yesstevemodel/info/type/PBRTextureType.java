@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.data;
+package com.elfmcys.yesstevemodel.info.type;
 
 import net.minecraft.resources.ResourceLocation;
 

@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult;
 import com.elfmcys.yesstevemodel.client.data.ProjectileModel;
-import com.elfmcys.yesstevemodel.client.data.ProjectileType;
+import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.client.gui.ModelManageScreen;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;

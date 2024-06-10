@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.data;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
+import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;

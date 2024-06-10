@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.texture;
 
-import com.elfmcys.yesstevemodel.client.data.PBRTextureType;
+import com.elfmcys.yesstevemodel.info.type.PBRTextureType;
 import com.elfmcys.yesstevemodel.util.CleanerUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;

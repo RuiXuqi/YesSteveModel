@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.instance;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.data.ProjectileType;
+import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.client.entity.CustomArrowEntity;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.CustomArrowModel;
