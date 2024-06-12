@@ -46,7 +46,7 @@ public class GeneralConfig {
         DEFAULT_MODEL_ID = builder.define("DefaultModelId", "default");
 
         builder.comment("The default model texture when a player first enters the game");
-        DEFAULT_MODEL_TEXTURE = builder.define("DefaultModelTexture", "default.png");
+        DEFAULT_MODEL_TEXTURE = builder.define("DefaultModelTexture", "default");
 
         builder.comment("If rendering errors occur, try turning on this.");
         USE_COMPATIBILITY_RENDERER = builder.define("UseCompatibilityRenderer", false);

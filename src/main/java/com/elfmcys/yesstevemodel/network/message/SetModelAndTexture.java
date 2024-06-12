@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -57,8 +56,7 @@ public class SetModelAndTexture {
             if (!ServerModelManager.getModels().containsKey(modelId)
                     || (ServerModelManager.getAuthModels().contains(modelId) && !ownModelsCap.containModel(message.modelId))
                     || !ServerModelManager.getModels().get(modelId).textures().contains(message.selectTexture)) {
-                modelIdCap.resetVariables(modelIdCap.getInstanceId() + 1);
-                modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
+                modelIdCap.setDefault();
             } else {
                 modelIdCap.resetVariables(message.instanceId);
                 modelIdCap.setModelAndTexture(message.modelId, message.selectTexture);

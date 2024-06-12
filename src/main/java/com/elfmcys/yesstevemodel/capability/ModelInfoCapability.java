@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.capability;
 
+import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.message.SubmitVariableChanges;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
@@ -8,18 +9,32 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ModelInfoCapability {
-    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
-    private String selectTexture = ModelIdUtil.DEFAULT_TEXTURE_NAME;
+    private String modelId;
+    private String selectTexture;
     private String animation = "idle";
     private boolean playAnimation = false;
     private Object2FloatOpenHashMap<String> variables = new Object2FloatOpenHashMap<>();
     private int instanceId;
     private boolean dirty;
 
+    public ModelInfoCapability() {
+        var defaultModel = ServerModelManager.getDefaultModelAndTexture();
+        this.modelId = defaultModel.getLeft();
+        this.selectTexture = defaultModel.getRight();
+    }
+
     public void setModelAndTexture(String modelId, String selectTexture) {
+        if (!this.modelId.equals(modelId)) {
+            resetVariables(instanceId + 1);
+        }
         this.modelId = modelId;
         this.selectTexture = selectTexture;
         markDirty();
+    }
+
+    public void setDefault() {
+        var defaultModel = ServerModelManager.getDefaultModelAndTexture();
+        setModelAndTexture(defaultModel.getLeft(), defaultModel.getRight());
     }
 
     public void copyFrom(ModelInfoCapability source) {

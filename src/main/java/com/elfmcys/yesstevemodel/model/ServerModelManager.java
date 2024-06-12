@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.model;
 
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToClient;
@@ -16,6 +17,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -42,6 +44,10 @@ public final class ServerModelManager {
      * 放置授权模型名称
      */
     private static Set<String> AUTH_MODELS = Sets.newHashSet();
+    /**
+     * 首次重载是否完成
+     */
+    private static volatile boolean INIT = false;
 
     public static Optional<ServerModel> getModel(String modelId) {
         return Optional.ofNullable(MODELS.get(modelId));
@@ -90,6 +96,7 @@ public final class ServerModelManager {
     private static void reloadCommit(final ReloadModelResult result, @Nullable Object state) {
         final Consumer<ReloadModelResult> completeCallback = (Consumer<ReloadModelResult>) state;
         final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        INIT = true;
         if (server != null) {
             server.execute(() -> {
                 if (result.success()) {
@@ -154,6 +161,33 @@ public final class ServerModelManager {
         return true;
     }
 
+    public static Pair<String, String> getDefaultModelAndTexture() {
+        var modelId = GeneralConfig.DEFAULT_MODEL_ID.get();
+        var textureName = GeneralConfig.DEFAULT_MODEL_TEXTURE.get();
+        if (textureName.toLowerCase().endsWith(".png") && textureName.length() > 4) {
+            textureName = textureName.substring(0, textureName.length() - 4);
+        }
+
+        if (!INIT) {
+            return Pair.of(modelId, textureName);
+        }
+
+        var model = MODELS.get(modelId);
+        if (model == null) {
+            return Pair.of(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
+        }
+
+        if (!model.textures().contains(textureName)) {
+            if(model.textures().contains(model.info().properties().defaultTexture())) {
+                textureName = model.info().properties().defaultTexture();
+            } else {
+                textureName = model.textures().get(0);
+            }
+        }
+
+        return Pair.of(modelId, textureName);
+    }
+
     // Native Access: 在 worker 线程上调用
     @SuppressWarnings("unused,unchecked")
     private static void syncTaskComplete(final SyncModelResult result, final @Nullable Object state) {
@@ -181,7 +215,7 @@ public final class ServerModelManager {
                         if (!ServerModelManager.getModels().containsKey(modelId)
                                 || (AUTH_MODELS.contains(modelId) && !authModelCap.containModel(modelIdCap.getModelId()))
                                 || !MODELS.get(modelId).textures().contains(modelIdCap.getSelectTexture())) {
-                            modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
+                            modelIdCap.setDefault();
                         }
                     });
                 });

@@ -6,7 +6,6 @@ import com.elfmcys.yesstevemodel.event.CommandRegistry;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -78,7 +77,7 @@ public class AuthCommand {
             ownModelsCap.removeModel(modelId);
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
                 if (ServerModelManager.getAuthModels().contains(modelIdCap.getModelId()) && !ownModelsCap.containModel(modelIdCap.getModelId())) {
-                    modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
+                    modelIdCap.setDefault();
                 }
             });
             NetworkHandler.sendToClientPlayer(new SyncAuthModels(ownModelsCap.getAuthModels()), player);
@@ -93,7 +92,9 @@ public class AuthCommand {
         targets.forEach(player -> player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(ownModelCap -> {
             ownModelCap.clear();
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
-                modelIdCap.setModelAndTexture(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
+                if (ServerModelManager.getAuthModels().contains(modelIdCap.getModelId())) {
+                    modelIdCap.setDefault();
+                }
             });
             NetworkHandler.sendToClientPlayer(new SyncAuthModels(ownModelCap.getAuthModels()), player);
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.auth_model.clear.info",
