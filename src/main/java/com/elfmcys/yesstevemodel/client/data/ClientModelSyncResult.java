@@ -35,25 +35,40 @@ public class ClientModelSyncResult {
     public ClientModelSyncResult() {
     }
 
-    // Native Access: 同步结束后，commit 之前调用
+    // Native Access: 同步结束后调用
     @SuppressWarnings("unused")
     public void setResult(boolean success, @Nullable Object message) {
         this.success = true;
         this.message = (Component) message;
+        if (success) {
+            commit();
+        } else {
+            rollback();
+        }
     }
 
     // Native Access
     @SuppressWarnings("unused")
-    public void removeModel(final ClientModelData data) {
+    public void removeModel(final ClientModelData data, boolean immediate) {
         var textureMap = ClientModelBuilder.buildTextureMap(data, false);
-        textureMap.forEach((key, value) -> removeTextureSet(value, data.textures().get(key)));
+        List<ResourceLocation> removedTextures = Lists.newArrayList();
+        textureMap.forEach((key, value) -> removeTextureSet(removedTextures, value, data.textures().get(key)));
         if (data.textures().containsKey(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER)) {
-            removeTextureSet(ModelIdUtil.getArrowTextureId(data.info().hash()), data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER));
+            removeTextureSet(removedTextures, ModelIdUtil.getArrowTextureId(data.info().hash()), data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER));
         }
         removedTextures.addAll(ClientModelBuilder.buildAuthorAvatarMap(data).values());
+        if (immediate) {
+            Minecraft.getInstance().submit(() -> {
+                for (var id : removedTextures) {
+                    Minecraft.getInstance().getTextureManager().release(id);
+                }
+            });
+        } else {
+            this.removedTextures.addAll(removedTextures);
+        }
     }
 
-    private void removeTextureSet(ResourceLocation id, NativeTexture uv) {
+    private void removeTextureSet(List<ResourceLocation> removedTextures, ResourceLocation id, NativeTexture uv) {
         removedTextures.add(id);
         for (var type : uv.getPBRTextures().keySet()) {
             removedTextures.add(type.getId(id));
@@ -119,27 +134,24 @@ public class ClientModelSyncResult {
         }
     }
 
-    // Native Access: 同步结束后，commit 之前调用
     @SuppressWarnings("unused")
-    public void freeze() {
+    private void commit() {
         if (!models.containsKey("default") && ClientModelBuilder.getDefaultModel() != null) {
             ClientModelBuilder.getDefaultModel().animations().keySet().forEach(name -> conditionManager.addTest("default", name));
             models.put("default", ClientModelBuilder.getDefaultModel());
         }
         models = Object2ReferenceMaps.unmodifiable(models);
+        Minecraft.getInstance().submit(() -> {
+            for (ResourceLocation textureId : removedTextures) {
+                Minecraft.getInstance().getTextureManager().release(textureId);
+            }
+            removedTextures.clear();
+        });
     }
 
-    public void releaseRemovedTextures() {
-        for (ResourceLocation textureId : removedTextures) {
-            Minecraft.getInstance().getTextureManager().release(textureId);
-        }
-        removedTextures.clear();
-    }
-
-    // Native Access: 同步取消后调用
     @SuppressWarnings("unused")
-    public void rollback() {
-        Minecraft.getInstance().execute(() -> {
+    private void rollback() {
+        Minecraft.getInstance().submit(() -> {
             for (ResourceLocation textureId : newTextureIds) {
                 Minecraft.getInstance().getTextureManager().release(textureId);
             }

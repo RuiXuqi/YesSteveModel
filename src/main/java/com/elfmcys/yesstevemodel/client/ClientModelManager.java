@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult;
@@ -77,6 +78,7 @@ public class ClientModelManager {
         Minecraft.getInstance().execute(() -> {
             if (result.message != null && Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.sendSystemMessage(result.message);
+                YesSteveModel.LOGGER.error(result.message.getString(256));
             }
             if (!result.success) {
                 return;
@@ -86,7 +88,6 @@ public class ClientModelManager {
                 DEFAULT_MODEL = result.defaultModel;
             }
             ConditionManager.setInstance(result.conditionManager);
-            result.releaseRemovedTextures();
         });
     }
 
