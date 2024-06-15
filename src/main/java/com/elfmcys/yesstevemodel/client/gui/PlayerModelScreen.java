@@ -132,7 +132,9 @@ public class PlayerModelScreen extends Screen {
                 LocalPlayer player = Minecraft.getInstance().player;
                 player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                     ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
-                        Minecraft.getInstance().setScreen(new ModelInfoScreen(this, model));
+                        if (model.modelInfo().metadata() != null) {
+                            Minecraft.getInstance().setScreen(new ModelInfoScreen(this, model));
+                        }
                     });
                 });
             }

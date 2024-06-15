@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.elfmcys.yesstevemodel.info.ModelInfo;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -15,11 +16,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public class ModelInfoScreen extends Screen {
     private final static ResourceLocation DEFAULT_AVATAR = new ResourceLocation(YesSteveModel.MOD_ID, "texture/default_avatar.png");
+    private final static Map<String, Component> LINK_TYPE_PRESET = ImmutableMap.of(
+            "home", Component.translatable("gui.yes_steve_model.url.home"),
+            "donate", Component.translatable("gui.yes_steve_model.url.donate")
+    );
+
     private final PlayerModelScreen parent;
     private final ClientModel model;
     private final ModelInfo modelInfo;
@@ -71,19 +79,27 @@ public class ModelInfoScreen extends Screen {
             startAuthorIndex = startAuthorIndex + 5;
             this.init();
         }).setTooltips("gui.yes_steve_model.next_page"));
-        addRenderableWidget(new FlatColorButton(this.x + 310, this.y + 150, 85, 20, Component.translatable("gui.yes_steve_model.url.home"), (b) -> {
-            openUrl(metadata.links().get("home"));
-        }));
-        addRenderableWidget(new FlatColorButton(this.x + 310, this.y + 175, 85, 20, Component.translatable("gui.yes_steve_model.url.donate"), (b) -> {
-            openUrl(metadata.links().get("donate"));
-        }));
-        addRenderableWidget(new FlatColorButton(this.x + 310, this.y + 200, 85, 20, Component.translatable("gui.yes_steve_model.model.return"), (b) -> {
+
+        int y = this.y + 150;
+        for (var i = 0; i < Math.min(metadata.links().size(), 2); i++) {
+            var type = metadata.links().getKeyAt(i);
+            var value = metadata.links().getValueAt(i);
+
+            var displayText = LINK_TYPE_PRESET.get(type);
+            if (displayText == null) {
+                displayText = Component.literal(type);
+            }
+
+            addRenderableWidget(new FlatColorButton(this.x + 310, y, 85, 20, displayText, b -> openUrl(value)));
+            y += 25;
+        }
+        addRenderableWidget(new FlatColorButton(this.x + 310, y, 85, 20, Component.translatable("gui.yes_steve_model.model.return"), (b) -> {
             this.getMinecraft().setScreen(parent);
         }));
     }
 
-    private void openUrl(String homeUrl) {
-        if (StringUtils.isNoneBlank(homeUrl)) {
+    private void openUrl(@Nullable String homeUrl) {
+        if (homeUrl != null && StringUtils.isNoneBlank(homeUrl)) {
             this.getMinecraft().setScreen(new ConfirmLinkScreen(yes -> {
                 if (yes) {
                     Util.getPlatform().openUri(homeUrl);
