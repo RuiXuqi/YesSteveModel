@@ -58,6 +58,7 @@ minecraft {
 
     runs {
         configureEach {
+            jvmArgs "-XX:+IgnoreUnrecognizedVMOptions"
             jvmArgs "-XX:+AllowEnhancedClassRedefinition"
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
