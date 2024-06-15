@@ -438,5 +438,9 @@
   "molang.yes_steve_model.ysm.elytra_rot_y.desc": "Возвращает y вращение элитры сущности.",
   "molang.yes_steve_model.ysm.elytra_rot_z.desc": "Возвращает z вращение элитры сущности.",
   "molang.yes_steve_model.ysm.food_level.desc": "Возвращает уровень голода игрока.",
-  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "Возвращает 1.0, если установлен First Person Mod и голова игрока должна быть скрыта, иначе он возвращает 0.0"
+  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "Возвращает 1.0, если установлен First Person Mod и голова игрока должна быть скрыта, иначе он возвращает 0.0",
+  "gui.yes_steve_model.url.home": "Home Page",
+  "gui.yes_steve_model.url.donate": "Donate",
+  "gui.yes_steve_model.model.info": "Open Info GUI",
+  "commands.yes_steve_model.export.failure": "Failed to export model %s"
 }

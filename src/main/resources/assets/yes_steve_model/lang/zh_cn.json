@@ -363,6 +363,7 @@
   "commands.yes_steve_model.auth_model.all.info": "为玩家 '%s' 添加所有的模型",
   "commands.yes_steve_model.auth_model.clear.info": "移除玩家 '%s' 的所有模型",
   "commands.yes_steve_model.export.success": "§6§l[§aYSM§6§l] §e已保存为 §r'%s'",
+  "commands.yes_steve_model.export.failure": "模型导出失败 %s",
   "commands.yes_steve_model.export.not_exist": "§6§l[§aYSM§6§l] §r'%s' 不存在",
   "key.yes_steve_model.player_model.desc": "打开玩家模型界面",
   "key.yes_steve_model.animation_roulette.desc": "打开轮盘动画",
@@ -438,5 +439,8 @@
   "molang.yes_steve_model.ysm.elytra_rot_y.desc": "玩家鞘翅的 Y 旋转角度",
   "molang.yes_steve_model.ysm.elytra_rot_z.desc": "玩家鞘翅的 Z 旋转角度",
   "molang.yes_steve_model.ysm.food_level.desc": "返回玩家饥饿值",
-  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "当玩家安装 First Person Mod 且需要隐藏玩家头部时为 true，否者为 false"
+  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "当玩家安装 First Person Mod 且需要隐藏玩家头部时为 true，否者为 false",
+  "gui.yes_steve_model.url.home": "Home Page",
+  "gui.yes_steve_model.url.donate": "Donate",
+  "gui.yes_steve_model.model.info": "Open Info GUI"
 }
