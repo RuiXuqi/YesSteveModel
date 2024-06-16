@@ -13,7 +13,7 @@ public class ServerStartingEvent {
             // 虽然不太可能发生，但还是处理一下
             if (!result.success()) {
                 event.getServer().execute(() -> {
-                    throw new RuntimeException("YSM Loading Failed: " + result.message().getString(99));
+                    throw new RuntimeException("YSM Loading Failed: " + result.message().getString(256));
                 });
             }
         }, null);

@@ -33,7 +33,7 @@ public final class CommonEvent {
     private static void initCoreCommon() {
         Component error = (Component) nInitCoreCommon();
         if (error != null) {
-            throw new RuntimeException("YSM Initialization Failed: " + error.getString(99));
+            throw new RuntimeException("YSM Initialization Failed: " + error.getString(256));
         }
         Runtime.getRuntime().addShutdownHook(new Thread(CommonEvent::nShutdown));
     }
