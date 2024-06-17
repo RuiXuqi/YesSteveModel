@@ -68,8 +68,8 @@ public final class RenderUtil {
         player.yBodyRot = -yaw;
         player.setYRot(180);
         player.setXRot(0);
-        player.yHeadRot = player.getYRot();
-        player.yHeadRotO = player.getYRot();
+        player.yHeadRot = -yaw;
+        player.yHeadRotO = -yaw;
 
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
