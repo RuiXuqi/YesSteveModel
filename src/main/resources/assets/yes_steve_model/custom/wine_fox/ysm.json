@@ -1,10 +1,10 @@
 {
   "spec": 2,
   "metadata": {
-    "name": "Default",
-    "tips": "默认模型（Default Model）",
+    "name": "Wine Fox（酒狐）",
+    "tips": "A fox girl who loves to drink wine.\n一只爱喝葡萄酒的狐娘。",
     "license": {
-      "type": "CC 0"
+      "type": "CC BY-NC-SA 4.0"
     },
     "authors": [
       {
@@ -16,18 +16,6 @@
           "Bilibili": "https://space.bilibili.com/17798027"
         },
         "comment": "一个MC模型/YSM作者，想法很多，时间很少"
-      },
-      {
-        "name": "端木",
-        "role": "动画",
-        "avatar": "avatar/dm.png",
-        "comment": "永远都在ing"
-      },
-      {
-        "name": "甜粽子",
-        "role": "动画",
-        "avatar": "avatar/tzz.png",
-        "comment": "(ᗜˬᗜ)"
       },
       {
         "name": "星屑海螺",
@@ -46,20 +34,16 @@
     }
   },
   "properties": {
-    "height_scale": 0.7,
-    "width_scale": 0.7,
     "extra_animation": {
-      "extra0": "",
-      "extra1": "",
-      "extra2": "",
-      "extra3": "",
-      "extra4": "",
-      "extra5": "",
-      "extra6": "",
-      "extra7": ""
+      "extra0": "变身",
+      "extra1": "打招呼",
+      "extra2": "鼓掌",
+      "extra3": "是的",
+      "extra4": "不行",
+      "extra5": "卖萌",
+      "extra6": "御笔摇",
+      "extra7": "舞蹈"
     },
-    "preview_animation": "idle",
-    "default_texture": "default",
     "free": true
   },
   "files": {
@@ -76,13 +60,11 @@
         "carryon": "animations/carryon.animation.json"
       },
       "texture": [
-        "textures/default.png",
-        "textures/blue.png"
+        "textures/skin.png"
       ]
     },
     "arrow": {
       "model": "models/arrow.json",
-      "animation": "animations/arrow.animation.json",
       "texture": "textures/arrow.png"
     }
   }

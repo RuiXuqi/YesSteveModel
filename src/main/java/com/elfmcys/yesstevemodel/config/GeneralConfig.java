@@ -28,7 +28,7 @@ public class GeneralConfig {
         DISCLAIMER_SHOW = builder.define("DisclaimerShow", true);
 
         builder.comment("Whether to print animation roulette play message");
-        PRINT_ANIMATION_ROULETTE_MSG = builder.define("PrintAnimationRouletteMsg", true);
+        PRINT_ANIMATION_ROULETTE_MSG = builder.define("PrintAnimationRouletteMsg", false);
 
         builder.comment("Prevents rendering of self player's model");
         DISABLE_SELF_MODEL = builder.define("DisableSelfModel", false);
