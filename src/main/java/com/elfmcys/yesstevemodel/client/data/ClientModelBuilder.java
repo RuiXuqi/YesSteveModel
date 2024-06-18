@@ -3,12 +3,16 @@ package com.elfmcys.yesstevemodel.client.data;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.yesstevemodel.info.ModelStats;
+import com.elfmcys.yesstevemodel.info.stats.GeoModelStats;
+import com.elfmcys.yesstevemodel.info.stats.ModelTextureStats;
 import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
@@ -130,7 +134,7 @@ public class ClientModelBuilder {
         List<Component> component = Lists.newArrayList();
         var extraInfo = data.info().metadata();
         if (extraInfo != null) {
-            if(!StringUtils.isBlank(extraInfo.name())) {
+            if (!StringUtils.isBlank(extraInfo.name())) {
                 component.add(Component.literal(extraInfo.name()).withStyle(ChatFormatting.GOLD));
                 if (StringUtils.isNoneBlank(extraInfo.tips())) {
                     String[] split = extraInfo.tips().replace("\r", "").split("\n");
@@ -145,6 +149,17 @@ public class ClientModelBuilder {
                 }
             }
         }
+
+        ModelStats stats = data.info().stats();
+        if (stats != null) {
+            GeoModelStats modelStats = stats.playerModel();
+            Map<String, ModelTextureStats> textures = stats.textures();
+
+            component.add(CommonComponents.space());
+            component.add(Component.translatable("gui.yes_steve_model.model.main_model_info", modelStats.bones(), modelStats.cubes(), modelStats.faces()));
+            component.add(Component.translatable("gui.yes_steve_model.model.texture_info", textures.size()));
+        }
+
         return component;
     }
 

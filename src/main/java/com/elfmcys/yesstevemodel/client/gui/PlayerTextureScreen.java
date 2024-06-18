@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerTextureScreen extends Screen {
+    private static final String ANIMATION_ANNOTATIONS = "——";
+
     private static final float SCALE_MAX = 360f;
     private static final float SCALE_MIN = 18f;
     private static final float PITCH_MAX = 90f;
@@ -55,7 +58,7 @@ public class PlayerTextureScreen extends Screen {
     private boolean showGround = true;
 
     static {
-        for(int i = 0; i < TEXTURE_BUTTON_INSTANCE.length; i++) {
+        for (int i = 0; i < TEXTURE_BUTTON_INSTANCE.length; i++) {
             GuiModelInstance instance = new GuiModelInstance();
             instance.getAnimatable().setPreviewAnimation("idle");
             TEXTURE_BUTTON_INSTANCE[i] = instance;
@@ -68,6 +71,7 @@ public class PlayerTextureScreen extends Screen {
         this.modelId = modelId;
         this.textures = model.textures();
         this.animations = new ArrayList<>(model.animations().keySet());
+        this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
         this.animations.sort(String::compareTo);
         PREVIEW_INSTANCE.getAnimatable().setPlayer(Minecraft.getInstance().player);
         for (GuiModelInstance instance : TEXTURE_BUTTON_INSTANCE) {
@@ -141,9 +145,18 @@ public class PlayerTextureScreen extends Screen {
             int yStart = y + 27 + 17 * i;
             String key = String.format("gui.yes_steve_model.texture.button.%s", name.replaceAll("\\:", "."));
             String keyDesc = String.format("gui.yes_steve_model.texture.button.%s.desc", name.replaceAll("\\:", "."));
-            FlatColorButton sideButton = new FlatColorButton(x + 5, yStart, 80, 16, Component.translatable(key), b -> this.animation = name);
-            sideButton.setTooltips(Lists.newArrayList(Component.translatable(keyDesc).withStyle(ChatFormatting.GOLD),
-                    Component.translatable("gui.yes_steve_model.texture.button.animation_name", name).withStyle(ChatFormatting.GRAY)));
+
+            Component buttonName;
+            if (I18n.exists(key)) {
+                buttonName = Component.translatable(key);
+            } else {
+                buttonName = Component.literal(name);
+            }
+            FlatColorButton sideButton = new FlatColorButton(x + 5, yStart, 80, 16, buttonName, b -> this.animation = name);
+            if (I18n.exists(keyDesc)) {
+                sideButton.setTooltips(Lists.newArrayList(Component.translatable(keyDesc).withStyle(ChatFormatting.GOLD),
+                        Component.translatable("gui.yes_steve_model.texture.button.animation_name", name).withStyle(ChatFormatting.GRAY)));
+            }
             addRenderableWidget(sideButton);
         }
 

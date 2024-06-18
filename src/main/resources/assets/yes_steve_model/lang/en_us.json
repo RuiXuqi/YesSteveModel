@@ -13,6 +13,8 @@
   "gui.yes_steve_model.url.donate": "Donate",
   "gui.yes_steve_model.model.authors": "§2§l▌ §3Authors: %s",
   "gui.yes_steve_model.model.license": "§2§l▌ §3License: %s",
+  "gui.yes_steve_model.model.main_model_info": "§6§l➤ %d bones, %d cubes, %d faces",
+  "gui.yes_steve_model.model.texture_info": "§6§l➤ %d textures",
   "gui.yes_steve_model.model.texture": "Open Preview GUI",
   "gui.yes_steve_model.model.info": "Open Info GUI",
   "gui.yes_steve_model.model.star": "Star Current Model",
