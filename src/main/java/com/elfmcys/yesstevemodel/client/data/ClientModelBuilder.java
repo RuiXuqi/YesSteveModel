@@ -140,6 +140,9 @@ public class ClientModelBuilder {
                     String[] split = extraInfo.tips().replace("\r", "").split("\n");
                     Arrays.stream(split).forEach(s -> component.add(Component.literal(s).withStyle(ChatFormatting.GRAY)));
                 }
+                if (!extraInfo.authors().isEmpty() || StringUtils.isNoneBlank(extraInfo.license().type())) {
+                    component.add(CommonComponents.space());
+                }
                 if (!extraInfo.authors().isEmpty()) {
                     component.add(Component.translatable("gui.yes_steve_model.model.authors", StringUtils.join(
                             extraInfo.authors().stream().map(author -> author.role().isEmpty() ? author.name() : (author.role() + ": " + author.name())).toArray(String[]::new), "丨")));
