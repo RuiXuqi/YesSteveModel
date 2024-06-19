@@ -24,6 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
+import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -131,6 +132,10 @@ public interface ExpressionVisitor<R> {
      */
     default R visitExecutionScope(final @NotNull ExecutionScopeExpression expression) {
         return visit(expression);
+    }
+
+    default Function buildExecutionScopeFunction(final @NotNull ExecutionScopeExpression expression) {
+        throw new UnsupportedOperationException("Unsupported expression type: " + expression);
     }
 
     /**

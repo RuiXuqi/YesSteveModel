@@ -24,6 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
+import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -58,6 +59,10 @@ public final class ExecutionScopeExpression implements Expression {
     @Override
     public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitExecutionScope(this);
+    }
+
+    public Function buildFunction(final @NotNull ExpressionVisitor<?> visitor) {
+        return visitor.buildExecutionScopeFunction(this);
     }
 
     @Override
