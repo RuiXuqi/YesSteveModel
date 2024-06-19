@@ -8,6 +8,7 @@
   "gui.yes_steve_model.star_models": "Star Models",
   "gui.yes_steve_model.config": "Open Config GUI",
   "gui.yes_steve_model.download": "Open Download GUI",
+  "gui.yes_steve_model.roulette.tip": "Slide the mouse wheel to turn the page",
   "gui.yes_steve_model.search": "Search models...",
   "gui.yes_steve_model.url.home": "Home Page",
   "gui.yes_steve_model.url.donate": "Donate",

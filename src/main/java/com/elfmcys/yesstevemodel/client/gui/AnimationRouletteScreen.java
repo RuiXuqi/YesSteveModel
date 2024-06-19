@@ -45,10 +45,16 @@ public class AnimationRouletteScreen extends Screen {
         if (this.extraAnimationMap.size() <= this.selectId) {
             this.selectId = 0;
         }
+        if (this.extraAnimationMap.size() > 8) {
+            this.y = this.y + 12;
+        }
     }
 
     @Override
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        if (this.extraAnimationMap.size() > 8) {
+            graphics.drawCenteredString(font, Component.translatable("gui.yes_steve_model.roulette.tip"), this.x, 10, 0xFFFFFF);
+        }
         drawRoulette(graphics.pose(), pMouseX, pMouseY);
         drawRouletteText(graphics);
         graphics.fill(this.x - 15, this.y - 10, this.x + 15, this.y + 10, 0, 0xCF000000);
@@ -57,13 +63,13 @@ public class AnimationRouletteScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double scroll) {
-        if (scroll > 0) {
+        if (scroll < 0) {
             if (this.extraAnimationMap.size() > (PAGE * 8 + 8)) {
                 PAGE++;
             }
             return true;
         }
-        if (scroll < 0) {
+        if (scroll > 0) {
             PAGE = Math.max(0, PAGE - 1);
             return true;
         }

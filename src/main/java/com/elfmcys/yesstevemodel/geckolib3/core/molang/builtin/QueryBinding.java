@@ -48,8 +48,6 @@ public class QueryBinding extends ContextBinding {
         var("time_of_day", ctx -> MolangUtils.normalizeTime(ctx.level().getDayTime()));
         var("time_stamp", ctx -> ctx.level().getDayTime());
 
-        entityVar("body_x_rotation", ctx -> ctx.entity().getXRot());
-        entityVar("body_y_rotation", ctx -> Mth.wrapDegrees(ctx.entity().getYRot()));
         entityVar("yaw_speed", ctx -> getYawSpeed(ctx.entity()));
         entityVar("cardinal_facing_2d", ctx -> ctx.entity().getDirection().get3DDataValue());
         entityVar("distance_from_camera", ctx -> ctx.mc().gameRenderer.getMainCamera().getPosition().distanceTo(ctx.entity().position()));
@@ -71,6 +69,8 @@ public class QueryBinding extends ContextBinding {
         entityVar("is_sprinting", ctx -> ctx.entity().isSprinting());
         entityVar("is_swimming", ctx -> ctx.entity().isSwimming());
 
+        livingEntityVar("body_x_rotation", ctx -> ctx.entity().getXRot());
+        livingEntityVar("body_y_rotation", ctx -> Mth.wrapDegrees(ctx.entity().yBodyRot));
         livingEntityVar("health", ctx -> ctx.entity().getHealth());
         livingEntityVar("max_health", ctx -> ctx.entity().getMaxHealth());
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);

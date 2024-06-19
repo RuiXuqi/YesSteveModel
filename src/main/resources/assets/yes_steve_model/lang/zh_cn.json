@@ -444,5 +444,6 @@
   "gui.yes_steve_model.url.donate": "赞助",
   "gui.yes_steve_model.model.info": "打开详情界面",
   "gui.yes_steve_model.model.main_model_info": "§6§l➤ %d 骨骼, %d 方块, %d 面",
-  "gui.yes_steve_model.model.texture_info": "§6§l➤ %d 材质"
+  "gui.yes_steve_model.model.texture_info": "§6§l➤ %d 材质",
+  "gui.yes_steve_model.roulette.tip": "滑动鼠标滚轮进行翻页"
 }
