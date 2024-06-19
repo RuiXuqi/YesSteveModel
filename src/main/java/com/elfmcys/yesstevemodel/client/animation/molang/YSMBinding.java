@@ -19,12 +19,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.SpectralArrow;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -59,6 +61,9 @@ public class YSMBinding extends ContextBinding {
         entityVar("is_sneak", ctx -> ctx.entity().onGround() && ctx.entity().getPose() == Pose.CROUCHING);
         entityVar("biome_category", ctx -> getBiomeCategory(ctx.entity()));
         entityVar("is_open_air", ctx -> isOpenAir(ctx.entity()));
+        entityVar("eye_in_water", ctx -> ctx.entity().isUnderWater());
+        entityVar("frozen_ticks", ctx -> ctx.entity().getTicksFrozen());
+        entityVar("air_supply", ctx -> ctx.entity().getAirSupply());
 
         livingEntityVar("has_helmet", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.HEAD));
         livingEntityVar("has_chest_plate", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.CHEST));
@@ -74,6 +79,8 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("rendering_in_inventory", ctx -> RenderUtil.isRenderingEntitiesInInventory());
         livingEntityVar("on_ladder", ctx -> ctx.entity().onClimbable());
         livingEntityVar("ladder_facing", new LadderFacingVariable());
+        livingEntityVar("arrow_count", ctx -> ctx.entity().getArrowCount());
+        livingEntityVar("stinger_count", ctx -> ctx.entity().getStingerCount());
 
         playerVar("texture_name", new TextureNameVariable());
         playerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
@@ -86,6 +93,20 @@ public class YSMBinding extends ContextBinding {
         playerVar("has_right_shoulder_parrot", ctx -> hasParrot(ctx.entity(), false));
         playerVar("left_shoulder_parrot_variant", ctx -> getParrotVariant(ctx.entity(), true));
         playerVar("right_shoulder_parrot_variant", ctx -> getParrotVariant(ctx.entity(), false));
+
+        playerVar("attack_damage", ctx -> ctx.entity().getAttributeValue(Attributes.ATTACK_DAMAGE));
+        playerVar("attack_speed", ctx -> ctx.entity().getAttributeValue(Attributes.ATTACK_SPEED));
+        playerVar("attack_knockback", ctx -> ctx.entity().getAttributeValue(Attributes.ATTACK_KNOCKBACK));
+        playerVar("movement_speed", ctx -> ctx.entity().getAttributeValue(Attributes.MOVEMENT_SPEED));
+        playerVar("knockback_resistance", ctx -> ctx.entity().getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+        playerVar("luck", ctx -> ctx.entity().getAttributeValue(Attributes.LUCK));
+
+        playerVar("block_reach", ctx -> ctx.entity().getAttributeValue(ForgeMod.BLOCK_REACH.get()));
+        playerVar("entity_reach", ctx -> ctx.entity().getAttributeValue(ForgeMod.ENTITY_REACH.get()));
+        playerVar("swim_speed", ctx -> ctx.entity().getAttributeValue(ForgeMod.SWIM_SPEED.get()));
+        playerVar("entity_gravity", ctx -> ctx.entity().getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()));
+        playerVar("step_height_addition", ctx -> ctx.entity().getAttributeValue(ForgeMod.STEP_HEIGHT_ADDITION.get()));
+        playerVar("nametag_distance", ctx -> ctx.entity().getAttributeValue(ForgeMod.NAMETAG_DISTANCE.get()));
 
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());
