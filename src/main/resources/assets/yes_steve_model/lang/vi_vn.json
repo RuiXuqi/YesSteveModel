@@ -442,5 +442,7 @@
   "gui.yes_steve_model.url.home": "Home Page",
   "gui.yes_steve_model.url.donate": "Donate",
   "gui.yes_steve_model.model.info": "Open Info GUI",
-  "commands.yes_steve_model.export.failure": "Failed to export model %s"
+  "commands.yes_steve_model.export.failure": "Failed to export model %s",
+  "gui.yes_steve_model.model.main_model_info": "§6§l➤ %d bones, %d cubes, %d faces",
+  "gui.yes_steve_model.model.texture_info": "§6§l➤ %d textures"
 }
