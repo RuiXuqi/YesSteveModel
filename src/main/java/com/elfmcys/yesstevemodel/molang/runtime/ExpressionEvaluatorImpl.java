@@ -202,20 +202,25 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
 
     @Override
     public Object visitExecutionScope(@NotNull ExecutionScopeExpression executionScope) {
+        return buildExecutionScopeFunction(executionScope).evaluate(this, Function.EMPTY_ARGUMENT);
+    }
+
+    @Override
+    public Function buildExecutionScopeFunction(final @NotNull ExecutionScopeExpression executionScope) {
         List<Expression> expressions = executionScope.expressions();
-        ExpressionEvaluator<TEntity> evaluatorForThisScope = createChild();
-        return (Function) (context, arguments) -> {
+        var evaluatorForThisScope = createChild();
+        return (context, arguments) -> {
+            Object lastResult = null;
             for (Expression expression : expressions) {
                 // eval expression, ignore result
-                expression.visit(evaluatorForThisScope);
-
+                lastResult = evaluatorForThisScope.eval(expression);
                 // check for return values
                 Object returnValue = evaluatorForThisScope.popReturnValue();
                 if (returnValue != null) {
                     return returnValue;
                 }
             }
-            return null;
+            return lastResult;
         };
     }
 

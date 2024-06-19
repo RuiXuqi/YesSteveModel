@@ -24,9 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime.binding;
 
-import com.elfmcys.yesstevemodel.molang.parser.ast.AssignableVariableExpression;
-import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
-import com.elfmcys.yesstevemodel.molang.parser.ast.StatementExpression;
+import com.elfmcys.yesstevemodel.molang.parser.ast.*;
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 
@@ -50,18 +48,20 @@ public final class StandardBindings {
         }
 
         int n = Math.min((int) Math.round(args.getAsDouble(ctx, 0)), MAX_LOOP_ROUND);
-        Object expr = args.getValue(ctx, 1);
+        Object expr = args.getExpression(1);
 
-        if (expr instanceof Function) {
-            Function callable = (Function) expr;
-            for (int i = 0; i < n; i++) {
-                Object value = callable.evaluate(ctx, Function.EMPTY_ARGUMENT);
-                if (value == StatementExpression.Op.BREAK) {
-                    break;
+        if (expr instanceof ExecutionScopeExpression) {
+            Function callable = ((ExecutionScopeExpression) expr).buildFunction((ExpressionVisitor<?>) ctx);
+            if (callable != null) {
+                for (int i = 0; i < n; i++) {
+                    Object value = callable.evaluate(ctx, Function.EMPTY_ARGUMENT);
+                    if (value == StatementExpression.Op.BREAK) {
+                        break;
+                    }
+                    // (not necessary, callable already exits when returnValue
+                    //  is set to any non-null value)
+                    // if (value == StatementExpression.Op.CONTINUE) continue;
                 }
-                // (not necessary, callable already exits when returnValue
-                //  is set to any non-null value)
-                // if (value == StatementExpression.Op.CONTINUE) continue;
             }
         }
         return null;
@@ -97,18 +97,20 @@ public final class StandardBindings {
             return null;
         }
 
-        final Object expr = args.getValue(ctx, 2);
+        final Expression expr = args.getExpression(2);
 
-        if (expr instanceof Function) {
-            final Function callable = (Function) expr;
-            for (final Object val : arrayIterable) {
-                // set 'val' as current value
-                // eval (objectExpr.propertyName = val)
-                variableAccess.assign(ctx, val);
-                final Object returnValue = callable.evaluate(ctx, Function.EMPTY_ARGUMENT);
+        if (expr instanceof ExecutionScopeExpression) {
+            Function callable = ((ExecutionScopeExpression) expr).buildFunction((ExpressionVisitor<?>) ctx);
+            if (callable != null) {
+                for (final Object val : arrayIterable) {
+                    // set 'val' as current value
+                    // eval (objectExpr.propertyName = val)
+                    variableAccess.assign(ctx, val);
+                    final Object returnValue = callable.evaluate(ctx, Function.EMPTY_ARGUMENT);
 
-                if (returnValue == StatementExpression.Op.BREAK) {
-                    break;
+                    if (returnValue == StatementExpression.Op.BREAK) {
+                        break;
+                    }
                 }
             }
         }
