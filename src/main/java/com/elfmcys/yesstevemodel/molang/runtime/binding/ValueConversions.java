@@ -27,50 +27,58 @@ package com.elfmcys.yesstevemodel.molang.runtime.binding;
 import org.jetbrains.annotations.Nullable;
 
 public final class ValueConversions {
-
-    private ValueConversions() {
-    }
-
     public static boolean asBoolean(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         if (obj instanceof Boolean) {
             return (Boolean) obj;
-        } else if (obj instanceof Number) {
+        }
+        if (obj instanceof Number) {
             // '0' is considered false here, anything else
             // is considered true.
             return ((Number) obj).floatValue() != 0;
-        } else {
-            return false;
         }
+        return true;
     }
 
     public static float asFloat(Object obj) {
-        if ((obj instanceof Number)) {
-            return ((Number) obj).floatValue();
-        } else if (obj instanceof Boolean) {
-            return ((Boolean) obj) ? 1 : 0;
-        } else {
+        if (obj == null) {
             return 0;
         }
+        if ((obj instanceof Number)) {
+            return ((Number) obj).floatValue();
+        }
+        if (obj instanceof Boolean) {
+            return ((Boolean) obj) ? 1 : 0;
+        }
+        return 1;
     }
 
     public static int asInt(Object obj) {
-        if ((obj instanceof Number)) {
-            return ((Number) obj).intValue();
-        } else if (obj instanceof Boolean) {
-            return ((Boolean) obj) ? 1 : 0;
-        } else {
+        if (obj == null) {
             return 0;
         }
+        if ((obj instanceof Number)) {
+            return ((Number) obj).intValue();
+        }
+        if (obj instanceof Boolean) {
+            return ((Boolean) obj) ? 1 : 0;
+        }
+        return 1;
     }
 
     public static double asDouble(final @Nullable Object obj) {
-        if (obj instanceof Number) {
-            return ((Number) obj).doubleValue();
-        } else if (obj instanceof Boolean) {
-            return ((Boolean) obj) ? 1 : 0;
-        } else {
+        if (obj == null) {
             return 0;
         }
+        if (obj instanceof Number) {
+            return ((Number) obj).doubleValue();
+        }
+        if (obj instanceof Boolean) {
+            return ((Boolean) obj) ? 1 : 0;
+        }
+        return 1;
     }
 
     public static String asString(final @Nullable Object obj) {
