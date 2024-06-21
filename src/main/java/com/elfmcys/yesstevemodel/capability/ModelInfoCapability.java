@@ -24,6 +24,9 @@ public class ModelInfoCapability {
     }
 
     public void setModelAndTexture(String modelId, String selectTexture) {
+        if (this.modelId.equals(modelId) && this.selectTexture.equals(selectTexture)) {
+            return;
+        }
         this.modelId = modelId;
         this.selectTexture = selectTexture;
         markDirty();
