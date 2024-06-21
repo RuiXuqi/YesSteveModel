@@ -24,9 +24,6 @@ public class ModelInfoCapability {
     }
 
     public void setModelAndTexture(String modelId, String selectTexture) {
-        if (!this.modelId.equals(modelId)) {
-            resetVariables(instanceId + 1);
-        }
         this.modelId = modelId;
         this.selectTexture = selectTexture;
         markDirty();
@@ -34,6 +31,9 @@ public class ModelInfoCapability {
 
     public void setDefault() {
         var defaultModel = ServerModelManager.getDefaultModelAndTexture();
+        if (!this.modelId.equals(defaultModel.getLeft())) {
+            resetVariables(instanceId + 1);
+        }
         setModelAndTexture(defaultModel.getLeft(), defaultModel.getRight());
     }
 

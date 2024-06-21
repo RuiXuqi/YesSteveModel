@@ -47,8 +47,10 @@ public class RoamingStruct implements Struct {
             return;
         }
 
-        changes.variables.put(nameStr, value);
-        dirty = true;
+        if (changes.instanceId == instanceId) {
+            changes.variables.put(nameStr, value);
+            dirty = true;
+        }
     }
 
     @Override
@@ -65,15 +67,19 @@ public class RoamingStruct implements Struct {
     }
 
     public void reset(int instanceId, @Nullable Object2FloatOpenHashMap<String> initialVariables) {
-        values.clear();
-        names.clear();
+        if (changes.instanceId != instanceId) {
+            values.clear();
+            names.clear();
+        }
         this.instanceId = instanceId;
         if (initialVariables != null) {
             for (var entry : initialVariables.object2FloatEntrySet()) {
                 putProperty(StringPool.computeIfAbsent(entry.getKey()), entry.getFloatValue());
             }
         }
-        popChanges();
+        if (changes.instanceId != instanceId) {
+            popChanges();
+        }
     }
 
     public boolean isDirty() {
