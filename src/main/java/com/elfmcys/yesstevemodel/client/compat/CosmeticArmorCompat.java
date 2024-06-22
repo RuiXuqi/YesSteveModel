@@ -22,7 +22,12 @@ public class CosmeticArmorCompat {
         if (!slot.isArmor()) {
             return ItemStack.EMPTY;
         }
+
         var cosInventory = CosArmorAPI.getCAStacksClient(player.getUUID());
+        if (!cosInventory.isSkinArmor(slot.getIndex())) {
+            return ItemStack.EMPTY;
+        }
+
         return cosInventory.getStackInSlot(slot.getIndex());
     }
 }

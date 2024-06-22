@@ -8,9 +8,7 @@
 				"texture_height": 64,
 				"visible_bounds_width": 3,
 				"visible_bounds_height": 3,
-				"visible_bounds_offset": [0, 1.5, 0],
-				"ysm_height_scale": 1,
-				"ysm_width_scale": 1
+				"visible_bounds_offset": [0, 1.5, 0]
 			},
 			"bones": [
 				{
@@ -18,8 +16,13 @@
 					"pivot": [0, 0, 0]
 				},
 				{
-					"name": "AllBody",
+					"name": "MAllBody",
 					"parent": "Root",
+					"pivot": [0, 12, 0]
+				},
+				{
+					"name": "AllBody",
+					"parent": "MAllBody",
 					"pivot": [0, 12, 0]
 				},
 				{
@@ -91,8 +94,13 @@
 					"pivot": [0, 24, 0]
 				},
 				{
-					"name": "Head",
+					"name": "MHead",
 					"parent": "AllHead",
+					"pivot": [0, 24, 0]
+				},
+				{
+					"name": "Head",
+					"parent": "MHead",
 					"pivot": [0, 24, 0],
 					"cubes": [
 						{
@@ -434,7 +442,7 @@
 				{
 					"name": "Arm",
 					"parent": "UpperBody",
-					"pivot": [0, 24, 0]
+					"pivot": [0, 22, 0]
 				},
 				{
 					"name": "RightArm",
@@ -531,7 +539,7 @@
 				{
 					"name": "RightHand",
 					"parent": "RightForeArm",
-					"pivot": [-6, 17.5, 0],
+					"pivot": [-6, 12.5, 0],
 					"cubes": [
 						{
 							"origin": [-6, 12, -1],
@@ -633,7 +641,7 @@
 				{
 					"name": "LeftHand",
 					"parent": "LeftForeArm",
-					"pivot": [6, 17.5, 0],
+					"pivot": [6, 12.5, 0],
 					"cubes": [
 						{
 							"origin": [5, 12, -1],
@@ -807,7 +815,7 @@
 				{
 					"name": "LeftFoot",
 					"parent": "LeftLowerLeg",
-					"pivot": [2, 6.07942, -0.00324],
+					"pivot": [2, 1.07942, -0.00324],
 					"cubes": [
 						{
 							"origin": [1, 1.07942, -1.00324],
@@ -918,7 +926,7 @@
 				{
 					"name": "RightFoot",
 					"parent": "RightLowerLeg",
-					"pivot": [-2, 6.07942, -0.00324],
+					"pivot": [-2, 1.07942, -0.00324],
 					"cubes": [
 						{
 							"origin": [-3, 1.07942, -1.00324],
@@ -933,6 +941,11 @@
 							}
 						}
 					]
+				},
+				{
+					"name": "molang",
+					"parent": "Root",
+					"pivot": [0, 0, 0]
 				}
 			]
 		}

@@ -47,9 +47,12 @@ public class ModelButton extends Button {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                var oldModelId = cap.getModelId();
                 cap.setModelAndTexture(instance.getModelId(), instance.getTextureName());
                 if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
-                    roamingStruct.reset(roamingStruct.getInstanceId() + 1, null);
+                    if (!oldModelId.equals(instance.getModelId())) {
+                        roamingStruct.reset(roamingStruct.getInstanceId() + 1, null);
+                    }
                     NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureName(), roamingStruct.getInstanceId()));
                 }
             });
