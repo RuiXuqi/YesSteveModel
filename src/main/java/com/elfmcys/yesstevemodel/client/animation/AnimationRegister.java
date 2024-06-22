@@ -1,14 +1,10 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
-import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.Saddleable;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.Boat;
 
 import java.util.function.BiPredicate;
 
@@ -27,12 +23,6 @@ public class AnimationRegister {
         register("ladder_stillness", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) == 0);
         register("ladder_down", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) < 0);
 
-        register("ride_pig", Priority.HIGH, (player, event) -> player.getVehicle() instanceof Pig);
-        register("ride", Priority.HIGH, (player, event) -> player.getVehicle() instanceof Saddleable);
-        register("boat", Priority.HIGH, (player, event) -> player.getVehicle() instanceof Boat);
-        if (CarryOnCompat.isCarryOnLoaded()) {
-            register("carryon:princess", Priority.HIGH, CarryOnCompat::isCarryOnPrincess);
-        }
         register("sit", Priority.HIGH, (player, event) -> player.isPassenger());
 
         register("fly", Priority.HIGH, (player, event) -> player.getAbilities().flying);
