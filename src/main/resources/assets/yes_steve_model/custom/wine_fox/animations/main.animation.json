@@ -9313,6 +9313,14 @@
 				}
 			}
 		},
+		"pre_parallel1": {
+			"loop": true,
+			"bones": {
+				"Mask": {
+					"scale": 0
+				}
+			}
+		},
 		"pre_parallel2": {
 			"loop": true,
 			"bones": {
