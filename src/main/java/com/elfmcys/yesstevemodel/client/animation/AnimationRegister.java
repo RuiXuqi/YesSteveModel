@@ -23,8 +23,6 @@ public class AnimationRegister {
         register("ladder_stillness", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) == 0);
         register("ladder_down", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) < 0);
 
-        register("sit", Priority.HIGH, (player, event) -> player.isPassenger());
-
         register("fly", Priority.HIGH, (player, event) -> player.getAbilities().flying);
         register("elytra_fly", Priority.HIGH, (player, event) -> player.getPose() == Pose.FALL_FLYING && player.isFallFlying());
 
