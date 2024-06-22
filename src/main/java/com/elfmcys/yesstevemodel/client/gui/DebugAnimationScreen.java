@@ -250,6 +250,6 @@ public class DebugAnimationScreen implements IGuiOverlay {
     }
 
     private static boolean getSlotValue(Player player, EquipmentSlot slot) {
-        return !player.getItemBySlot(slot).isEmpty();
+        return !EquipmentUtil.getEquippedItem(player, slot).isEmpty();
     }
 }

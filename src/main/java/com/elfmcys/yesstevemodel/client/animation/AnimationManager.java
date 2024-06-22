@@ -12,6 +12,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
@@ -263,7 +264,7 @@ public final class AnimationManager {
         if (player == null || event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
-        ItemStack itemBySlot = player.getItemBySlot(slot);
+        ItemStack itemBySlot = EquipmentUtil.getEquippedItem(player, slot);
         if (itemBySlot.isEmpty()) {
             return PlayState.STOP;
         }

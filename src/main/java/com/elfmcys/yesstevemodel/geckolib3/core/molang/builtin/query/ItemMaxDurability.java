@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.LivingEntityFunction;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.google.common.collect.Maps;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,7 +19,7 @@ public class ItemMaxDurability extends LivingEntityFunction {
     protected Object eval(ExecutionContext<IContext<LivingEntity>> context, ArgumentCollection arguments) {
         EquipmentSlot equipmentSlot = MolangUtils.parseSlotType(context.entity(), arguments.getAsString(context, 0));
         LivingEntity entity = context.entity().entity();
-        ItemStack itemBySlot = entity.getItemBySlot(equipmentSlot);
+        ItemStack itemBySlot = EquipmentUtil.getEquippedItem(entity, equipmentSlot);
         return itemBySlot.getMaxDamage();
     }
 
