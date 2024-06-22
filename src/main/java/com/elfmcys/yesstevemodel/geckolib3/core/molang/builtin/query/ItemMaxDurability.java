@@ -13,8 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Map;
 
 public class ItemMaxDurability extends LivingEntityFunction {
-    private static final Map<String, EquipmentSlot> MAPS = Maps.newHashMap();
-
     @Override
     protected Object eval(ExecutionContext<IContext<LivingEntity>> context, ArgumentCollection arguments) {
         EquipmentSlot equipmentSlot = MolangUtils.parseSlotType(context.entity(), arguments.getAsString(context, 0));
