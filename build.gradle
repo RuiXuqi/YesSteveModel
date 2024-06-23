@@ -1,7 +1,9 @@
 import proguard.gradle.ProGuardTask
 
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.nio.file.StandardOpenOption
 
 buildscript {
     repositories {
@@ -41,6 +43,8 @@ var buildModLoader = "forge"
 var buildGameVersion = "1200"
 var javaHome = System.properties['java.home']
 var devLib = "${buildDir}/ysm-native/lib/ysm-core_forge-1200-dev.dll"
+
+var dictPath = file("${buildDir}/tmp/proguard/dict.txt").toPath()
 
 if(!file(builderPath).exists()) {
     System.err.println("Please put YSMBuilder to ${builderPath}")
@@ -193,6 +197,10 @@ reobf {
 
 tasks.register('proguardJar', ProGuardTask) {
     configuration file('proguard.pro')
+    obfuscationdictionary(dictPath)
+    classobfuscationdictionary(dictPath)
+    packageobfuscationdictionary(dictPath)
+
     libraryjars "${javaHome}/jmods"
     libraryjars "${javaHome}/lib"
     libraryjars sourceSets.main.compileClasspath
@@ -201,6 +209,33 @@ tasks.register('proguardJar', ProGuardTask) {
     injars(tasks.tempJar.archiveFile.get())
     outjars(file("${buildDir}/libs/${archivesBaseName}-${version}-minified.jar"))
     printmapping("${buildDir}/libs/${archivesBaseName}-${version}-mappings.txt")
+
+    doFirst {
+        var rand = new Random()
+        var builder = new StringBuilder(24)
+        Files.createDirectories(dictPath.parent)
+        var writer = Files.newBufferedWriter(dictPath, Charset.forName("utf-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+        for (var line = 0; line < 1000; line++) {
+            var num = rand.nextInt(0, 2)
+            switch (num) {
+                case 0: builder.append('O'); break
+                case 1: builder.append('o'); break
+                default: throw new Exception()
+            }
+            for (var i = 0; i < 23; i++) {
+                num = rand.nextInt(0, 3)
+                switch (num) {
+                    case 0: builder.append('0'); break
+                    case 1: builder.append('o'); break
+                    case 2: builder.append('O'); break
+                    default: throw new Exception()
+                }
+            }
+            writer.writeLine(builder.toString())
+            builder.delete(0, 24)
+        }
+        writer.close()
+    }
     doLast {
         Files.move(outJarFileCollection.singleFile.toPath(),
                 inJarFileCollection.singleFile.toPath(),

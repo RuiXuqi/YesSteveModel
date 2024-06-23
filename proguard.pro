@@ -7,9 +7,6 @@
 -dontoptimize
 
 # 使用指定名称的混淆
--obfuscationdictionary dict.txt
--packageobfuscationdictionary dict.txt
--classobfuscationdictionary dict.txt
 -repackageclasses com.elfmcys.yesstevemodel
 
 # 保留唯一的主模组类和 Mixin 类
