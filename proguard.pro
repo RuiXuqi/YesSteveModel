@@ -25,6 +25,8 @@
 -keepclassmembers class * {
     @com.elfmcys.yesstevemodel.util.Keep <fields>;
     @com.elfmcys.yesstevemodel.util.Keep <methods>;
+    @org.spongepowered.asm.mixin.Shadow <fields>;
+    @org.spongepowered.asm.mixin.Shadow <methods>;
 }
 
 # 保留异常、内部类、注解、行数等信息

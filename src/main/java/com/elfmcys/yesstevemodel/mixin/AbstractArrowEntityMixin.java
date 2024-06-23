@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.mixin;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.event.CapabilityEvent;
-import com.elfmcys.yesstevemodel.util.Keep;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -16,10 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AbstractArrow.class)
 public class AbstractArrowEntityMixin implements IArrowExtraInfo {
     @Shadow
-    @Keep
     protected boolean inGround;
     @Shadow
-    @Keep
     protected int inGroundTime;
 
     @Unique
