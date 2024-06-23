@@ -9331,22 +9331,22 @@
 					"rotation": ["-v.L1_P0+v.L2_P0", 0, "0.1*v.L3_P0"]
 				},
 				"Tail": {
-					"rotation": ["-0.3*v.L1_P0", "v.L12_P01y-0.1*v.L4_P0", "v.L12_P01z"]
+					"rotation": ["-0.3*v.L1_P0", "v.L13_P01y-0.1*v.L4_P0", "v.L13_P01z"]
 				},
 				"Tail2": {
-					"rotation": ["-0.2*v.L1_P0", "v.L12_P02y-0.1*v.L4_P0", "v.L12_P02z"]
+					"rotation": ["-0.2*v.L1_P0", "v.L13_P02y-0.1*v.L4_P0", "v.L13_P02z"]
 				},
 				"Tail3": {
-					"rotation": ["-0.1*v.L1_P0", "v.L12_P03y-0.1*v.L4_P0", "v.L12_P03z"]
+					"rotation": ["-0.1*v.L1_P0", "v.L13_P03y-0.1*v.L4_P0", "v.L13_P03z"]
 				},
 				"Tail4": {
-					"rotation": [0, "v.L12_P04y-0.1*v.L4_P0", "v.L12_P04z"]
+					"rotation": [0, "v.L13_P04y-0.1*v.L4_P0", "v.L13_P04z"]
 				},
 				"Tail5": {
-					"rotation": [0, "v.L12_P05y-0.1*v.L4_P0", 0]
+					"rotation": [0, "v.L13_P05y-0.1*v.L4_P0", 0]
 				},
 				"Tail6": {
-					"rotation": [0, 0, "v.L12_P06z-0.1*v.L4_P0"]
+					"rotation": [0, 0, "v.L13_P06z-0.1*v.L4_P0"]
 				},
 				"FLongHair": {
 					"rotation": ["v.L5_P0", 0, 0]
@@ -9809,20 +9809,20 @@
 					"v.L11_K3=v.L11_R*v.L11_C/2/math.pi/v.L11_F;"
 				],
 				"0.4583": [
-					"v.L12_F=2;",
-					"v.L12_C=0.8;",
-					"v.L12_R=20;",
-					"v.L12_K1=v.L12_C/math.pi/v.L12_F;",
-					"v.L12_K2=1/math.pow(2*math.pi*v.L12_F,2);",
-					"v.L12_K3=v.L12_R*v.L12_C/2/math.pi/v.L12_F;"
-				],
-				"0.5": [
-					"v.L13_F=5;",
+					"v.L13_F=2;",
 					"v.L13_C=0.8;",
-					"v.L13_R=200;",
+					"v.L13_R=20;",
 					"v.L13_K1=v.L13_C/math.pi/v.L13_F;",
 					"v.L13_K2=1/math.pow(2*math.pi*v.L13_F,2);",
 					"v.L13_K3=v.L13_R*v.L13_C/2/math.pi/v.L13_F;"
+				],
+				"0.5": [
+					"v.L12_F=5;",
+					"v.L12_C=0.8;",
+					"v.L12_R=200;",
+					"v.L12_K1=v.L12_C/math.pi/v.L12_F;",
+					"v.L12_K2=1/math.pow(2*math.pi*v.L12_F,2);",
+					"v.L12_K3=v.L12_R*v.L12_C/2/math.pi/v.L12_F;"
 				]
 			}
 		},
@@ -9843,19 +9843,19 @@
 					"v.L9_P1=v.L9_P0+0.01*v.L9_P0dot;",
 					"v.L10_P1=v.L10_P0+0.01*v.L10_P0dot;",
 					"v.L11_P1=v.L11_P0+0.01*v.L11_P0dot;",
-					"v.L13_P1=v.L13_P0+0.01*v.L13_P0dot;",
-					"v.L12_P11y=v.L12_P01y+0.01*v.L12_P01ydot;",
-					"v.L12_P11z=v.L12_P01z+0.01*v.L12_P01zdot;",
-					"v.L12_P12y=v.L12_P02y+0.01*v.L12_P02ydot;",
-					"v.L12_P12z=v.L12_P02z+0.01*v.L12_P02zdot;",
-					"v.L12_P13y=v.L12_P03y+0.01*v.L12_P03ydot;",
-					"v.L12_P13z=v.L12_P03z+0.01*v.L12_P03zdot;",
-					"v.L12_P14y=v.L12_P04y+0.01*v.L12_P04ydot;",
-					"v.L12_P14z=v.L12_P04z+0.01*v.L12_P04zdot;",
-					"v.L12_P15y=v.L12_P05y+0.01*v.L12_P05ydot;",
-					"v.L12_P15z=v.L12_P05z+0.01*v.L12_P05zdot;",
-					"v.L12_P16y=v.L12_P06y+0.01*v.L12_P06ydot;",
-					"v.L12_P16z=v.L12_P06z+0.01*v.L12_P06zdot;",
+					"v.L12_P1=v.L12_P0+0.01*v.L12_P0dot;",
+					"v.L13_P11y=v.L13_P01y+0.01*v.L13_P01ydot;",
+					"v.L13_P11z=v.L13_P01z+0.01*v.L13_P01zdot;",
+					"v.L13_P12y=v.L13_P02y+0.01*v.L13_P02ydot;",
+					"v.L13_P12z=v.L13_P02z+0.01*v.L13_P02zdot;",
+					"v.L13_P13y=v.L13_P03y+0.01*v.L13_P03ydot;",
+					"v.L13_P13z=v.L13_P03z+0.01*v.L13_P03zdot;",
+					"v.L13_P14y=v.L13_P04y+0.01*v.L13_P04ydot;",
+					"v.L13_P14z=v.L13_P04z+0.01*v.L13_P04zdot;",
+					"v.L13_P15y=v.L13_P05y+0.01*v.L13_P05ydot;",
+					"v.L13_P15z=v.L13_P05z+0.01*v.L13_P05zdot;",
+					"v.L13_P16y=v.L13_P06y+0.01*v.L13_P06ydot;",
+					"v.L13_P16z=v.L13_P06z+0.01*v.L13_P06zdot;",
 					"'头发垂直速度物理';",
 					"v.L1_P1dot=v.L1_P0dot+0.01*(v.L1_K3*math.clamp(q.vertical_speed+v.hv,-30,1)-v.L1_P1-v.L1_K1*v.L1_P0dot)/v.L1_K2;",
 					"'头发水平速度物理';",
@@ -9881,20 +9881,20 @@
 					"'玩家z坐标增量物理';",
 					"v.L11_P1dot=v.L11_P0dot+0.01*(v.L11_K3*(100*query.position_delta(2))-v.L11_P1-v.L11_K1*v.L11_P0dot)/v.L11_K2;",
 					"'玩家下落速度物理重锤相关';",
-					"v.L13_P1dot=v.L13_P0dot+0.01*(v.L13_K3*(math.clamp(q.vertical_speed,-30,0))-v.L13_P1-v.L13_K1*v.L13_P0dot)/v.L13_K2;",
+					"v.L12_P1dot=v.L12_P0dot+0.01*(v.L12_K3*(math.clamp(q.vertical_speed,-30,0))-v.L12_P1-v.L12_K1*v.L12_P0dot)/v.L12_K2;",
 					"'尾巴甩动物理';",
-					"v.L12_P11ydot=v.L12_P01ydot+0.01*(v.L12_K3*v.tail1y-v.L12_P11y-v.L12_K1*v.L12_P01ydot)/v.L12_K2;",
-					"v.L12_P11zdot=v.L12_P01zdot+0.01*(v.L12_K3*v.tail1z-v.L12_P11z-v.L12_K1*v.L12_P01zdot)/v.L12_K2;",
-					"v.L12_P12ydot=v.L12_P02ydot+0.01*(v.L12_K3*v.tail2y-v.L12_P12y-v.L12_K1*v.L12_P02ydot)/v.L12_K2;",
-					"v.L12_P12zdot=v.L12_P02zdot+0.01*(v.L12_K3*v.tail2z-v.L12_P12z-v.L12_K1*v.L12_P02zdot)/v.L12_K2;",
-					"v.L12_P13ydot=v.L12_P03ydot+0.01*(v.L12_K3*v.tail3y-v.L12_P13y-v.L12_K1*v.L12_P03ydot)/v.L12_K2;",
-					"v.L12_P13zdot=v.L12_P03zdot+0.01*(v.L12_K3*v.tail3z-v.L12_P13z-v.L12_K1*v.L12_P03zdot)/v.L12_K2;",
-					"v.L12_P14ydot=v.L12_P04ydot+0.01*(v.L12_K3*v.tail4y-v.L12_P14y-v.L12_K1*v.L12_P04ydot)/v.L12_K2;",
-					"v.L12_P14zdot=v.L12_P04zdot+0.01*(v.L12_K3*v.tail4z-v.L12_P14z-v.L12_K1*v.L12_P04zdot)/v.L12_K2;",
-					"v.L12_P15ydot=v.L12_P05ydot+0.01*(v.L12_K3*v.tail5y-v.L12_P15y-v.L12_K1*v.L12_P05ydot)/v.L12_K2;",
-					"v.L12_P15zdot=v.L12_P05zdot+0.01*(v.L12_K3*v.tail5z-v.L12_P15z-v.L12_K1*v.L12_P05zdot)/v.L12_K2;",
-					"v.L12_P16ydot=v.L12_P06ydot+0.01*(v.L12_K3*v.tail6y-v.L12_P16y-v.L12_K1*v.L12_P06ydot)/v.L12_K2;",
-					"v.L12_P16zdot=v.L12_P06zdot+0.01*(v.L12_K3*v.tail6z-v.L12_P16z-v.L12_K1*v.L12_P06zdot)/v.L12_K2;"
+					"v.L13_P11ydot=v.L13_P01ydot+0.01*(v.L13_K3*v.tail1y-v.L13_P11y-v.L13_K1*v.L13_P01ydot)/v.L13_K2;",
+					"v.L13_P11zdot=v.L13_P01zdot+0.01*(v.L13_K3*v.tail1z-v.L13_P11z-v.L13_K1*v.L13_P01zdot)/v.L13_K2;",
+					"v.L13_P12ydot=v.L13_P02ydot+0.01*(v.L13_K3*v.tail2y-v.L13_P12y-v.L13_K1*v.L13_P02ydot)/v.L13_K2;",
+					"v.L13_P12zdot=v.L13_P02zdot+0.01*(v.L13_K3*v.tail2z-v.L13_P12z-v.L13_K1*v.L13_P02zdot)/v.L13_K2;",
+					"v.L13_P13ydot=v.L13_P03ydot+0.01*(v.L13_K3*v.tail3y-v.L13_P13y-v.L13_K1*v.L13_P03ydot)/v.L13_K2;",
+					"v.L13_P13zdot=v.L13_P03zdot+0.01*(v.L13_K3*v.tail3z-v.L13_P13z-v.L13_K1*v.L13_P03zdot)/v.L13_K2;",
+					"v.L13_P14ydot=v.L13_P04ydot+0.01*(v.L13_K3*v.tail4y-v.L13_P14y-v.L13_K1*v.L13_P04ydot)/v.L13_K2;",
+					"v.L13_P14zdot=v.L13_P04zdot+0.01*(v.L13_K3*v.tail4z-v.L13_P14z-v.L13_K1*v.L13_P04zdot)/v.L13_K2;",
+					"v.L13_P15ydot=v.L13_P05ydot+0.01*(v.L13_K3*v.tail5y-v.L13_P15y-v.L13_K1*v.L13_P05ydot)/v.L13_K2;",
+					"v.L13_P15zdot=v.L13_P05zdot+0.01*(v.L13_K3*v.tail5z-v.L13_P15z-v.L13_K1*v.L13_P05zdot)/v.L13_K2;",
+					"v.L13_P16ydot=v.L13_P06ydot+0.01*(v.L13_K3*v.tail6y-v.L13_P16y-v.L13_K1*v.L13_P06ydot)/v.L13_K2;",
+					"v.L13_P16zdot=v.L13_P06zdot+0.01*(v.L13_K3*v.tail6z-v.L13_P16z-v.L13_K1*v.L13_P06zdot)/v.L13_K2;"
 				],
 				"0.01": [
 					"v.L1_P0=v.L1_P1;",
@@ -9909,19 +9909,19 @@
 					"v.L9_P0=v.L9_P1;",
 					"v.L10_P0=v.L10_P1;",
 					"v.L11_P0=v.L11_P1;",
-					"v.L13_P0=v.L13_P1;",
-					"v.L12_P01y=v.L12_P11y;",
-					"v.L12_P01z=v.L12_P11z;",
-					"v.L12_P02y=v.L12_P12y;",
-					"v.L12_P02z=v.L12_P12z;",
-					"v.L12_P03y=v.L12_P13y;",
-					"v.L12_P03z=v.L12_P13z;",
-					"v.L12_P04y=v.L12_P14y;",
-					"v.L12_P04z=v.L12_P14z;",
-					"v.L12_P05y=v.L12_P15y;",
-					"v.L12_P05z=v.L12_P15z;",
-					"v.L12_P06y=v.L12_P16y;",
-					"v.L12_P06z=v.L12_P16z;",
+					"v.L12_P0=v.L12_P1;",
+					"v.L13_P01y=v.L13_P11y;",
+					"v.L13_P01z=v.L13_P11z;",
+					"v.L13_P02y=v.L13_P12y;",
+					"v.L13_P02z=v.L13_P12z;",
+					"v.L13_P03y=v.L13_P13y;",
+					"v.L13_P03z=v.L13_P13z;",
+					"v.L13_P04y=v.L13_P14y;",
+					"v.L13_P04z=v.L13_P14z;",
+					"v.L13_P05y=v.L13_P15y;",
+					"v.L13_P05z=v.L13_P15z;",
+					"v.L13_P06y=v.L13_P16y;",
+					"v.L13_P06z=v.L13_P16z;",
 					"v.L1_P0dot=v.L1_P1dot;",
 					"v.L2_P0dot=v.L2_P1dot;",
 					"v.L3_P0dot=v.L3_P1dot;",
@@ -9934,19 +9934,19 @@
 					"v.L9_P0dot=v.L9_P1dot;",
 					"v.L10_P0dot=v.L10_P1dot;",
 					"v.L11_P0dot=v.L11_P1dot;",
-					"v.L12_P01ydot=v.L12_P11ydot;",
-					"v.L12_P01zdot=v.L12_P11zdot;",
-					"v.L12_P02ydot=v.L12_P12ydot;",
-					"v.L12_P02zdot=v.L12_P12zdot;",
-					"v.L12_P03ydot=v.L12_P13ydot;",
-					"v.L12_P03zdot=v.L12_P13zdot;",
-					"v.L12_P04ydot=v.L12_P14ydot;",
-					"v.L12_P04zdot=v.L12_P14zdot;",
-					"v.L12_P05ydot=v.L12_P15ydot;",
-					"v.L12_P05zdot=v.L12_P15zdot;",
-					"v.L12_P06ydot=v.L12_P16ydot;",
-					"v.L12_P06zdot=v.L12_P16zdot;",
-					"v.L13_P0dot=v.L13_P1dot;"
+					"v.L13_P01ydot=v.L13_P11ydot;",
+					"v.L13_P01zdot=v.L13_P11zdot;",
+					"v.L13_P02ydot=v.L13_P12ydot;",
+					"v.L13_P02zdot=v.L13_P12zdot;",
+					"v.L13_P03ydot=v.L13_P13ydot;",
+					"v.L13_P03zdot=v.L13_P13zdot;",
+					"v.L13_P04ydot=v.L13_P14ydot;",
+					"v.L13_P04zdot=v.L13_P14zdot;",
+					"v.L13_P05ydot=v.L13_P15ydot;",
+					"v.L13_P05zdot=v.L13_P15zdot;",
+					"v.L13_P06ydot=v.L13_P16ydot;",
+					"v.L13_P06zdot=v.L13_P16zdot;",
+					"v.L12_P0dot=v.L12_P1dot;"
 				]
 			}
 		},
