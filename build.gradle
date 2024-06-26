@@ -250,7 +250,7 @@ tasks.register('buildWindowsProductionJar', Exec) {
                 StandardCopyOption.REPLACE_EXISTING)
     }
 
-    description "构建经过混淆的模组，仅可用于 windows 端"
+    description "构建经过混淆的模组，仅可用于 windows 端内测"
     group buildTaskGroup
     dependsOn tasks.reobfTempJar
     outputs.upToDateWhen { false }
@@ -269,7 +269,7 @@ tasks.register('buildProductionJar', Exec) {
                 StandardCopyOption.REPLACE_EXISTING)
     }
 
-    description "构建经过混淆的模组，可以公开发布"
+    description "构建经过混淆的模组，用于内测"
     group buildTaskGroup
     dependsOn tasks.reobfTempJar
     outputs.upToDateWhen { false }
@@ -279,4 +279,24 @@ tasks.register('buildProductionJar', Exec) {
             '-p', "${projectDir}/ysm.vmp",
             '-l', tasks.createMcpToSrg.output.asFile.get().path,
             '-g', tasks.proguardJar.printMappingFile.path
+}
+
+tasks.register('buildProductionSignedJar', Exec) {
+    doFirst {
+        Files.move(tempJar.archiveFile.get().asFile.toPath(),
+                tasks.proguardJar.outJarFileCollection.singleFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    description "构建经过混淆的模组并签名，用于正式版发布"
+    group buildTaskGroup
+    dependsOn tasks.reobfTempJar
+    outputs.upToDateWhen { false }
+
+    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'production',
+            tasks.proguardJar.outJarFileCollection.singleFile.path,
+            '-p', "${projectDir}/ysm.vmp",
+            '-l', tasks.createMcpToSrg.output.asFile.get().path,
+            '-g', tasks.proguardJar.printMappingFile.path,
+            '-s'
 }
