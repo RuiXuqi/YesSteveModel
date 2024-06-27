@@ -36,7 +36,10 @@ public class ClientInfo {
         ServerPlayer player = context.getSender();
         if (player != null && NetworkHandler.setChannelVersion(context.getNetworkManager(), clientInfo.channelVersion)
                 && NetworkHandler.isChannelPresent(context.getNetworkManager())) {
-            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(ModelInfoCapability::stopAnimation);
+            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+                cap.setMandatory(false);
+                cap.stopAnimation();
+            });
             player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                 NetworkHandler.sendToClientPlayer(new SyncAuthModels(cap.getAuthModels()), player);
             });

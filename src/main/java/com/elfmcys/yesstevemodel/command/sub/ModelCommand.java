@@ -81,6 +81,7 @@ public class ModelCommand {
         if (ignoreAuth) {
             targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
                 cap.setModelAndTexture(modelId, textureName);
+                cap.setMandatory(true);
                 context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
                         modelId, player.getScoreboardName()), true);
             }));
@@ -91,6 +92,7 @@ public class ModelCommand {
                 player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authCap -> {
                     if (!ServerModelManager.getAuthModels().contains(modelId) || authCap.containModel(modelId)) {
                         cap.setModelAndTexture(modelId, textureName);
+                        cap.setMandatory(true);
                         context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
                                 modelId, player.getScoreboardName()), true);
                     } else {

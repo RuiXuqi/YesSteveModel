@@ -77,10 +77,12 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onTrackingPlayer(PlayerEvent.StartTracking event) {
-        if (event.getTarget() instanceof ServerPlayer trackPlayer
-                && NetworkHandler.isPlayerChannelPresent(trackPlayer)) {
+        if (event.getTarget() instanceof ServerPlayer trackPlayer) {
             final Player player = event.getEntity();
             getModelInfoCap(trackPlayer).ifPresent(cap -> {
+                if (!NetworkHandler.isPlayerChannelPresent(trackPlayer) && !cap.isMandatory()) {
+                    return;
+                }
                 SyncModelInfo syncMsg = new SyncModelInfo(trackPlayer.getId(), cap);
                 NetworkHandler.sendToClientPlayer(syncMsg, player);
             });
@@ -95,9 +97,11 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer
-                && NetworkHandler.isPlayerChannelPresent(serverPlayer)) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             getModelInfoCap(serverPlayer).ifPresent(modelInfoCap -> {
+                if (!NetworkHandler.isPlayerChannelPresent(serverPlayer) && !modelInfoCap.isMandatory()) {
+                    return;
+                }
                 modelInfoCap.stopAnimation();
                 NetworkHandler.sendToClientPlayer(new SyncModelInfo(serverPlayer.getId(), modelInfoCap), serverPlayer);
             });
@@ -118,9 +122,11 @@ public final class CapabilityEvent {
     @SubscribeEvent
     public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.END
-                && event.player instanceof ServerPlayer player
-                && NetworkHandler.isPlayerChannelPresent(player)) {
+                && event.player instanceof ServerPlayer player) {
             getModelInfoCap(player).ifPresent(cap -> {
+                if (!NetworkHandler.isPlayerChannelPresent(player) && !cap.isMandatory()) {
+                    return;
+                }
                 if (cap.isDirty()) {
                     SyncModelInfo syncMsg = new SyncModelInfo(player.getId(), cap);
                     if (player.getServer() == null) {
@@ -134,10 +140,10 @@ public final class CapabilityEvent {
     }
 
     public static void onArrowSetOwner(AbstractArrow arrow, ServerPlayer owner) {
-        if (!NetworkHandler.isPlayerChannelPresent(owner)) {
-            return;
-        }
         owner.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(ownerCap -> {
+            if (!NetworkHandler.isPlayerChannelPresent(owner) && !ownerCap.isMandatory()) {
+                return;
+            }
             arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(arrowCap -> {
                 arrowCap.init(ownerCap.getModelId());
                 NetworkHandler.broadcastToVisiblePlayers(new SyncArrowModelInfo(arrow.getId(), arrowCap), arrow);

@@ -16,6 +16,7 @@ public class ModelInfoCapability {
     private Object2FloatOpenHashMap<String> variables = new Object2FloatOpenHashMap<>();
     private int instanceId;
     private boolean dirty;
+    private boolean mandatory;
 
     public ModelInfoCapability() {
         var defaultModel = ServerModelManager.getDefaultModelAndTexture();
@@ -125,6 +126,14 @@ public class ModelInfoCapability {
         this.dirty = dirty;
     }
 
+    public void setMandatory(boolean value) {
+        this.mandatory = value;
+    }
+
+    public boolean isMandatory() {
+        return mandatory;
+    }
+
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putString("model_id", this.modelId);
@@ -132,6 +141,7 @@ public class ModelInfoCapability {
         tag.putString("animation", this.animation);
         tag.putBoolean("play_animation", this.playAnimation);
         tag.putInt("instance_id", instanceId);
+        tag.putBoolean("mandatory", mandatory);
 
         CompoundTag variablesTag = new CompoundTag();
         tag.put("molang_vars", variablesTag);
@@ -151,6 +161,7 @@ public class ModelInfoCapability {
         this.animation = nbt.getString("animation");
         this.playAnimation = nbt.getBoolean("play_animation");
         this.instanceId = nbt.getInt("instance_id");
+        this.mandatory = nbt.getBoolean("mandatory");
 
         CompoundTag variablesTag = nbt.getCompound("molang_vars");
         for (var name : variablesTag.getAllKeys()) {
