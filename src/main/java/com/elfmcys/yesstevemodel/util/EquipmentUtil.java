@@ -12,19 +12,20 @@ public class EquipmentUtil {
     public static ItemStack getEquippedItem(LivingEntity entity, EquipmentSlot slot) {
         if (slot.isArmor() && entity instanceof AbstractClientPlayer player && CosmeticArmorCompat.isInstalled()) {
             var stack = CosmeticArmorCompat.getSkinArmorItem(player, slot);
-            if (!stack.isEmpty()) {
-                return stack;
+            if (stack.isPresent()) {
+                return stack.get();
             }
         }
-        return entity.getItemBySlot(slot);
+        var rawItem = entity.getItemBySlot(slot);;
+        return rawItem;
     }
 
     public static ItemStack getEquippedElytraItem(LivingEntity entity) {
         // 时装盔甲
         if (entity instanceof AbstractClientPlayer player && CosmeticArmorCompat.isInstalled()) {
             var stack = CosmeticArmorCompat.getSkinArmorItem(player, EquipmentSlot.CHEST);
-            if (stack.getItem() == Items.ELYTRA) {
-                return stack;
+            if (stack.isPresent() && stack.get().getItem() == Items.ELYTRA) {
+                return stack.get();
             }
         }
         // 鞘翅插槽

@@ -6,6 +6,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 
+import java.util.Optional;
+
 public class CosmeticArmorCompat {
     private static final String MOD_ID = "cosmeticarmorreworked";
     private static boolean INSTALLED;
@@ -18,16 +20,17 @@ public class CosmeticArmorCompat {
         return INSTALLED;
     }
 
-    public static ItemStack getSkinArmorItem(AbstractClientPlayer player, EquipmentSlot slot) {
+    public static Optional<ItemStack> getSkinArmorItem(AbstractClientPlayer player, EquipmentSlot slot) {
         if (!slot.isArmor()) {
-            return ItemStack.EMPTY;
+            return Optional.empty();
         }
 
         var cosInventory = CosArmorAPI.getCAStacksClient(player.getUUID());
-        if (!cosInventory.isSkinArmor(slot.getIndex())) {
-            return ItemStack.EMPTY;
+        if (cosInventory.isSkinArmor(slot.getIndex())) {
+            return Optional.of(ItemStack.EMPTY);
         }
 
-        return cosInventory.getStackInSlot(slot.getIndex());
+        var skinArmor = cosInventory.getStackInSlot(slot.getIndex());
+        return skinArmor.isEmpty() ? Optional.empty() : Optional.of(skinArmor);
     }
 }
