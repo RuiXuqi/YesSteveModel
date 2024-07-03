@@ -2,8 +2,8 @@ package com.elfmcys.yesstevemodel.geckolib3.util;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 //Native Association
 public final class RenderUtils {
@@ -12,14 +12,10 @@ public final class RenderUtils {
     }
 
     public static void rotateMatrixAroundBone(PoseStack poseStack, IBone bone) {
-        if (bone.getRotationZ() != 0.0F) {
-            poseStack.mulPose(Axis.ZP.rotation(bone.getRotationZ()));
-        }
-        if (bone.getRotationY() != 0.0F) {
-            poseStack.mulPose(Axis.YP.rotation(bone.getRotationY()));
-        }
-        if (bone.getRotationX() != 0.0F) {
-            poseStack.mulPose(Axis.XP.rotation(bone.getRotationX()));
+        if (bone.getRotationZ() != 0 || bone.getRotationX() != 0 || bone.getRotationY() != 0) {
+            Quaternionf rot = new Quaternionf();
+            rot.rotateZYX(bone.getRotationZ(), bone.getRotationY(), bone.getRotationX());
+            poseStack.mulPose(rot);
         }
     }
 
