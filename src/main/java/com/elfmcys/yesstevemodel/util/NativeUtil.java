@@ -6,22 +6,11 @@ import net.minecraft.network.chat.Component;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+
 // Native Access
 @SuppressWarnings("unused")
 public class NativeUtil {
-    // Native Access
-    public static Object getDirection(int i) {
-        switch(i) {
-            case 1 : return Direction.DOWN;
-            case 2 : return Direction.UP;
-            case 3 : return Direction.NORTH;
-            case 4 : return Direction.SOUTH;
-            case 5 : return Direction.WEST;
-            case 6 : return Direction.EAST;
-            default: return null;
-        }
-    }
-
     // Native Access
     public static Object translatableText(String message, @Nullable Object[] args) {
         if (args == null || args.length == 0) {
@@ -39,5 +28,14 @@ public class NativeUtil {
     // Native Access
     public static Object appendText(Object self, Object pSibling) {
         return ((MutableComponent) self).append((Component) pSibling);
+    }
+
+    // Native Access
+    public static int[] sortByHashmap(String[] textureNames) {
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        for (int i = 0; i < textureNames.length; i++) {
+            hashMap.put(textureNames[i], i);
+        }
+        return hashMap.values().stream().mapToInt(Integer::intValue).toArray();
     }
 }
