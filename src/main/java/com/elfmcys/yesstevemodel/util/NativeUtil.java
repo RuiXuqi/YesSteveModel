@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.util;
 
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
 
@@ -31,11 +30,11 @@ public class NativeUtil {
     }
 
     // Native Access
-    public static int[] sortByHashmap(String[] textureNames) {
+    public static int[] sortTextureNamesAsLegacy(String[] textureNames) {
         HashMap<String, Integer> hashMap = new HashMap<>();
         for (int i = 0; i < textureNames.length; i++) {
-            hashMap.put(textureNames[i], i);
+            hashMap.put(textureNames[i] + ".png", i);
         }
-        return hashMap.values().stream().mapToInt(Integer::intValue).toArray();
+        return hashMap.keySet().stream().mapToInt(hashMap::get).toArray();
     }
 }
