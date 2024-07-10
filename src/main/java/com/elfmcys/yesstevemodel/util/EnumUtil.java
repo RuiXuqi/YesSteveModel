@@ -15,10 +15,10 @@ public class EnumUtil {
             new Object2ReferenceOpenHashMap<>(Arrays.stream(EquipmentSlot.values()).collect(Collectors.toMap(u -> u.getName().toLowerCase(Locale.US), u -> u)));
 
     public static Optional<UseAnim> getUseAnim(String name) {
-        return Optional.of(EnumUtils.getEnum(UseAnim.class, name.toUpperCase(Locale.US)));
+        return Optional.ofNullable(EnumUtils.getEnum(UseAnim.class, name.toUpperCase(Locale.US)));
     }
 
     public static Optional<EquipmentSlot> getEquipmentSlot(String name) {
-        return Optional.of(EQUIPMENT_SLOTS.get(name));
+        return Optional.ofNullable(EQUIPMENT_SLOTS.get(name));
     }
 }
