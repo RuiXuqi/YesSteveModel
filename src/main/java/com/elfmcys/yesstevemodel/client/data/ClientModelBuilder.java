@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.data;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.info.ModelStats;
@@ -48,7 +49,9 @@ public class ClientModelBuilder {
         var displayInfo = buildDisplayInfo(data);
         var info = new ClientModelInfo(displayInfo, isNeedAuth, authorAvatars);
 
-        var model = new ClientModel(mainModel, armModel, animations, textures, projectileModels, data.info(), info);
+        var conditionManager = buildConditionManager(animations);
+
+        var model = new ClientModel(mainModel, armModel, animations, textures, projectileModels, data.info(), info, conditionManager);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
@@ -70,6 +73,12 @@ public class ClientModelBuilder {
             }
         }
         return Object2ReferenceMaps.unmodifiable(map);
+    }
+
+    private static ConditionManager buildConditionManager(Map<String, Animation> animations) {
+        ConditionManager conditionManager = new ConditionManager();
+        animations.keySet().forEach(conditionManager::addTest);
+        return conditionManager;
     }
 
     private static Map<ProjectileType, ProjectileModel> buildProjectileModels(ClientModelData data, boolean isDefaultModel) {

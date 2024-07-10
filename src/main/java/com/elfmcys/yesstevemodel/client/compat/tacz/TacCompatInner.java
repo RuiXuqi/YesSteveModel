@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.tacz;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
@@ -203,7 +202,7 @@ class TacCompatInner {
     @NotNull
     private static PlayState getGunTypeAnimation(AnimationEvent<CustomPlayerEntity> event, String weaponType, String prefix) {
         String modelId = event.getAnimatable().getModelId();
-        ConditionTAC conditionTAC = ConditionManager.getTAC(modelId);
+        ConditionTAC conditionTAC = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
         if (conditionTAC != null) {
             ItemStack stack = event.getAnimatable().getEntity().getMainHandItem();
             String name = conditionTAC.doTest(stack, prefix);

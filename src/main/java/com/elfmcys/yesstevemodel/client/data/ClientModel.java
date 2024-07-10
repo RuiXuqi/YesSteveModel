@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.data;
 
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.info.ModelInfo;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -24,7 +25,9 @@ public class ClientModel {
 
     private final ClientModelInfo clientModelInfo;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, FifoHashMap<String, ResourceLocation> textures, Map<ProjectileType, ProjectileModel> projectileModels, ModelInfo modelInfo, ClientModelInfo clientModelInfo) {
+    private final ConditionManager conditionManager;
+
+    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, FifoHashMap<String, ResourceLocation> textures, Map<ProjectileType, ProjectileModel> projectileModels, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
@@ -32,6 +35,7 @@ public class ClientModel {
         this.projectileModels = projectileModels;
         this.modelInfo = modelInfo;
         this.clientModelInfo = clientModelInfo;
+        this.conditionManager = conditionManager;
     }
 
     public GeoModel mainModel() {
@@ -60,6 +64,10 @@ public class ClientModel {
 
     public ClientModelInfo clientModelInfo() {
         return clientModelInfo;
+    }
+
+    public ConditionManager conditionManager() {
+        return conditionManager;
     }
 
     public String defaultTextureName() {

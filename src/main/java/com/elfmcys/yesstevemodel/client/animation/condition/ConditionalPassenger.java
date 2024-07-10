@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
-import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -9,12 +10,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITagManager;
 
-import java.util.List;
-
 public class ConditionalPassenger {
     private static final String EMPTY = "";
-    private final List<ResourceLocation> idTest = Lists.newArrayList();
-    private final List<TagKey<EntityType<?>>> tagTest = Lists.newArrayList();
+    private final ObjectOpenHashSet<ResourceLocation> idTest = new ObjectOpenHashSet<>();
+    private final ReferenceArrayList<TagKey<EntityType<?>>> tagTest = new ReferenceArrayList<>();
     private final String idPre;
     private final String tagPre;
 

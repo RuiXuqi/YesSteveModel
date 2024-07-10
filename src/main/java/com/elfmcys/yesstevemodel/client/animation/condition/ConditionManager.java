@@ -1,89 +1,69 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
-import com.google.common.collect.Maps;
 import net.minecraft.world.InteractionHand;
 
-import java.util.Map;
-
 public class ConditionManager {
-    public static ConditionManager INSTANCE = new ConditionManager();
+    private final ConditionalSwing swing = new ConditionalSwing(InteractionHand.MAIN_HAND);
+    private final ConditionalSwing swingOffhand = new ConditionalSwing(InteractionHand.OFF_HAND);
+    private final ConditionalUse useMainHand = new ConditionalUse(InteractionHand.MAIN_HAND);
+    private final ConditionalUse useOffHand = new ConditionalUse(InteractionHand.OFF_HAND);
+    private final ConditionalHold holdMainHand = new ConditionalHold(InteractionHand.MAIN_HAND);
+    private final ConditionalHold holdOffHand = new ConditionalHold(InteractionHand.OFF_HAND);
+    private final ConditionArmor armor = new ConditionArmor();
+    private final ConditionTAC tac = new ConditionTAC();
+    private final ConditionalVehicle vehicle = new ConditionalVehicle();
+    private final ConditionalPassenger passenger = new ConditionalPassenger();
 
-    private final Map<String, ConditionalSwing> swing = Maps.newHashMap();
-    private final Map<String, ConditionalSwing> swingOffhand = Maps.newHashMap();
-    private final Map<String, ConditionalUse> useMainHand = Maps.newHashMap();
-    private final Map<String, ConditionalUse> useOffHand = Maps.newHashMap();
-    private final Map<String, ConditionalHold> holdMainHand = Maps.newHashMap();
-    private final Map<String, ConditionalHold> holdOffHand = Maps.newHashMap();
-    private final Map<String, ConditionArmor> amor = Maps.newHashMap();
-    private final Map<String, ConditionTAC> tac = Maps.newHashMap();
-    private final Map<String, ConditionalVehicle> vehicle = Maps.newHashMap();
-    private final Map<String, ConditionalPassenger> passenger = Maps.newHashMap();
-
-    public void addTest(String modelId, String name) {
-        ConditionalSwing conditionalSwing = swing.computeIfAbsent(modelId, id -> new ConditionalSwing(InteractionHand.MAIN_HAND));
-        ConditionalSwing conditionalSwingOffhand = swingOffhand.computeIfAbsent(modelId, id -> new ConditionalSwing(InteractionHand.OFF_HAND));
-        ConditionalUse conditionalUseMainhand = useMainHand.computeIfAbsent(modelId, id -> new ConditionalUse(InteractionHand.MAIN_HAND));
-        ConditionalUse conditionalUseOffhand = useOffHand.computeIfAbsent(modelId, id -> new ConditionalUse(InteractionHand.OFF_HAND));
-        ConditionalHold conditionalHoldMainhand = holdMainHand.computeIfAbsent(modelId, id -> new ConditionalHold(InteractionHand.MAIN_HAND));
-        ConditionalHold conditionalHoldOffhand = holdOffHand.computeIfAbsent(modelId, id -> new ConditionalHold(InteractionHand.OFF_HAND));
-        ConditionArmor conditionArmor = amor.computeIfAbsent(modelId, id -> new ConditionArmor());
-        ConditionTAC conditionTAC = tac.computeIfAbsent(modelId, id -> new ConditionTAC());
-        ConditionalVehicle conditionVehicle = vehicle.computeIfAbsent(modelId, id -> new ConditionalVehicle());
-        ConditionalPassenger conditionPassenger = passenger.computeIfAbsent(modelId, id -> new ConditionalPassenger());
-
-        conditionalSwing.addTest(name);
-        conditionalSwingOffhand.addTest(name);
-        conditionalUseMainhand.addTest(name);
-        conditionalUseOffhand.addTest(name);
-        conditionalHoldMainhand.addTest(name);
-        conditionalHoldOffhand.addTest(name);
-        conditionArmor.addTest(name);
-        conditionTAC.addTest(name);
-        conditionVehicle.addTest(name);
-        conditionPassenger.addTest(name);
+    public void addTest(String name) {
+        swing.addTest(name);
+        swingOffhand.addTest(name);
+        useMainHand.addTest(name);
+        useOffHand.addTest(name);
+        holdMainHand.addTest(name);
+        holdOffHand.addTest(name);
+        armor.addTest(name);
+        tac.addTest(name);
+        vehicle.addTest(name);
+        passenger.addTest(name);
     }
 
-    public static void setInstance(ConditionManager instance) {
-        INSTANCE = instance;
+    public ConditionalSwing getSwingMainhand() {
+        return swing;
     }
 
-    public static ConditionalSwing getSwingMainhand(String modelId) {
-        return INSTANCE.swing.get(modelId);
+    public ConditionalSwing getSwingOffhand() {
+        return swingOffhand;
     }
 
-    public static ConditionalSwing getSwingOffhand(String modelId) {
-        return INSTANCE.swingOffhand.get(modelId);
+    public ConditionalUse getUseMainhand() {
+        return useMainHand;
     }
 
-    public static ConditionalUse getUseMainhand(String modelId) {
-        return INSTANCE.useMainHand.get(modelId);
+    public ConditionalUse getUseOffhand() {
+        return useOffHand;
     }
 
-    public static ConditionalUse getUseOffhand(String modelId) {
-        return INSTANCE.useOffHand.get(modelId);
+    public ConditionalHold getHoldMainhand() {
+        return holdMainHand;
     }
 
-    public static ConditionalHold getHoldMainhand(String modelId) {
-        return INSTANCE.holdMainHand.get(modelId);
+    public ConditionalHold getHoldOffhand() {
+        return holdOffHand;
     }
 
-    public static ConditionalHold getHoldOffhand(String modelId) {
-        return INSTANCE.holdOffHand.get(modelId);
+    public ConditionArmor getArmor() {
+        return armor;
     }
 
-    public static ConditionArmor getArmor(String modelId) {
-        return INSTANCE.amor.get(modelId);
+    public ConditionTAC getTAC() {
+        return tac;
     }
 
-    public static ConditionTAC getTAC(String modelId) {
-        return INSTANCE.tac.get(modelId);
+    public ConditionalVehicle getVehicle() {
+        return vehicle;
     }
 
-    public static ConditionalVehicle getVehicle(String modelId) {
-        return INSTANCE.vehicle.get(modelId);
-    }
-
-    public static ConditionalPassenger getPassenger(String modelId) {
-        return INSTANCE.passenger.get(modelId);
+    public ConditionalPassenger getPassenger() {
+        return passenger;
     }
 }

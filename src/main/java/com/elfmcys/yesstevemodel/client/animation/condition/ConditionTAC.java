@@ -1,17 +1,15 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
-import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-
 public class ConditionTAC {
     private static final String EMPTY = "";
-    private final List<String> nameTest = Lists.newArrayList();
-    private final List<ResourceLocation> idTest = Lists.newArrayList();
+    private final ObjectOpenHashSet<String> nameTest = new ObjectOpenHashSet<>();
+    private final ObjectOpenHashSet<ResourceLocation> idTest = new ObjectOpenHashSet<>();
 
     public void addTest(String name) {
         if (!name.startsWith("tac:") || !name.contains("$")) {

@@ -144,7 +144,7 @@ public final class AnimationManager {
             }
 
             String id = event.getAnimatable().getModelId();
-            ConditionalHold conditionalHold = ConditionManager.getHoldOffhand(id);
+            ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldOffhand()).orElse(null);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.OFF_HAND);
                 if (StringUtils.isNoneBlank(name)) {
@@ -182,7 +182,7 @@ public final class AnimationManager {
             }
 
             String id = event.getAnimatable().getModelId();
-            ConditionalHold conditionalHold = ConditionManager.getHoldMainhand(id);
+            ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldMainhand()).orElse(null);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.MAIN_HAND);
                 if (StringUtils.isNoneBlank(name)) {
@@ -212,7 +212,7 @@ public final class AnimationManager {
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             String id = event.getAnimatable().getModelId();
-            ConditionalSwing conditionalSwing = (player.swingingArm == InteractionHand.MAIN_HAND) ? ConditionManager.getSwingMainhand(id) : ConditionManager.getSwingOffhand(id);
+            ConditionalSwing conditionalSwing = ClientModelManager.getModel(id).map(model -> (player.swingingArm == InteractionHand.MAIN_HAND) ? model.conditionManager().getSwingMainhand() : model.conditionManager().getSwingOffhand()).orElse(null);
             if (conditionalSwing != null) {
                 String name = conditionalSwing.doTest(player, player.swingingArm);
                 if (StringUtils.isNoneBlank(name)) {
@@ -236,7 +236,7 @@ public final class AnimationManager {
             }
             if (player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
                 String id = event.getAnimatable().getModelId();
-                ConditionalUse conditionalUse = ConditionManager.getUseMainhand(id);
+                ConditionalUse conditionalUse = ClientModelManager.getModel(id).map(model -> model.conditionManager().getUseMainhand()).orElse(null);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(player, InteractionHand.MAIN_HAND);
                     if (StringUtils.isNoneBlank(name)) {
@@ -246,7 +246,7 @@ public final class AnimationManager {
                 return playAnimation(event, "use_mainhand", ILoopType.EDefaultLoopTypes.LOOP);
             } else {
                 String id = event.getAnimatable().getModelId();
-                ConditionalUse conditionalUse = ConditionManager.getUseOffhand(id);
+                ConditionalUse conditionalUse = ClientModelManager.getModel(id).map(model -> model.conditionManager().getUseOffhand()).orElse(null);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(player, InteractionHand.OFF_HAND);
                     if (StringUtils.isNoneBlank(name)) {
@@ -270,7 +270,7 @@ public final class AnimationManager {
         }
 
         String id = event.getAnimatable().getModelId();
-        ConditionArmor conditionArmor = ConditionManager.getArmor(id);
+        ConditionArmor conditionArmor = ClientModelManager.getModel(id).map(model -> model.conditionManager().getArmor()).orElse(null);
         if (conditionArmor != null) {
             String name = conditionArmor.doTest(player, slot);
             if (StringUtils.isNoneBlank(name)) {
@@ -297,7 +297,7 @@ public final class AnimationManager {
             return null;
         }
         String id = event.getAnimatable().getModelId();
-        ConditionalVehicle vehicleCondition = ConditionManager.getVehicle(id);
+        ConditionalVehicle vehicleCondition = ClientModelManager.getModel(id).map(model -> model.conditionManager().getVehicle()).orElse(null);
         if (vehicleCondition != null) {
             String name = vehicleCondition.doTest(player);
             if (StringUtils.isNoneBlank(name)) {
@@ -332,7 +332,7 @@ public final class AnimationManager {
         }
 
         String id = event.getAnimatable().getModelId();
-        ConditionalPassenger conditionalPassenger = ConditionManager.getPassenger(id);
+        ConditionalPassenger conditionalPassenger = ClientModelManager.getModel(id).map(model -> model.conditionManager().getPassenger()).orElse(null);
         if (conditionalPassenger != null) {
             String name = conditionalPassenger.doTest(player);
             if (StringUtils.isNoneBlank(name)) {

@@ -26,7 +26,6 @@ public class ClientModelSyncResult {
 
     public Object2ReferenceMap<String, ClientModel> models = new Object2ReferenceOpenHashMap<>();
     public ClientModel defaultModel;
-    public ConditionManager conditionManager = new ConditionManager();
 
     private final List<ResourceLocation> newTextureIds = Lists.newArrayList();
     private final List<ResourceLocation> removedTextures = Lists.newArrayList();
@@ -87,7 +86,6 @@ public class ClientModelSyncResult {
             return;
         }
 
-        model.animations().keySet().forEach(name -> conditionManager.addTest(modelId, name));
         if (isNew) {
             registerModelTextures(data, model);
         }
@@ -137,7 +135,6 @@ public class ClientModelSyncResult {
     @SuppressWarnings("unused")
     private void commit() {
         if (!models.containsKey("default") && ClientModelBuilder.getDefaultModel() != null) {
-            ClientModelBuilder.getDefaultModel().animations().keySet().forEach(name -> conditionManager.addTest("default", name));
             models.put("default", ClientModelBuilder.getDefaultModel());
         }
         models = Object2ReferenceMaps.unmodifiable(models);

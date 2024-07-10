@@ -1,6 +1,9 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
-import com.google.common.collect.Lists;
+import com.elfmcys.yesstevemodel.util.EnumUtil;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -12,8 +15,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITagManager;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 public class ConditionalHold {
@@ -24,10 +25,10 @@ public class ConditionalHold {
     private final String idPre;
     private final String tagPre;
     private final String extraPre;
-    private final List<ResourceLocation> idTest = Lists.newArrayList();
-    private final List<TagKey<Item>> tagTest = Lists.newArrayList();
-    private final List<UseAnim> extraTest = Lists.newArrayList();
-    private final List<String> innerTest = Lists.newArrayList();
+    private final ObjectOpenHashSet<ResourceLocation> idTest = new ObjectOpenHashSet<>();
+    private final ReferenceArrayList<TagKey<Item>> tagTest = new ReferenceArrayList<>();
+    private final ReferenceOpenHashSet<UseAnim> extraTest = new ReferenceOpenHashSet<>();
+    private final ObjectOpenHashSet<String> innerTest = new ObjectOpenHashSet<>();
 
     public ConditionalHold(InteractionHand hand) {
         if (hand == InteractionHand.MAIN_HAND) {
@@ -63,7 +64,7 @@ public class ConditionalHold {
             if (substring.equals(UseAnim.NONE.name().toLowerCase(Locale.US))) {
                 return;
             }
-            Arrays.stream(UseAnim.values()).filter(a -> a.name().toLowerCase(Locale.US).equals(substring)).findFirst().ifPresent(extraTest::add);
+            EnumUtil.getUseAnim(substring).ifPresent(extraTest::add);
             innerTest.add(name);
         }
     }

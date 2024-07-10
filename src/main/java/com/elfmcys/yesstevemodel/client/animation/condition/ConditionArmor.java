@@ -1,8 +1,11 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
+import com.elfmcys.yesstevemodel.util.EnumUtil;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -14,7 +17,7 @@ import net.minecraftforge.registries.tags.ITagManager;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,8 +26,8 @@ public class ConditionArmor {
     private static final Pattern TAG_PRE_REG = Pattern.compile("^(.+?)#(.*?)$");
     private static final String EMPTY = "";
 
-    private final Map<EquipmentSlot, List<ResourceLocation>> idTest = Maps.newHashMap();
-    private final Map<EquipmentSlot, List<TagKey<Item>>> tagTest = Maps.newHashMap();
+    private final Reference2ReferenceOpenHashMap<EquipmentSlot, ObjectOpenHashSet<ResourceLocation>> idTest = new Reference2ReferenceOpenHashMap<>();
+    private final Reference2ReferenceOpenHashMap<EquipmentSlot, ReferenceArrayList<TagKey<Item>>> tagTest = new Reference2ReferenceOpenHashMap<>();
 
     public void addTest(String name) {
         Matcher matcherId = ID_PRE_REG.matcher(name);
@@ -37,13 +40,7 @@ public class ConditionArmor {
             if (!ResourceLocation.isValidResourceLocation(id)) {
                 return;
             }
-            ResourceLocation res = new ResourceLocation(id);
-            if (idTest.containsKey(type)) {
-                idTest.get(type).add(res);
-            } else {
-                idTest.put(type, Lists.newArrayList(res));
-            }
-            return;
+            idTest.computeIfAbsent(type, k -> new ObjectOpenHashSet<>()).add(new ResourceLocation(id));
         }
 
         Matcher matcherTag = TAG_PRE_REG.matcher(name);
@@ -61,11 +58,7 @@ public class ConditionArmor {
                 return;
             }
             TagKey<Item> tagKey = tags.createTagKey(new ResourceLocation(id));
-            if (tagTest.containsKey(type)) {
-                tagTest.get(type).add(tagKey);
-            } else {
-                tagTest.put(type, Lists.newArrayList(tagKey));
-            }
+            tagTest.computeIfAbsent(type, t -> new ReferenceArrayList<>()).add(tagKey);
         }
     }
 
@@ -88,7 +81,7 @@ public class ConditionArmor {
         if (!idTest.containsKey(slot) || idTest.get(slot).isEmpty()) {
             return EMPTY;
         }
-        List<ResourceLocation> idListTest = idTest.get(slot);
+        Set<ResourceLocation> idListTest = idTest.get(slot);
         ItemStack item = EquipmentUtil.getEquippedItem(player, slot);
         ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(item.getItem());
         if (registryName == null) {
@@ -116,14 +109,8 @@ public class ConditionArmor {
         return tagListTest.stream().filter(item::is).findFirst().map(itemTagKey -> slot.getName() + "#" + itemTagKey.location()).orElse(EMPTY);
     }
 
-
     @Nullable
     public static EquipmentSlot getType(String type) {
-        for (EquipmentSlot equipmentslot : EquipmentSlot.values()) {
-            if (equipmentslot.getName().equals(type)) {
-                return equipmentslot;
-            }
-        }
-        return null;
+        return EnumUtil.getEquipmentSlot(type).orElse(null);
     }
 }

@@ -87,7 +87,6 @@ public class ClientModelManager {
             if (result.defaultModel != null) {
                 DEFAULT_MODEL = result.defaultModel;
             }
-            ConditionManager.setInstance(result.conditionManager);
         });
     }
 
