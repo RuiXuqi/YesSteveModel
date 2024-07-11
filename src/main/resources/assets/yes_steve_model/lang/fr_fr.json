@@ -445,5 +445,6 @@
   "molang.yes_steve_model.ysm.elytra_rot_y.desc": "Returns the entity's elytra y rotation.",
   "molang.yes_steve_model.ysm.elytra_rot_z.desc": "Returns the entity's elytra z rotation.",
   "molang.yes_steve_model.ysm.food_level.desc": "Returns the player's hunger value.",
-  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "Return 1.0 if the First Person Mod is installed and player's head needs to be hidden, else it returns 0.0"
+  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "Return 1.0 if the First Person Mod is installed and player's head needs to be hidden, else it returns 0.0",
+  "message.yes_steve_model.client.ping_result": "§6§l[§aYSM§6§l] §rThe server-side YSM mod version is §c§n%s"
 }

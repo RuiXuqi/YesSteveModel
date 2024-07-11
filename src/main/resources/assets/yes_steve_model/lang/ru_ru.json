@@ -445,5 +445,6 @@
   "molang.yes_steve_model.ysm.elytra_rot_y.desc": "Возвращает поворот сущности на элитрах по оси y.",
   "molang.yes_steve_model.ysm.elytra_rot_z.desc": "Возвращает поворот сущности на элитрах по оси z.",
   "molang.yes_steve_model.ysm.food_level.desc": "Возвращает уровень голода игрока.",
-  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "Возвращает §ctrue§r если установлен First Person Mod и нужно скрыть голову игрока, иначе возвращается §afalse§r"
+  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "Возвращает §ctrue§r если установлен First Person Mod и нужно скрыть голову игрока, иначе возвращается §afalse§r",
+  "message.yes_steve_model.client.ping_result": "§6§l[§aYSM§6§l] §rThe server-side YSM mod version is §c§n%s"
 }

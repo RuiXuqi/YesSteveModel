@@ -40,7 +40,7 @@ public class ModelCommand {
     private static final String EXPORT_NAME = "export";
 
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
-        LiteralArgumentBuilder<CommandSourceStack> model = Commands.literal(MODEL_NAME);
+        LiteralArgumentBuilder<CommandSourceStack> model = Commands.literal(MODEL_NAME).requires(src -> CommandUtil.hasPermission(src, 2));
         LiteralArgumentBuilder<CommandSourceStack> reload = Commands.literal(RELOAD_NAME);
         model.then(reload.executes(ModelCommand::reloadAllPack));
 

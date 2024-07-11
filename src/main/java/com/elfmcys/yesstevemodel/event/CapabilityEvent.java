@@ -2,12 +2,8 @@ package com.elfmcys.yesstevemodel.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.*;
-import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
-import com.elfmcys.yesstevemodel.network.message.SyncArrowModelInfo;
-import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
-import com.elfmcys.yesstevemodel.network.message.SyncModelInfo;
-import com.elfmcys.yesstevemodel.network.message.SyncStarModels;
+import com.elfmcys.yesstevemodel.network.message.*;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -125,6 +121,9 @@ public final class CapabilityEvent {
                 && event.player instanceof ServerPlayer player) {
             getModelInfoCap(player).ifPresent(cap -> {
                 if (!NetworkHandler.isPlayerChannelPresent(player) && !cap.isMandatory()) {
+                    if (player.tickCount == 200 || player.tickCount == 600 || player.tickCount == 1800) {
+                        NetworkHandler.sendToClientPlayer(new ServerInfo(), player);
+                    }
                     return;
                 }
                 if (cap.isDirty()) {

@@ -445,5 +445,6 @@
   "molang.yes_steve_model.ysm.elytra_rot_y.desc": "플레이어의 겉날개 Y축 회전 값을 반환합니다.",
   "molang.yes_steve_model.ysm.elytra_rot_z.desc": "플레이어의 겉날개 Z축 회전 값을 반환합니다.",
   "molang.yes_steve_model.ysm.food_level.desc": "플레이어의 허기 값을 반환합니다.",
-  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "First Person 모드가 설치되어 있어 1인칭 시점에서 플레이어의 머리를 숨겨야 할 때 1을, 그 이외의 경우 0을 반환합니다."
+  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "First Person 모드가 설치되어 있어 1인칭 시점에서 플레이어의 머리를 숨겨야 할 때 1을, 그 이외의 경우 0을 반환합니다.",
+  "message.yes_steve_model.client.ping_result": "§6§l[§aYSM§6§l] §rThe server-side YSM mod version is §c§n%s"
 }

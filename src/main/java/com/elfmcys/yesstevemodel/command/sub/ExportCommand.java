@@ -21,7 +21,7 @@ public class ExportCommand {
     private static final String EXTRA_NAME = "extra";
 
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
-        LiteralArgumentBuilder<CommandSourceStack> export = Commands.literal(EXPORT_NAME);
+        LiteralArgumentBuilder<CommandSourceStack> export = Commands.literal(EXPORT_NAME).requires(src -> CommandUtil.hasPermission(src, 2));
         RequiredArgumentBuilder<CommandSourceStack, String> modelId = Commands.argument(MODEL_ID_NAME, StringArgumentType.string()).suggests(CommandRegistry.ALL_MODELS);
         RequiredArgumentBuilder<CommandSourceStack, String> extra = Commands.argument(EXTRA_NAME, StringArgumentType.greedyString());
         export.then(modelId.executes(ExportCommand::exportModel));

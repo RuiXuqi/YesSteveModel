@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.event.CommandRegistry;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
+import com.elfmcys.yesstevemodel.util.CommandUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -31,7 +32,7 @@ public class AuthCommand {
     private static final String MODEL_ID_NAME = "model_id";
 
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
-        LiteralArgumentBuilder<CommandSourceStack> auth = Commands.literal(AUTH_NAME);
+        LiteralArgumentBuilder<CommandSourceStack> auth = Commands.literal(AUTH_NAME).requires(src -> CommandUtil.hasPermission(src, 2));
         RequiredArgumentBuilder<CommandSourceStack, EntitySelector> targets = Commands.argument(TARGETS_NAME, EntityArgument.players());
         RequiredArgumentBuilder<CommandSourceStack, String> modelId = Commands.argument(MODEL_ID_NAME, StringArgumentType.string()).suggests(CommandRegistry.ALL_MODELS);
 

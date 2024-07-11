@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.command.sub;
 
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.ExecuteMolang;
+import com.elfmcys.yesstevemodel.util.CommandUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -24,7 +25,7 @@ public class MolangCommand {
     private static final String TARGETS_NAME = "targets";
 
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
-        LiteralArgumentBuilder<CommandSourceStack> molang = Commands.literal(MOLANG_NAME);
+        LiteralArgumentBuilder<CommandSourceStack> molang = Commands.literal(MOLANG_NAME).requires(src -> CommandUtil.hasPermission(src, 2));
         LiteralArgumentBuilder<CommandSourceStack> execute = Commands.literal(EXECUTE_NAME);
 
         RequiredArgumentBuilder<CommandSourceStack, String> exp = Commands.argument(EXPRESSION_NAME, StringArgumentType.greedyString());

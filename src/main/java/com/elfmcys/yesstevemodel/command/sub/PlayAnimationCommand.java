@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.command.sub;
 
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.event.CommandRegistry;
+import com.elfmcys.yesstevemodel.util.CommandUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -23,7 +24,7 @@ public class PlayAnimationCommand {
     private static final String STOP = "stop";
 
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
-        LiteralArgumentBuilder<CommandSourceStack> play = Commands.literal(PLAY_NAME);
+        LiteralArgumentBuilder<CommandSourceStack> play = Commands.literal(PLAY_NAME).requires(src -> CommandUtil.hasPermission(src, 2));
         RequiredArgumentBuilder<CommandSourceStack, EntitySelector> targets = Commands.argument(TARGETS_NAME, EntityArgument.players());
         RequiredArgumentBuilder<CommandSourceStack, String> animation = Commands.argument(ANIMATION_NAME, StringArgumentType.string()).suggests(CommandRegistry.ALL_ANIMATIONS);
         play.then(targets.then(animation.executes(PlayAnimationCommand::playAnimation)));
