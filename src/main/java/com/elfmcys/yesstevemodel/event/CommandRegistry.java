@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.commands.CommandSourceStack;
@@ -28,9 +29,9 @@ public final class CommandRegistry {
     public static final SuggestionProvider<CommandSourceStack> ALL_MODELS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "models"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider) {
             if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-                return SharedSuggestionProvider.suggest(ServerModelManager.getModels().keySet().stream().map(str -> '"' + str + '"').toList(), builder);
+                return SharedSuggestionProvider.suggest(ServerModelManager.getModels().keySet().stream().map(CommandRegistry::filterSuggestionStr).toList(), builder);
             } else {
-                return SharedSuggestionProvider.suggest(ClientModelManager.getModels().keySet().stream().map(str -> '"' + str + '"').toList(), builder);
+                return SharedSuggestionProvider.suggest(ClientModelManager.getModels().keySet().stream().map(CommandRegistry::filterSuggestionStr).toList(), builder);
             }
         } else {
             return Suggestions.empty();
@@ -45,7 +46,7 @@ public final class CommandRegistry {
             } else {
                 var main = ClientModelManager.getModels().get(ModelIdUtil.DEFAULT_MODEL_ID).animations();
                 Set<String> animations = Sets.newHashSet();
-                animations.addAll(main.keySet().stream().map(str -> '"' + str + '"').toList());
+                animations.addAll(main.keySet().stream().map(CommandRegistry::filterSuggestionStr).toList());
                 animations.add("stop");
                 return SharedSuggestionProvider.suggest(animations, builder);
             }
@@ -62,13 +63,13 @@ public final class CommandRegistry {
                     List<String> textures = ServerModelManager.getModels().get(modelId).textures();
                     return SharedSuggestionProvider.suggest(textures.stream()
                                     .filter(name -> !name.equals(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER))
-                                    .map(str -> '"' + str + '"').toList()
+                                    .map(CommandRegistry::filterSuggestionStr).toList()
                             , builder);
                 }
             } else {
                 if (ClientModelManager.getModels().containsKey(modelId)) {
                     return SharedSuggestionProvider.suggest(ClientModelManager.getModel(modelId).map(model -> model.textures().keyList().stream()
-                                    .map(str -> '"' + str + '"').toList())
+                                    .map(CommandRegistry::filterSuggestionStr).toList())
                             .orElseGet(Lists::newArrayList), builder);
                 }
             }
@@ -82,5 +83,12 @@ public final class CommandRegistry {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ClientRootCommand.register(event.getDispatcher());
         }
+    }
+
+    private static String filterSuggestionStr(String str) {
+        if (str.chars().allMatch(c -> StringReader.isAllowedInUnquotedString((char) c))) {
+            return str;
+        }
+        return String.format("\"%s\"", str.replace("\"", "\\\"").replace("'", "\\'"));
     }
 }
