@@ -5,10 +5,12 @@ import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
+import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -30,9 +32,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public final class AnimationManager {
-    public final static String TACZ_ID = "tacz";
     private static AnimationManager MANAGER;
     @SuppressWarnings("unchecked")
     private final ReferenceArrayList<AnimationState>[] data = new ReferenceArrayList[Priority.LOWEST + 1];
@@ -105,6 +107,17 @@ public final class AnimationManager {
         if (event.getAnimatable().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
+
+        // 跑酷模组兼容
+        String parCoolAnimation = ParCoolCompat.getAnimation(player);
+        if (parCoolAnimation != null) {
+            String modelId = event.getAnimatable().getModelId();
+            Optional<Animation> optional = ClientModelManager.getPlayerAnimation(modelId, parCoolAnimation);
+            if (optional.isPresent()) {
+                return playAnimation(event, parCoolAnimation);
+            }
+        }
+
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {
             // 载具动画单独检查
             if (i == Priority.HIGH) {

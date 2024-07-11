@@ -1,0 +1,71 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"parcool:backward_wall_jump": {
+			"loop": true
+		},
+		"parcool:wall_jump": {
+			"loop": true
+		},
+		"parcool:cat_leap": {
+			"loop": true
+		},
+		"parcool:climb_up": {
+			"loop": true
+		},
+		"parcool:cling_to_cliff": {
+			"loop": true
+		},
+		"parcool:crawl": {
+			"loop": true
+		},
+		"parcool:dive_animation_host": {
+			"loop": true
+		},
+		"parcool:dive_into_water": {
+			"loop": true
+		},
+		"parcool:dodge": {
+			"loop": true
+		},
+		"parcool:fast_running": {
+			"loop": true
+		},
+		"parcool:fast_swim": {
+			"loop": true
+		},
+		"parcool:flipping": {
+			"loop": true
+		},
+		"parcool:horizontal_wall_run": {
+			"loop": true
+		},
+		"parcool:vertical_wall_run": {
+			"loop": true
+		},
+		"parcool:jump_from_bar": {
+			"loop": true
+		},
+		"parcool:hang": {
+			"loop": true
+		},
+		"parcool:kong_vault": {
+			"loop": true
+		},
+		"parcool:speed_vault": {
+			"loop": true
+		},
+		"parcool:roll": {
+			"loop": true
+		},
+		"parcool:sliding": {
+			"loop": true
+		},
+		"parcool:tap": {
+			"loop": true
+		},
+		"parcool:wall_slide": {
+			"loop": true
+		}
+	}
+}

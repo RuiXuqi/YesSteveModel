@@ -73,7 +73,8 @@
         "arm": "animations/arm.animation.json",
         "extra": "animations/extra.animation.json",
         "tac": "animations/tac.animation.json",
-        "carryon": "animations/carryon.animation.json"
+        "carryon": "animations/carryon.animation.json",
+        "parcool": "animations/parcool.animation.json"
       },
       "texture": [
         "textures/default.png",
