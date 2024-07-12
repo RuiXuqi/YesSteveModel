@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
@@ -60,7 +61,7 @@ public class PlayerTextureScreen extends Screen {
     static {
         for (int i = 0; i < TEXTURE_BUTTON_INSTANCE.length; i++) {
             GuiModelInstance instance = new GuiModelInstance();
-            instance.getAnimatable().setPreviewAnimation("idle");
+            instance.getAnimatable().setPreviewAnimation(AnimationRegister.IDLE);
             TEXTURE_BUTTON_INSTANCE[i] = instance;
         }
     }

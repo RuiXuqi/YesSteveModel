@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
@@ -52,7 +53,7 @@ public class PlayerModelScreen extends Screen {
     static {
         for (int i = 0; i < MODEL_PREVIEW_INSTANCE.length; i++) {
             GuiModelInstance instance = new GuiModelInstance();
-            instance.getAnimatable().setPreviewAnimation("idle");
+            instance.getAnimatable().setPreviewAnimation(AnimationRegister.IDLE);
             MODEL_PREVIEW_INSTANCE[i] = instance;
         }
     }

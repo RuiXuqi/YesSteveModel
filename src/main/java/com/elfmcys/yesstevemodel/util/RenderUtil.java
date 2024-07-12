@@ -43,7 +43,7 @@ public final class RenderUtil {
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
-        viewStack.translate(pPosX, pPosY, 1050.0D);
+        viewStack.translate(pPosX, pPosY, 1250.0D);
         viewStack.scale(1.0F, 1.0F, -1.0F);
         RenderSystem.applyModelViewMatrix();
 

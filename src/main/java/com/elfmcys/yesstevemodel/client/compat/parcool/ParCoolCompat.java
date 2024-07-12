@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.parcool;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.LoadingModList;
 import org.jetbrains.annotations.Nullable;
 
 public class ParCoolCompat {
@@ -9,7 +9,7 @@ public class ParCoolCompat {
     private static boolean INSTALLED;
 
     public static void init() {
-        INSTALLED = ModList.get().isLoaded(MOD_ID);
+        INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null;
     }
 
     public static boolean isInstalled() {

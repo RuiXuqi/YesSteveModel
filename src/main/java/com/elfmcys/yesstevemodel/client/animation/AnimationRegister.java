@@ -9,6 +9,10 @@ import net.minecraft.world.entity.player.Player;
 import java.util.function.BiPredicate;
 
 public class AnimationRegister {
+    public static final String IDLE = "idle";
+    public static final String HOVER = "hover";
+    public static final String FOCUS = "focus";
+
     private static final double MIN_SPEED = 0.05;
 
     public static void registerAnimationState() {
@@ -35,7 +39,7 @@ public class AnimationRegister {
         register("run", Priority.LOW, (player, event) -> player.onGround() && player.isSprinting());
         register("walk", Priority.LOW, (player, event) -> player.onGround() && event.getLimbSwingAmount() > MIN_SPEED);
 
-        register("idle", Priority.LOWEST, (player, event) -> true);
+        register(IDLE, Priority.LOWEST, (player, event) -> true);
     }
 
     private static void register(String animationName, ILoopType loopType, int priority, BiPredicate<Player, AnimationEvent<CustomPlayerEntity>> predicate) {
