@@ -12,6 +12,7 @@
   "gui.yes_steve_model.search": "Search models...",
   "gui.yes_steve_model.url.home": "Home Page",
   "gui.yes_steve_model.url.donate": "Donate",
+  "gui.yes_steve_model.model.info.contact.click_hint": "Scroll to select. Click to copy or open.",
   "gui.yes_steve_model.model.authors": "§2§l▌ §3Authors: %s",
   "gui.yes_steve_model.model.license": "§2§l▌ §3License: %s",
   "gui.yes_steve_model.model.main_model_info": "§6§l➤ %d bones, %d cubes, %d faces",

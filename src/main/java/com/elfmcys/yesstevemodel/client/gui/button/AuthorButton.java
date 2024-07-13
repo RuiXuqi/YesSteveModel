@@ -3,12 +3,14 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.google.common.collect.Lists;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -17,17 +19,16 @@ public class AuthorButton extends Button {
     private final ModelAuthor author;
     private final ResourceLocation avatar;
     private final List<Component> tooltips;
+    private int selectedContactIndex = -1;
 
     public AuthorButton(int pX, int pY, ModelAuthor author, ResourceLocation avatar) {
-        super(pX, pY, 70, 130, Component.empty(), (b) -> {
+        super(pX, pY, 70, 130, Component.empty(), b -> {
         }, DEFAULT_NARRATION);
         this.author = author;
         this.avatar = avatar;
         this.tooltips = Lists.newArrayList();
         if (this.author != null) {
-            this.author.contact().forEach((k, v) -> {
-                this.tooltips.add(Component.literal(k + ": " + v));
-            });
+            updateTooltips(false);
         }
     }
 
@@ -57,6 +58,76 @@ public class AuthorButton extends Button {
     public void renderToolTip(GuiGraphics graphics, Screen screen, int pMouseX, int pMouseY) {
         if (this.isHovered && !tooltips.isEmpty()) {
             graphics.renderComponentTooltip(screen.getMinecraft().font, tooltips, pMouseX, pMouseY);
+        } else {
+            if (selectedContactIndex != -1) {
+                selectedContactIndex = -1;
+                updateTooltips(false);
+            }
+        }
+    }
+
+    @Override
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        if (pDelta > 0) {
+            if (selectedContactIndex > 0) {
+                selectedContactIndex--;
+                updateTooltips(false);
+            }
+            return true;
+        } else if (pDelta < 0) {
+            if (selectedContactIndex < tooltips.size() - 2) {
+                selectedContactIndex++;
+                updateTooltips(false);
+            }
+            return true;
+        }
+        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+    }
+
+    private void updateTooltips(boolean copied) {
+        if (author == null) {
+            return;
+        }
+
+        tooltips.clear();
+        for (int i = 0; i < author.contact().size(); i++) {
+            MutableComponent component = Component.literal(author.contact().getKeyAt(i) + ": " + author.contact().getValueAt(i));
+            if (i == selectedContactIndex) {
+                component.append(Component.literal(copied ? " ✓" : " ◀").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+            }
+            tooltips.add(component);
+        }
+        if (!tooltips.isEmpty()) {
+            tooltips.add(Component.translatable("gui.yes_steve_model.model.info.contact.click_hint").withStyle(ChatFormatting.DARK_GRAY));
+        }
+    }
+
+    @Override
+    public void onPress() {
+        if (author == null) {
+            return;
+        }
+
+        int index = selectedContactIndex;
+        if (index == -1) {
+            index = 0;
+        }
+        if (index < 0 || index >= author.contact().size()) {
+            return;
+        }
+        String value = author.contact().getValueAt(index);
+        if (value == null) {
+            return;
+        }
+
+        if (value.startsWith("http://") || value.startsWith("https://")) {
+            Util.getPlatform().openUri(value);
+        } else {
+            Minecraft.getInstance().keyboardHandler.setClipboard(value);
+            if (selectedContactIndex == -1) {
+                selectedContactIndex = 0;
+            }
+            updateTooltips(true);
         }
     }
 }

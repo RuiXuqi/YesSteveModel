@@ -445,5 +445,7 @@
   "molang.yes_steve_model.ysm.elytra_rot_y.desc": "玩家鞘翅的 Y 旋轉角度",
   "molang.yes_steve_model.ysm.elytra_rot_z.desc": "玩家鞘翅的 Z 旋轉角度",
   "molang.yes_steve_model.ysm.food_level.desc": "玩家飽食度",
-  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "當玩家安裝 First Person Mod 且需要隱藏玩家頭部時為 true，否者為 false"
+  "molang.yes_steve_model.ysm.first_person_mod_hide.desc": "當玩家安裝 First Person Mod 且需要隱藏玩家頭部時為 true，否者為 false",
+  "gui.yes_steve_model.model.info.contact.click_hint": "Scroll to select. Click to copy or open.",
+  "message.yes_steve_model.client.ping_result": "§6§l[§aYSM§6§l] §rThe server-side YSM mod version is §c§n%s"
 }
