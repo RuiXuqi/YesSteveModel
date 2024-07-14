@@ -11,7 +11,9 @@ import java.util.function.BiPredicate;
 public class AnimationRegister {
     public static final String IDLE = "idle";
     public static final String HOVER = "hover";
+    public static final String HOVER_FADEOUT = "hover_fadeout";
     public static final String FOCUS = "focus";
+    public static final String EMPTY = "empty";
 
     private static final double MIN_SPEED = 0.05;
 

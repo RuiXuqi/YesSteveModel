@@ -12,6 +12,7 @@ import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,9 +31,12 @@ public class ModelButton extends Button {
     private final int color;
     private final ClientModel model;
     private final GuiModelInstance instance;
-    private final String previewAnimationName;
     private final String hoverAnimationName;
+    private final String hoverFadeoutAnimationName;
     private final String focusAnimationName;
+    private final double fadeoutTime;
+
+    private long hoverTime = -1L;
 
     public ModelButton(int pX, int pY, boolean needAuth, GuiModelInstance instance, ClientModel model) {
         super(pX, pY, 52, 90, Component.literal(instance.getModelId()), (b) -> {
@@ -41,20 +45,28 @@ public class ModelButton extends Button {
         this.color = needAuth ? 0x7F_000000 : 0xFF_434242;
         this.model = model;
         this.instance = instance;
-        this.previewAnimationName = instance.getAnimatable().getPreviewAnimation();
 
+        var animations = model.animations();
         // 如果有 hover 动画
-        if (model.animations().containsKey(AnimationRegister.HOVER)) {
+        if (animations.containsKey(AnimationRegister.HOVER)) {
             this.hoverAnimationName = AnimationRegister.HOVER;
         } else {
-            this.hoverAnimationName = this.previewAnimationName;
+            this.hoverAnimationName = AnimationRegister.EMPTY;
+        }
+
+        if (animations.containsKey(AnimationRegister.HOVER_FADEOUT)) {
+            this.hoverFadeoutAnimationName = AnimationRegister.HOVER_FADEOUT;
+            this.fadeoutTime = animations.get(AnimationRegister.HOVER_FADEOUT).animationLength * 1000;
+        } else {
+            this.hoverFadeoutAnimationName = AnimationRegister.EMPTY;
+            this.fadeoutTime = 0;
         }
 
         // 如果有 focus 动画
-        if (model.animations().containsKey(AnimationRegister.FOCUS)) {
+        if (animations.containsKey(AnimationRegister.FOCUS)) {
             this.focusAnimationName = AnimationRegister.FOCUS;
         } else {
-            this.focusAnimationName = this.previewAnimationName;
+            this.focusAnimationName = AnimationRegister.EMPTY;
         }
     }
 
@@ -81,14 +93,19 @@ public class ModelButton extends Button {
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHovered()) {
+            hoverTime = Util.getMillis();
             instance.getAnimatable().setHoverAnimation(hoverAnimationName);
         } else {
-            instance.getAnimatable().setHoverAnimation("");
+            if (Util.getMillis() - hoverTime < fadeoutTime) {
+                instance.getAnimatable().setHoverAnimation(this.hoverFadeoutAnimationName);
+            } else {
+                instance.getAnimatable().setHoverAnimation(AnimationRegister.EMPTY);
+            }
         }
         if (isFocused()) {
             instance.getAnimatable().setFocusAnimation(focusAnimationName);
         } else {
-            instance.getAnimatable().setFocusAnimation("");
+            instance.getAnimatable().setFocusAnimation(AnimationRegister.EMPTY);
         }
 
         Minecraft minecraft = Minecraft.getInstance();

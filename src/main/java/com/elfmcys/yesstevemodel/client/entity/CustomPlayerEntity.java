@@ -84,8 +84,8 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2, manager::predicatePassengerAnimation));
         data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, manager::predicateCap));
 
-        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 2, manager::predicateHover));
-        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 2, manager::predicateFocus));
+        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 5, manager::predicateHover));
+        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 5, manager::predicateFocus));
 
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);
