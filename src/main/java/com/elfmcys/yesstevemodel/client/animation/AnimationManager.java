@@ -99,6 +99,22 @@ public final class AnimationManager {
         }).orElse(PlayState.STOP);
     }
 
+    public PlayState predicateHover(AnimationEvent<CustomPlayerEntity> event) {
+        String hoverAnimation = event.getAnimatable().getHoverAnimation();
+        if (StringUtils.isNoneBlank(hoverAnimation)) {
+            return playLoopAnimation(event, hoverAnimation);
+        }
+        return PlayState.STOP;
+    }
+
+    public PlayState predicateFocus(AnimationEvent<CustomPlayerEntity> event) {
+        String focusAnimation = event.getAnimatable().getFocusAnimation();
+        if (StringUtils.isNoneBlank(focusAnimation)) {
+            return playLoopAnimation(event, focusAnimation);
+        }
+        return PlayState.STOP;
+    }
+
     @NotNull
     public PlayState predicateMain(AnimationEvent<CustomPlayerEntity> event) {
         Player player = event.getAnimatable().getEntity();

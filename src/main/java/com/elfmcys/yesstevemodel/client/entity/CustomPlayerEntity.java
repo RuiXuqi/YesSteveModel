@@ -34,6 +34,8 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
     private String texture = ModelIdUtil.DEFAULT_TEXTURE_NAME;
     private Struct remoteStruct;
     private String previewAnimation = "";
+    private String hoverAnimation = "";
+    private String focusAnimation = "";
     private AbstractClientPlayer player;
 
     private int instanceIdOverride;
@@ -81,6 +83,10 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         }
         data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2, manager::predicatePassengerAnimation));
         data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, manager::predicateCap));
+
+        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 2, manager::predicateHover));
+        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 2, manager::predicateFocus));
+
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);
             String animationName = String.format("parallel%d", i);
@@ -143,16 +149,28 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         this.previewAnimation = previewAnimation;
     }
 
-    public void clearPreviewAnimation() {
-        this.previewAnimation = "";
-    }
-
     public boolean hasPreviewAnimation() {
         return StringUtils.isNoneBlank(this.previewAnimation);
     }
 
     public boolean hasPreviewAnimation(String previewAnimation) {
         return hasPreviewAnimation() && previewAnimation.equals(this.previewAnimation);
+    }
+
+    public String getHoverAnimation() {
+        return hoverAnimation;
+    }
+
+    public String getFocusAnimation() {
+        return focusAnimation;
+    }
+
+    public void setHoverAnimation(String hoverAnimation) {
+        this.hoverAnimation = hoverAnimation;
+    }
+
+    public void setFocusAnimation(String focusAnimation) {
+        this.focusAnimation = focusAnimation;
     }
 
     @Nullable

@@ -81,11 +81,14 @@ public class ModelButton extends Button {
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHovered()) {
-            instance.getAnimatable().setPreviewAnimation(hoverAnimationName);
-        } else if (isFocused()) {
-            instance.getAnimatable().setPreviewAnimation(focusAnimationName);
+            instance.getAnimatable().setHoverAnimation(hoverAnimationName);
         } else {
-            instance.getAnimatable().setPreviewAnimation(previewAnimationName);
+            instance.getAnimatable().setHoverAnimation("");
+        }
+        if (isFocused()) {
+            instance.getAnimatable().setFocusAnimation(focusAnimationName);
+        } else {
+            instance.getAnimatable().setFocusAnimation("");
         }
 
         Minecraft minecraft = Minecraft.getInstance();
