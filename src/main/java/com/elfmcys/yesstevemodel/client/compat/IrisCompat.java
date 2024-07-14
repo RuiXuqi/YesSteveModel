@@ -24,6 +24,9 @@ public class IrisCompat {
     private static long ENTITY_ID = -1;
     // Native Access
     @SuppressWarnings("all")
+    private static boolean IS_RENDERING_SHADOW = false;
+    // Native Access
+    @SuppressWarnings("all")
     private static VertexFormat ENTITY_FORMAT;
 
     public static void init() {
@@ -74,6 +77,7 @@ public class IrisCompat {
 
     public static void setupState() {
         ENTITY_ID = ENTITY_ID_GETTER.getAsLong();
+        IS_RENDERING_SHADOW = isRenderingShadow();
     }
 
     private static class LegacyPBRLoader implements net.coderbot.iris.texture.pbr.loader.PBRTextureLoader<NativeTexture> {
