@@ -30,13 +30,14 @@ public class PlayerGeoCapability extends CustomPlayerInstance {
         return true;
     }
 
-    private boolean shouldSkipUpdate() {
+    private boolean shouldSkipShadowRenderPass() {
         return RenderSystem.isOnRenderThread() && IrisCompat.isInstalled() && IrisCompat.isRenderingShadow() && lastEvent != null;
     }
 
     @Override
     public AnimationEvent<CustomPlayerEntity> syncUpdate(float partialTicks) {
-        if (shouldSkipUpdate()) {
+        if (shouldSkipShadowRenderPass()) {
+            animatableModel.codeAnimationForShadowRendering();
             return lastEvent;
         }
         return lastEvent = super.syncUpdate(partialTicks);
@@ -44,7 +45,8 @@ public class PlayerGeoCapability extends CustomPlayerInstance {
 
     @Override
     public AnimationEvent<CustomPlayerEntity> waitOrUpdate(float partialTicks) {
-        if (shouldSkipUpdate()) {
+        if (shouldSkipShadowRenderPass()) {
+            animatableModel.codeAnimationForShadowRendering();
             return lastEvent;
         }
         return lastEvent = super.waitOrUpdate(partialTicks);
@@ -52,7 +54,8 @@ public class PlayerGeoCapability extends CustomPlayerInstance {
 
     @Override
     public AnimationEvent<CustomPlayerEntity> waitForAsyncUpdate() {
-        if (shouldSkipUpdate()) {
+        if (shouldSkipShadowRenderPass()) {
+            animatableModel.codeAnimationForShadowRendering();
             return lastEvent;
         }
         return lastEvent = super.waitForAsyncUpdate();

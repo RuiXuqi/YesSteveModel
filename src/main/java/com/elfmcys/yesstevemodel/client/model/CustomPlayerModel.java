@@ -70,6 +70,13 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
         return RenderUtil.isRenderingEntitiesInInventory();
     }
 
+    public void codeAnimationForShadowRendering() {
+        GeoModelState model = getCurrentModel();
+        if (model != null && model.firstPersonHead() != null) {
+            model.firstPersonHead().setHidden(false);
+        }
+    }
+
     @Deprecated
     private void codeAnimation(AnimationEvent<CustomPlayerEntity> animationEvent, EntityModelData data, Player player, boolean update) {
         // 2023/6/21 这一块设计应该改成 molang 的，而且这个寻找效率低下
