@@ -51,7 +51,7 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
         getAnimationProcessor().putRemoteStruct(getRemoteStruct(animatable));
         getAnimationProcessor().preAnimationSetup(predicate.getAnimatable(), this.seekTime);
         if (!getAnimationProcessor().isModelRendererEmpty()) {
-            return getAnimationProcessor().tickAnimation(animatable, this.seekTime, predicate, ctx, this.shouldCrashOnMissing);
+            return getAnimationProcessor().tickAnimation(animatable, this.seekTime, forceUpdate(), predicate, ctx, this.shouldCrashOnMissing);
         }
         return false;
     }

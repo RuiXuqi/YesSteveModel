@@ -14,6 +14,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
+import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
@@ -31,6 +32,7 @@ import java.util.function.Consumer;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AnimationProcessor<T extends IAnimatable<?>> {
     private static final int ROAMING_STRUCT_NAME = StringPool.computeIfAbsent("roaming");
+    private static final int FPS = 60;
 
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelRendererList = new ReferenceArrayList<>();
     private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelRendererMap = new Object2ReferenceOpenHashMap<>();
@@ -38,6 +40,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
     private final Random random = new Random();
     private final DebugInfo debugInfo = new DebugInfo();
     private final ConcurrentLinkedQueue<Pair<IValue, Consumer<Object>>> pendingValues = new ConcurrentLinkedQueue<>();
+    private final RateLimiter rateLimiter = new RateLimiter(FPS);
     private final IAnimatableModel animatedModel;
 
     private List<IValue> initializationValues;
@@ -45,19 +48,16 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
 
     private boolean rendererDirty = false;
     public boolean reloadAnimations = false;
-    private double lastTickValue = -1;
 
     public AnimationProcessor(IAnimatableModel animatedModel) {
         this.animatedModel = animatedModel;
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public boolean tickAnimation(IAnimatable entity, double seekTime, AnimationEvent<T> event, AnimationContext<?> ctx, boolean crashWhenCantFindBone) {
-        if (seekTime == lastTickValue) {
-            // 如果实体已经在此 tick 上播放了
+    public boolean tickAnimation(IAnimatable entity, double seekTime, boolean forceUpdate, AnimationEvent<T> event, AnimationContext<?> ctx, boolean crashWhenCantFindBone) {
+        if (!forceUpdate && !rateLimiter.request((float) (seekTime / 20))) {
             return false;
         }
-        lastTickValue = seekTime;
 
         ctx.setStorage(this.animationStorage);
         ctx.setRandom(this.random);

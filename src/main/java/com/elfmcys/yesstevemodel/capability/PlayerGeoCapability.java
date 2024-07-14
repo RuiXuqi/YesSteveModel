@@ -21,17 +21,21 @@ public class PlayerGeoCapability extends CustomPlayerInstance {
         super(player, true, player instanceof LocalPlayer);
     }
 
-    @Override
-    public boolean canUpdateAsync() {
+    private boolean isFirstPersonModActive() {
         if (animatable.getEntity() instanceof LocalPlayer) {
             // 在第一人称下，如果安装了第一人称模组并启用，则异步更新是多余的
-            return Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON || !FirstPersonCompat.isInstalled() || !FirstPersonCompat.isEnabled();
+            return Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON && FirstPersonCompat.isInstalled() && FirstPersonCompat.isEnabled();
         }
-        return true;
+        return false;
+    }
+
+    @Override
+    public boolean canUpdateAsync() {
+        return !isFirstPersonModActive();
     }
 
     private boolean shouldSkipShadowRenderPass() {
-        return RenderSystem.isOnRenderThread() && IrisCompat.isInstalled() && IrisCompat.isRenderingShadow() && lastEvent != null;
+        return RenderSystem.isOnRenderThread() && isFirstPersonModActive() && IrisCompat.isInstalled() && IrisCompat.isRenderingShadow() && lastEvent != null;
     }
 
     @Override
@@ -50,14 +54,5 @@ public class PlayerGeoCapability extends CustomPlayerInstance {
             return lastEvent;
         }
         return lastEvent = super.waitOrUpdate(partialTicks);
-    }
-
-    @Override
-    public AnimationEvent<CustomPlayerEntity> waitForAsyncUpdate() {
-        if (shouldSkipShadowRenderPass()) {
-            animatableModel.codeAnimationForShadowRendering();
-            return lastEvent;
-        }
-        return lastEvent = super.waitForAsyncUpdate();
     }
 }
