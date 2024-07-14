@@ -62,13 +62,13 @@ public class ModelInfoScreen extends Screen {
             int index = startAuthorIndex + i;
             if (index >= authors.size()) {
                 for (; i < 5; i++) {
-                    addRenderableWidget(AuthorButton.empty(this.x + 25 + 75 * i, this.y + 15));
+                    addRenderableWidget(AuthorButton.empty(this.x + 25 + 75 * i, this.y + 15, this));
                 }
                 continue;
             }
             ModelAuthor author = authors.get(index);
             ResourceLocation avatar = model.clientModelInfo().authorAvatars().getOrDefault(author.name(), DEFAULT_AVATAR);
-            addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, avatar));
+            addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, avatar, this));
         }
 
         addRenderableWidget(new FlatColorButton(x + 2, y + 25, 18, 100, Component.literal("<"), (b) -> {

@@ -28,10 +28,13 @@
         "comment": "漂泊于群星之中"
       },
       {
-        "name": "Nico",
+        "name": "浅陌菌",
         "role": "模型",
         "avatar": "avatar/nico.png",
-        "comment": "最美好的前途，可不要对我冷酷"
+        "comment": "视频随缘产，精力在生活上",
+        "contact": {
+          "Bilibili": "https://space.bilibili.com/14975572"
+        }
       }
     ],
     "link": {

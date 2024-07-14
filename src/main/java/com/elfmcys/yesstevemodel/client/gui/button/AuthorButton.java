@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -20,8 +21,9 @@ public class AuthorButton extends Button {
     private final ResourceLocation avatar;
     private final List<Component> tooltips;
     private int selectedContactIndex = -1;
+    private final Screen parent;
 
-    public AuthorButton(int pX, int pY, ModelAuthor author, ResourceLocation avatar) {
+    public AuthorButton(int pX, int pY, ModelAuthor author, ResourceLocation avatar, Screen parent) {
         super(pX, pY, 70, 130, Component.empty(), b -> {
         }, DEFAULT_NARRATION);
         this.author = author;
@@ -30,10 +32,11 @@ public class AuthorButton extends Button {
         if (this.author != null) {
             updateTooltips(false);
         }
+        this.parent = parent;
     }
 
-    public static AuthorButton empty(int pX, int pY) {
-        return new AuthorButton(pX, pY, null, null);
+    public static AuthorButton empty(int pX, int pY, Screen parent) {
+        return new AuthorButton(pX, pY, null, null, parent);
     }
 
     @Override
@@ -121,7 +124,12 @@ public class AuthorButton extends Button {
         }
 
         if (value.startsWith("http://") || value.startsWith("https://")) {
-            Util.getPlatform().openUri(value);
+            Minecraft.getInstance().setScreen(new ConfirmLinkScreen(yes -> {
+                if (yes) {
+                    Util.getPlatform().openUri(value);
+                }
+                Minecraft.getInstance().setScreen(parent);
+            }, value, true));
         } else {
             Minecraft.getInstance().keyboardHandler.setClipboard(value);
             if (selectedContactIndex == -1) {
