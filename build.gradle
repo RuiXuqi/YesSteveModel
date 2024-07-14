@@ -46,7 +46,7 @@ var devLib = "${buildDir}/ysm-native/lib/ysm-core_forge-1200-dev.dll"
 
 var dictPath = file("${buildDir}/tmp/proguard/dict.txt").toPath()
 
-if(!file(builderPath).exists()) {
+if (!file(builderPath).exists()) {
     System.err.println("Please put YSMBuilder to ${builderPath}")
     throw new GradleException("YSMBuilder not found")
 }
@@ -137,10 +137,11 @@ dependencies {
     implementation fg.deobf("curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}")
     implementation fg.deobf("curse.maven:elytra-slot-317716:${elytra_slot_id}")
     implementation fg.deobf("curse.maven:parcool-482378:${parcool_id}")
-
-    // Apache Commons Math 库，TACZ 需要
-    minecraftLibrary 'org.apache.commons:commons-math3:3.6.1'
-    implementation "com.github.MCModderAnchor:TACZ:${tacz_version}"
+    implementation fg.deobf('curse.maven:timeless-and-classics-zero-1028108:5529117-sources-5529578')
+    // swem 需要
+    runtimeOnly fg.deobf("curse.maven:playeranimator-658587:4587214")
+    runtimeOnly fg.deobf("curse.maven:geckolib-388172:5460309")
+    implementation fg.deobf("curse.maven:swem-582697:${swem_id}")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
