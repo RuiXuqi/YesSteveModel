@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.event;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.*;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerScreen;
@@ -29,6 +30,7 @@ public class ClientSetupEvent {
         ElytraSlotCompat.init();
         TACZCompat.init();
         ParCoolCompat.init();
+        SwemCompat.init();
         initCoreClient();
     }
 

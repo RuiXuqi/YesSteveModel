@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
@@ -309,6 +310,12 @@ public final class AnimationManager {
         if (vehicle == null || !vehicle.isAlive()) {
             return null;
         }
+
+        String swemAnimation = SwemCompat.getAnimation(player);
+        if (StringUtils.isNoneBlank(swemAnimation)) {
+            return playAnimation(event, swemAnimation, ILoopType.EDefaultLoopTypes.LOOP);
+        }
+
         String id = event.getAnimatable().getModelId();
         ConditionalVehicle vehicleCondition = ClientModelManager.getModel(id).map(model -> model.conditionManager().getVehicle()).orElse(null);
         if (vehicleCondition != null) {

@@ -1,0 +1,45 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"swem:walk": {
+			"loop": true,
+			"bones": {
+				"UpBody": {
+					"rotation": [-50, 0, 0]
+				}
+			}
+		},
+		"swem:trot": {
+			"loop": true,
+			"bones": {
+				"UpBody": {
+					"rotation": [65, 0, 0]
+				}
+			}
+		},
+		"swem:canter": {
+			"loop": true,
+			"bones": {
+				"UpBody": {
+					"rotation": [0, 0, 32.5]
+				}
+			}
+		},
+		"swem:canter_ext": {
+			"loop": true,
+			"bones": {
+				"UpBody": {
+					"rotation": [0, 0, -57.5]
+				}
+			}
+		},
+		"swem:gallop": {
+			"loop": true,
+			"bones": {
+				"UpBody": {
+					"rotation": [190, 0, 0]
+				}
+			}
+		}
+	}
+}
