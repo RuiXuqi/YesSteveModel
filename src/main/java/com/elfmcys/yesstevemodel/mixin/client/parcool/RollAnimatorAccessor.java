@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(RollAnimator.class)
 public interface RollAnimatorAccessor {
-    @Accessor("direction")
+    @Accessor(value = "direction", remap = false)
     Roll.Direction getDirection();
 }

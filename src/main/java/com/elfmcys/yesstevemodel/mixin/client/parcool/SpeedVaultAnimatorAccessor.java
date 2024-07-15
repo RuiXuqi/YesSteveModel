@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(SpeedVaultAnimator.class)
 public interface SpeedVaultAnimatorAccessor {
-    @Accessor("type")
+    @Accessor(value = "type", remap = false)
     SpeedVaultAnimator.Type getType();
 }

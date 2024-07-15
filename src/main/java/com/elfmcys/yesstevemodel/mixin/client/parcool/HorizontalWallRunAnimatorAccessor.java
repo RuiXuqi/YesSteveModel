@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(HorizontalWallRunAnimator.class)
 public interface HorizontalWallRunAnimatorAccessor {
-    @Accessor("wallIsRightSide")
+    @Accessor(value = "wallIsRightSide", remap = false)
     boolean getWallIsRightSide();
 }

@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Animation.class)
 public interface AnimationAccessor {
-    @Accessor("animator")
+    @Accessor(value = "animator", remap = false)
     Animator getAnimator();
 }

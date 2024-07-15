@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(FlippingAnimator.class)
 public interface FlippingAnimatorAccessor {
-    @Accessor("direction")
+    @Accessor(value = "direction", remap = false)
     Flipping.Direction getDirection();
 }
