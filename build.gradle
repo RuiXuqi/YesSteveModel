@@ -42,7 +42,7 @@ var buildTaskGroup = "ysm"
 var buildModLoader = "forge"
 var buildGameVersion = "1200"
 var javaHome = System.properties['java.home']
-var devLib = "${buildDir}/ysm-native/lib/ysm-core_forge-1200-dev.dll"
+var devLib = "${buildDir}/ysm-native/lib/ysm-core_${buildModLoader}-${buildGameVersion}-dev.dll"
 
 var dictPath = file("${buildDir}/tmp/proguard/dict.txt").toPath()
 
@@ -163,14 +163,14 @@ tasks.withType(JavaCompile).configureEach {
 tasks.register('buildDevLib', Exec) {
     description "runClient 之前需要手动运行此 task"
     group buildTaskGroup
-    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'dev', devLib
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'dev', devLib
 }
 
 tasks.register('buildWindowsTestJar', Exec) {
     description "构建 Windows 版未混淆模组，仅供内部测试，不能以任何方式公开"
     group buildTaskGroup
     dependsOn tasks.reobfJar
-    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-test',
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'win-test',
             tasks.reobfJar.input.asFile.get().path,
             '-l', tasks.createMcpToSrg.output.asFile.get().path
 }
@@ -179,7 +179,7 @@ tasks.register('buildLinuxTestJar', Exec) {
     description "构建 Linux 版未混淆模组，仅供内部测试，不能以任何方式公开"
     group buildTaskGroup
     dependsOn tasks.reobfJar
-    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'linux-test',
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'linux-test',
             tasks.reobfJar.input.asFile.get().path,
             '-l', tasks.createMcpToSrg.output.asFile.get().path
 }
@@ -258,7 +258,7 @@ tasks.register('buildWindowsProductionJar', Exec) {
     dependsOn tasks.reobfTempJar
     outputs.upToDateWhen { false }
 
-    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'win-production',
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'win-production',
             tasks.proguardJar.outJarFileCollection.singleFile.path,
             '-p', "${projectDir}/ysm.vmp",
             '-l', tasks.createMcpToSrg.output.asFile.get().path,
@@ -277,7 +277,7 @@ tasks.register('buildProductionJar', Exec) {
     dependsOn tasks.reobfTempJar
     outputs.upToDateWhen { false }
 
-    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'production',
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'production',
             tasks.proguardJar.outJarFileCollection.singleFile.path,
             '-p', "${projectDir}/ysm.vmp",
             '-l', tasks.createMcpToSrg.output.asFile.get().path,
@@ -296,7 +296,7 @@ tasks.register('buildProductionSignedJar', Exec) {
     dependsOn tasks.reobfTempJar
     outputs.upToDateWhen { false }
 
-    commandLine builderPath, 'build', javaHome, projectDir, buildModLoader, buildGameVersion, 'production',
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'production',
             tasks.proguardJar.outJarFileCollection.singleFile.path,
             '-p', "${projectDir}/ysm.vmp",
             '-l', tasks.createMcpToSrg.output.asFile.get().path,
