@@ -1,6 +1,8 @@
 package com.elfmcys.yesstevemodel.util;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.sun.jna.NativeLibrary;
+import com.sun.jna.Platform;
 import net.minecraft.util.StringUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
@@ -8,7 +10,6 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
@@ -38,27 +39,30 @@ public final class NativeLibUtil {
         Path libDir = FMLPaths.CONFIGDIR.get().resolve(YesSteveModel.MOD_ID).resolve("cache");
         String modVersion = ModList.get().getModFileById(YesSteveModel.MOD_ID).getFile().getModInfos().get(0).getVersion().toString();
 
+        // 不要用 ArchUtils，服务端没有这个库
+        boolean isX64 = SystemUtils.OS_ARCH.equals("amd64") || SystemUtils.OS_ARCH.equals("x86_64");
         if (SystemUtils.IS_OS_WINDOWS) {
-            // 不要用 ArchUtils，服务端没有这个库
-            if (!SystemUtils.OS_ARCH.equals("amd64") && !SystemUtils.OS_ARCH.equals("x86_64")) {
-                throw new NotImplementedException("Only Windows-x64 is supported");
+            if (!isX64) {
+                throw new RuntimeException("Only cpus with x64 arch are supported");
             }
 
             libPath = libDir.resolve("ysm-core-" + modVersion + ".dll").toString();
             libData = readEmbeddedFile(LIB_PATH + WINDOWS_LIB_NAME);
         } else if (SystemUtils.IS_OS_LINUX) {
-            if (!SystemUtils.OS_ARCH.equals("amd64") && !SystemUtils.OS_ARCH.equals("x86_64")) {
-                throw new NotImplementedException("Only Linux-x64 is supported");
+            if (!isX64) {
+                throw new RuntimeException("Only cpus with x64 arch are supported");
+            }
+            if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
+                throw new RuntimeException("Only YSM server is supported on linux.");
+            }
+            if (!isGLibc()) {
+                throw new RuntimeException("Only glibc based java runtime is supported on linux.");
             }
 
-            if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-                libPath = libDir.resolve("libysm-core-" + modVersion + ".so").toString();
-                libData = readEmbeddedFile(LIB_PATH + LINUX_LIB_NAME);
-            } else {
-                throw new NotImplementedException("YSM client is not supported on linux.");
-            }
+            libPath = libDir.resolve("libysm-core-" + modVersion + ".so").toString();
+            libData = readEmbeddedFile(LIB_PATH + LINUX_LIB_NAME);
         } else {
-            throw new NotImplementedException(SystemUtils.OS_NAME + " is not supported");
+            throw new RuntimeException(SystemUtils.OS_NAME + " is not supported");
         }
 
         writeLibData(libPath, libData);
@@ -85,5 +89,17 @@ public final class NativeLibUtil {
         }
         InputStream stream = url.openStream();
         return IOUtils.readFully(stream, stream.available());
+    }
+
+    private static boolean isGLibc() {
+        try {
+            var lib = NativeLibrary.getInstance(Platform.C_LIBRARY_NAME);
+            if (lib == null) {
+                return false;
+            }
+            return lib.getFunction("gnu_get_libc_version") != null;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 }
