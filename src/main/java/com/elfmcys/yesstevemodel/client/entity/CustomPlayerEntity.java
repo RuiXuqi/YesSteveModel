@@ -5,11 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
-import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationFactory;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
@@ -23,7 +19,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
@@ -55,12 +50,6 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         this.player = player;
     }
 
-    @NotNull
-    private static PlayState playLoopAnimation(AnimationEvent<CustomPlayerEntity> event, String animationName) {
-        event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, ILoopType.EDefaultLoopTypes.LOOP));
-        return PlayState.CONTINUE;
-    }
-
     /**
      * 越往后优先级越高
      */
@@ -84,8 +73,8 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2, manager::predicatePassengerAnimation));
         data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, manager::predicateCap));
 
-        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 5, manager::predicateHover));
-        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 5, manager::predicateFocus));
+        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 0, manager::predicateHover));
+        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 0, manager::predicateFocus));
 
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);

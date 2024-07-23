@@ -56,7 +56,7 @@ public class ModelButton extends Button {
 
         if (animations.containsKey(AnimationRegister.HOVER_FADEOUT)) {
             this.hoverFadeoutAnimationName = AnimationRegister.HOVER_FADEOUT;
-            this.fadeoutTime = animations.get(AnimationRegister.HOVER_FADEOUT).animationLength * 1000;
+            this.fadeoutTime = animations.get(AnimationRegister.HOVER_FADEOUT).animationLength * 50;
         } else {
             this.hoverFadeoutAnimationName = AnimationRegister.EMPTY;
             this.fadeoutTime = 0;
