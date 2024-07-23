@@ -35,6 +35,9 @@ public class ExtraPlayerConfigScreen extends Screen {
         int endX = (int) (startX + this.scale * 1);
         int endY = (int) (startY + this.scale * 2);
 
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, -500 - (50 * this.scale / 40));
+
         graphics.vLine(width / 2 - 1, -2, height + 2, 0x9fffffff);
         graphics.hLine(-2, width + 2, height / 2 - 1, 0x9fffffff);
 
@@ -62,8 +65,10 @@ public class ExtraPlayerConfigScreen extends Screen {
             y += 10;
         }
 
+        graphics.pose().popPose();
+
         if (getMinecraft().player != null) {
-            RenderUtil.renderPlayerEntity(getMinecraft().player, this.posX, this.posY, this.scale, this.yawOffset, 50);
+            RenderUtil.renderPlayerEntity(graphics, getMinecraft().player, this.posX, this.posY, this.scale, this.yawOffset, -500);
         }
     }
 

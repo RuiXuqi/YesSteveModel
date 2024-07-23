@@ -94,4 +94,9 @@ public class CustomPlayerInstance extends GeoInstance<CustomPlayerEntity, Custom
     public String getModelId() {
         return this.animatable.getModelId();
     }
+
+    @Override
+    public int getTextureIndex() {
+        return ClientModelManager.getModel(animatable.getModelId()).map(model -> model.textures().keyList().indexOf(animatable.getTexture())).filter(i -> i >= 0).orElse(0);
+    }
 }

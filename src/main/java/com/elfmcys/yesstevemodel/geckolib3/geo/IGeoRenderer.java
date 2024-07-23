@@ -20,28 +20,24 @@ public interface IGeoRenderer<T extends GeoInstance<?, ?>> {
     default void setCurrentRTB(MultiBufferSource bufferSource) {
     }
 
-    default void render(GeoModelState modelState, T instance, float partialTick, RenderType type, PoseStack poseStack,
-                        @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight,
-                        int packedOverlay, float red, float green, float blue, float alpha) {
+    default void render(GeoModelState modelState, T instance, float partialTick, PoseStack poseStack, @NotNull MultiBufferSource bufferSource, ResourceLocation textureLocation,
+                        int textureIndex, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         setCurrentRTB(bufferSource);
-        renderEarly(instance, poseStack, partialTick, bufferSource, buffer, packedLight,
+        renderEarly(instance, poseStack, partialTick, bufferSource, textureLocation, packedLight,
                 packedOverlay, red, green, blue, alpha);
-        if (bufferSource != null) {
-            buffer = bufferSource.getBuffer(type);
-        }
-        renderLate(instance, poseStack, partialTick, bufferSource, buffer, packedLight,
+        renderLate(instance, poseStack, partialTick, bufferSource, textureLocation, packedLight,
                 packedOverlay, red, green, blue, alpha);
         if (IrisCompat.isInstalled()) {
             IrisCompat.setupState();
         }
         // 渲染所有骨骼
-        NativeRenderer.renderModel(buffer, poseStack.last(), modelState.model(), modelState.state(), NativeRenderer.RENDER_MODE_ALL, packedLight, packedOverlay, red, green, blue, alpha);
+        NativeRenderer.renderModel(bufferSource, getRenderTypeCutout(textureLocation), getRenderTypeTranslucent(textureLocation), poseStack.last(), modelState.model(), modelState.state(), textureIndex, NativeRenderer.RENDER_MODE_ALL, packedLight, packedOverlay, red, green, blue, alpha);
         // 由于此时我们至少渲染了一次，因此让我们将循环设置为重复
         setCurrentModelRenderCycle(EModelRenderCycle.REPEATED);
     }
 
     default void renderEarly(T instance, PoseStack poseStack, float partialTick,
-                             @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight,
+                             @Nullable MultiBufferSource bufferSource, @NotNull ResourceLocation texture, int packedLight,
                              int packedOverlayIn, float red, float green, float blue, float alpha) {
         if (getCurrentModelRenderCycle() == EModelRenderCycle.INITIAL) {
             float width = instance.getWidthScale();
@@ -51,14 +47,16 @@ public interface IGeoRenderer<T extends GeoInstance<?, ?>> {
     }
 
     default void renderLate(T instance, PoseStack poseStack, float partialTick, MultiBufferSource bufferSource,
-                            VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue,
+                            ResourceLocation texture, int packedLight, int packedOverlay, float red, float green, float blue,
                             float alpha) {
     }
 
-    default RenderType getRenderType(T instance, float partialTick, PoseStack poseStack,
-                                     @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight,
-                                     ResourceLocation texture) {
+    default RenderType getRenderTypeCutout(ResourceLocation texture) {
         return RenderType.entityCutout(texture);
+    }
+
+    default RenderType getRenderTypeTranslucent(ResourceLocation texture) {
+        return GeoTranslucentRenderType.create(texture);
     }
 
     default Color getRenderColor(T instance, float partialTick, PoseStack poseStack,

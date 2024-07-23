@@ -7,16 +7,17 @@ import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
+import com.elfmcys.yesstevemodel.geckolib3.geo.GeoTranslucentRenderType;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -66,16 +67,19 @@ public class RenderFirstPlayerBackground {
             if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, customPlayer, modelId))) {
                 return;
             }
-            RenderType renderType = RenderType.entityTranslucent(cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
-            final VertexConsumer buffer = multiBufferSource.getBuffer(renderType);
-            final int packedLight = event.getPackedLight();
+
+            ResourceLocation textureLocation = cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID;
+            int textureIndex = cap.isModelPresent() ? cap.getTextureIndex() : 0;
+            RenderType cutoutType = RenderType.entityCutout(textureLocation);
+            RenderType translucentType = GeoTranslucentRenderType.create(textureLocation);
+
             if (renderer != null) {
                 poseStack.pushPose();
                 if (Minecraft.getInstance().options.bobView().get()) {
                     bobView(poseStack, event.getPartialTick(), player);
                 }
                 poseStack.translate(0, -1.5, 0);
-                NativeRenderer.renderModel(buffer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), NativeRenderer.RENDER_MODE_BACKGROUND, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                NativeRenderer.renderModel(multiBufferSource, cutoutType, translucentType, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                 poseStack.popPose();
             }
         });

@@ -29,6 +29,6 @@ public class ExtraPlayerScreen implements IGuiOverlay {
         float scale = ExtraPlayerScreenConfig.PLAYER_SCALE.get().floatValue();
         float yawOffset = ExtraPlayerScreenConfig.PLAYER_YAW_OFFSET.get().floatValue();
 
-        RenderUtil.renderPlayerEntity(player, posX, posY, scale, yawOffset, -500);
+        RenderUtil.renderPlayerEntity(graphics, player, posX, posY, scale, yawOffset, -500);
     }
 }

@@ -165,6 +165,10 @@ public abstract class GeoInstance<TAnimatable extends IAnimatable<?>, TModel ext
         return this.animatableModel.getModelLocation(animatable);
     }
 
+    public int getTextureIndex() {
+        return 0;
+    }
+
     public ResourceLocation getTextureLocation() {
         return this.animatableModel.getTextureLocation(animatable);
     }

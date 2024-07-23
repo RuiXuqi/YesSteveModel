@@ -11,12 +11,10 @@ import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -27,7 +25,6 @@ import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClientPlayer, CustomPlayerInstance> {
 
@@ -58,11 +55,6 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
     public void renderModelInGui(GuiModelInstance instance, float entityYaw, float partialTick, PoseStack poseStack,
                                  MultiBufferSource bufferSource, int packedLight) {
         renderGeoInstance(instance, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
-    }
-
-    @Override
-    public RenderType getRenderType(CustomPlayerInstance animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, ResourceLocation texture) {
-        return RenderType.entityTranslucent(texture);
     }
 
     @Override

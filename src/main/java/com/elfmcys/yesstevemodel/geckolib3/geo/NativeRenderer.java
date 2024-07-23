@@ -5,6 +5,8 @@ import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 
 // Native Access
 public class NativeRenderer {
@@ -16,19 +18,23 @@ public class NativeRenderer {
     public static final int RENDER_MODE_BACKGROUND = 3;
 
     private static boolean IS_ASYNC_SCOPE = false;
+    private static SortingMode SORTING_MODE = SortingMode.ZERO_POINT;
 
-    public static void renderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState,
-                                   GeoModel model, float[] state, int renderMode,
+    public static void renderModel(MultiBufferSource bufferSource, RenderType cutoutType, RenderType translucentType, PoseStack.Pose poseState,
+                                   GeoModel model, float[] state, int textureIndex, int renderMode,
                                    int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        nRenderModel(vertexConsumer, poseState, OptifineCompat.isInstalled() || GeneralConfig.USE_COMPATIBILITY_RENDERER.get(), model, state, renderMode, packedLight, packedOverlay, red, green, blue, alpha);
+        var forceLegacyRenderer = OptifineCompat.isInstalled() || GeneralConfig.USE_COMPATIBILITY_RENDERER.get();
+        nRenderModel(bufferSource, cutoutType, translucentType, poseState, forceLegacyRenderer,
+                model, state, textureIndex, renderMode, SORTING_MODE.code,
+                packedLight, packedOverlay, red, green, blue, alpha);
     }
 
     public static void beginAsyncScope() {
         IS_ASYNC_SCOPE = true;
     }
 
-    private static native void nRenderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState, boolean useCompatibilityRenderer,
-                                            GeoModel model, float[] state, int renderMode,
+    private static native void nRenderModel(MultiBufferSource bufferSource, RenderType cutoutType, RenderType translucentType, PoseStack.Pose poseState, boolean useCompatibilityRenderer,
+                                            GeoModel model, float[] state, int textureIndex, int renderMode, int sortMode,
                                             int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
 
     public static boolean isAsyncScope() {
@@ -39,9 +45,29 @@ public class NativeRenderer {
         IS_ASYNC_SCOPE = false;
     }
 
+    public static void setSortingMode(SortingMode sortingMode) {
+        SORTING_MODE = sortingMode;
+    }
+
+    public static void resetSortingMode() {
+        SORTING_MODE = SortingMode.ZERO_POINT;
+    }
+
+    public enum SortingMode {
+        ZERO_POINT(0),
+        Z_DEPTH(1),
+        Z_DEPTH_REVERSE(-1);
+
+        public final int code;
+
+        SortingMode(int code) {
+            this.code = code;
+        }
+    }
+
     // Native Access
     @SuppressWarnings("all")
-    static class LegacyWriter {
+    private static class LegacyWriter {
         // Native Association
         private static final int FLOAT_STRIDE = 12;
         private static final int INT_STRIDE = 2;

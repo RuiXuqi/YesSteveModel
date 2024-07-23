@@ -4,20 +4,19 @@ import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
+import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.joml.Quaternionf;
@@ -30,6 +29,11 @@ public final class RenderUtil {
 
     public static void setRenderingEntitiesInInventory(boolean value) {
         renderingEntitiesInInventory = value;
+        if (value) {
+            NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH);
+        } else {
+            NativeRenderer.resetSortingMode();
+        }
     }
 
     public static boolean isRenderingEntitiesInInventory() {
@@ -77,6 +81,7 @@ public final class RenderUtil {
         dispatcher.overrideCameraOrientation(xp);
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH_REVERSE);
         RenderSystem.runAsFancy(() -> {
             if (entity.hasPreviewAnimation("sleep")) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90));
@@ -115,6 +120,7 @@ public final class RenderUtil {
             }
         });
         bufferSource.endBatch();
+        NativeRenderer.resetSortingMode();
         dispatcher.setRenderShadow(true);
 
         player.yBodyRot = yBodyRot;
@@ -251,10 +257,12 @@ public final class RenderUtil {
         dispatcher.overrideCameraOrientation(xp);
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH_REVERSE);
         RenderSystem.runAsFancy(() -> {
             renderer.renderModelInGui(instance, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
+        NativeRenderer.resetSortingMode();
         dispatcher.setRenderShadow(true);
 
         player.yBodyRot = yBodyRot;
@@ -281,27 +289,30 @@ public final class RenderUtil {
         Lighting.setupFor3DItems();
     }
 
-    public static void renderPlayerEntity(LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z) {
+    public static void renderPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z) {
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
-        viewStack.translate(posX + scale * 0.5, posY + scale * 2, z);
+        viewStack.translate(posX + scale * 0.5, posY + scale * 2, 0);
         viewStack.scale(1, 1, -1);
         RenderSystem.applyModelViewMatrix();
-        PoseStack stack = new PoseStack();
-        stack.scale(scale, scale, scale);
+        pGuiGraphics.pose().pushPose();
+        pGuiGraphics.pose().translate(0, 0, -z);
+        pGuiGraphics.pose().scale(scale, scale, scale);
         Quaternionf zRot = Axis.ZP.rotationDegrees(180.0F);
         Quaternionf yRot = Axis.YP.rotationDegrees(player.yBodyRot + yawOffset - 180);
         zRot.mul(yRot);
-        stack.mulPose(zRot);
+        pGuiGraphics.pose().mulPose(zRot);
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         yRot.conjugate();
         renderDispatcher.overrideCameraOrientation(yRot);
         renderDispatcher.setRenderShadow(false);
-        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderSystem.runAsFancy(() -> renderDispatcher.render(player, 0, 0, 0.0D, 0.0F, 1.0F, stack, buffer, 15728880));
-        buffer.endBatch();
+        NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH_REVERSE);
+        RenderSystem.runAsFancy(() -> renderDispatcher.render(player, 0, 0, 0.0D, 0.0F, 1.0F, pGuiGraphics.pose(), pGuiGraphics.bufferSource(), 15728880));
+        pGuiGraphics.flush();
+        NativeRenderer.resetSortingMode();
         renderDispatcher.setRenderShadow(true);
+        pGuiGraphics.pose().popPose();
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
