@@ -41,6 +41,9 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
                 } else {
                     TACZCompat.openFlashShellRender(entityLivingBaseIn, mainHandItem);
                     this.renderArmWithItem(geoModel, entityLivingBaseIn, mainHandItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, poseStack, bufferIn, packedLightIn);
+                    if (!mainHandItem.isEmpty() && bufferIn instanceof MultiBufferSource.BufferSource bufferSource) {
+                        bufferSource.endBatch();
+                    }
                     TACZCompat.stopFlashShellRender(mainHandItem);
                 }
             }
@@ -49,6 +52,9 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
                     SlashBladeRender.renderOffhandSlashBlade(geoModel, poseStack, bufferIn, packedLightIn, offhandItem);
                 } else {
                     this.renderArmWithItem(geoModel, entityLivingBaseIn, offhandItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+                    if (!offhandItem.isEmpty() && bufferIn instanceof MultiBufferSource.BufferSource bufferSource) {
+                        bufferSource.endBatch();
+                    }
                 }
             }
             poseStack.popPose();

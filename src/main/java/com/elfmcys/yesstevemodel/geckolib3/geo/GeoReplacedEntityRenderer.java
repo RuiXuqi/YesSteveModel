@@ -100,16 +100,20 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
 
             GeoModelState model = instance.getAnimatableModel().getCurrentModel();
             if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
+                preRender(model, instance, partialTick, renderType, poseStack, bufferSource, null,
+                        packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
+                        renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
+                        renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
+                if (!entity.isSpectator()) {
+                    for (GeoLayerRenderer<TInstance> layerRenderer : this.layerRenderers) {
+                        layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
+                                data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
+                    }
+                }
                 render(model, instance, partialTick, renderType, poseStack, bufferSource, textureIndex, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-            }
-            if (!entity.isSpectator()) {
-                for (GeoLayerRenderer<TInstance> layerRenderer : this.layerRenderers) {
-                    layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
-                            data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
-                }
             }
             poseStack.popPose();
         }

@@ -13,9 +13,6 @@ public class FirstPersonCompat {
     private static final String MOD_ID = "firstperson";
     private static boolean INSTALLED;
 
-    // Native Access
-    private static boolean ACTIVE = false;
-
     public static void init() {
         INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null || LoadingModList.get().getModFileById(LEGACY_MOD_ID) != null;
         if (INSTALLED) {
@@ -36,12 +33,9 @@ public class FirstPersonCompat {
                 new Vec3(current.x(), 1.5 - CustomPlayerModel.FIRST_PERSON_HEAD_POS / 16, current.z()));
     }
 
+    // Native Access
     public static boolean isRenderingPlayer() {
-        return RenderSystem.isOnRenderThread() && FirstPersonAPI.isRenderingPlayer();
-    }
-
-    public static void setupState() {
-        ACTIVE = FirstPersonAPI.isRenderingPlayer();
+        return INSTALLED && RenderSystem.isOnRenderThread() && FirstPersonAPI.isRenderingPlayer();
     }
 
     public static boolean shouldHideHead() {

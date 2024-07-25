@@ -19,16 +19,20 @@ public interface IGeoRenderer<T extends GeoInstance<?, ?>> {
     default void setCurrentRTB(MultiBufferSource bufferSource) {
     }
 
-    default void render(GeoModelState modelState, T instance, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
-                        int textureIndex, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    default void preRender(GeoModelState modelState, T instance, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
+                           @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         setCurrentRTB(bufferSource);
         renderEarly(instance, poseStack, partialTick, bufferSource, buffer, packedLight,
                 packedOverlay, red, green, blue, alpha);
-        if (bufferSource != null) {
-            buffer = bufferSource.getBuffer(type);
-        }
         renderLate(instance, poseStack, partialTick, bufferSource, buffer, packedLight,
                 packedOverlay, red, green, blue, alpha);
+    }
+
+    default void render(GeoModelState modelState, T instance, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
+                        int textureIndex, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        if (buffer == null) {
+            buffer = bufferSource.getBuffer(type);
+        }
         // 渲染所有骨骼
         NativeRenderer.renderModel(buffer, poseStack.last(), modelState.model(), modelState.state(), textureIndex, NativeRenderer.RENDER_MODE_ALL, packedLight, packedOverlay, red, green, blue, alpha);
         // 由于此时我们至少渲染了一次，因此让我们将循环设置为重复

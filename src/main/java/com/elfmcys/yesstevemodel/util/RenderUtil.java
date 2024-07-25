@@ -29,11 +29,6 @@ public final class RenderUtil {
 
     public static void setRenderingEntitiesInInventory(boolean value) {
         renderingEntitiesInInventory = value;
-        if (value) {
-            NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH);
-        } else {
-            NativeRenderer.resetSortingMode();
-        }
     }
 
     public static boolean isRenderingEntitiesInInventory() {
@@ -81,7 +76,6 @@ public final class RenderUtil {
         dispatcher.overrideCameraOrientation(xp);
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH_REVERSE);
         RenderSystem.runAsFancy(() -> {
             if (entity.hasPreviewAnimation("sleep")) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90));
@@ -116,11 +110,11 @@ public final class RenderUtil {
                     renderBed(pScale, pitch, yaw, bufferSource);
                 }
                 renderGround(pScale, pitch, yaw, bufferSource);
+                bufferSource.endBatch();
             }
             renderer.renderModelInGui(instance, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
-        NativeRenderer.resetSortingMode();
         dispatcher.setRenderShadow(true);
 
         player.yBodyRot = yBodyRot;
@@ -259,12 +253,10 @@ public final class RenderUtil {
         dispatcher.overrideCameraOrientation(xp);
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH_REVERSE);
         RenderSystem.runAsFancy(() -> {
             renderer.renderModelInGui(instance, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
-        NativeRenderer.resetSortingMode();
         dispatcher.setRenderShadow(true);
 
         player.yBodyRot = yBodyRot;
@@ -309,10 +301,8 @@ public final class RenderUtil {
         yRot.conjugate();
         renderDispatcher.overrideCameraOrientation(yRot);
         renderDispatcher.setRenderShadow(false);
-        NativeRenderer.setSortingMode(NativeRenderer.SortingMode.Z_DEPTH_REVERSE);
         RenderSystem.runAsFancy(() -> renderDispatcher.render(player, 0, 0, 0.0D, 0.0F, 1.0F, pGuiGraphics.pose(), pGuiGraphics.bufferSource(), 15728880));
         pGuiGraphics.flush();
-        NativeRenderer.resetSortingMode();
         renderDispatcher.setRenderShadow(true);
         pGuiGraphics.pose().popPose();
         viewStack.popPose();
