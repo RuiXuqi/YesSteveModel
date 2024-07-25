@@ -27,6 +27,9 @@ import java.util.List;
 public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
     public static float FIRST_PERSON_HEAD_POS;
 
+    private int lastForceUpdateTick = Integer.MIN_VALUE;
+    private int currentTick = 0;
+
     @Override
     public GeoModel getModel(String location) {
         return ClientModelManager.getModel(location).map(model -> model.mainModel()).orElse(ClientModelManager.getDefaultModel().mainModel());
@@ -56,6 +59,12 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
         if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
                 && customPlayer.getEntity() != null) {
             Player player = customPlayer.getEntity();
+
+            currentTick = player.tickCount;
+            if (shouldForceUpdateInCurrentTick()) {
+                lastForceUpdateTick = currentTick;
+            }
+
             EntityModelData data = (EntityModelData) extraData.get(0);
             boolean update = super.setCustomAnimations(customPlayer, ctx, animationEvent);
             this.codeAnimation(animationEvent, data, player, update);
@@ -65,9 +74,14 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
         }
     }
 
+    public boolean shouldForceUpdateInCurrentTick() {
+        return RenderUtil.isRenderingEntitiesInInventory();
+    }
+
     @Override
     public boolean forceUpdate() {
-        return RenderUtil.isRenderingEntitiesInInventory();
+        // 如果上一刻或当前刻有过强制更新，则本次也强制更新。
+        return lastForceUpdateTick == currentTick - 1 || lastForceUpdateTick == currentTick || shouldForceUpdateInCurrentTick();
     }
 
     public void codeAnimationForShadowRendering() {
