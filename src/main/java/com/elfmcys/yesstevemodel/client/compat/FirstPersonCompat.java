@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.compat;
 
 import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.tr7zw.firstperson.api.FirstPersonAPI;
 import dev.tr7zw.firstperson.api.PlayerOffsetHandler;
 import net.minecraft.world.phys.Vec3;
@@ -11,6 +12,9 @@ public class FirstPersonCompat {
     private static final String LEGACY_MOD_ID = "firstpersonmod";
     private static final String MOD_ID = "firstperson";
     private static boolean INSTALLED;
+
+    // Native Access
+    private static boolean ACTIVE = false;
 
     public static void init() {
         INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null || LoadingModList.get().getModFileById(LEGACY_MOD_ID) != null;
@@ -24,7 +28,7 @@ public class FirstPersonCompat {
     }
 
     public static void hideHead(IBone head) {
-        head.setHidden(FirstPersonAPI.isRenderingPlayer());
+        head.setHidden(shouldHideHead());
     }
 
     private static void registerOffset() {
@@ -32,8 +36,16 @@ public class FirstPersonCompat {
                 new Vec3(current.x(), 1.5 - CustomPlayerModel.FIRST_PERSON_HEAD_POS / 16, current.z()));
     }
 
+    public static boolean isRenderingPlayer() {
+        return RenderSystem.isOnRenderThread() && FirstPersonAPI.isRenderingPlayer();
+    }
+
+    public static void setupState() {
+        ACTIVE = FirstPersonAPI.isRenderingPlayer();
+    }
+
     public static boolean shouldHideHead() {
-        return FirstPersonAPI.isRenderingPlayer();
+        return isRenderingPlayer();
     }
 
     public static boolean isEnabled() {

@@ -1,7 +1,10 @@
 package com.elfmcys.yesstevemodel.geckolib3.util;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import com.elfmcys.yesstevemodel.mixin.client.MinecraftAccessor;
+import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
@@ -49,5 +52,9 @@ public final class RenderUtils {
         inputMatrix.invert();
         inputMatrix.mul(baseMatrix);
         return inputMatrix;
+    }
+
+    public static float getRenderTickTime() {
+        return (float) ((TimerAccessor) ((MinecraftAccessor) Minecraft.getInstance()).getTimer()).getLastMs() / 50f;
     }
 }

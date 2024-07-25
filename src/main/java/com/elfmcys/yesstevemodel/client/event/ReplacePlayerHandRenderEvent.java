@@ -14,7 +14,6 @@ import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
@@ -52,23 +51,22 @@ public class ReplacePlayerHandRenderEvent {
                 return;
             }
             ResourceLocation textureLocation = renderEvent.getTextureLocationOverride() != null ? renderEvent.getTextureLocationOverride() : (cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
-            int textureIndex = renderEvent.getTextureLocationOverride() != null ? -1 : (cap.isModelPresent() ? cap.getTextureIndex() : 0);
-            RenderType cutoutType = RenderType.entityCutout(textureLocation);
-            RenderType translucentType = GeoTranslucentRenderType.create(textureLocation);
+            int textureIndex = renderEvent.getTextureLocationOverride() == null && cap.isModelPresent() ? cap.getTextureIndex() : 0;
+            var vertexConsumer = multiBufferSource.getBuffer(GeoTranslucentRenderType.create(textureLocation));
 
             if (renderer != null) {
                 if (event.getArm() == HumanoidArm.LEFT) {
                     poseStack.pushPose();
                     poseStack.translate(0.25, 1.8, 0);
                     poseStack.scale(-1, -1, 1);
-                    NativeRenderer.renderModel(multiBufferSource, cutoutType, translucentType, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_LEFT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                    NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_LEFT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                     poseStack.popPose();
                 }
                 if (event.getArm() == HumanoidArm.RIGHT) {
                     poseStack.pushPose();
                     poseStack.translate(-0.25, 1.8, 0);
                     poseStack.scale(-1, -1, 1);
-                    NativeRenderer.renderModel(multiBufferSource, cutoutType, translucentType, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_RIGHT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                    NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_RIGHT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                     poseStack.popPose();
                 }
             }

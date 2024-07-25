@@ -106,7 +106,6 @@ public final class RenderUtil {
             if (entity.hasPreviewAnimation("boat")) {
                 poseStack.translate(0, -0.45, 0);
             }
-            renderer.renderModelInGui(instance, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
             try {
                 renderExtraEntity(yaw, instance, poseStack, dispatcher, bufferSource);
             } catch (ExecutionException e) {
@@ -118,6 +117,7 @@ public final class RenderUtil {
                 }
                 renderGround(pScale, pitch, yaw, bufferSource);
             }
+            renderer.renderModelInGui(instance, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
         NativeRenderer.resetSortingMode();
@@ -197,8 +197,10 @@ public final class RenderUtil {
     }
 
     private static void renderExtraEntity(float yaw, AbstractClientPlayer player, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource, Entity entity) {
+        poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(yaw));
         dispatcher.render(entity, 0, -entity.getPassengersRidingOffset() - player.getMyRidingOffset(), 0, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
+        poseStack.popPose();
     }
 
     public static void renderModelInInventory(int pPosX, int pPosY, int pScale, GuiModelInstance instance) {

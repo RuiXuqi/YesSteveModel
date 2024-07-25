@@ -1,12 +1,12 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
+import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.compat.OptifineCompat;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 
 // Native Access
 public class NativeRenderer {
@@ -20,11 +20,18 @@ public class NativeRenderer {
     private static boolean IS_ASYNC_SCOPE = false;
     private static SortingMode SORTING_MODE = SortingMode.ZERO_POINT;
 
-    public static void renderModel(MultiBufferSource bufferSource, RenderType cutoutType, RenderType translucentType, PoseStack.Pose poseState,
+    public static void renderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState,
                                    GeoModel model, float[] state, int textureIndex, int renderMode,
                                    int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        if (IrisCompat.isInstalled()) {
+            IrisCompat.setupState();
+        }
+        if (FirstPersonCompat.isInstalled()) {
+            FirstPersonCompat.setupState();
+        }
         var forceLegacyRenderer = OptifineCompat.isInstalled() || GeneralConfig.USE_COMPATIBILITY_RENDERER.get();
-        nRenderModel(bufferSource, cutoutType, translucentType, poseState, forceLegacyRenderer,
+
+        nRenderModel(vertexConsumer, poseState, forceLegacyRenderer,
                 model, state, textureIndex, renderMode, SORTING_MODE.code,
                 packedLight, packedOverlay, red, green, blue, alpha);
     }
@@ -33,7 +40,7 @@ public class NativeRenderer {
         IS_ASYNC_SCOPE = true;
     }
 
-    private static native void nRenderModel(MultiBufferSource bufferSource, RenderType cutoutType, RenderType translucentType, PoseStack.Pose poseState, boolean useCompatibilityRenderer,
+    private static native void nRenderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState, boolean useCompatibilityRenderer,
                                             GeoModel model, float[] state, int textureIndex, int renderMode, int sortMode,
                                             int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
 

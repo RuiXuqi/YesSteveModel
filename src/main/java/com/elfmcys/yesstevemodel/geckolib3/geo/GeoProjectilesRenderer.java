@@ -6,12 +6,13 @@ import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.yesstevemodel.geckolib3.util.IRenderCycle;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -41,15 +42,16 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
         poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
         Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
+        RenderType renderType = getRenderType(instance.getTextureLocation());
         GeoModelState model = instance.getAnimatableModel().getCurrentModel();
-        render(model, instance, partialTick, poseStack, bufferSource, instance.getTextureLocation(), 0, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
+        render(model, instance, partialTick, renderType, poseStack, bufferSource, 0, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
         poseStack.popPose();
     }
 
     @Override
-    public void renderEarly(T animatable, PoseStack poseStack, float partialTick, MultiBufferSource bufferSource, ResourceLocation texture, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderEarly(T animatable, PoseStack poseStack, float partialTick, MultiBufferSource bufferSource, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         this.renderEarlyMat = new Matrix4f(poseStack.last().pose());
-        IGeoRenderer.super.renderEarly(animatable, poseStack, partialTick, bufferSource, texture, packedLight, packedOverlay, red, green, blue, alpha);
+        IGeoRenderer.super.renderEarly(animatable, poseStack, partialTick, bufferSource, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 
     public static int getPackedOverlay(Entity entity, float uIn) {

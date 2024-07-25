@@ -11,8 +11,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.GeoModelProvider;
-import com.elfmcys.yesstevemodel.mixin.client.MinecraftAccessor;
-import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
+import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
 
@@ -84,7 +83,7 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
         if (forceUpdate()) {
             return Blaze3D.getTime() * 20;
         } else {
-            return ((TimerAccessor) ((MinecraftAccessor) Minecraft.getInstance()).getTimer()).getLastMs() / 50d;
+            return RenderUtils.getRenderTickTime();
         }
     }
 

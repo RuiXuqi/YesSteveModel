@@ -61,10 +61,10 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
 
     @Override
     public void renderEarly(TInstance instance, PoseStack poseStack, float partialTick,
-                            MultiBufferSource bufferSource, ResourceLocation texture, int packedLight, int packedOverlayIn,
+                            MultiBufferSource bufferSource, VertexConsumer buffer, int packedLight, int packedOverlayIn,
                             float red, float green, float blue, float alpha) {
         this.renderEarlyMat = new Matrix4f(poseStack.last().pose());
-        IGeoRenderer.super.renderEarly(instance, poseStack, partialTick, bufferSource, texture, packedLight, packedOverlayIn, red, green, blue, alpha);
+        IGeoRenderer.super.renderEarly(instance, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
     }
 
     @SuppressWarnings("unchecked")
@@ -95,12 +95,12 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
             poseStack.translate(0, 0.01f, 0);
 
             Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
-            var texture = textureLocationOverride != null ? textureLocationOverride : (instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
-            var textureIndex = textureLocationOverride != null ? -1 : (instance.isModelPresent() ? instance.getTextureIndex() : 0);
+            var renderType = getRenderType(textureLocationOverride != null ? textureLocationOverride : (instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID));
+            var textureIndex = textureLocationOverride == null && instance.isModelPresent() ? instance.getTextureIndex() : 0;
 
             GeoModelState model = instance.getAnimatableModel().getCurrentModel();
             if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
-                render(model, instance, partialTick, poseStack, bufferSource, texture, textureIndex,
+                render(model, instance, partialTick, renderType, poseStack, bufferSource, textureIndex, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);

@@ -70,8 +70,7 @@ public class RenderFirstPlayerBackground {
 
             ResourceLocation textureLocation = cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID;
             int textureIndex = cap.isModelPresent() ? cap.getTextureIndex() : 0;
-            RenderType cutoutType = RenderType.entityCutout(textureLocation);
-            RenderType translucentType = GeoTranslucentRenderType.create(textureLocation);
+            var vertexConsumer = multiBufferSource.getBuffer(GeoTranslucentRenderType.create(textureLocation));
 
             if (renderer != null) {
                 poseStack.pushPose();
@@ -79,7 +78,7 @@ public class RenderFirstPlayerBackground {
                     bobView(poseStack, event.getPartialTick(), player);
                 }
                 poseStack.translate(0, -1.5, 0);
-                NativeRenderer.renderModel(multiBufferSource, cutoutType, translucentType, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                 poseStack.popPose();
             }
         });
