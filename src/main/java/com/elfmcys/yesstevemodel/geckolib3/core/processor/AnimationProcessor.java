@@ -55,7 +55,8 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
 
     @SuppressWarnings("DataFlowIssue")
     public boolean tickAnimation(IAnimatable entity, double seekTime, boolean forceUpdate, AnimationEvent<T> event, AnimationContext<?> ctx, boolean crashWhenCantFindBone) {
-        if (!forceUpdate && !rateLimiter.request((float) (seekTime / 20))) {
+        var shouldUpdate = rateLimiter.request((float) (seekTime / 20));
+        if (!forceUpdate && !shouldUpdate) {
             return false;
         }
 
@@ -75,7 +76,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
             // 将当前控制器设置为动画测试事件
             event.setController(controller);
             // 处理动画并向点队列添加新值
-            controller.process(seekTime, event, evaluator, modelRendererList, crashWhenCantFindBone, rendererDirty);
+            controller.process(seekTime, event, evaluator, modelRendererList, crashWhenCantFindBone, rendererDirty, shouldUpdate);
             boolean isParallelController = controller.getName().startsWith("parallel_");
             // 遍历每个骨骼，并对属性进行插值计算
             for (BoneAnimationQueue boneAnimation : controller.getBoneAnimationQueues()) {

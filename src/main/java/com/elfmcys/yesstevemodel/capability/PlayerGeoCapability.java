@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -35,7 +34,7 @@ public class PlayerGeoCapability extends CustomPlayerInstance {
     }
 
     private boolean shouldSkipShadowRenderPass() {
-        return RenderSystem.isOnRenderThread() && isFirstPersonModActive() && IrisCompat.isInstalled() && IrisCompat.isRenderingShadow() && lastEvent != null;
+        return isFirstPersonModActive() && IrisCompat.isInstalled() && IrisCompat.isRenderingShadow() && lastEvent != null;
     }
 
     @Override

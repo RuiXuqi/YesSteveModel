@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -11,6 +12,7 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.Minecraft;
@@ -29,6 +31,7 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
 
     private int lastForceUpdateTick = Integer.MIN_VALUE;
     private int currentTick = 0;
+    private float lastUpdateInShadowPassTime = Integer.MIN_VALUE;
 
     @Override
     public GeoModel getModel(String location) {
@@ -68,6 +71,11 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
             EntityModelData data = (EntityModelData) extraData.get(0);
             boolean update = super.setCustomAnimations(customPlayer, ctx, animationEvent);
             this.codeAnimation(animationEvent, data, player, update);
+
+            if (update && IrisCompat.isInstalled() && IrisCompat.isRenderingShadow()) {
+                lastUpdateInShadowPassTime = RenderUtils.getRenderTickTime();
+            }
+
             return update;
         } else {
             return super.setCustomAnimations(customPlayer, ctx, animationEvent);
@@ -81,7 +89,8 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
     @Override
     public boolean forceUpdate() {
         // 如果上一刻或当前刻有过强制更新，则本次也强制更新。
-        return lastForceUpdateTick == currentTick - 1 || lastForceUpdateTick == currentTick || shouldForceUpdateInCurrentTick();
+        // 如果本次 RenderTick 内的上次更新在 oculus 阴影期间，则本次强制更新
+        return lastForceUpdateTick == currentTick - 1 || lastForceUpdateTick == currentTick || lastUpdateInShadowPassTime == RenderUtils.getRenderTickTime();
     }
 
     public void codeAnimationForShadowRendering() {

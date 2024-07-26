@@ -214,7 +214,7 @@ public class AnimationController<T extends IAnimatable<?>> {
      * @param modelRendererList      所有的 AnimatedModelRender 列表
      */
     public void process(final double tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationContext<?>> evaluator, List<BoneTopLevelSnapshot> modelRendererList,
-                        boolean crashWhenCantFindBone, boolean isRendererDirty) {
+                        boolean crashWhenCantFindBone, boolean isRendererDirty, boolean scheduledUpdate) {
         AnimationControllerContext context = new AnimationControllerContext();
         if (this.currentAnimation != null) {
             if (model != null) {
@@ -326,7 +326,7 @@ public class AnimationController<T extends IAnimatable<?>> {
         } else if (getAnimationState() == AnimationState.RUNNING) {
             resetQueues();
             // 开始运行动画
-            processCurrentAnimation(context, evaluator, adjustedTick, tick, crashWhenCantFindBone);
+            processCurrentAnimation(context, evaluator, adjustedTick, tick, crashWhenCantFindBone, scheduledUpdate);
         }
     }
 
@@ -334,7 +334,7 @@ public class AnimationController<T extends IAnimatable<?>> {
         return this.animationPredicate.test(event);
     }
 
-    private void processCurrentAnimation(AnimationControllerContext context, ExpressionEvaluator<AnimationContext<?>> evaluator, double tick, double actualTick, boolean crashWhenCantFindBone) {
+    private void processCurrentAnimation(AnimationControllerContext context, ExpressionEvaluator<AnimationContext<?>> evaluator, double tick, double actualTick, boolean crashWhenCantFindBone, boolean scheduledUpdate) {
         assert currentAnimation != null;
         evaluator.entity().setAnimationControllerContext(context);
 
@@ -404,7 +404,8 @@ public class AnimationController<T extends IAnimatable<?>> {
         }
 */
 
-        if(instructionKeyFrameExecutor != null) {
+        // 计划外更新不执行指令关键帧
+        if (instructionKeyFrameExecutor != null && scheduledUpdate) {
             instructionKeyFrameExecutor.executeTo(evaluator, tick);
         }
 
