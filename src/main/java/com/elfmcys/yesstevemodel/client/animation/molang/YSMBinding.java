@@ -50,6 +50,10 @@ public class YSMBinding extends ContextBinding {
         function("effect_level", new EffectLevel());
         function("relative_block_name", new RelativeBlockName());
 
+        function("bone_rot", new BoneRotation());
+        function("bone_pos", new BonePosition());
+        function("bone_scale", new BoneScale());
+
         var("head_yaw", ctx -> ctx.data().netHeadYaw);
         var("head_pitch", ctx -> ctx.data().headPitch);
         var("weather", ctx -> getWeather(ctx.level()));

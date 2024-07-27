@@ -94,6 +94,10 @@ final class MolangLexerImpl implements MolangLexer {
         }
 
         int start = cursor.index();
+        if (c == '.' && lastToken != null && lastToken.kind() == TokenKind.RPAREN) {
+            read();
+            return new Token(TokenKind.DOT, null, start, cursor.index());
+        }
         boolean isLastIdentifier = (lastToken != null && lastToken.kind() == TokenKind.IDENTIFIER);
         if (Characters.isDigit(c) || (!isLastIdentifier && c == '.')) {
             StringBuilder builder = new StringBuilder(8);

@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface IAnimatableModel<E extends IAnimatable<?>> {
     /**
@@ -52,11 +53,8 @@ public interface IAnimatableModel<E extends IAnimatable<?>> {
      * @param boneName 骨骼名
      * @return IBone
      */
+    @Nullable
     default IBone getBone(String boneName) {
-        IBone bone = getAnimationProcessor().getBone(boneName);
-        if (bone == null) {
-            throw new RuntimeException("Could not find bone: " + boneName);
-        }
-        return bone;
+        return getAnimationProcessor().getBone(boneName);
     }
 }

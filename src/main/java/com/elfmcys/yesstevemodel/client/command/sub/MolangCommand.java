@@ -15,6 +15,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
+import java.util.function.Supplier;
+
 public class MolangCommand {
     private static final String MOLANG_NAME = "molang";
 
@@ -42,15 +44,15 @@ public class MolangCommand {
 
         LiteralArgumentBuilder<CommandSourceStack> execute = Commands.literal(EXECUTE_NAME);
 
-        RequiredArgumentBuilder<CommandSourceStack, String> expName = Commands.argument(EXPRESSION_NAME_NAME, StringArgumentType.string());
-        RequiredArgumentBuilder<CommandSourceStack, String> exp = Commands.argument(EXPRESSION_NAME, StringArgumentType.greedyString());
+        Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> expName = () -> Commands.argument(EXPRESSION_NAME_NAME, StringArgumentType.string());
+        Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> exp = () -> Commands.argument(EXPRESSION_NAME, StringArgumentType.greedyString());
 
-        molang.then(watch.then(add.then(pre.then(expName.then(exp.executes(ctx -> addExpression(ctx, DebugInfo.Phase.PRE_ANIMATION)))))));
-        molang.then(watch.then(add.then(post.then(expName.then(exp.executes(ctx -> addExpression(ctx, DebugInfo.Phase.POST_ANIMATION)))))));
-        molang.then(watch.then(remove.then(expName.executes(MolangCommand::removeExpression))));
-        molang.then(watch.then(clear.executes(MolangCommand::clearExpression)));
-
-        molang.then(execute.then(exp.executes(MolangCommand::executeMolang)));
+        watch.then(add.then(pre.then(expName.get().then(exp.get().executes(ctx -> addExpression(ctx, DebugInfo.Phase.PRE_ANIMATION)))))
+                      .then(post.then(expName.get().then(exp.get().executes(ctx -> addExpression(ctx, DebugInfo.Phase.POST_ANIMATION))))))
+                .then(remove.then(expName.get().executes(MolangCommand::removeExpression)))
+                .then(clear.executes(MolangCommand::clearExpression));
+        molang.then(watch)
+              .then(execute.then(exp.get().executes(MolangCommand::executeMolang)));
 
         return molang;
     }
@@ -116,7 +118,7 @@ public class MolangCommand {
 
         Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             cap.getAnimatableModel().execute(value, result -> {
-                Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.result", result == null ? "null" : result));
+                Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.result", result));
             });
         });
 

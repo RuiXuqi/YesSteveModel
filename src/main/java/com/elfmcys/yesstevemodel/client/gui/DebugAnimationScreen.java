@@ -50,7 +50,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
 
             DebugInfo debugInfo = cap.getAnimatableModel().getDebugInfo();
             debugInfo.enumerate((name, result) -> {
-                renderCustomText(gui, graphics, y, name, result == null ? "null" : result.toString());
+                renderCustomText(gui, graphics, y, name, result);
             });
         });
     }

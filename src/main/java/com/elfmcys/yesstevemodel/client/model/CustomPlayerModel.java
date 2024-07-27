@@ -11,7 +11,6 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.Minecraft;

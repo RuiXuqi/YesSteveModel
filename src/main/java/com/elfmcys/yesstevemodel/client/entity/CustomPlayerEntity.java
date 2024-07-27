@@ -170,7 +170,7 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
             } else {
                 remoteStruct = new HashMapStruct();
                 for (var entry : initialVariables.object2FloatEntrySet()) {
-                    this.remoteStruct.putProperty(StringPool.getName(entry.getKey()), entry.getFloatValue());
+                    this.remoteStruct.putProperty(StringPool.computeIfAbsent(entry.getKey()), entry.getFloatValue());
                 }
             }
             initialVariables = null;

@@ -52,7 +52,7 @@ public class DebugInfo {
         }
     }
 
-    public void enumerate(BiConsumer<String, Object> enumerator) {
+    public void enumerate(BiConsumer<String, String> enumerator) {
         for(DebugItem item : items) {
             enumerator.accept(item.name, item.result);
         }
@@ -62,7 +62,7 @@ public class DebugInfo {
         private final String name;
         private final IValue value;
         private final Phase phase;
-        private Object result;
+        private volatile String result;
 
         public DebugItem(String name, IValue value, Phase phase) {
             this.name = name;
@@ -72,13 +72,20 @@ public class DebugInfo {
 
         public void eval(ExpressionEvaluator<?> evaluator) {
             try {
-                result = value.evalUnsafe(evaluator);
+                var ret = value.evalUnsafe(evaluator);
+                if (ret == null) {
+                    result = "null";
+                } else if (ret instanceof String) {
+                    result = "'" + ret + "'";
+                } else {
+                    result = ret.toString();
+                }
             } catch (Exception e) {
                 result = "Error: " + e.getMessage();
             }
         }
 
-        public Object result() {
+        public String result() {
             return result;
         }
 

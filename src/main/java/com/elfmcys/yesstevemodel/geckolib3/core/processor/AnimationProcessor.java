@@ -39,7 +39,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
     private final VariableStorage animationStorage = new VariableStorage();
     private final Random random = new Random();
     private final DebugInfo debugInfo = new DebugInfo();
-    private final ConcurrentLinkedQueue<Pair<IValue, Consumer<Object>>> pendingValues = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
     private final RateLimiter rateLimiter = new RateLimiter(FPS);
     private final IAnimatableModel animatedModel;
 
@@ -232,10 +232,17 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
     private void postProcess(ExpressionEvaluator<AnimationContext<?>> evaluator) {
         debugInfo.evaluatePost(evaluator);
         while(!pendingValues.isEmpty()) {
-            Pair<IValue, Consumer<Object>> pair = pendingValues.poll();
-            Object result;
+            Pair<IValue, Consumer<String>> pair = pendingValues.poll();
+            String result;
             try {
-                result = pair.getFirst().evalUnsafe(evaluator);
+                var ret = pair.getFirst().evalUnsafe(evaluator);
+                if (ret == null) {
+                    result = "null";
+                } else if (ret instanceof String) {
+                    result = "'" + ret + "'";
+                } else {
+                    result = ret.toString();
+                }
             } catch (Exception e) {
                 result = "Error: " + e.getMessage();
             }
@@ -249,7 +256,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
         return debugInfo;
     }
 
-    public void execute(IValue value, @Nullable Consumer<Object> resultConsumer) {
+    public void execute(IValue value, @Nullable Consumer<String> resultConsumer) {
         pendingValues.add(Pair.of(value, resultConsumer));
     }
 

@@ -93,7 +93,7 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
         return animationProcessor.getDebugInfo();
     }
 
-    public void execute(IValue value, @Nullable Consumer<Object> resultConsumer) {
+    public void execute(IValue value, @Nullable Consumer<String> resultConsumer) {
         animationProcessor.execute(value, resultConsumer);
     }
 
