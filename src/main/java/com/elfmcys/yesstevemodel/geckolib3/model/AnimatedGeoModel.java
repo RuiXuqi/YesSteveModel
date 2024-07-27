@@ -32,7 +32,9 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
         Minecraft mc = Minecraft.getInstance();
         AnimationData manager = animatable.getFactory().getOrCreateAnimationData(0, this);
         AnimationEvent<T> predicate;
-        double currentTick = getCurrentTick();
+
+        boolean forceUpdate = this.forceUpdate();
+        double currentTick = forceUpdate ? (Blaze3D.getTime() * 20) : getCurrentTick();
 
         if (manager.startTick == -1) {
             manager.startTick = currentTick;
@@ -50,7 +52,7 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
         getAnimationProcessor().putRemoteStruct(getRemoteStruct(animatable));
         getAnimationProcessor().preAnimationSetup(predicate.getAnimatable(), this.seekTime);
         if (!getAnimationProcessor().isModelRendererEmpty()) {
-            return getAnimationProcessor().tickAnimation(animatable, this.seekTime, forceUpdate(), predicate, ctx, this.shouldCrashOnMissing);
+            return getAnimationProcessor().tickAnimation(animatable, this.seekTime, forceUpdate, predicate, ctx, this.shouldCrashOnMissing);
         }
         return false;
     }
@@ -80,11 +82,7 @@ public abstract class AnimatedGeoModel<T extends IAnimatable<?>> extends GeoMode
 
     @Override
     public double getCurrentTick() {
-        if (forceUpdate()) {
-            return Blaze3D.getTime() * 20;
-        } else {
-            return RenderUtils.getRenderTickTime();
-        }
+        return RenderUtils.getRenderTickTime();
     }
 
     public boolean forceUpdate() {
