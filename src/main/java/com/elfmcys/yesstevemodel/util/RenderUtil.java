@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
-import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -283,7 +282,7 @@ public final class RenderUtil {
         Lighting.setupFor3DItems();
     }
 
-    public static void renderPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z) {
+    public static void renderExtraPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z) {
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
         viewStack.translate(posX + scale * 0.5, posY + scale * 2, 0);
@@ -294,7 +293,8 @@ public final class RenderUtil {
         pGuiGraphics.pose().scale(scale, scale, scale);
         Quaternionf zRot = Axis.ZP.rotationDegrees(180.0F);
         Quaternionf yRot = Axis.YP.rotationDegrees(player.yBodyRot + yawOffset - 180);
-        zRot.mul(yRot);
+        Quaternionf xRot = Axis.XP.rotationDegrees(1F); // 转一度能避免剔除算法产生 Nan 值
+        zRot.mul(yRot).mul(xRot);
         pGuiGraphics.pose().mulPose(zRot);
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();

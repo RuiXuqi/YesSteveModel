@@ -68,7 +68,7 @@ public class ExtraPlayerConfigScreen extends Screen {
         graphics.pose().popPose();
 
         if (getMinecraft().player != null) {
-            RenderUtil.renderPlayerEntity(graphics, getMinecraft().player, this.posX, this.posY, this.scale, this.yawOffset, -500);
+            RenderUtil.renderExtraPlayerEntity(graphics, getMinecraft().player, this.posX, this.posY, this.scale, this.yawOffset, -500);
         }
     }
 
