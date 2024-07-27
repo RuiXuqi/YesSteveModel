@@ -51,8 +51,8 @@ public class QueryBinding extends ContextBinding {
         entityVar("yaw_speed", ctx -> getYawSpeed(ctx.entity()));
         entityVar("cardinal_facing_2d", ctx -> ctx.entity().getDirection().get3DDataValue());
         entityVar("distance_from_camera", ctx -> ctx.mc().gameRenderer.getMainCamera().getPosition().distanceTo(ctx.entity().position()));
-        entityVar("eye_target_x_rotation", ctx -> ctx.entity().getViewXRot(0));
-        entityVar("eye_target_y_rotation", ctx -> ctx.entity().getViewYRot(0));
+        entityVar("eye_target_x_rotation", ctx -> ctx.entity().getViewXRot(ctx.animationEvent().getPartialTick()));
+        entityVar("eye_target_y_rotation", ctx -> ctx.entity().getViewYRot(ctx.animationEvent().getPartialTick()));
         entityVar("ground_speed", ctx -> getGroundSpeed(ctx.entity()));
         entityVar("modified_distance_moved", ctx -> ctx.entity().walkDist);
         entityVar("vertical_speed", ctx -> getVerticalSpeed(ctx.entity()));
@@ -69,8 +69,8 @@ public class QueryBinding extends ContextBinding {
         entityVar("is_sprinting", ctx -> ctx.entity().isSprinting());
         entityVar("is_swimming", ctx -> ctx.entity().isSwimming());
 
-        livingEntityVar("body_x_rotation", ctx -> ctx.entity().getXRot());
-        livingEntityVar("body_y_rotation", ctx -> Mth.wrapDegrees(ctx.entity().yBodyRot));
+        livingEntityVar("body_x_rotation", ctx -> Mth.lerp(ctx.animationEvent().getPartialTick(), ctx.entity().xRotO, ctx.entity().getXRot()));
+        livingEntityVar("body_y_rotation", ctx -> Mth.wrapDegrees(Mth.lerp(ctx.animationEvent().getPartialTick(), ctx.entity().yBodyRotO, ctx.entity().yBodyRot)));
         livingEntityVar("health", ctx -> ctx.entity().getHealth());
         livingEntityVar("max_health", ctx -> ctx.entity().getMaxHealth());
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
