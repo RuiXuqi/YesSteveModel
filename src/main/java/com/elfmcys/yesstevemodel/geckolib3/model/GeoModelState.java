@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public class GeoModelState {
-    private static final int STATE_STRIDE = 12;
+    private static final int INPUT_STATE_STRIDE = 12;
+    private static final int OUTPUT_STATE_STRIDE = 4;
 
     private final Object2ReferenceMap<String, IBone> boneMap;
-    private final float[] state;
+
+    private final float[] inputState;
+    private final float[] outputState;
     private final GeoModel model;
 
     @NotNull
@@ -44,11 +47,14 @@ public class GeoModelState {
         this.model = model;
 
         List<GeoBone> sortedBones = model.getSortedBones();
-        this.state = new float[STATE_STRIDE * sortedBones.size()];
+
+        this.inputState = new float[INPUT_STATE_STRIDE * sortedBones.size()];
+        this.outputState = new float[OUTPUT_STATE_STRIDE * sortedBones.size()];
+
         Object2ReferenceOpenHashMap<String, IBone> boneMap = new Object2ReferenceOpenHashMap<>(sortedBones.size());
         for (int i = 0; i < sortedBones.size(); i++) {
             GeoBone bone = sortedBones.get(i);
-            boneMap.put(bone.name(), new GeoBoneState(bone, state, i * STATE_STRIDE));
+            boneMap.put(bone.name(), new GeoBoneState(bone, inputState, i * INPUT_STATE_STRIDE, outputState, i * OUTPUT_STATE_STRIDE));
         }
         this.boneMap = Object2ReferenceMaps.unmodifiable(boneMap);
 
@@ -74,8 +80,12 @@ public class GeoModelState {
         return ReferenceLists.unmodifiable(list);
     }
 
-    public float[] state() {
-        return state;
+    public float[] inputState() {
+        return inputState;
+    }
+
+    public float[] outputState() {
+        return outputState;
     }
 
     public Map<String, IBone> boneMap() {

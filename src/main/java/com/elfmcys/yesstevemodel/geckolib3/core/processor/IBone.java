@@ -53,11 +53,17 @@ public interface IBone {
 
     void setHidden(boolean selfHidden, boolean skipChildRendering);
 
-    boolean isGlowing();
+    boolean isTracking();
 
-    void setGlowing(boolean glowing);
+    void setTracking(boolean tracking);
 
     BoneSnapshot getInitialSnapshot();
+
+    float getAbsolutePivotX();
+    
+    float getAbsolutePivotY();
+
+    float getAbsolutePivotZ();
 
     String getName();
 }

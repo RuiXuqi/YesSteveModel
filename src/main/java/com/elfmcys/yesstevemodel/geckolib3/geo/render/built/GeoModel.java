@@ -67,7 +67,7 @@ public class GeoModel {
 
         this.properties = properties;
 
-        this.initialState = new GeoModelState(this).state();
+        this.initialState = new GeoModelState(this).inputState();
         CleanerUtil.ref(this, GeoModel::free);
     }
 

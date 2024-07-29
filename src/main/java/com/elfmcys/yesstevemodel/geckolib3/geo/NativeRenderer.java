@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 // Native Access
@@ -23,7 +24,7 @@ public class NativeRenderer {
     private static final Matrix4f POST_MAT = new Matrix4f();
 
     public static void renderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState,
-                                   GeoModel model, float[] state, int textureIndex, int renderMode,
+                                   GeoModel model, float[] inputState, float @Nullable [] outputState, int textureIndex, int renderMode,
                                    int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (IrisCompat.isInstalled()) {
             IrisCompat.setupState();
@@ -33,7 +34,7 @@ public class NativeRenderer {
         RenderSystem.getProjectionMatrix().mul(RenderSystem.getModelViewMatrix(), POST_MAT);
 
         nRenderModel(vertexConsumer, poseState, POST_MAT, forceLegacyRenderer,
-                model, state, textureIndex, renderMode,
+                model, inputState, outputState, textureIndex, renderMode,
                 packedLight, packedOverlay, red, green, blue, alpha);
     }
 
@@ -42,7 +43,7 @@ public class NativeRenderer {
     }
 
     private static native void nRenderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState, Matrix4f postMat, boolean useCompatibilityRenderer,
-                                            GeoModel model, float[] state, int textureIndex, int renderMode,
+                                            GeoModel model, float[] inputState, float @Nullable [] outputState, int textureIndex, int renderMode,
                                             int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
 
     public static boolean isAsyncScope() {

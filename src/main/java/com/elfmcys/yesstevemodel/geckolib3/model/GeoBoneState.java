@@ -7,39 +7,51 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
 
 public class GeoBoneState implements IBone {
     // Native Association: 所有 index 都有关联
-    private static final int INDEX_ROTATION_X = 0;
-    private static final int INDEX_ROTATION_Y = 1;
-    private static final int INDEX_ROTATION_Z = 2;
+    private static final int IN_IDX_ROTATION_X = 0;
+    private static final int IN_IDX_ROTATION_Y = 1;
+    private static final int IN_IDX_ROTATION_Z = 2;
 
-    private static final int INDEX_POSITION_X = 3;
-    private static final int INDEX_POSITION_Y = 4;
-    private static final int INDEX_POSITION_Z = 5;
+    private static final int IN_IDX_POSITION_X = 3;
+    private static final int IN_IDX_POSITION_Y = 4;
+    private static final int IN_IDX_POSITION_Z = 5;
 
-    private static final int INDEX_SCALE_X = 6;
-    private static final int INDEX_SCALE_Y = 7;
-    private static final int INDEX_SCALE_Z = 8;
+    private static final int IN_IDX_SCALE_X = 6;
+    private static final int IN_IDX_SCALE_Y = 7;
+    private static final int IN_IDX_SCALE_Z = 8;
 
-    private static final int INDEX_IS_HIDDEN = 9;
-    private static final int INDEX_IS_CHILDREN_HIDDEN = 10;
-    private static final int INDEX_IS_GLOWING = 11;
+    private static final int IN_IDX_HIDDEN = 9;
+    private static final int IN_IDX_CHILDREN_HIDDEN = 10;
+    private static final int IN_IDX_TRACKING = 11;
+
+    private static final int OUT_IDX_ABS_PIVOT_X = 0;
+    private static final int OUT_IDX_ABS_PIVOT_Y = 1;
+    private static final int OUT_IDX_ABS_PIVOT_Z = 2;
 
     private final String name;
     private final float pivotX;
     private final float pivotY;
     private final float pivotZ;
 
-    private final float[] state;
-    private final int stateOffset;
+    private final float[] inputState;
+    private final int inputStateOffset;
+
+    private final float[] outputState;
+    private final int outputStateOffset;
+
     private final BoneSnapshot initialSnapshot;
 
-    public GeoBoneState(GeoBone bone, float[] state, int stateOffset) {
+    public GeoBoneState(GeoBone bone, float[] inputState, int inputStateOffset, float[] outputState, int outputStateOffset) {
         this.name = bone.name();
+
         this.pivotX = bone.pivotX();
         this.pivotY = bone.pivotY();
         this.pivotZ = bone.pivotZ();
 
-        this.state = state;
-        this.stateOffset = stateOffset;
+        this.inputState = inputState;
+        this.inputStateOffset = inputStateOffset;
+        this.outputState = outputState;
+        this.outputStateOffset = outputStateOffset;
+
         this.setHidden(bone.isHidden(), bone.areChildrenHidden());
         this.setRotationX(bone.rotationX());
         this.setRotationY(bone.rotationY());
@@ -47,6 +59,7 @@ public class GeoBoneState implements IBone {
         this.setScaleX(1);
         this.setScaleY(1);
         this.setScaleZ(1);
+
         this.initialSnapshot = new BoneTopLevelSnapshot(this);
     }
 
@@ -56,98 +69,113 @@ public class GeoBoneState implements IBone {
     }
 
     @Override
+    public float getAbsolutePivotX() {
+        return outputState[outputStateOffset + OUT_IDX_ABS_PIVOT_X];
+    }
+
+    @Override
+    public float getAbsolutePivotY() {
+        return outputState[outputStateOffset + OUT_IDX_ABS_PIVOT_Y];
+    }
+
+    @Override
+    public float getAbsolutePivotZ() {
+        return outputState[outputStateOffset + OUT_IDX_ABS_PIVOT_Z];
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }
 
     @Override
     public float getRotationX() {
-        return this.state[stateOffset + INDEX_ROTATION_X];
+        return this.inputState[inputStateOffset + IN_IDX_ROTATION_X];
     }
 
     @Override
     public void setRotationX(float value) {
-        this.state[stateOffset + INDEX_ROTATION_X] = value;
+        this.inputState[inputStateOffset + IN_IDX_ROTATION_X] = value;
     }
 
     @Override
     public float getRotationY() {
-        return this.state[stateOffset + INDEX_ROTATION_Y];
+        return this.inputState[inputStateOffset + IN_IDX_ROTATION_Y];
     }
 
     @Override
     public void setRotationY(float value) {
-        this.state[stateOffset + INDEX_ROTATION_Y] = value;
+        this.inputState[inputStateOffset + IN_IDX_ROTATION_Y] = value;
     }
 
     @Override
     public float getRotationZ() {
-        return this.state[stateOffset + INDEX_ROTATION_Z];
+        return this.inputState[inputStateOffset + IN_IDX_ROTATION_Z];
     }
 
     @Override
     public void setRotationZ(float value) {
-        this.state[stateOffset + INDEX_ROTATION_Z] = value;
+        this.inputState[inputStateOffset + IN_IDX_ROTATION_Z] = value;
     }
 
     @Override
     public float getPositionX() {
-        return this.state[stateOffset + INDEX_POSITION_X];
+        return this.inputState[inputStateOffset + IN_IDX_POSITION_X];
     }
 
     @Override
     public void setPositionX(float value) {
-        this.state[stateOffset + INDEX_POSITION_X] = value;
+        this.inputState[inputStateOffset + IN_IDX_POSITION_X] = value;
     }
 
     @Override
     public float getPositionY() {
-        return this.state[stateOffset + INDEX_POSITION_Y];
+        return this.inputState[inputStateOffset + IN_IDX_POSITION_Y];
     }
 
     @Override
     public void setPositionY(float value) {
-        this.state[stateOffset + INDEX_POSITION_Y] = value;
+        this.inputState[inputStateOffset + IN_IDX_POSITION_Y] = value;
     }
 
     @Override
     public float getPositionZ() {
-        return this.state[stateOffset + INDEX_POSITION_Z];
+        return this.inputState[inputStateOffset + IN_IDX_POSITION_Z];
     }
 
     @Override
     public void setPositionZ(float value) {
-        this.state[stateOffset + INDEX_POSITION_Z] = value;
+        this.inputState[inputStateOffset + IN_IDX_POSITION_Z] = value;
     }
 
     @Override
     public float getScaleX() {
-        return this.state[stateOffset + INDEX_SCALE_X];
+        return this.inputState[inputStateOffset + IN_IDX_SCALE_X];
     }
 
     @Override
     public void setScaleX(float value) {
-        this.state[stateOffset + INDEX_SCALE_X] = value;
+        this.inputState[inputStateOffset + IN_IDX_SCALE_X] = value;
     }
 
     @Override
     public float getScaleY() {
-        return this.state[stateOffset + INDEX_SCALE_Y];
+        return this.inputState[inputStateOffset + IN_IDX_SCALE_Y];
     }
 
     @Override
     public void setScaleY(float value) {
-        this.state[stateOffset + INDEX_SCALE_Y] = value;
+        this.inputState[inputStateOffset + IN_IDX_SCALE_Y] = value;
     }
 
     @Override
     public float getScaleZ() {
-        return this.state[stateOffset + INDEX_SCALE_Z];
+        return this.inputState[inputStateOffset + IN_IDX_SCALE_Z];
     }
 
     @Override
     public void setScaleZ(float value) {
-        this.state[stateOffset + INDEX_SCALE_Z] = value;
+        this.inputState[inputStateOffset + IN_IDX_SCALE_Z] = value;
     }
 
     @Override
@@ -167,7 +195,7 @@ public class GeoBoneState implements IBone {
 
     @Override
     public boolean isHidden() {
-        return this.state[stateOffset + INDEX_IS_HIDDEN] == 1;
+        return this.inputState[inputStateOffset + IN_IDX_HIDDEN] == 1;
     }
 
     @Override
@@ -177,22 +205,22 @@ public class GeoBoneState implements IBone {
 
     @Override
     public boolean areChildrenHidden() {
-        return this.state[stateOffset + INDEX_IS_CHILDREN_HIDDEN] == 1;
+        return this.inputState[inputStateOffset + IN_IDX_CHILDREN_HIDDEN] == 1;
     }
 
     @Override
     public void setHidden(boolean selfHidden, boolean skipChildRendering) {
-        this.state[stateOffset + INDEX_IS_HIDDEN] = selfHidden ? 1 : 0;
-        this.state[stateOffset + INDEX_IS_CHILDREN_HIDDEN] = skipChildRendering ? 1 : 0;
+        this.inputState[inputStateOffset + IN_IDX_HIDDEN] = selfHidden ? 1 : 0;
+        this.inputState[inputStateOffset + IN_IDX_CHILDREN_HIDDEN] = skipChildRendering ? 1 : 0;
     }
 
     @Override
-    public boolean isGlowing() {
-        return this.state[stateOffset + INDEX_IS_GLOWING] == 1;
+    public boolean isTracking() {
+        return this.inputState[inputStateOffset + IN_IDX_TRACKING] == 1;
     }
 
     @Override
-    public void setGlowing(boolean glowing) {
-        this.state[stateOffset + INDEX_IS_GLOWING] = glowing ? 1 : 0;
+    public void setTracking(boolean value) {
+        this.inputState[inputStateOffset + IN_IDX_TRACKING] = value ? 1 : 0;
     }
 }

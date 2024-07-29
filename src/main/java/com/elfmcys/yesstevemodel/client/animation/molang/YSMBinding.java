@@ -53,6 +53,7 @@ public class YSMBinding extends ContextBinding {
         function("bone_rot", new BoneRotation());
         function("bone_pos", new BonePosition());
         function("bone_scale", new BoneScale());
+        function("bone_pivot_abs", new BoneAbsolutePivot());
 
         var("head_yaw", ctx -> ctx.data().netHeadYaw);
         var("head_pitch", ctx -> ctx.data().headPitch);
