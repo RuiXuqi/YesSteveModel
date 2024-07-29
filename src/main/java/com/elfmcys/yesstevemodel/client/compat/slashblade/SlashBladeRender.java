@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.compat.slashblade;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -106,25 +105,9 @@ public class SlashBladeRender {
 
     private static void translateToWaist(HumanoidArm arm, PoseStack poseStack, GeoModelState geoModel) {
         if (arm == HumanoidArm.LEFT) {
-            int size = geoModel.leftWaistBones().size();
-            for (int i = 0; i < size - 1; i++) {
-                RenderUtils.prepMatrixForBone(poseStack, geoModel.leftWaistBones().get(i));
-            }
-            IBone lastBone = geoModel.leftWaistBones().get(size - 1);
-            RenderUtils.translateMatrixToBone(poseStack, lastBone);
-            RenderUtils.translateToPivotPoint(poseStack, lastBone);
-            RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-            RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.leftWaistBones());
         } else {
-            int size = geoModel.rightWaistBones().size();
-            for (int i = 0; i < size - 1; i++) {
-                RenderUtils.prepMatrixForBone(poseStack, geoModel.rightWaistBones().get(i));
-            }
-            IBone lastBone = geoModel.rightWaistBones().get(size - 1);
-            RenderUtils.translateMatrixToBone(poseStack, lastBone);
-            RenderUtils.translateToPivotPoint(poseStack, lastBone);
-            RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-            RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.rightWaistBones());
         }
     }
 }

@@ -77,25 +77,9 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
 
     protected void translateToHand(HumanoidArm arm, PoseStack poseStack, GeoModelState geoModel) {
         if (arm == HumanoidArm.LEFT) {
-            int size = geoModel.leftHandBones().size();
-            for (int i = 0; i < size - 1; i++) {
-                RenderUtils.prepMatrixForBone(poseStack, geoModel.leftHandBones().get(i));
-            }
-            IBone lastBone = geoModel.leftHandBones().get(size - 1);
-            RenderUtils.translateMatrixToBone(poseStack, lastBone);
-            RenderUtils.translateToPivotPoint(poseStack, lastBone);
-            RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-            RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.leftHandBones());
         } else {
-            int size = geoModel.rightHandBones().size();
-            for (int i = 0; i < size - 1; i++) {
-                RenderUtils.prepMatrixForBone(poseStack, geoModel.rightHandBones().get(i));
-            }
-            IBone lastBone = geoModel.rightHandBones().get(size - 1);
-            RenderUtils.translateMatrixToBone(poseStack, lastBone);
-            RenderUtils.translateToPivotPoint(poseStack, lastBone);
-            RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-            RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.rightHandBones());
         }
     }
 }

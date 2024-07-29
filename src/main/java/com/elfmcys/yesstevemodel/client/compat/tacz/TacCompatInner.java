@@ -8,7 +8,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -58,16 +57,7 @@ class TacCompatInner {
             String weaponType = index.getType();
             ItemRenderer renderer = Minecraft.getInstance().getItemRenderer();
             if (isType(weaponType, GunTabType.PISTOL) && !geoModel.tacPistolBones().isEmpty()) {
-                int size = geoModel.tacPistolBones().size();
-                for (int i = 0; i < size - 1; i++) {
-                    RenderUtils.prepMatrixForBone(poseStack, geoModel.tacPistolBones().get(i));
-                }
-                IBone lastBone = geoModel.tacPistolBones().get(size - 1);
-                RenderUtils.translateMatrixToBone(poseStack, lastBone);
-                RenderUtils.translateToPivotPoint(poseStack, lastBone);
-                RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-                RenderUtils.scaleMatrixForBone(poseStack, lastBone);
-
+                RenderUtils.prepMatrixForLocator(poseStack, geoModel.tacPistolBones());
                 poseStack.translate(0, -0.125, 0);
                 poseStack.scale(0.65f, 0.65f, 0.65f);
                 poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
@@ -76,16 +66,7 @@ class TacCompatInner {
                 renderer.renderStatic(heldItem, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), player.getId());
             }
             if (!isType(weaponType, GunTabType.PISTOL) && !geoModel.tacRifleBones().isEmpty()) {
-                int size = geoModel.tacRifleBones().size();
-                for (int i = 0; i < size - 1; i++) {
-                    RenderUtils.prepMatrixForBone(poseStack, geoModel.tacRifleBones().get(i));
-                }
-                IBone lastBone = geoModel.tacRifleBones().get(size - 1);
-                RenderUtils.translateMatrixToBone(poseStack, lastBone);
-                RenderUtils.translateToPivotPoint(poseStack, lastBone);
-                RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-                RenderUtils.scaleMatrixForBone(poseStack, lastBone);
-
+                RenderUtils.prepMatrixForLocator(poseStack, geoModel.tacRifleBones());
                 poseStack.scale(0.65f, 0.65f, 0.65f);
                 poseStack.mulPose(Axis.YP.rotationDegrees(-180.0F));
                 MultiBufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();

@@ -35,9 +35,11 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
 
     private int instanceIdOverride;
     private Object2FloatOpenHashMap<String> initialVariables;
+    private final boolean localPlayer;
 
     public CustomPlayerEntity(AbstractClientPlayer player, boolean localPlayer) {
         this.player = player;
+        this.localPlayer = localPlayer;
         if (localPlayer) {
             remoteStruct = new RoamingStruct();
         } else {
@@ -181,5 +183,9 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
     public void setRemoteVariables(int instanceId, Object2FloatOpenHashMap<String> initialVariables) {
         this.instanceIdOverride = instanceId;
         this.initialVariables = initialVariables;
+    }
+
+    public boolean isLocalPlayer() {
+        return localPlayer;
     }
 }

@@ -15,7 +15,6 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -78,7 +77,7 @@ public class RenderFirstPlayerBackground {
                     bobView(poseStack, event.getPartialTick(), player);
                 }
                 poseStack.translate(0, -1.5, 0);
-                NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), null, textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                 poseStack.popPose();
             }
         });

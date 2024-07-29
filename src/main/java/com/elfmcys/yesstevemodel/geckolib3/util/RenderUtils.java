@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
+import java.util.List;
+
 //Native Association
 public final class RenderUtils {
     public static void translateMatrixToBone(PoseStack poseStack, IBone bone) {
@@ -45,6 +47,17 @@ public final class RenderUtils {
         rotateMatrixAroundBone(poseStack, bone);
         scaleMatrixForBone(poseStack, bone);
         translateAwayFromPivotPoint(poseStack, bone);
+    }
+
+    public static void prepMatrixForLocator(PoseStack poseStack, List<IBone> locatorHierarchy) {
+        for (int i = 0; i < locatorHierarchy.size() - 1; i++) {
+            RenderUtils.prepMatrixForBone(poseStack, locatorHierarchy.get(i));
+        }
+        IBone lastBone = locatorHierarchy.get(locatorHierarchy.size() - 1);
+        RenderUtils.translateMatrixToBone(poseStack, lastBone);
+        RenderUtils.translateToPivotPoint(poseStack, lastBone);
+        RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
+        RenderUtils.scaleMatrixForBone(poseStack, lastBone);
     }
 
     public static Matrix4f invertAndMultiplyMatrices(Matrix4f baseMatrix, Matrix4f inputMatrix) {

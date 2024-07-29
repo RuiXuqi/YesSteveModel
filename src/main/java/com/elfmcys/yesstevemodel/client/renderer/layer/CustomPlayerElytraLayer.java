@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
@@ -59,14 +58,6 @@ public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerInstan
     }
 
     protected void translateToElytra(PoseStack poseStack, GeoModelState geoModel) {
-        int size = geoModel.elytraBones().size();
-        for (int i = 0; i < size - 1; i++) {
-            RenderUtils.prepMatrixForBone(poseStack, geoModel.elytraBones().get(i));
-        }
-        IBone lastBone = geoModel.elytraBones().get(size - 1);
-        RenderUtils.translateMatrixToBone(poseStack, lastBone);
-        RenderUtils.translateToPivotPoint(poseStack, lastBone);
-        RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-        RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+        RenderUtils.prepMatrixForLocator(poseStack, geoModel.elytraBones());
     }
 }

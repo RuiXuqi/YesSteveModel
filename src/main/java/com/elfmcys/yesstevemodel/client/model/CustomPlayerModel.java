@@ -14,7 +14,6 @@ import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -25,8 +24,6 @@ import java.util.List;
 
 @SuppressWarnings("all")
 public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
-    public static volatile float FIRST_PERSON_HEAD_POS;
-
     private volatile boolean renderedWithTempChanges = false;
 
     @Override
@@ -68,10 +65,6 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
         }
     }
 
-    public boolean shouldForceUpdateInCurrentTick() {
-        return RenderUtil.isRenderingEntitiesInInventory();
-    }
-
     /**
      * 注意非幂等
      */
@@ -100,28 +93,24 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
         // 2023/6/21 这一块设计应该改成 molang 的，而且这个寻找效率低下
         // 2023/11/07 改善了寻找效率
         IBone head = getBone("Head");
-        boolean isLocalPlayer = player instanceof LocalPlayer;
-        if (update) {
-            if (isLocalPlayer) {
-                FIRST_PERSON_HEAD_POS = 24;
-            }
-            if (head != null) {
-                head.setRotationX(head.getRotationX() + (float) Math.toRadians(data.headPitch));
-                head.setRotationY(head.getRotationY() + (float) Math.toRadians(data.netHeadYaw));
-                if (isLocalPlayer) {
-                    FIRST_PERSON_HEAD_POS = head.getPivotY() * animationEvent.getAnimatable().getHeightScale();
-                }
-            }
-        }
         GeoModelState model = getCurrentModel();
-        if (isLocalPlayer && model != null) {
-            if (model.firstPersonViewLocator() != null) {
-                float heightScale = animationEvent.getAnimatable().getHeightScale();
-                IBone locator = model.firstPersonViewLocator();
-                FIRST_PERSON_HEAD_POS = locator.getPivotY() * heightScale;
+
+        // 更新头部旋转
+        if (update && head != null) {
+            head.setRotationX(head.getRotationX() + (float) Math.toRadians(data.headPitch));
+            head.setRotationY(head.getRotationY() + (float) Math.toRadians(data.netHeadYaw));
+        }
+
+        // 更新第一人称相机偏移与头部隐藏
+        if (animationEvent.getAnimatable().isLocalPlayer() && FirstPersonCompat.isInstalled()) {
+            if (model.firstPersonHead() != null) {
+                model.firstPersonHead().setHidden(FirstPersonCompat.shouldHideHead());
             }
-            if (FirstPersonCompat.isInstalled() && model.firstPersonHead() != null) {
-                FirstPersonCompat.hideHead(model.firstPersonHead());
+
+            if (model != null && model.firstPersonViewLocator() != null) {
+                FirstPersonCompat.setHeadPos(model.firstPersonViewLocator().getPivotY() * animationEvent.getAnimatable().getHeightScale());
+            } else if (update) {
+                FirstPersonCompat.setHeadPos(head == null ? 24f : (head.getPivotY() * animationEvent.getAnimatable().getHeightScale()));
             }
         }
     }

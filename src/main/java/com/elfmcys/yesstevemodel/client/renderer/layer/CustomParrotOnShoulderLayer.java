@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
@@ -59,25 +58,9 @@ public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerIn
 
     protected void translateToShoulder(PoseStack poseStack, GeoModelState geoModel, boolean leftShoulder) {
         if (leftShoulder) {
-            int size = geoModel.leftShoulderBones().size();
-            for (int i = 0; i < size - 1; i++) {
-                RenderUtils.prepMatrixForBone(poseStack, geoModel.leftShoulderBones().get(i));
-            }
-            IBone lastBone = geoModel.leftShoulderBones().get(size - 1);
-            RenderUtils.translateMatrixToBone(poseStack, lastBone);
-            RenderUtils.translateToPivotPoint(poseStack, lastBone);
-            RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-            RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.leftShoulderBones());
         } else {
-            int size = geoModel.rightShoulderBones().size();
-            for (int i = 0; i < size - 1; i++) {
-                RenderUtils.prepMatrixForBone(poseStack, geoModel.rightShoulderBones().get(i));
-            }
-            IBone lastBone = geoModel.rightShoulderBones().get(size - 1);
-            RenderUtils.translateMatrixToBone(poseStack, lastBone);
-            RenderUtils.translateToPivotPoint(poseStack, lastBone);
-            RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
-            RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.rightShoulderBones());
         }
     }
 }

@@ -59,14 +59,14 @@ public class ReplacePlayerHandRenderEvent {
                     poseStack.pushPose();
                     poseStack.translate(0.25, 1.8, 0);
                     poseStack.scale(-1, -1, 1);
-                    NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_LEFT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                    NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), null, textureIndex, NativeRenderer.RENDER_MODE_LEFT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                     poseStack.popPose();
                 }
                 if (event.getArm() == HumanoidArm.RIGHT) {
                     poseStack.pushPose();
                     poseStack.translate(-0.25, 1.8, 0);
                     poseStack.scale(-1, -1, 1);
-                    NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), textureIndex, NativeRenderer.RENDER_MODE_RIGHT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                    NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), null, textureIndex, NativeRenderer.RENDER_MODE_RIGHT_ARM, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                     poseStack.popPose();
                 }
             }
