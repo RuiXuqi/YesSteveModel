@@ -10,15 +10,17 @@ public class ModelProperties {
     private final String previewAnimation;
     private final FifoHashMap<String, String> extraAnimationOrderMap;
     private final boolean free;
+    private final boolean renderLayersFirst;
 
     // Native Access
-    public ModelProperties(float widthScale, float heightScale, String defaultTexture, String previewAnimation, FifoHashMap<String, String> extraAnimationOrderMap, boolean free) {
+    public ModelProperties(float widthScale, float heightScale, String defaultTexture, String previewAnimation, FifoHashMap<String, String> extraAnimationOrderMap, boolean free, boolean renderLayersFirst) {
         this.widthScale = widthScale;
         this.heightScale = heightScale;
         this.defaultTexture = defaultTexture;
         this.previewAnimation = previewAnimation;
         this.extraAnimationOrderMap = extraAnimationOrderMap;
         this.free = free;
+        this.renderLayersFirst = renderLayersFirst;
     }
 
     public float widthScale() {
@@ -43,5 +45,9 @@ public class ModelProperties {
 
     public boolean free() {
         return free;
+    }
+
+    public boolean renderLayersFirst() {
+        return renderLayersFirst;
     }
 }

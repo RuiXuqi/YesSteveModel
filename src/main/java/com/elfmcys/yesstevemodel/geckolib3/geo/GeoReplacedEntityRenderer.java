@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
 import com.elfmcys.yesstevemodel.api.ILivingRenderer;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -99,12 +100,13 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
             var textureIndex = textureLocationOverride == null && instance.isModelPresent() ? instance.getTextureIndex() : 0;
 
             GeoModelState model = instance.getAnimatableModel().getCurrentModel();
+            boolean renderLayersFirst = ClientModelManager.getModel(instance.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
             if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
                 preRender(model, instance, partialTick, renderType, poseStack, bufferSource, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-                if (!entity.isSpectator()) {
+                if (renderLayersFirst && !entity.isSpectator()) {
                     for (GeoLayerRenderer<TInstance> layerRenderer : this.layerRenderers) {
                         layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
                                 data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
@@ -114,6 +116,12 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
+                if (!renderLayersFirst && !entity.isSpectator()) {
+                    for (GeoLayerRenderer<TInstance> layerRenderer : this.layerRenderers) {
+                        layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
+                                data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
+                    }
+                }
             }
             poseStack.popPose();
         }

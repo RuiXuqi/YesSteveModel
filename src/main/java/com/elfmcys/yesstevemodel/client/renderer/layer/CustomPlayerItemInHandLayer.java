@@ -1,10 +1,11 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
+import com.elfmcys.yesstevemodel.api.IExtendedBufferSource;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeRender;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
@@ -35,14 +36,15 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
         ItemStack mainHandItem = entityLivingBaseIn.getMainHandItem();
         if (!offhandItem.isEmpty() || !mainHandItem.isEmpty()) {
             poseStack.pushPose();
+            boolean renderLayersFirst = ClientModelManager.getModel(instance.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
             if (!geoModel.rightHandBones().isEmpty()) {
                 if (SlashBladeCompat.isSlashBladeItem(mainHandItem)) {
                     SlashBladeRender.renderMainhandSlashBlade(entityLivingBaseIn, geoModel, poseStack, bufferIn, packedLightIn, mainHandItem, partialTicks);
                 } else {
                     TACZCompat.openFlashShellRender(entityLivingBaseIn, mainHandItem);
                     this.renderArmWithItem(geoModel, entityLivingBaseIn, mainHandItem, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, HumanoidArm.RIGHT, poseStack, bufferIn, packedLightIn);
-                    if (!mainHandItem.isEmpty() && bufferIn instanceof MultiBufferSource.BufferSource bufferSource) {
-                        bufferSource.endBatch();
+                    if (renderLayersFirst && !mainHandItem.isEmpty() && !TACZCompat.isTACZItem(mainHandItem) && bufferIn instanceof IExtendedBufferSource bufferSource) {
+                        bufferSource.endBatchFixedRenderType();
                     }
                     TACZCompat.stopFlashShellRender(mainHandItem);
                 }
@@ -52,8 +54,8 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
                     SlashBladeRender.renderOffhandSlashBlade(geoModel, poseStack, bufferIn, packedLightIn, offhandItem);
                 } else {
                     this.renderArmWithItem(geoModel, entityLivingBaseIn, offhandItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
-                    if (!offhandItem.isEmpty() && bufferIn instanceof MultiBufferSource.BufferSource bufferSource) {
-                        bufferSource.endBatch();
+                    if (renderLayersFirst && !offhandItem.isEmpty() && !TACZCompat.isTACZItem(mainHandItem) && bufferIn instanceof IExtendedBufferSource bufferSource) {
+                        bufferSource.endBatchFixedRenderType();
                     }
                 }
             }
