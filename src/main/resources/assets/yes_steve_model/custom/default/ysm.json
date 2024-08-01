@@ -60,6 +60,7 @@
     },
     "preview_animation": "idle",
     "default_texture": "default",
+    "render_layers_first": false,
     "free": true
   },
   "files": {
