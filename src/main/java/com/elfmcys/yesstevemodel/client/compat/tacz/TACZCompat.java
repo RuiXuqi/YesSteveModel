@@ -65,10 +65,6 @@ public class TACZCompat {
         return null;
     }
 
-    public static boolean isTACZItem(ItemStack itemStack) {
-        return isInstalled() && (TacCompatInner.isGun(itemStack) || TacCompatInner.isGrenade(itemStack));
-    }
-
     private static boolean isInstalled() {
         return INSTALLED;
     }
