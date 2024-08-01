@@ -19,12 +19,12 @@ public final class BoneRotation extends BoneParamFunction {
 
         @Override
         protected float getX() {
-            return (float) Math.toDegrees(bone.getRotationX());
+            return -(float) Math.toDegrees(bone.getRotationX());
         }
 
         @Override
         protected float getY() {
-            return (float) Math.toDegrees(bone.getRotationY());
+            return -(float) Math.toDegrees(bone.getRotationY());
         }
 
         @Override
