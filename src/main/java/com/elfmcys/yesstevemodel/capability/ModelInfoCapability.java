@@ -127,7 +127,10 @@ public class ModelInfoCapability {
     }
 
     public void setMandatory(boolean value) {
-        this.mandatory = value;
+        if (this.mandatory != value) {
+            this.mandatory = value;
+            markDirty();
+        }
     }
 
     public boolean isMandatory() {
