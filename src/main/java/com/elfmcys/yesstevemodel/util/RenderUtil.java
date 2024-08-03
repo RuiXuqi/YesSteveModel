@@ -246,6 +246,14 @@ public final class RenderUtil {
         player.yHeadRot = player.getYRot();
         player.yHeadRotO = player.getYRot();
 
+        // 修正骑乘时 GUI 界面歪头的 bug
+        if (player.getVehicle() instanceof LivingEntity vehicle) {
+            float vehicleYRot = vehicle.getYRot();
+            poseStack.mulPose(Axis.YP.rotationDegrees(vehicleYRot - 200));
+            player.yHeadRot = vehicleYRot;
+            player.yHeadRotO = vehicleYRot;
+        }
+
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         xp.conjugate();

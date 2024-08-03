@@ -118,6 +118,10 @@ repositories {
         }
     }
     maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+    maven {
         // Add jitpack to repositories
         url 'https://jitpack.io'
     }
@@ -143,6 +147,7 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:geckolib-388172:5460309")
     compileOnly fg.deobf("curse.maven:geckolib-388172:5460309")
     implementation fg.deobf("curse.maven:swem-582697:${swem_id}")
+    runtimeOnly fg.deobf("maven.modrinth:curtain:1.3.2-1.20.1")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
