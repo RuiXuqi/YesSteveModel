@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.util;
 public final class ControllerUtils {
     public static final String MAIN_CONTROLLER = "main_controller";
     public static final String HOLD_MAINHAND_CONTROLLER = "hold_mainhand_controller";
+    public static final String FIRE_MAINHAND_CONTROLLER = "fire_mainhand_controller";
     public static final String HOLD_OFFHAND_CONTROLLER = "hold_offhand_controller";
     public static final String USE_CONTROLLER = "use_controller";
     public static final String PASSENGER_CONTROLLER = "passenger_controller";

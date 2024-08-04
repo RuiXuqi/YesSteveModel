@@ -119,15 +119,11 @@ class TacCompatInner {
         String weaponType = gunIndex.getType();
         Player player = event.getAnimatable().getEntity();
         IGunOperator operator = IGunOperator.fromLivingEntity(player);
-        long fireTick = operator.getSynShootCoolDown();
 
         if (!player.isSwimming() && player.getPose() == Pose.SWIMMING) {
             if (Math.abs(event.getLimbSwingAmount()) > 0.05) {
                 return getGunTypeAnimation(event, weaponType, "tac:climb:");
             } else {
-                if (fireTick > 0) {
-                    return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:");
-                }
                 return getGunTypeAnimation(event, weaponType, "tac:climbing:");
             }
         }
@@ -143,19 +139,47 @@ class TacCompatInner {
 
         float aimProgress = operator.getSynAimingProgress();
         if (aimProgress > 0) {
-            if (fireTick > 0) {
-                return getGunTypeAnimation(event, weaponType, "tac:aim:fire:");
-            }
             return getGunTypeAnimation(event, weaponType, "tac:aim:");
         } else {
             if (player.onGround() && player.isSprinting()) {
                 return getGunTypeAnimation(event, weaponType, "tac:run:");
             }
-            if (fireTick > 0) {
-                return getGunTypeAnimation(event, weaponType, "tac:hold:fire:");
-            }
             return getGunTypeAnimation(event, weaponType, "tac:hold:");
         }
+    }
+
+    /**
+     * 因为开火没有明确的起止时间，所以单独分一个动画轨道
+     */
+    static PlayState playGunFireAnimation(AnimationEvent<CustomPlayerEntity> event, ItemStack heldItem) {
+        IGun gun = IGun.getIGunOrNull(heldItem);
+        if (gun == null) {
+            return PlayState.STOP;
+        }
+        Optional<CommonGunIndex> indexOptional = TimelessAPI.getCommonGunIndex(gun.getGunId(heldItem));
+        if (indexOptional.isEmpty()) {
+            return PlayState.STOP;
+        }
+
+        CommonGunIndex gunIndex = indexOptional.get();
+        String weaponType = gunIndex.getType();
+        Player player = event.getAnimatable().getEntity();
+        IGunOperator operator = IGunOperator.fromLivingEntity(player);
+        long fireTick = operator.getSynShootCoolDown();
+
+        if (!player.isSwimming() && player.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) <= 0.05 && fireTick > 0) {
+            return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        }
+
+        float aimProgress = operator.getSynAimingProgress();
+        if (fireTick > 0) {
+            if (aimProgress > 0) {
+                return getGunTypeAnimation(event, weaponType, "tac:aim:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else {
+                return getGunTypeAnimation(event, weaponType, "tac:hold:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            }
+        }
+        return playLoopAnimation(event, "empty");
     }
 
     static void openFlashShellRender(LivingEntity livingEntity) {
@@ -182,22 +206,27 @@ class TacCompatInner {
 
     @NotNull
     private static PlayState getGunTypeAnimation(AnimationEvent<CustomPlayerEntity> event, String weaponType, String prefix) {
+        return getGunTypeAnimation(event, weaponType, prefix, ILoopType.EDefaultLoopTypes.LOOP);
+    }
+
+    @NotNull
+    private static PlayState getGunTypeAnimation(AnimationEvent<CustomPlayerEntity> event, String weaponType, String prefix, ILoopType loopType) {
         String modelId = event.getAnimatable().getModelId();
         ConditionTAC conditionTAC = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
         if (conditionTAC != null) {
             ItemStack stack = event.getAnimatable().getEntity().getMainHandItem();
             String name = conditionTAC.doTest(stack, prefix);
             if (StringUtils.isNoneBlank(name)) {
-                return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                return playAnimation(event, name, loopType);
             }
         }
         if (isType(weaponType, GunTabType.PISTOL)) {
-            return playLoopAnimation(event, prefix + "pistol");
+            return playAnimation(event, prefix + "pistol", loopType);
         }
         if (isType(weaponType, GunTabType.RPG)) {
-            return playLoopAnimation(event, prefix + "rpg");
+            return playAnimation(event, prefix + "rpg", loopType);
         }
-        return playLoopAnimation(event, prefix + "rifle");
+        return playAnimation(event, prefix + "rifle", loopType);
     }
 
     @NotNull

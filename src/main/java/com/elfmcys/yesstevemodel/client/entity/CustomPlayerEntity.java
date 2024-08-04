@@ -67,6 +67,7 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         data.addAnimationController(new AnimationController(this, model, MAIN_CONTROLLER, 2, manager::predicateMain));
         data.addAnimationController(new AnimationController(this, model, HOLD_OFFHAND_CONTROLLER, 0, manager::predicateOffhandHold));
         data.addAnimationController(new AnimationController(this, model, HOLD_MAINHAND_CONTROLLER, 0, manager::predicateMainhandHold));
+        data.addAnimationController(new AnimationController(this, model, FIRE_MAINHAND_CONTROLLER, 0, manager::predicateMainhandFire));
         data.addAnimationController(new AnimationController(this, model, SWING_CONTROLLER, 0, manager::predicateSwing));
         data.addAnimationController(new AnimationController(this, model, USE_CONTROLLER, 2, manager::predicateUse));
         if (CarryOnCompat.isCarryOnLoaded()) {

@@ -223,6 +223,18 @@ public final class AnimationManager {
         return PlayState.STOP;
     }
 
+    public PlayState predicateMainhandFire(AnimationEvent<CustomPlayerEntity> event) {
+        Player player = event.getAnimatable().getEntity();
+        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+            return PlayState.STOP;
+        }
+        if (!player.swinging && !player.isUsingItem()) {
+            ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+            return TACZCompat.playGunFireAnimation(mainHandItem, event);
+        }
+        return PlayState.STOP;
+    }
+
     private boolean isSameItem(ItemStack playerItem, IPlayerExtraInfo info, InteractionHand hand) {
         ItemStack preItem = info.getHandItem(hand);
         if (preItem.isDamaged()) {

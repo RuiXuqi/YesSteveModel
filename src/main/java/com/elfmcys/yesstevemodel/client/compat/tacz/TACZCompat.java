@@ -45,6 +45,14 @@ public class TACZCompat {
         return null;
     }
 
+    @Nullable
+    public static PlayState playGunFireAnimation(ItemStack mainHandItem, AnimationEvent<CustomPlayerEntity> event) {
+        if (isInstalled() && TacCompatInner.isGun(mainHandItem)) {
+            return TacCompatInner.playGunFireAnimation(event, mainHandItem);
+        }
+        return PlayState.STOP;
+    }
+
     public static void openFlashShellRender(LivingEntity livingEntity, ItemStack mainHandItem) {
         if (isInstalled() && TacCompatInner.isGun(mainHandItem)) {
             TacCompatInner.openFlashShellRender(livingEntity);
