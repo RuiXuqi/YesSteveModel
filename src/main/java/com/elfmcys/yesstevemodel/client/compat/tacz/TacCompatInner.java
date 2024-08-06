@@ -171,6 +171,11 @@ class TacCompatInner {
             return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         }
 
+        long synMeleeCoolDown = operator.getSynMeleeCoolDown();
+        if (synMeleeCoolDown > 0) {
+            return getGunTypeAnimation(event, weaponType, "tac:melee:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        }
+
         float aimProgress = operator.getSynAimingProgress();
         if (fireTick > 0) {
             if (aimProgress > 0) {

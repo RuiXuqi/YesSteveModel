@@ -28,8 +28,15 @@ license="All rights reserved"
     side="BOTH"
 
 [[dependencies.yes_steve_model]]
-    modId="epicfight"
+    modId="tacz"
     mandatory=false
-    versionRange="[INCOMPATIBLE]"
+    versionRange="[1.0.2,)"
     ordering="NONE"
     side="BOTH"
+
+#[[dependencies.yes_steve_model]]
+#    modId="epicfight"
+#    mandatory=false
+#    versionRange="[INCOMPATIBLE]"
+#    ordering="NONE"
+#    side="BOTH"
