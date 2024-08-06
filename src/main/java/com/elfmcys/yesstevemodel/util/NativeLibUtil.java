@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.Arrays;
 
 public final class NativeLibUtil {
@@ -34,20 +33,18 @@ public final class NativeLibUtil {
 
     private static String setupLib() throws IOException {
         byte[] libData;
-        String libPath;
-
-        Path libDir = FMLPaths.CONFIGDIR.get().resolve(YesSteveModel.MOD_ID).resolve("cache");
-        String modVersion = ModList.get().getModFileById(YesSteveModel.MOD_ID).getFile().getModInfos().get(0).getVersion().toString();
+        String libFileName;
 
         // 不要用 ArchUtils，服务端没有这个库
         boolean isX64 = SystemUtils.OS_ARCH.equals("amd64") || SystemUtils.OS_ARCH.equals("x86_64");
+        String modVersion = ModList.get().getModFileById(YesSteveModel.MOD_ID).getFile().getModInfos().get(0).getVersion().toString();
         if (SystemUtils.IS_OS_WINDOWS) {
             if (!isX64) {
                 throw new RuntimeException("Only cpus with x64 arch are supported");
             }
 
-            libPath = libDir.resolve("ysm-core-" + modVersion + ".dll").toString();
             libData = readEmbeddedFile(LIB_PATH + WINDOWS_LIB_NAME);
+            libFileName = "ysm-core-" + modVersion + ".dll";
         } else if (SystemUtils.IS_OS_LINUX) {
             if (!isX64) {
                 throw new RuntimeException("Only cpus with x64 arch are supported");
@@ -59,12 +56,17 @@ public final class NativeLibUtil {
                 throw new RuntimeException("Only glibc based java runtime is supported on linux.");
             }
 
-            libPath = libDir.resolve("libysm-core-" + modVersion + ".so").toString();
             libData = readEmbeddedFile(LIB_PATH + LINUX_LIB_NAME);
+            libFileName = "libysm-core-" + modVersion + ".so";
         } else {
             throw new RuntimeException(SystemUtils.OS_NAME + " is not supported");
         }
 
+        var libPath = FMLPaths.CONFIGDIR.get()
+                .resolve(YesSteveModel.MOD_ID)
+                .resolve("cache")
+                .resolve(libFileName)
+                .toAbsolutePath().toString();
         writeLibData(libPath, libData);
         return libPath;
     }
