@@ -12,7 +12,7 @@
         "role": "模型",
         "avatar": "avatar/gsl.png",
         "contact": {
-          "Afdian": "https://afdian.net/a/6TGESILA",
+          "Afdian": "https://afdian.com/a/6TGESILA",
           "Bilibili": "https://space.bilibili.com/17798027"
         },
         "comment": "一个MC模型/YSM作者，想法很多，时间很少"
@@ -22,7 +22,7 @@
         "role": "动画",
         "avatar": "avatar/hl.png",
         "contact": {
-          "Afdian": "https://afdian.net/a/lucia2048",
+          "Afdian": "https://afdian.com/a/lucia2048",
           "Bilibili": "https://space.bilibili.com/14975572"
         },
         "comment": "漂泊于群星之中"
@@ -39,7 +39,7 @@
     ],
     "link": {
       "home": "https://modrinth.com/mod/yes-steve-model",
-      "donate": "https://afdian.net/a/ysmmod"
+      "donate": "https://afdian.com/a/ysmmod"
     }
   },
   "properties": {
