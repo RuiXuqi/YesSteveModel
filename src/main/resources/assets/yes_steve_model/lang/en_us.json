@@ -35,7 +35,7 @@
   "gui.yes_steve_model.disclaimer.read": "I have read and agree the terms of use",
   "gui.yes_steve_model.disclaimer.close": "Close",
   "gui.yes_steve_model.open_model_folder.open": "Open Model Folder",
-  "gui.yes_steve_model.open_model_folder.tips": "The following three types of model files can be §4§ldirectly placed§r in the opened directory:\n\n§2§nfolder:§r The folder name must be §b§nlowercase English characters or numbers§r, and the folder should directly contain Bedrock Edition model files and textures;\n\n§2§nzip file:§r the file name must be §b§nlowercase English characters or numbers§r, and the compressed package should directly contain Bedrock Edition model files and textures;\n\n§2§nysm file:§r the file name must be §b§nlowercase English characters or numbers§r §7§o(this format is an encrypted file and cannot be edited or modified).",
+  "gui.yes_steve_model.open_model_folder.tips": "The following three types of model files can be placed in the opened directory or its subfolders:\n\n§2§nfolder:§r The folder should contain Bedrock Edition model files and textures;\n\n§2§nzip file:§r The compressed package should directly contain Bedrock Edition model files and textures;\n\n§2§nysm file:§r This format is an encrypted file and cannot be edited or modified.",
   "gui.yes_steve_model.model_manage.custom": "Custom",
   "gui.yes_steve_model.model_manage.auth": "Auth",
   "gui.yes_steve_model.model_manage.action_info": "Action Info",
