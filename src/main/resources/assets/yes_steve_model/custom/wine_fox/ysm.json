@@ -31,7 +31,7 @@
         "name": "浅陌菌",
         "role": "模型",
         "avatar": "avatar/nico.png",
-        "comment": "视频随缘产，精力在生活上",
+        "comment": "最美好的前途，可不要对我冷酷",
         "contact": {
           "Bilibili": "https://space.bilibili.com/14975572"
         }
@@ -73,7 +73,8 @@
     },
     "arrow": {
       "model": "models/arrow.json",
-      "texture": "textures/arrow.png"
+      "texture": "textures/arrow.png",
+      "animation": "animations/arrow.animation.json"
     }
   }
 }

@@ -31,7 +31,7 @@
         "name": "浅陌菌",
         "role": "模型",
         "avatar": "avatar/nico.png",
-        "comment": "视频随缘产，精力在生活上",
+        "comment": "最美好的前途，可不要对我冷酷",
         "contact": {
           "Bilibili": "https://space.bilibili.com/14975572"
         }
@@ -49,7 +49,7 @@
         "name": "墨染逝羽",
         "role": "模型",
         "avatar": "avatar/mrsy.png",
-        "comment": "……",
+        "comment": "事到如今，先摸鱼吧",
         "contact": {
           "Bilibili": "https://space.bilibili.com/5718046"
         }
@@ -62,7 +62,7 @@
   },
   "properties": {
     "extra_animation": {
-      "extra0": "变身",
+      "extra0": "换头饰",
       "extra1": "打招呼",
       "extra2": "鼓掌",
       "extra3": "是的",
@@ -91,7 +91,8 @@
     },
     "arrow": {
       "model": "models/arrow.json",
-      "texture": "textures/arrow.png"
+      "texture": "textures/arrow.png",
+      "animation": "animations/arrow.animation.json"
     }
   }
 }
