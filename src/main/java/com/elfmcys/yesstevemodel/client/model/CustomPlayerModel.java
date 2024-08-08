@@ -19,11 +19,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 
 import java.util.List;
 
 @SuppressWarnings("all")
 public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
+    private final Vector2f headRot = new Vector2f();
     private volatile boolean renderedWithTempChanges = false;
 
     @Override
@@ -96,9 +98,12 @@ public class CustomPlayerModel extends AnimatedGeoModel<CustomPlayerEntity> {
         GeoModelState model = getCurrentModel();
 
         // 更新头部旋转
-        if (update && head != null) {
-            head.setRotationX(head.getRotationX() + (float) Math.toRadians(data.headPitch));
-            head.setRotationY(head.getRotationY() + (float) Math.toRadians(data.netHeadYaw));
+        if (head != null) {
+            if (update) {
+                headRot.set(head.getRotationX(), head.getRotationY());
+            }
+            head.setRotationX(headRot.x + (float) Math.toRadians(data.headPitch));
+            head.setRotationY(headRot.y + (float) Math.toRadians(data.netHeadYaw));
         }
 
         // 更新第一人称相机偏移与头部隐藏
