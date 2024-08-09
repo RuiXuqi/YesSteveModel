@@ -3842,7 +3842,7 @@
 				{
 					"name": "LeftHand",
 					"parent": "LeftForeArm",
-					"pivot": [3.25, 29.1, 0]
+					"pivot": [3.25, 16.1, 0]
 				},
 				{
 					"name": "LeftHandLocator",
@@ -3942,7 +3942,7 @@
 				{
 					"name": "RightHand",
 					"parent": "RightForeArm",
-					"pivot": [-3.25, 29.1, 0]
+					"pivot": [-3.25, 16.1, 0]
 				},
 				{
 					"name": "RightHandLocator",
