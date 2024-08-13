@@ -35,6 +35,15 @@
         "contact": {
           "Bilibili": "https://space.bilibili.com/14975572"
         }
+      },
+      {
+        "name": "祸御神",
+        "role": "动画",
+        "avatar": "avatar/hys.png",
+        "comment": "五十代精神病人",
+        "contact": {
+          "Bilibili": "https://space.bilibili.com/164557734"
+        }
       }
     ],
     "link": {
@@ -53,6 +62,7 @@
       "extra6": "御笔摇",
       "extra7": "舞蹈"
     },
+    "preview_animation": "gui",
     "free": true
   },
   "files": {
