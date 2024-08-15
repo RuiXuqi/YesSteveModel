@@ -20,6 +20,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.minecraft.client.Minecraft;
 import org.joml.Vector3f;
 
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,6 @@ import java.util.function.Consumer;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AnimationProcessor<T extends IAnimatable<?>> {
     private static final int ROAMING_STRUCT_NAME = StringPool.computeIfAbsent("roaming");
-    private static final int FPS = 60;
 
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelRendererList = new ReferenceArrayList<>();
     private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelRendererMap = new Object2ReferenceOpenHashMap<>();
@@ -40,7 +40,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
     private final Random random = new Random();
     private final DebugInfo debugInfo = new DebugInfo();
     private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
-    private final RateLimiter rateLimiter = new RateLimiter(FPS);
+    private final RateLimiter rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
     private final IAnimatableModel animatedModel;
 
     private List<IValue> initializationValues;
