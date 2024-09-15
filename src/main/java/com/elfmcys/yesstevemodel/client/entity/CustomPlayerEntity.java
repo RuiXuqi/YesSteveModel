@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
+import com.elfmcys.yesstevemodel.client.animation.controller.NewAnimationManager;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
@@ -58,36 +59,54 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
     @Override
     @SuppressWarnings("all")
     public void registerControllers(AnimationData data, IAnimatableModel<?> model) {
+        ClientModelManager.getModel(this.getModelId()).ifPresent(clientModel -> {
+            var controllers = clientModel.animationControllers();
+
+            // 如果动画控制器为空，那么使用旧版本动画
+            if (controllers.isEmpty()) {
+                registerOldControllers(data, model);
+                return;
+            }
+
+            // 否则，全部使用新版动画控制器
+            controllers.forEach((id, controller) ->
+                    data.addAnimationController(new AnimationController(this, model, id, 2,
+                            (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, controller))));
+        });
+    }
+
+    @SuppressWarnings("all")
+    private void registerOldControllers(AnimationData data, IAnimatableModel<?> model) {
         AnimationManager manager = AnimationManager.getInstance();
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("pre_parallel_%d_controller", i);
             String animationName = String.format("pre_parallel%d", i);
-            data.addAnimationController(new AnimationController(this, model, controllerName, 0, e -> manager.predicateParallel(e, animationName)));
+            data.addAnimationController(new AnimationController(this, model, controllerName, 0, (event, evaluator) -> manager.predicateParallel(event, animationName)));
         }
-        data.addAnimationController(new AnimationController(this, model, MAIN_CONTROLLER, 2, manager::predicateMain));
-        data.addAnimationController(new AnimationController(this, model, HOLD_OFFHAND_CONTROLLER, 0, manager::predicateOffhandHold));
-        data.addAnimationController(new AnimationController(this, model, HOLD_MAINHAND_CONTROLLER, 0, manager::predicateMainhandHold));
-        data.addAnimationController(new AnimationController(this, model, FIRE_MAINHAND_CONTROLLER, 0, manager::predicateMainhandFire));
-        data.addAnimationController(new AnimationController(this, model, SWING_CONTROLLER, 0, manager::predicateSwing));
-        data.addAnimationController(new AnimationController(this, model, USE_CONTROLLER, 2, manager::predicateUse));
+        data.addAnimationController(new AnimationController(this, model, MAIN_CONTROLLER, 2, (event, evaluator) -> manager.predicateMain(event)));
+        data.addAnimationController(new AnimationController(this, model, HOLD_OFFHAND_CONTROLLER, 0, (event, evaluator) -> manager.predicateOffhandHold(event)));
+        data.addAnimationController(new AnimationController(this, model, HOLD_MAINHAND_CONTROLLER, 0, (event, evaluator) -> manager.predicateMainhandHold(event)));
+        data.addAnimationController(new AnimationController(this, model, FIRE_MAINHAND_CONTROLLER, 0, (event, evaluator) -> manager.predicateMainhandFire(event)));
+        data.addAnimationController(new AnimationController(this, model, SWING_CONTROLLER, 0, (event, evaluator) -> manager.predicateSwing(event)));
+        data.addAnimationController(new AnimationController(this, model, USE_CONTROLLER, 2, (event, evaluator) -> manager.predicateUse(event)));
         if (CarryOnCompat.isCarryOnLoaded()) {
-            data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2, CarryOnCompat::predicateCarryOn));
+            data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2, (event, evaluator) -> CarryOnCompat.predicateCarryOn(event)));
         }
-        data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2, manager::predicatePassengerAnimation));
-        data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, manager::predicateCap));
+        data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2, (event, evaluator) -> manager.predicatePassengerAnimation(event)));
+        data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2, (event, evaluator) -> manager.predicateCap(event)));
 
-        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 0, manager::predicateHover));
-        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 0, manager::predicateFocus));
+        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 0, (event, evaluator) -> manager.predicateHover(event)));
+        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 0, (event, evaluator) -> manager.predicateFocus(event)));
 
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);
             String animationName = String.format("parallel%d", i);
-            data.addAnimationController(new AnimationController(this, model, controllerName, 0, e -> manager.predicateParallel(e, animationName)));
+            data.addAnimationController(new AnimationController(this, model, controllerName, 0, (event, evaluator) -> manager.predicateParallel(event, animationName)));
         }
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                 String controllerName = String.format("%s_controller", slot.getName());
-                data.addAnimationController(new AnimationController(this, model, controllerName, 0, e -> manager.predicateArmor(e, slot)));
+                data.addAnimationController(new AnimationController(this, model, controllerName, 0, (event, evaluator) -> manager.predicateArmor(event, slot)));
             }
         }
     }

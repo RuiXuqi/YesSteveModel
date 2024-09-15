@@ -1,9 +1,10 @@
 package com.elfmcys.yesstevemodel.client.data;
 
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
-import com.elfmcys.yesstevemodel.info.ModelInfo;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.yesstevemodel.info.ModelInfo;
 import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,8 @@ public class ClientModel {
 
     private final Map<String, Animation> animations;
 
+    private final Map<String, GeoAnimationController> animationControllers;
+
     private final FifoHashMap<String, ResourceLocation> textures;
 
     private final Map<ProjectileType, ProjectileModel> projectileModels;
@@ -27,10 +30,11 @@ public class ClientModel {
 
     private final ConditionManager conditionManager;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, FifoHashMap<String, ResourceLocation> textures, Map<ProjectileType, ProjectileModel> projectileModels, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
+    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, GeoAnimationController> animationControllers, FifoHashMap<String, ResourceLocation> textures, Map<ProjectileType, ProjectileModel> projectileModels, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
+        this.animationControllers = animationControllers;
         this.textures = textures;
         this.projectileModels = projectileModels;
         this.modelInfo = modelInfo;
@@ -48,6 +52,10 @@ public class ClientModel {
 
     public Map<String, Animation> animations() {
         return animations;
+    }
+
+    public Map<String, GeoAnimationController> animationControllers() {
+        return animationControllers;
     }
 
     public FifoHashMap<String, ResourceLocation> textures() {

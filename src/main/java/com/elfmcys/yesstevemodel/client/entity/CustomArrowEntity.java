@@ -10,7 +10,9 @@ import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationFactory;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.util.GeckoLibUtil;
+import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -31,7 +33,7 @@ public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);
             String animationName = String.format("parallel%d", i);
-            data.addAnimationController(new AnimationController<>(this, (IAnimatableModel<CustomArrowEntity>) model, controllerName, 0, e -> predicateParallel(e, animationName)));
+            data.addAnimationController(new AnimationController<>(this, (IAnimatableModel<CustomArrowEntity>) model, controllerName, 0, (event, evaluator) -> predicateParallel(event, animationName)));
         }
     }
 
@@ -53,7 +55,7 @@ public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
         this.modelId = ownerModelId;
     }
 
-    public PlayState predicateMain(AnimationEvent<CustomArrowEntity> event) {
+    public PlayState predicateMain(AnimationEvent<CustomArrowEntity> event, ExpressionEvaluator<AnimationContext<?>> evaluator) {
         AbstractArrow arrowEntity = event.getAnimatable().getEntity();
         if (arrowEntity == null) {
             return PlayState.STOP;
@@ -64,7 +66,7 @@ public class CustomArrowEntity implements IAnimatable<AbstractArrow> {
         if (arrowEntity.isOnFire()) {
             return playAnimation(event, "fire");
         }
-        if (((IArrowExtraInfo)arrowEntity).isInGround()) {
+        if (((IArrowExtraInfo) arrowEntity).isInGround()) {
             return playAnimation(event, "ground");
         } else {
             return playAnimation(event, "air");

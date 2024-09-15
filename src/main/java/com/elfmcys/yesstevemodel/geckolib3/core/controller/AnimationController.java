@@ -27,9 +27,9 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -82,6 +82,10 @@ public class AnimationController<T extends IAnimatable<?>> {
      */
     private IParticleListener<T> particleListener;
     private boolean justStopped = false;
+    /**
+     * 当前状态名
+     */
+    private String stateName = null;
 
     /**
      * 实例化动画控制器，每个控制器同一时间只能播放一个动画 <br>
@@ -143,7 +147,7 @@ public class AnimationController<T extends IAnimatable<?>> {
                         return null;
                     } else {
                         ILoopType loopType = animation.loop;
-                        if(rawAnimation.loopType != null) {
+                        if (rawAnimation.loopType != null) {
                             loopType = rawAnimation.loopType;
                         }
                         return Pair.of(loopType, animation);
@@ -209,9 +213,9 @@ public class AnimationController<T extends IAnimatable<?>> {
     /**
      * 此方法每帧调用一次，以便填充动画点队列并处理动画状态逻辑。
      *
-     * @param tick                   当前 tick + 插值 tick
-     * @param event                  动画测试事件
-     * @param modelRendererList      所有的 AnimatedModelRender 列表
+     * @param tick              当前 tick + 插值 tick
+     * @param event             动画测试事件
+     * @param modelRendererList 所有的 AnimatedModelRender 列表
      */
     public void process(final double tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationContext<?>> evaluator, List<BoneTopLevelSnapshot> modelRendererList,
                         boolean crashWhenCantFindBone, boolean isRendererDirty, boolean scheduledUpdate) {
@@ -243,7 +247,7 @@ public class AnimationController<T extends IAnimatable<?>> {
         assert adjustedTick >= 0 : "GeckoLib: Tick was less than zero";
 
         // 测试动画谓词
-        PlayState playState = this.testAnimationPredicate(event);
+        PlayState playState = this.testAnimationPredicate(event, evaluator);
         if (playState == PlayState.STOP || (this.currentAnimation == null && this.animationQueue.isEmpty())) {
             // 动画过渡到模型的初始状态
             this.animationState = AnimationState.STOPPED;
@@ -270,7 +274,7 @@ public class AnimationController<T extends IAnimatable<?>> {
             if (adjustedTick == 0 || this.isJustStarting) {
                 this.justStartedTransition = false;
                 Pair<ILoopType, Animation> current = animationQueue.poll();
-                if(current != null) {
+                if (current != null) {
                     this.currentAnimationLoop = current.getFirst();
                     this.currentAnimation = current.getSecond();
                     this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(current.getSecond().customInstructionKeyframes);
@@ -330,8 +334,8 @@ public class AnimationController<T extends IAnimatable<?>> {
         }
     }
 
-    protected PlayState testAnimationPredicate(AnimationEvent<T> event) {
-        return this.animationPredicate.test(event);
+    protected PlayState testAnimationPredicate(AnimationEvent<T> event, ExpressionEvaluator<AnimationContext<?>> evaluator) {
+        return this.animationPredicate.test(event, evaluator);
     }
 
     private void processCurrentAnimation(AnimationControllerContext context, ExpressionEvaluator<AnimationContext<?>> evaluator, double tick, double actualTick, boolean crashWhenCantFindBone, boolean scheduledUpdate) {
@@ -411,7 +415,7 @@ public class AnimationController<T extends IAnimatable<?>> {
 
         if (this.transitionLengthTicks == 0 && shouldResetTick && this.animationState == AnimationState.TRANSITIONING) {
             Pair<ILoopType, Animation> current = animationQueue.poll();
-            if(current != null) {
+            if (current != null) {
                 this.currentAnimation = current.getSecond();
                 this.currentAnimationLoop = current.getFirst();
                 this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(current.getSecond().customInstructionKeyframes);
@@ -427,7 +431,7 @@ public class AnimationController<T extends IAnimatable<?>> {
         activeBoneAnimationQueues.clear();
         for (BoneAnimation animation : currentAnimation.boneAnimations) {
             BoneAnimationQueue queue = boneAnimationQueues.get(animation.boneName);
-            if(queue == null) {
+            if (queue == null) {
                 continue;
             }
             queue.animation = animation;
@@ -448,7 +452,7 @@ public class AnimationController<T extends IAnimatable<?>> {
     }
 
     private void resetQueues() {
-        for(BoneAnimationQueue queue : activeBoneAnimationQueues) {
+        for (BoneAnimationQueue queue : activeBoneAnimationQueues) {
             queue.resetQueues();
         }
     }
@@ -491,7 +495,7 @@ public class AnimationController<T extends IAnimatable<?>> {
     }
 
     private void resetEventKeyFrames(boolean reachEnd, ExpressionEvaluator<AnimationContext<?>> evaluator) {
-        if(instructionKeyFrameExecutor != null) {
+        if (instructionKeyFrameExecutor != null) {
             if (reachEnd) {
                 instructionKeyFrameExecutor.executeRemaining(evaluator);
             }
@@ -521,7 +525,7 @@ public class AnimationController<T extends IAnimatable<?>> {
      */
     @FunctionalInterface
     public interface IAnimationPredicate<P extends IAnimatable<?>> {
-        PlayState test(AnimationEvent<P> event);
+        PlayState test(AnimationEvent<P> event, ExpressionEvaluator<AnimationContext<?>> evaluator);
     }
 
     @FunctionalInterface
@@ -532,5 +536,13 @@ public class AnimationController<T extends IAnimatable<?>> {
     @FunctionalInterface
     public interface IParticleListener<A extends IAnimatable<?>> {
         void summonParticle(ParticleKeyFrameEvent<A> event);
+    }
+
+    public String getStateName() {
+        return stateName;
+    }
+
+    public void setStateName(String stateName) {
+        this.stateName = stateName;
     }
 }

@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.data;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.info.ModelStats;
 import com.elfmcys.yesstevemodel.info.stats.GeoModelStats;
@@ -41,6 +42,7 @@ public class ClientModelBuilder {
         GeoModel mainModel = data.geoModels().get(MODEL_MAIN_INDEX);
         GeoModel armModel = data.geoModels().get(MODEL_ARM_INDEX);
         var animations = buildAnimationMap(data, isDefault);
+        var animationControllers = buildAnimationControllerMap(data);
         var textures = buildTextureMap(data, isDefault);
         var authorAvatars = buildAuthorAvatarMap(data);
 
@@ -51,7 +53,7 @@ public class ClientModelBuilder {
 
         var conditionManager = buildConditionManager(animations);
 
-        var model = new ClientModel(mainModel, armModel, animations, textures, projectileModels, data.info(), info, conditionManager);
+        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, projectileModels, data.info(), info, conditionManager);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
@@ -70,6 +72,17 @@ public class ClientModelBuilder {
             var file = data.animationFiles().get(i);
             if (file != null) {
                 map.putAll(file.animations());
+            }
+        }
+        return Object2ReferenceMaps.unmodifiable(map);
+    }
+
+    private static Map<String, GeoAnimationController> buildAnimationControllerMap(ClientModelData data) {
+        Object2ReferenceOpenHashMap<String, GeoAnimationController> map = new Object2ReferenceOpenHashMap<>();
+        for (var i = 0; i < data.animationControllerFiles().size(); i++) {
+            var file = data.animationControllerFiles().get(i);
+            if (file != null) {
+                map.putAll(file.animationControllers());
             }
         }
         return Object2ReferenceMaps.unmodifiable(map);
