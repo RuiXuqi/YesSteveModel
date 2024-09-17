@@ -48,6 +48,7 @@ public class AnimationController<T extends IAnimatable<?>> {
      * 在动画之间过渡需要多长时间
      */
     public double transitionLengthTicks;
+    public final double initTransitionLengthTicks;
     public boolean isJustStarting = false;
     public double tickOffset;
     public double animationSpeed = 1D;
@@ -102,6 +103,7 @@ public class AnimationController<T extends IAnimatable<?>> {
         this.model = model;
         this.name = name;
         this.transitionLengthTicks = transitionLengthTicks;
+        this.initTransitionLengthTicks = transitionLengthTicks;
         this.animationPredicate = animationPredicate;
         this.tickOffset = 0.0d;
     }
@@ -122,6 +124,7 @@ public class AnimationController<T extends IAnimatable<?>> {
         this.model = model;
         this.name = name;
         this.transitionLengthTicks = transitionLengthTicks;
+        this.initTransitionLengthTicks = transitionLengthTicks;
         this.easingType = easingtype;
         this.animationPredicate = animationPredicate;
         this.tickOffset = 0.0d;

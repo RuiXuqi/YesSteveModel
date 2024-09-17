@@ -1,10 +1,12 @@
 package com.elfmcys.yesstevemodel.client.animation.controller;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationControllerState;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -13,7 +15,23 @@ import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class NewAnimationManager {
-    public static PlayState predicate(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<AnimationContext<?>> evaluator, GeoAnimationController controllerData) {
+    public static PlayState predicate(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<AnimationContext<?>> evaluator, AnimationController.IAnimationPredicate<CustomPlayerEntity> oldPredicate) {
+        var controller = event.getController();
+        String controllerName = controller.getName();
+        String modelId = event.getAnimatable().getModelId();
+        return ClientModelManager.getModel(modelId).map(clientModel -> {
+            var controllers = clientModel.animationControllers();
+            // 如果动画控制器不存在，那么使用旧版本动画
+            if (controllers.containsKey(controllerName)) {
+                return NewAnimationManager.predicate(event, evaluator, controllers.get(controllerName));
+            }
+            // 旧版动画需要重置一下过渡
+            controller.transitionLengthTicks = controller.initTransitionLengthTicks;
+            return oldPredicate.test(event, evaluator);
+        }).orElse(PlayState.STOP);
+    }
+
+    private static PlayState predicate(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<AnimationContext<?>> evaluator, GeoAnimationController controllerData) {
         if (Minecraft.getInstance().isPaused()) {
             return PlayState.STOP;
         }
