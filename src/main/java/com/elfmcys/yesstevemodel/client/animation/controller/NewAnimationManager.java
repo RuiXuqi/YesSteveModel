@@ -12,7 +12,11 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.client.Minecraft;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
+import java.util.Map;
 
 public final class NewAnimationManager {
     public static PlayState predicate(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<AnimationContext<?>> evaluator, AnimationController.IAnimationPredicate<CustomPlayerEntity> oldPredicate) {
@@ -36,17 +40,13 @@ public final class NewAnimationManager {
             return PlayState.STOP;
         }
         var controller = event.getController();
+        var stateMap = controllerData.states();
         // 先尝试获取当前的状态
         String stateName = controller.getStateName();
-        // 如果当前状态为 null，装入初始化状态
-        if (stateName == null) {
-            controller.setStateName(controllerData.initialState());
-            return PlayState.STOP;
-        }
-        // 如果当前状态不存在，装入初始化状态
-        var stateMap = controllerData.states();
-        if (!stateMap.containsKey(stateName)) {
-            controller.setStateName(controllerData.initialState());
+        String initialStateName = controllerData.initialState();
+        // 如果当前状态为 null 或者不存在，装入初始化状态
+        if (StringUtils.isBlank(stateName) || !stateMap.containsKey(stateName)) {
+            switchState(evaluator, stateMap, initialStateName, controller);
             return PlayState.STOP;
         }
 
@@ -66,16 +66,33 @@ public final class NewAnimationManager {
 
         // 检查状态机，是否需要切换下一个状态
         for (Pair<String, IValue> transitions : state.transitions()) {
-            String name = transitions.getLeft();
+            String nextName = transitions.getLeft();
             IValue condition = transitions.getRight();
             boolean canSwitch = condition == null || condition.evalAsBoolean(evaluator);
             if (canSwitch) {
-                controller.setStateName(name);
-                controller.transitionLengthTicks = state.blendTransition() * 20;
+                // 上一个退出的先执行
+                List<IValue> values = state.onExit();
+                if (values != null && !values.isEmpty()) {
+                    values.forEach(v -> v.evalAsBoolean(evaluator));
+                }
+                // 下一个将要执行的
+                switchState(evaluator, stateMap, nextName, controller);
                 break;
             }
         }
 
         return PlayState.CONTINUE;
+    }
+
+    private static void switchState(ExpressionEvaluator<AnimationContext<?>> evaluator, Map<String, GeoAnimationControllerState> stateMap, String nextStateName, AnimationController<CustomPlayerEntity> controller) {
+        GeoAnimationControllerState nextState = stateMap.get(nextStateName);
+        if (nextState != null) {
+            controller.setStateName(nextStateName);
+            controller.transitionLengthTicks = nextState.blendTransition() * 20;
+            List<IValue> entry = nextState.onEntry();
+            if (entry != null && !entry.isEmpty()) {
+                entry.forEach(v -> v.evalAsBoolean(evaluator));
+            }
+        }
     }
 }
