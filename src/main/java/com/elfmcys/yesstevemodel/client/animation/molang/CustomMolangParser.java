@@ -4,15 +4,15 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.MolangParser;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 // Native Access
 public class CustomMolangParser {
     private static final ConcurrentLinkedQueue<MolangParser> PARSER_POOL = new ConcurrentLinkedQueue<>();
-    private static final Map<String, ObjectBinding> EXTRA_BINDING = Object2ReferenceMaps.singleton("ysm", YSMBinding.INSTANCE);
+    private static final Map<String, ObjectBinding> EXTRA_BINDING = new HashMap<>();
 
     // Native Access
     public static MolangParser rentInstance() {
@@ -40,6 +40,8 @@ public class CustomMolangParser {
     }
 
     private static MolangParser createMolangParser() {
+        EXTRA_BINDING.put("ysm", YSMBinding.INSTANCE);
+        EXTRA_BINDING.put("ctrl", CtrlBinding.INSTANCE);
         return new MolangParser(EXTRA_BINDING);
     }
 }
