@@ -33,8 +33,6 @@ public class CtrlBinding extends ContextBinding {
 
         livingEntityVar("run", ctx -> ctx.entity().onGround() && ctx.entity().isSprinting());
         livingEntityVar("walk", ctx -> ctx.entity().onGround() && !ctx.entity().isSprinting() && isMoving(ctx.entity()));
-
-        livingEntityVar("idle", ctx -> ctx.entity().onGround() && !ctx.entity().isSprinting() && ctx.entity().getPose() == Pose.STANDING && !isMoving(ctx.entity()));
     }
 
     private static boolean isMoving(LivingEntity entity) {

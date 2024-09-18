@@ -59,6 +59,8 @@ public final class NewAnimationManager {
             IValue condition = action.getRight();
             boolean canPlay = condition == null || condition.evalAsBoolean(evaluator);
             if (canPlay) {
+                // 强制把 transitionLength 修改为当前数值，防止重载时候失效
+                controller.transitionLengthTicks = state.blendTransition() * 20;
                 controller.setAnimation(new AnimationBuilder().addAnimation(name));
                 break;
             }
