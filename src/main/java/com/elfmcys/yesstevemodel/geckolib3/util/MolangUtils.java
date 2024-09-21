@@ -1,22 +1,23 @@
 package com.elfmcys.yesstevemodel.geckolib3.util;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 public class MolangUtils {
     private static final HashMap<String, EquipmentSlot> SLOT_MAP;
 
     static {
         SLOT_MAP = new HashMap<>();
-        SLOT_MAP.put("Chest", EquipmentSlot.CHEST);
-        SLOT_MAP.put("Feet", EquipmentSlot.FEET);
-        SLOT_MAP.put("Head", EquipmentSlot.HEAD);
-        SLOT_MAP.put("Legs", EquipmentSlot.LEGS);
-        SLOT_MAP.put("Mainhand", EquipmentSlot.MAINHAND);
-        SLOT_MAP.put("Offhand", EquipmentSlot.OFFHAND);
+        SLOT_MAP.put("chest", EquipmentSlot.CHEST);
+        SLOT_MAP.put("feet", EquipmentSlot.FEET);
+        SLOT_MAP.put("head", EquipmentSlot.HEAD);
+        SLOT_MAP.put("legs", EquipmentSlot.LEGS);
+        SLOT_MAP.put("mainhand", EquipmentSlot.MAINHAND);
+        SLOT_MAP.put("offhand", EquipmentSlot.OFFHAND);
     }
 
     public static float normalizeTime(long timestamp) {
@@ -36,7 +37,7 @@ public class MolangUtils {
         if (value == null) {
             return null;
         }
-        EquipmentSlot slot = SLOT_MAP.get(value);
+        EquipmentSlot slot = SLOT_MAP.get(value.toLowerCase(Locale.ENGLISH));
         if (slot == null) {
             context.debugPrint("Unknown slot type: %s.", value);
             return null;

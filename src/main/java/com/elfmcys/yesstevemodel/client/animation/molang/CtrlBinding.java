@@ -1,5 +1,8 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.ArmorCheck;
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.HandItemCheck;
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.RideCheck;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,6 +14,7 @@ public class CtrlBinding extends ContextBinding {
 
     @SuppressWarnings("resource")
     private CtrlBinding() {
+        // 主动画的
         livingEntityVar("death", ctx -> ctx.entity().isDeadOrDying());
         livingEntityVar("riptide", ctx -> ctx.entity().isAutoSpinAttack());
         livingEntityVar("sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);
@@ -33,6 +37,12 @@ public class CtrlBinding extends ContextBinding {
 
         livingEntityVar("run", ctx -> ctx.entity().onGround() && ctx.entity().isSprinting());
         livingEntityVar("walk", ctx -> ctx.entity().onGround() && !ctx.entity().isSprinting() && isMoving(ctx.entity()));
+
+        function("hold", HandItemCheck.holdCheck());
+        function("swing", HandItemCheck.swingCheck());
+        function("use", HandItemCheck.useCheck());
+        function("armor", ArmorCheck.armorCheck());
+        function("ride", RideCheck.rideCheck());
     }
 
     private static boolean isMoving(LivingEntity entity) {

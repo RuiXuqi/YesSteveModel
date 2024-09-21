@@ -6,6 +6,8 @@ import com.elfmcys.yesstevemodel.client.animation.controller.NewAnimationManager
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationFactory;
@@ -80,28 +82,44 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
                 (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateMainhandFire(event))));
 
         data.addAnimationController(new AnimationController(this, model, SWING_CONTROLLER, 0,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateSwing(event))));
+                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator,
+                        e -> {
+                            if (player.swinging && !player.isSleeping() && player.swingTime == 0) {
+                                // 空动画用于重置 PLAY_ONCE 动画
+                                event.getController().setAnimation(new AnimationBuilder().addAnimation("empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE));
+                            }
+                        },
+                        (e, v) -> manager.predicateSwing(event))));
 
         data.addAnimationController(new AnimationController(this, model, USE_CONTROLLER, 2,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateUse(event))));
-
-        if (CarryOnCompat.isCarryOnLoaded()) {
-            data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2,
-                    (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> CarryOnCompat.predicateCarryOn(event))));
-        }
+                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator,
+                        e -> {
+                            if (player.isUsingItem() && !player.isSleeping() && player.getTicksUsingItem() == 1) {
+                                // 空动画用于重置 PLAY_ONCE 动画
+                                event.getController().setAnimation(new AnimationBuilder().addAnimation("empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE));
+                            }
+                        },
+                        (e, v) -> manager.predicateUse(event))));
 
         data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2,
                 (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicatePassengerAnimation(event))));
 
-        data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateCap(event))));
+        // 下面不需要自定义动画控制器
+        {
+            if (CarryOnCompat.isCarryOnLoaded()) {
+                data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2,
+                        (event, evaluator) -> CarryOnCompat.predicateCarryOn(event)));
+            }
 
+            data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2,
+                    (event, evaluator) -> manager.predicateCap(event)));
 
-        data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 0,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateHover(event))));
+            data.addAnimationController(new AnimationController(this, model, HOVER_CONTROLLER, 0,
+                    (event, evaluator) -> manager.predicateHover(event)));
 
-        data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 0,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateFocus(event))));
+            data.addAnimationController(new AnimationController(this, model, FOCUS_CONTROLLER, 0,
+                    (event, evaluator) -> manager.predicateFocus(event)));
+        }
 
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);

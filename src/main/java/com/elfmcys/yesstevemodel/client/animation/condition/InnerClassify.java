@@ -10,26 +10,34 @@ public class InnerClassify {
     public static String doClassifyTest(String extraPre, Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
         Item item = itemInHand.getItem();
+        String classify = getClassify(item);
+        if (!classify.equals(EMPTY)) {
+            return extraPre + classify;
+        }
+        return EMPTY;
+    }
+
+    public static String getClassify(Item item) {
         if (item instanceof SwordItem) {
-            return extraPre + "sword";
+            return "sword";
         }
         if (item instanceof AxeItem) {
-            return extraPre + "axe";
+            return "axe";
         }
         if (item instanceof PickaxeItem) {
-            return extraPre + "pickaxe";
+            return "pickaxe";
         }
         if (item instanceof ShovelItem) {
-            return extraPre + "shovel";
+            return "shovel";
         }
         if (item instanceof HoeItem) {
-            return extraPre + "hoe";
+            return "hoe";
         }
         if (item instanceof ShieldItem) {
-            return extraPre + "shield";
+            return "shield";
         }
         if (item instanceof ThrowablePotionItem) {
-            return extraPre + "throwable_potion";
+            return "throwable_potion";
         }
         return EMPTY;
     }
