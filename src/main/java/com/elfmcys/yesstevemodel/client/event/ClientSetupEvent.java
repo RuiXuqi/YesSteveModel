@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.*;
+import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
@@ -29,6 +30,7 @@ public class ClientSetupEvent {
         CosmeticArmorCompat.init();
         ElytraSlotCompat.init();
         TACZCompat.init();
+        CarryOnCompat.init();
         ParCoolCompat.init();
         SwemCompat.init();
         initCoreClient();

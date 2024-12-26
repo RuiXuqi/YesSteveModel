@@ -104,13 +104,13 @@ public class CustomPlayerEntity implements IAnimatable<AbstractClientPlayer> {
         data.addAnimationController(new AnimationController(this, model, PASSENGER_CONTROLLER, 2,
                 (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicatePassengerAnimation(event))));
 
+        if (CarryOnCompat.isInstalled()) {
+            data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2,
+                    (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> CarryOnCompat.predicateCarryOn(event))));
+        }
+
         // 下面不需要自定义动画控制器
         {
-            if (CarryOnCompat.isCarryOnLoaded()) {
-                data.addAnimationController(new AnimationController(this, model, CARRY_ON_CONTROLLER, 2,
-                        (event, evaluator) -> CarryOnCompat.predicateCarryOn(event)));
-            }
-
             data.addAnimationController(new AnimationController(this, model, CAP_CONTROLLER, 2,
                     (event, evaluator) -> manager.predicateCap(event)));
 

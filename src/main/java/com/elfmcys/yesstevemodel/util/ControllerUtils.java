@@ -8,9 +8,9 @@ public final class ControllerUtils {
     public static final String USE_CONTROLLER = "use_controller";
     public static final String PASSENGER_CONTROLLER = "passenger_controller";
     public static final String CARRY_ON_CONTROLLER = "carry_on_controller";
-    public static final String CAP_CONTROLLER = "cap_controller";
     public static final String SWING_CONTROLLER = "swing_controller";
 
+    public static final String CAP_CONTROLLER = "cap_controller";
     public static final String HOVER_CONTROLLER = "hover_controller";
     public static final String FOCUS_CONTROLLER = "focus_controller";
 }

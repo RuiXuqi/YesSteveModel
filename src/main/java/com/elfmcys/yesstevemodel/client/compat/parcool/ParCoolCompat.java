@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.parcool;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.loading.LoadingModList;
 import org.jetbrains.annotations.Nullable;
@@ -22,5 +23,11 @@ public class ParCoolCompat {
             return ParCoolAnimationManger.getAnimation(player);
         }
         return null;
+    }
+
+    public static void addBinding(CtrlBinding binding) {
+        if (isInstalled()) {
+            ParCoolCtrlBinding.addInnerBinding(binding);
+        }
     }
 }

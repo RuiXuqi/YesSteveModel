@@ -363,7 +363,7 @@ public final class AnimationManager {
         if (vehicle instanceof Boat) {
             return playAnimation(event, "boat", ILoopType.EDefaultLoopTypes.LOOP);
         }
-        if (CarryOnCompat.isCarryOnLoaded() && CarryOnCompat.isCarryOnPrincess(player, event)) {
+        if (CarryOnCompat.isCarryOnPrincess(player, event)) {
             return playAnimation(event, "carryon:princess", ILoopType.EDefaultLoopTypes.LOOP);
         }
         return playAnimation(event, "sit", ILoopType.EDefaultLoopTypes.LOOP);

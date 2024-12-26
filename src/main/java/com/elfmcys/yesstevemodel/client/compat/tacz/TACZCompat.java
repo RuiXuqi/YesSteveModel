@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.tacz;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
@@ -13,12 +14,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
+
 public class TACZCompat {
     private static final String MOD_ID = "tacz";
     private static boolean INSTALLED = false;
 
     public static void init() {
         INSTALLED = ModList.get().isLoaded(MOD_ID);
+    }
+
+    public static void addBinding(CtrlBinding ctrlBinding) {
+        if (isInstalled()) {
+            TacCtrlBinding.addInnerBinding(ctrlBinding);
+        }
     }
 
     public static void renderOffsetHand(ItemStack offhandItem, GeoModelState geoModel, LivingEntity livingEntity, PoseStack poseStack, int packedLight, float partialTicks) {
