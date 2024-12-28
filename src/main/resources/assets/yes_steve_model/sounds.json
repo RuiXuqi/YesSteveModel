@@ -1,0 +1,9 @@
+{
+  "custom": {
+    "category": "neutral",
+    "subtitle": "subtitle.yes_steve_model.custom",
+    "sounds": [
+      "yes_steve_model:empty"
+    ]
+  }
+}

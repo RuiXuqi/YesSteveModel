@@ -15,6 +15,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.ParticleKeyFrameEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeEvecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
@@ -44,6 +45,7 @@ public class AnimationController<T extends IAnimatable<?>> {
     private final Object2ReferenceOpenHashMap<String, BoneAnimationQueue> boneAnimationQueues = new Object2ReferenceOpenHashMap<>();
     private final ReferenceArrayList<BoneAnimationQueue> activeBoneAnimationQueues = new ReferenceArrayList<>();
     private InstructionKeyFrameExecutor instructionKeyFrameExecutor;
+    private SoundKeyframeEvecutor soundKeyFrameExecutor;
     /**
      * 在动画之间过渡需要多长时间
      */
@@ -74,10 +76,6 @@ public class AnimationController<T extends IAnimatable<?>> {
     public boolean shouldResetTick = false;
     protected boolean justStartedTransition = false;
     protected boolean needsAnimationReload = false;
-    /**
-     * 播放声音关键帧时触发的 Sound Listener
-     */
-    private ISoundListener<T> soundListener;
     /**
      * 播放粒子关键帧时触发的 Particle Listener
      */
@@ -200,13 +198,6 @@ public class AnimationController<T extends IAnimatable<?>> {
     }
 
     /**
-     * 注册 Sound Listener
-     */
-    public void registerSoundListener(ISoundListener<T> soundListener) {
-        this.soundListener = soundListener;
-    }
-
-    /**
      * 注册 Particle Listener
      */
     public void registerParticleListener(IParticleListener<T> particleListener) {
@@ -229,6 +220,8 @@ public class AnimationController<T extends IAnimatable<?>> {
                 if (animation != null && this.currentAnimation != animation) {
                     this.currentAnimation = animation;
                     this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(animation.customInstructionKeyframes);
+                    this.stopSoundKeyFrames();
+                    this.soundKeyFrameExecutor = new SoundKeyframeEvecutor(animation.soundKeyFrames);
                 }
             }
         }
@@ -281,11 +274,15 @@ public class AnimationController<T extends IAnimatable<?>> {
                     this.currentAnimationLoop = current.getFirst();
                     this.currentAnimation = current.getSecond();
                     this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(current.getSecond().customInstructionKeyframes);
+                    this.stopSoundKeyFrames();
+                    this.soundKeyFrameExecutor = new SoundKeyframeEvecutor(current.getSecond().soundKeyFrames);
                     resetEventKeyFrames(false, null);
                     switchAnimation();
                 } else {
                     this.currentAnimation = null;
                     this.instructionKeyFrameExecutor = null;
+                    this.stopSoundKeyFrames();
+                    this.soundKeyFrameExecutor = null;
                 }
             }
             if (this.currentAnimation != null) {
@@ -362,6 +359,8 @@ public class AnimationController<T extends IAnimatable<?>> {
                     this.shouldResetTick = true;
                     this.currentAnimation = peek.getSecond();
                     this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(peek.getSecond().customInstructionKeyframes);
+                    this.stopSoundKeyFrames();
+                    this.soundKeyFrameExecutor = new SoundKeyframeEvecutor(peek.getSecond().soundKeyFrames);
                     this.currentAnimationLoop = peek.getFirst();
                 }
             } else {
@@ -392,15 +391,13 @@ public class AnimationController<T extends IAnimatable<?>> {
                 boneAnimationQueue.scaleQueue().add(getKeyFramePointAtTick(scaleKeyFrames, tick, context));
             }
         }
-/*
-        if (this.soundListener != null) {
-            for (EventKeyFrame<String> soundKeyFrame : this.currentAnimation.soundKeyFrames) {
-                if (this.executedKeyFrames.add(soundKeyFrame) && tick >= soundKeyFrame.getStartTick()) {
-                    SoundKeyframeEvent<T> event = new SoundKeyframeEvent<>(this.animatable, tick, soundKeyFrame.getEventData(), this);
-                    this.soundListener.playSound(event);
-                }
-            }
+
+        // 计划外更新不执行声音关键帧
+        if (soundKeyFrameExecutor != null && scheduledUpdate) {
+            soundKeyFrameExecutor.executeTo(animatable, tick);
         }
+
+        /*
         if (this.particleListener != null) {
             for (ParticleEventKeyFrame particleEventKeyFrame : this.currentAnimation.particleKeyFrames) {
                 if (this.executedKeyFrames.add(particleEventKeyFrame) && tick >= particleEventKeyFrame.getStartTick()) {
@@ -422,9 +419,13 @@ public class AnimationController<T extends IAnimatable<?>> {
                 this.currentAnimation = current.getSecond();
                 this.currentAnimationLoop = current.getFirst();
                 this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(current.getSecond().customInstructionKeyframes);
+                this.stopSoundKeyFrames();
+                this.soundKeyFrameExecutor = new SoundKeyframeEvecutor(current.getSecond().soundKeyFrames);
             } else {
                 this.currentAnimation = null;
                 this.instructionKeyFrameExecutor = null;
+                this.stopSoundKeyFrames();
+                this.soundKeyFrameExecutor = null;
             }
         }
     }
@@ -503,6 +504,15 @@ public class AnimationController<T extends IAnimatable<?>> {
                 instructionKeyFrameExecutor.executeRemaining(evaluator);
             }
             instructionKeyFrameExecutor.reset();
+        }
+    }
+
+    /**
+     * 每次给音频关键帧重新赋值时，都需要进行一次清理，停掉先前的音频
+     */
+    protected void stopSoundKeyFrames() {
+        if (this.soundKeyFrameExecutor != null) {
+            this.soundKeyFrameExecutor.reset();
         }
     }
 

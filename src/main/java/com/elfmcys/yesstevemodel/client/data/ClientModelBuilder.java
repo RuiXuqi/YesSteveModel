@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.data;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -12,6 +13,7 @@ import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.audio.OggAudioStream;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
@@ -20,6 +22,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +48,7 @@ public class ClientModelBuilder {
         var animations = buildAnimationMap(data, isDefault);
         var animationControllers = buildAnimationControllerMap(data);
         var textures = buildTextureMap(data, isDefault);
+        var sounds = buildSoundMap(data);
         var authorAvatars = buildAuthorAvatarMap(data);
 
         var projectileModels = buildProjectileModels(data, isDefault);
@@ -53,7 +58,7 @@ public class ClientModelBuilder {
 
         var conditionManager = buildConditionManager(animations);
 
-        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, projectileModels, data.info(), info, conditionManager);
+        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, sounds, projectileModels, data.info(), info, conditionManager);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
@@ -137,6 +142,29 @@ public class ClientModelBuilder {
             map.put(entry.getKey(), id);
         }
         return new FifoHashMap<>(map);
+    }
+
+    public static Map<String, SoundData> buildSoundMap(ClientModelData data) {
+        Object2ObjectOpenHashMap<String, SoundData> map = new Object2ObjectOpenHashMap<>();
+        if (data.sounds() != null && !data.sounds().isEmpty()) {
+            for (String soundPath : data.sounds().keySet()) {
+                SoundData soundData = bufferToSoundData(data.sounds().get(soundPath));
+                if (soundData != null) {
+                    map.put(soundPath, soundData);
+                }
+            }
+        }
+        return Object2ObjectMaps.unmodifiable(map);
+    }
+
+    private static SoundData bufferToSoundData(byte[] byteArray) {
+        try {
+            OggAudioStream oggStream = new OggAudioStream(new ByteArrayInputStream(byteArray));
+            return new SoundData(oggStream.readAll(), oggStream.getFormat());
+        } catch (IOException e) {
+            e.fillInStackTrace();
+        }
+        return null;
     }
 
     public static Map<String, ResourceLocation> buildAuthorAvatarMap(ClientModelData data) {
