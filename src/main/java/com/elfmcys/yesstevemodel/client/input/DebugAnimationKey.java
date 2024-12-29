@@ -28,9 +28,12 @@ public class DebugAnimationKey {
     public static void onKeyboardInput(InputEvent.Key event) {
         if (DEBUG_ANIMATION_KEY.isDown()) {
             switch (TYPE) {
-                case NONE: TYPE = DebugType.QUERIES; break;
-                case QUERIES: TYPE = DebugType.CUSTOM; break;
-                case CUSTOM: TYPE = DebugType.NONE; break;
+                case NONE:
+                    TYPE = DebugType.CUSTOM;
+                    break;
+                case CUSTOM:
+                    TYPE = DebugType.NONE;
+                    break;
             }
             LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) {
@@ -38,23 +41,22 @@ public class DebugAnimationKey {
             }
 
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                if(TYPE == DebugType.NONE) {
+                if (TYPE == DebugType.NONE) {
                     cap.getAnimatableModel().getDebugInfo().setEnabled(false);
                 } else {
                     cap.getAnimatableModel().getDebugInfo().setEnabled(true);
                 }
             });
 
-            if (TYPE == DebugType.QUERIES) {
+            if (TYPE == DebugType.CUSTOM) {
                 Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.true"));
-            } else if(TYPE == DebugType.NONE) {
+            } else if (TYPE == DebugType.NONE) {
                 Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.false"));
             }
         }
     }
 
     public enum DebugType {
-        QUERIES,
         CUSTOM,
         NONE
     }

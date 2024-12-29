@@ -1,15 +1,12 @@
 package com.elfmcys.yesstevemodel.client;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult;
 import com.elfmcys.yesstevemodel.client.data.ProjectileModel;
-import com.elfmcys.yesstevemodel.info.type.ProjectileType;
-import com.elfmcys.yesstevemodel.client.gui.ModelManageScreen;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
-import com.elfmcys.yesstevemodel.network.message.RequestServerModelInfo;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToServer;
 import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
@@ -19,7 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -121,9 +117,4 @@ public class ClientModelManager {
 
     // 只能接收 DirectByteBuffer
     private static native void syncReceiveData(ByteBuffer data);
-
-    public static void openModelManageScreen(List<RequestServerModelInfo.Info> customModels, List<RequestServerModelInfo.Info> authModels) {
-        Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(new ModelManageScreen(customModels, authModels));
-    }
 }

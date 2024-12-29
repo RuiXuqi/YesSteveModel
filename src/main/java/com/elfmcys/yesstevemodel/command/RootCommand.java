@@ -15,7 +15,6 @@ public class RootCommand {
         root.then(AuthCommand.get());
         root.then(ExportCommand.get());
         root.then(PlayAnimationCommand.get());
-        root.then(ManageCommand.get());
         root.then(MolangCommand.get());
         root.then(PingCommand.get());
         dispatcher.register(root);

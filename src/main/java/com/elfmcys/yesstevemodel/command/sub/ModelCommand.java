@@ -37,7 +37,6 @@ public class ModelCommand {
     private static final String MODEL_ID_NAME = "model_id";
     private static final String TEXTURE_ID_NAME = "texture_id";
     private static final String IGNORE_AUTH_NAME = "ignore_auth";
-    private static final String EXPORT_NAME = "export";
 
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
         LiteralArgumentBuilder<CommandSourceStack> model = Commands.literal(MODEL_NAME).requires(src -> CommandUtil.hasPermission(src, 2));
@@ -53,8 +52,6 @@ public class ModelCommand {
         model.then(set.then(targets.then(modelId.then(textureId.executes(context -> setModel(context, false))))));
         model.then(set.then(targets.then(modelId.then(textureId.then(ignoreAuth.executes(ModelCommand::setModelIgnoreAuth))))));
 
-        LiteralArgumentBuilder<CommandSourceStack> export = Commands.literal(EXPORT_NAME);
-        model.then(export.executes(ModelCommand::exportAllPackInfo));
         return model;
     }
 
@@ -100,12 +97,6 @@ public class ModelCommand {
                                 modelId, player.getScoreboardName()), true);
                     }
                 })));
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int exportAllPackInfo(CommandContext<CommandSourceStack> context) {
-        String infoText = GSON.toJson(ServerModelManager.getModels());
-        context.getSource().sendSuccess(() -> Component.literal(infoText), false);
         return Command.SINGLE_SUCCESS;
     }
 
