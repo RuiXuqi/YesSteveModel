@@ -505,6 +505,7 @@ public class AnimationController<T extends IAnimatable<?>> {
             }
             instructionKeyFrameExecutor.reset();
         }
+        this.stopSoundKeyFrames();
     }
 
     /**
