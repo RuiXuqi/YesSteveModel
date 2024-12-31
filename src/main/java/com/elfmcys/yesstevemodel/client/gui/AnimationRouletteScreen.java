@@ -505,7 +505,8 @@ public class AnimationRouletteScreen extends Screen {
             float spacingDeg = Mth.PI / 90;
             float startDeg = (2 * Mth.PI / count) * i + spacingDeg;
             float endDeg = (2 * Mth.PI / count) * (i + 1) - spacingDeg;
-            boolean hasConfig = extraAnimationMap.getValueAt(i).startsWith(SPEC_PREFIX);
+            int index = i + current.getRight() * 8;
+            boolean hasConfig = extraAnimationMap.getValueAt(index).startsWith(SPEC_PREFIX);
 
             isSelected = onDrawFan(startDeg, theta, endDeg, distance, isSelected, hasConfig, i, bufferbuilder, pMatrix);
 
@@ -514,7 +515,7 @@ public class AnimationRouletteScreen extends Screen {
                 drawFan(bufferbuilder, pMatrix, 15, 50, startDeg, endDeg, 0xf000ceff);
 
                 isConfigSelected = true;
-                this.hoverConfigId = i + current.getRight() * 8;
+                this.hoverConfigId = index;
             }
         }
         if (!isSelected) {
