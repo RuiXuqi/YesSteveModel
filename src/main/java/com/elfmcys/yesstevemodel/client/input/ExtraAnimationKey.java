@@ -3,6 +3,8 @@ package com.elfmcys.yesstevemodel.client.input;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
+import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
+import com.elfmcys.yesstevemodel.info.ModelProperties;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
 import com.google.common.collect.Lists;
@@ -19,6 +21,8 @@ import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+
+import static com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen.addRootClassify;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ExtraAnimationKey {
@@ -45,7 +49,19 @@ public class ExtraAnimationKey {
             if (key.isDown() && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
                     int index = EXTRA_ANIMATION_KEYS.indexOf(key);
-                    if (model.modelInfo().properties().extraAnimationOrderMap().size() > index) {
+                    ModelProperties properties = model.modelInfo().properties();
+                    var animationMap = properties.extraAnimationOrderMap();
+                    if (animationMap.size() > index) {
+                        String keyName = animationMap.getKeyAt(index);
+                        if (keyName.startsWith("#") && properties.extraAnimationClassifyMap().containsKey(keyName.substring(1))) {
+                            addRootClassify(keyName.substring(1));
+                            AnimationRouletteScreen screen = new AnimationRouletteScreen(
+                                    properties.extraAnimationButtonsMap(),
+                                    properties.extraAnimationClassifyMap(),
+                                    properties, cap.getAnimatableModel()
+                            );
+                            Minecraft.getInstance().setScreen(screen);
+                        }
                         NetworkHandler.sendToServer(new SetPlayAnimation(index));
                     }
                 }));

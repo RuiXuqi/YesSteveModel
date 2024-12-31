@@ -29,10 +29,11 @@ public class AnimationRouletteKey {
         if (event.getAction() == GLFW.GLFW_PRESS && ANIMATION_ROULETTE_KEY.matches(event.getKey(), event.getScanCode()) && DisableSwitch.CAN_SWITCH) {
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                    var model = ClientModelManager.getModels().get(cap.getModelId());
+                    String modelId = cap.getModelId();
+                    var model = ClientModelManager.getModels().get(modelId);
                     if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
                         if (Minecraft.getInstance().screen == null) {
-                            Minecraft.getInstance().setScreen(new AnimationRouletteScreen(model.modelInfo().properties().extraAnimationOrderMap()));
+                            Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model.modelInfo().properties(), cap.getAnimatableModel()));
                             return;
                         }
                         if (Minecraft.getInstance().screen instanceof AnimationRouletteScreen) {
