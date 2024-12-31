@@ -1,30 +1,36 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.info.ModelProperties;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
+import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.function.Supplier;
 
 public class SetPlayAnimation {
     private final int extraAnimationIndex;
+    private final String classifyId;
 
-    public SetPlayAnimation(int extraAnimationIndex) {
+    public SetPlayAnimation(int extraAnimationIndex, String classifyId) {
         this.extraAnimationIndex = extraAnimationIndex;
+        this.classifyId = classifyId;
     }
 
     public static SetPlayAnimation stop() {
-        return new SetPlayAnimation(-1);
+        return new SetPlayAnimation(-1, "");
     }
 
     public static void encode(SetPlayAnimation message, FriendlyByteBuf buf) {
         buf.writeVarInt(message.extraAnimationIndex);
+        buf.writeUtf(message.classifyId);
     }
 
     public static SetPlayAnimation decode(FriendlyByteBuf buf) {
-        return new SetPlayAnimation(buf.readVarInt());
+        return new SetPlayAnimation(buf.readVarInt(), buf.readUtf());
     }
 
     public static void handle(SetPlayAnimation message, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -47,8 +53,18 @@ public class SetPlayAnimation {
                 modelIdCap.stopAnimation();
             } else {
                 ServerModelManager.getModel(modelIdCap.getModelId()).ifPresent(model -> {
-                    if (model.info().properties().extraAnimationOrderMap().size() > message.extraAnimationIndex) {
-                        modelIdCap.playAnimation(model.info().properties().extraAnimationOrderMap().getKeyAt(message.extraAnimationIndex));
+                    ModelProperties properties = model.info().properties();
+                    var classifyMap = properties.extraAnimationClassifyMap();
+                    FifoHashMap<String, String> map;
+
+                    if (StringUtils.isNotBlank(message.classifyId) && classifyMap.containsKey(message.classifyId)) {
+                        map = classifyMap.get(message.classifyId);
+                    } else {
+                        map = properties.extraAnimationOrderMap();
+                    }
+
+                    if (map.size() > message.extraAnimationIndex) {
+                        modelIdCap.playAnimation(map.getKeyAt(message.extraAnimationIndex));
                     }
                 });
             }

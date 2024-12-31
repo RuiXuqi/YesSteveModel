@@ -364,7 +364,12 @@ public class AnimationRouletteScreen extends Screen {
     private void clickDefault(String selectKey) {
         LocalPlayer player = this.getMinecraft().player;
         if (NetworkHandler.isRemoteChannelPresent()) {
-            NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId));
+            var peekLast = CACHE.peekLast();
+            String classifyId = "";
+            if (peekLast != null && StringUtils.isNotBlank(peekLast.getLeft())) {
+                classifyId = peekLast.getLeft();
+            }
+            NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId));
         } else if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP)
                     .ifPresent(cap -> cap.playAnimation(selectKey));

@@ -62,7 +62,7 @@ public class ExtraAnimationKey {
                             );
                             Minecraft.getInstance().setScreen(screen);
                         }
-                        NetworkHandler.sendToServer(new SetPlayAnimation(index));
+                        NetworkHandler.sendToServer(new SetPlayAnimation(index, ""));
                     }
                 }));
                 return;
