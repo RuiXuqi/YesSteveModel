@@ -2,46 +2,44 @@ import proguard.gradle.ProGuardTask
 
 import java.nio.charset.Charset
 import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import net.neoforged.moddevgradle.legacyforge.tasks.RemapJar
 
 buildscript {
     repositories {
         maven { url = "https://plugins.gradle.org/m2/" }
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'org.gradle.toolchains:foojay-resolver:0.5.0'
-        classpath 'org.parchmentmc:librarian:1.+'
-        classpath 'com.guardsquare:proguard-gradle:7.3.1'
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+        classpath 'com.guardsquare:proguard-gradle:7.6.1'
     }
 }
 
-
 plugins {
-    id 'eclipse'
+    id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.73'
 }
-apply plugin: 'org.spongepowered.mixin'
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
 
 version = mod_version
 group = 'com.elfmcys.yesstevemodel'
 archivesBaseName = 'yesstevemodel-forge-1.20'
 
 // 构建工具用到的变量
+var buildDir = layout.buildDirectory.asFile.get().absolutePath
 var builderPath = "${buildDir}/ysm-native/YSMBuilder.exe"
 var buildTaskGroup = "ysm"
 var buildModLoader = "forge"
 var buildGameVersion = "1200"
 var javaHome = System.properties['java.home']
+var devOutputDir = "${buildDir}/devlibs"
+var outputDir = "${buildDir}/libs"
 var devLib = "${buildDir}/ysm-native/lib/ysm-core_${buildModLoader}-${buildGameVersion}-dev.dll"
 
 var dictPath = file("${buildDir}/tmp/proguard/dict.txt").toPath()
@@ -53,48 +51,50 @@ if (!file(builderPath).exists()) {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-minecraft {
-    mappings channel: 'parchment', version: '2023.08.20-1.20.1'
+legacyForge {
+    version = "1.20.1-47.3.0"
 
-    copyIdeResources = true
+    parchment {
+        mappingsVersion = '2023.09.03'
+        minecraftVersion = '1.20.1'
+    }
 
+    // validateAccessTransformers = true
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         configureEach {
-            jvmArgs "-XX:+IgnoreUnrecognizedVMOptions"
-            jvmArgs "-XX:+AllowEnhancedClassRedefinition"
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'yesstevemodel'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
+            jvmArguments = [
+                "-XX:+IgnoreUnrecognizedVMOptions",
+                "-XX:+AllowEnhancedClassRedefinition"
+            ]
             // 以下环境变量只在调试时有效，在测试和生产构建中无效
-            buildEnvironment {
-                environment 'EMBEDDED_MODEL_PATH', "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\custom"
-                environment 'YSM_CORE_LIB', devLib
-            }
-
-            mods {
-                yes_steve_model {
-                    source sourceSets.main
-                }
-            }
+            environment = [
+                "EMBEDDED_MODEL_PATH": "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\custom",
+                "YSM_CORE_LIB"       : devLib
+            ]
         }
 
         client {
-            workingDirectory project.file('run/client_a')
+            client()
+            gameDirectory = project.file('run/client_a')
         }
 
         client2 {
-            parent minecraft.runs.client
-            workingDirectory project.file('run/client_b')
-            args '--username', 'tartaric_acid'
+            client()
+            gameDirectory = project.file('run/client_b')
+            programArguments = ["--username", "tartaric_acid"]
         }
 
         server {
-            workingDirectory project.file('run/server')
+            server()
+            gameDirectory = project.file('run/server')
+        }
+    }
+
+    mods {
+        yes_steve_model {
+            sourceSet sourceSets.main
         }
     }
 }
@@ -128,41 +128,55 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
-    implementation fg.deobf('libs:firstperson-forge:2.2.3-mc1.20')
-    implementation fg.deobf('libs:notenoughanimations-forge:1.6.4-mc1.20')
-    compileOnly fg.deobf('libs:oculus_legacy:mc1.20.1-1.6.13')
-    implementation fg.deobf('libs:oculus:mc1.20.1-1.7.0')
-    implementation fg.deobf("curse.maven:embeddium-908741:${embeddium_id}")
-    implementation fg.deobf("curse.maven:slashblade-241596:${slashblade_id}")
-    implementation fg.deobf("curse.maven:carry-on-274259:${carry_on_id}")
-    implementation fg.deobf("curse.maven:curios-309927:${curios_id}")
-    implementation fg.deobf("curse.maven:caelus-308989:${caelus_id}")
-    implementation fg.deobf("curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}")
-    implementation fg.deobf("curse.maven:elytra-slot-317716:${elytra_slot_id}")
-    implementation fg.deobf("curse.maven:parcool-482378:${parcool_id}")
-    implementation fg.deobf('curse.maven:timeless-and-classics-zero-1028108:5529117-sources-5529578')
-    // swem 需要
-    runtimeOnly fg.deobf("curse.maven:playeranimator-658587:4587214")
-    runtimeOnly fg.deobf("curse.maven:geckolib-388172:5460309")
-    compileOnly fg.deobf("curse.maven:geckolib-388172:5460309")
-    implementation fg.deobf("curse.maven:swem-582697:${swem_id}")
-    runtimeOnly fg.deobf("maven.modrinth:curtain:1.3.2-1.20.1")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly 'org.jetbrains:annotations:26.0.1'
+
+    modImplementation 'libs:firstperson-forge:2.2.3-mc1.20'
+    modImplementation 'libs:notenoughanimations-forge:1.6.4-mc1.20'
+    modCompileOnly 'libs:oculus_legacy:mc1.20.1-1.6.13'
+    modImplementation 'libs:oculus:mc1.20.1-1.7.0'
+    modImplementation "curse.maven:embeddium-908741:${embeddium_id}"
+    modImplementation "curse.maven:slashblade-241596:${slashblade_id}"
+    modImplementation "curse.maven:carry-on-274259:${carry_on_id}"
+    modImplementation "curse.maven:curios-309927:${curios_id}"
+    modImplementation "curse.maven:caelus-308989:${caelus_id}"
+    modImplementation "curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}"
+    modImplementation "curse.maven:elytra-slot-317716:${elytra_slot_id}"
+    modImplementation "curse.maven:parcool-482378:${parcool_id}"
+    modImplementation 'curse.maven:timeless-and-classics-zero-1028108:5529117-sources-5529578'
+    // swem 需要
+    modRuntimeOnly "curse.maven:playeranimator-658587:4587214"
+    modImplementation "curse.maven:geckolib-388172:5460309"
+    modImplementation "curse.maven:swem-582697:${swem_id}"
+    modRuntimeOnly "maven.modrinth:curtain:1.3.2-1.20.1"
 }
 
 jar {
     manifest {
         attributes([
                 "Implementation-Title"  : project.name,
-                "Implementation-Version": "${version}"
+                "Implementation-Version": "${version}",
+                "MixinConfigs": "yes_steve_model.mixins.json"
         ])
     }
-    outputs.upToDateWhen { false }
+    archiveClassifier = "raw"
+}
+
+afterEvaluate {
+    tasks.reobfJar.outputs.upToDateWhen { false }
+    tasks.reobfJar.destinationDirectory = tasks.jar.destinationDirectory
+    tasks.reobfJar.archiveClassifier = ""
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
 
 tasks.register('buildDevLib', Exec) {
@@ -176,8 +190,9 @@ tasks.register('buildWindowsTestJar', Exec) {
     group buildTaskGroup
     dependsOn tasks.reobfJar
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'win-test',
-            tasks.reobfJar.input.asFile.get().path,
-            '-l', tasks.createMcpToSrg.output.asFile.get().path
+            tasks.reobfJar.archiveFile.get().asFile.absolutePath,
+            '-l', tasks.reobfJar.remapOperation.mappings.first().absolutePath,
+            '-o', outputDir
 }
 
 tasks.register('buildLinuxTestJar', Exec) {
@@ -185,25 +200,22 @@ tasks.register('buildLinuxTestJar', Exec) {
     group buildTaskGroup
     dependsOn tasks.reobfJar
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'linux-test',
-            tasks.reobfJar.input.asFile.get().path,
-            '-l', tasks.createMcpToSrg.output.asFile.get().path
+            tasks.reobfJar.archiveFile.get().asFile.absolutePath,
+            '-l', tasks.reobfJar.remapOperation.mappings.first().absolutePath,
+            '-o', outputDir
 }
 
 tasks.register('tempJar', Jar) {
     manifest.from(tasks.jar.manifest)
     from tasks.jar.source
-    outputs.upToDateWhen { false }
 
-    destinationDirectory.set(file("${buildDir}/tmp"))
-    archiveClassifier.set("temp")
-    finalizedBy tasks.proguardJar
-}
-
-reobf {
-    tempJar {}
+    destinationDirectory = tasks.jar.destinationDirectory
+    archiveClassifier = tasks.jar.archiveClassifier
 }
 
 tasks.register('proguardJar', ProGuardTask) {
+    dependsOn tasks.tempJar
+
     configuration file('proguard.pro')
     obfuscationdictionary(dictPath)
     classobfuscationdictionary(dictPath)
@@ -214,9 +226,9 @@ tasks.register('proguardJar', ProGuardTask) {
     libraryjars sourceSets.main.compileClasspath
     outputs.upToDateWhen { false }
 
-    injars(tasks.tempJar.archiveFile.get())
-    outjars(file("${buildDir}/libs/${archivesBaseName}-${version}-minified.jar"))
-    printmapping("${buildDir}/libs/${archivesBaseName}-${version}-mappings.txt")
+    injars(tasks.tempJar.archiveFile)
+    outjars(file("${devOutputDir}/${archivesBaseName}-${version}-proguard.jar"))
+    printmapping("${outputDir}/${archivesBaseName}-${version}-mappings.txt")
 
     doFirst {
         var rand = new Random()
@@ -244,67 +256,64 @@ tasks.register('proguardJar', ProGuardTask) {
         }
         writer.close()
     }
-    doLast {
-        Files.move(outJarFileCollection.singleFile.toPath(),
-                inJarFileCollection.singleFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING)
-    }
+}
+
+tasks.register('reobfProguardJar', RemapJar) {
+    dependsOn tasks.proguardJar
+    outputs.upToDateWhen { false }
+
+    input = tasks.proguardJar.outJarFileCollection.singleFile
+    destinationDirectory = tasks.jar.destinationDirectory
+    archiveBaseName = tasks.reobfJar.archiveBaseName
+    archiveVersion = tasks.reobfJar.archiveVersion
+    archiveClassifier = ""
+    archiveAppendix = tasks.reobfJar.archiveAppendix
+    libraries = tasks.reobfJar.libraries
+
+    remapOperation.mappings = tasks.reobfJar.remapOperation.mappings
+    remapOperation.toolType = tasks.reobfJar.remapOperation.toolType
+    remapOperation.toolClasspath = tasks.reobfJar.remapOperation.toolClasspath
 }
 
 tasks.register('buildWindowsProductionJar', Exec) {
-    doFirst {
-        Files.move(tempJar.archiveFile.get().asFile.toPath(),
-                tasks.proguardJar.outJarFileCollection.singleFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING)
-    }
-
     description "构建经过混淆的模组，仅可用于 windows 端内测"
     group buildTaskGroup
-    dependsOn tasks.reobfTempJar
+    dependsOn tasks.reobfProguardJar
     outputs.upToDateWhen { false }
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'win-production',
-            tasks.proguardJar.outJarFileCollection.singleFile.path,
+            tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
             '-p', "${projectDir}/ysm.vmp",
-            '-l', tasks.createMcpToSrg.output.asFile.get().path,
-            '-g', tasks.proguardJar.printMappingFile.path
+            '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
+            '-g', tasks.proguardJar.printMappingFile.path,
+            '-o', outputDir
 }
 
 tasks.register('buildProductionJar', Exec) {
-    doFirst {
-        Files.move(tempJar.archiveFile.get().asFile.toPath(),
-                tasks.proguardJar.outJarFileCollection.singleFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING)
-    }
-
     description "构建经过混淆的模组，用于内测"
     group buildTaskGroup
-    dependsOn tasks.reobfTempJar
+    dependsOn tasks.reobfProguardJar
     outputs.upToDateWhen { false }
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'production',
-            tasks.proguardJar.outJarFileCollection.singleFile.path,
+            tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
             '-p', "${projectDir}/ysm.vmp",
-            '-l', tasks.createMcpToSrg.output.asFile.get().path,
-            '-g', tasks.proguardJar.printMappingFile.path
+            '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
+            '-g', tasks.proguardJar.printMappingFile.path,
+            '-o', outputDir
 }
 
 tasks.register('buildProductionSignedJar', Exec) {
-    doFirst {
-        Files.move(tempJar.archiveFile.get().asFile.toPath(),
-                tasks.proguardJar.outJarFileCollection.singleFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING)
-    }
-
     description "构建经过混淆的模组并签名，用于正式版发布"
     group buildTaskGroup
-    dependsOn tasks.reobfTempJar
+    dependsOn tasks.reobfProguardJar
     outputs.upToDateWhen { false }
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'production',
-            tasks.proguardJar.outJarFileCollection.singleFile.path,
+            tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
             '-p', "${projectDir}/ysm.vmp",
-            '-l', tasks.createMcpToSrg.output.asFile.get().path,
+            '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
             '-g', tasks.proguardJar.printMappingFile.path,
+            '-o', outputDir,
             '-s'
 }
