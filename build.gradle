@@ -1,9 +1,9 @@
 import proguard.gradle.ProGuardTask
+import net.neoforged.moddevgradle.legacyforge.tasks.RemapJar
 
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
-import net.neoforged.moddevgradle.legacyforge.tasks.RemapJar
 
 buildscript {
     repositories {
@@ -65,14 +65,14 @@ legacyForge {
     runs {
         configureEach {
             jvmArguments = [
-                "-XX:+IgnoreUnrecognizedVMOptions",
-                "-XX:+AllowEnhancedClassRedefinition"
+                    "-XX:+IgnoreUnrecognizedVMOptions",
+                    "-XX:+AllowEnhancedClassRedefinition"
             ]
             // 以下环境变量只在调试时有效，在测试和生产构建中无效
-            environment = [
-                "EMBEDDED_MODEL_PATH": "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\custom",
-                "YSM_CORE_LIB"       : devLib
-            ]
+            environment.putAll([
+                    "EMBEDDED_MODEL_PATH": "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\custom",
+                    "YSM_CORE_LIB"       : devLib
+            ])
         }
 
         client {
@@ -152,13 +152,11 @@ dependencies {
 }
 
 jar {
-    manifest {
-        attributes([
-                "Implementation-Title"  : project.name,
-                "Implementation-Version": "${version}",
-                "MixinConfigs": "yes_steve_model.mixins.json"
-        ])
-    }
+    manifest.attributes([
+            "Implementation-Title"  : project.name,
+            "Implementation-Version": "${version}",
+            "MixinConfigs": "yes_steve_model.mixins.json"
+    ])
     archiveClassifier = "raw"
 }
 
