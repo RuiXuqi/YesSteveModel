@@ -42,9 +42,9 @@ public class DebugAnimationKey {
 
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 if (TYPE == DebugType.NONE) {
-                    cap.getAnimatableModel().getDebugInfo().setEnabled(false);
+                    cap.getDebugInfo().setEnabled(false);
                 } else {
-                    cap.getAnimatableModel().getDebugInfo().setEnabled(true);
+                    cap.getDebugInfo().setEnabled(true);
                 }
             });
 

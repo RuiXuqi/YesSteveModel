@@ -5,7 +5,7 @@ import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
+import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
@@ -30,7 +30,7 @@ public class ModelButton extends Button {
     private final boolean needAuth;
     private final int color;
     private final ClientModel model;
-    private final GuiModelInstance instance;
+    private final CustomGuiPlayerEntity instance;
     private final String hoverAnimationName;
     private final String hoverFadeoutAnimationName;
     private final String focusAnimationName;
@@ -38,7 +38,7 @@ public class ModelButton extends Button {
 
     private long hoverTime = -1L;
 
-    public ModelButton(int pX, int pY, boolean needAuth, GuiModelInstance instance, ClientModel model) {
+    public ModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity instance, ClientModel model) {
         super(pX, pY, 52, 90, Component.literal(instance.getModelId()), (b) -> {
         }, DEFAULT_NARRATION);
         this.needAuth = needAuth;
@@ -80,7 +80,7 @@ public class ModelButton extends Button {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 var oldModelId = cap.getModelId();
                 cap.setModelAndTexture(instance.getModelId(), instance.getTextureName());
-                if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
+                if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
                     if (!oldModelId.equals(instance.getModelId())) {
                         roamingStruct.reset(roamingStruct.getInstanceId() + 1, null);
                     }
@@ -94,18 +94,18 @@ public class ModelButton extends Button {
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHovered()) {
             hoverTime = Util.getMillis();
-            instance.getAnimatable().setHoverAnimation(hoverAnimationName);
+            instance.setHoverAnimation(hoverAnimationName);
         } else {
             if (Util.getMillis() - hoverTime < fadeoutTime) {
-                instance.getAnimatable().setHoverAnimation(this.hoverFadeoutAnimationName);
+                instance.setHoverAnimation(this.hoverFadeoutAnimationName);
             } else {
-                instance.getAnimatable().setHoverAnimation(AnimationRegister.EMPTY);
+                instance.setHoverAnimation(AnimationRegister.EMPTY);
             }
         }
         if (isFocused()) {
-            instance.getAnimatable().setFocusAnimation(focusAnimationName);
+            instance.setFocusAnimation(focusAnimationName);
         } else {
-            instance.getAnimatable().setFocusAnimation(AnimationRegister.EMPTY);
+            instance.setFocusAnimation(AnimationRegister.EMPTY);
         }
 
         Minecraft minecraft = Minecraft.getInstance();

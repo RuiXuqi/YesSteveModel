@@ -33,8 +33,8 @@ public class PlayerTextureScreen extends Screen {
     private static final float SCALE_MIN = 18f;
     private static final float PITCH_MAX = 90f;
     private static final float PITCH_MIN = -90f;
-    private static final GuiModelInstance PREVIEW_INSTANCE = new GuiModelInstance();
-    private static final GuiModelInstance[] TEXTURE_BUTTON_INSTANCE = new GuiModelInstance[4];
+    private static final CustomGuiPlayerEntity PREVIEW_INSTANCE = new CustomGuiPlayerEntity();
+    private static final CustomGuiPlayerEntity[] TEXTURE_BUTTON_INSTANCE = new CustomGuiPlayerEntity[4];
 
     private static final int LEFT_MOUSE_BUTTON = 0;
     private static final int RIGHT_MOUSE_BUTTON = 1;
@@ -60,8 +60,8 @@ public class PlayerTextureScreen extends Screen {
 
     static {
         for (int i = 0; i < TEXTURE_BUTTON_INSTANCE.length; i++) {
-            GuiModelInstance instance = new GuiModelInstance();
-            instance.getAnimatable().setPreviewAnimation(AnimationRegister.IDLE);
+            CustomGuiPlayerEntity instance = new CustomGuiPlayerEntity();
+            instance.setPreviewAnimation(AnimationRegister.IDLE);
             TEXTURE_BUTTON_INSTANCE[i] = instance;
         }
     }
@@ -74,9 +74,9 @@ public class PlayerTextureScreen extends Screen {
         this.animations = new ArrayList<>(model.animations().keySet());
         this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
         this.animations.sort(String::compareTo);
-        PREVIEW_INSTANCE.getAnimatable().setPlayer(Minecraft.getInstance().player);
-        for (GuiModelInstance instance : TEXTURE_BUTTON_INSTANCE) {
-            instance.getAnimatable().setPlayer(Minecraft.getInstance().player);
+        PREVIEW_INSTANCE.setPlayer(Minecraft.getInstance().player);
+        for (CustomGuiPlayerEntity instance : TEXTURE_BUTTON_INSTANCE) {
+            instance.setPlayer(Minecraft.getInstance().player);
         }
     }
 
@@ -168,7 +168,7 @@ public class PlayerTextureScreen extends Screen {
             }
             int xStart = x + 306 + 56 * (i % 2);
             int yStart = y + 5 + 104 * (i / 2);
-            GuiModelInstance instance = TEXTURE_BUTTON_INSTANCE[i];
+            CustomGuiPlayerEntity instance = TEXTURE_BUTTON_INSTANCE[i];
             instance.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
             addRenderableWidget(new TextureButton(xStart, yStart, instance));
         }
@@ -193,11 +193,11 @@ public class PlayerTextureScreen extends Screen {
         int scissorW = (int) (206 * guiScale);
         int scissorH = (int) (235 * guiScale);
 
-        if (!PREVIEW_INSTANCE.getAnimatable().hasPreviewAnimation(animation)) {
-            PREVIEW_INSTANCE.getAnimatable().setPreviewAnimation(animation);
+        if (!PREVIEW_INSTANCE.hasPreviewAnimation(animation)) {
+            PREVIEW_INSTANCE.setPreviewAnimation(animation);
         }
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        PREVIEW_INSTANCE.getAnimatable().getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+        PREVIEW_INSTANCE.getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             PREVIEW_INSTANCE.setModelAndTexture(modelId, cap.getTextureName());
             RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_INSTANCE, showGround);
         });

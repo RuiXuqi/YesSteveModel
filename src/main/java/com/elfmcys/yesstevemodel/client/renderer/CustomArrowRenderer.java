@@ -1,8 +1,7 @@
 package com.elfmcys.yesstevemodel.client.renderer;
 
 import com.elfmcys.yesstevemodel.capability.ArrowGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.instance.CustomArrowInstance;
-import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
+import com.elfmcys.yesstevemodel.client.entity.CustomArrowEntity;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoProjectilesRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -13,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.jetbrains.annotations.NotNull;
 
-public class CustomArrowRenderer extends GeoProjectilesRenderer<CustomArrowInstance> {
+public class CustomArrowRenderer extends GeoProjectilesRenderer<AbstractArrow, CustomArrowEntity> {
     public CustomArrowRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
     }
@@ -30,6 +29,6 @@ public class CustomArrowRenderer extends GeoProjectilesRenderer<CustomArrowInsta
     @Override
     @NotNull
     public ResourceLocation getTextureLocation(AbstractArrow entity) {
-        return entity.getCapability(ArrowGeoCapabilityProvider.CAP).map(GeoInstance::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
+        return entity.getCapability(ArrowGeoCapabilityProvider.CAP).map(CustomArrowEntity::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
     }
 }

@@ -31,7 +31,7 @@ public final class NewAnimationManager {
                                       AnimationController.IAnimationPredicate<CustomPlayerEntity> oldPredicate) {
         var controller = event.getController();
         String controllerName = controller.getName();
-        String modelId = event.getAnimatable().getModelId();
+        String modelId = event.getAnimatableEntity().getModelId();
         return ClientModelManager.getModel(modelId).map(clientModel -> {
             var controllers = clientModel.animationControllers();
             // 如果动画控制器不存在，那么使用旧版本动画
@@ -46,11 +46,11 @@ public final class NewAnimationManager {
     }
 
     private static PlayState predicate(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<AnimationContext<?>> evaluator, GeoAnimationController controllerData) {
-        Player player = event.getAnimatable().getEntity();
+        Player player = event.getAnimatableEntity().getEntity();
         if (player == null) {
             return PlayState.STOP;
         }
-        if (event.getAnimatable().hasPreviewAnimation()) {
+        if (event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (Minecraft.getInstance().isPaused()) {

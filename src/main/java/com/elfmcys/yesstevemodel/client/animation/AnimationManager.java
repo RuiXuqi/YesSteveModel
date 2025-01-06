@@ -9,12 +9,12 @@ import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
@@ -54,18 +54,18 @@ public final class AnimationManager {
     }
 
     @NotNull
-    public static <P extends IAnimatable<?>> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
+    public static <P extends AnimatableEntity<?>> PlayState playLoopAnimation(AnimationEvent<P> event, String animationName) {
         return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.LOOP);
     }
 
     @NotNull
-    private static <P extends IAnimatable<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName, ILoopType loopType) {
+    private static <P extends AnimatableEntity<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName, ILoopType loopType) {
         event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
         return PlayState.CONTINUE;
     }
 
     @NotNull
-    private static <P extends IAnimatable<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
+    private static <P extends AnimatableEntity<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
         event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName));
         return PlayState.CONTINUE;
     }
@@ -82,7 +82,7 @@ public final class AnimationManager {
     }
 
     public PlayState predicateCap(AnimationEvent<CustomPlayerEntity> event) {
-        CustomPlayerEntity animatable = event.getAnimatable();
+        CustomPlayerEntity animatable = event.getAnimatableEntity();
         if (animatable.hasPreviewAnimation()) {
             return playLoopAnimation(event, animatable.getPreviewAnimation());
         }
@@ -100,7 +100,7 @@ public final class AnimationManager {
     }
 
     public PlayState predicateHover(AnimationEvent<CustomPlayerEntity> event) {
-        String hoverAnimation = event.getAnimatable().getHoverAnimation();
+        String hoverAnimation = event.getAnimatableEntity().getHoverAnimation();
         if (StringUtils.isNoneBlank(hoverAnimation)) {
             return playLoopAnimation(event, hoverAnimation);
         }
@@ -108,7 +108,7 @@ public final class AnimationManager {
     }
 
     public PlayState predicateFocus(AnimationEvent<CustomPlayerEntity> event) {
-        String focusAnimation = event.getAnimatable().getFocusAnimation();
+        String focusAnimation = event.getAnimatableEntity().getFocusAnimation();
         if (StringUtils.isNoneBlank(focusAnimation)) {
             return playLoopAnimation(event, focusAnimation);
         }
@@ -117,18 +117,18 @@ public final class AnimationManager {
 
     @NotNull
     public PlayState predicateMain(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
+        Player player = event.getAnimatableEntity().getEntity();
         if (player == null) {
             return PlayState.STOP;
         }
-        if (event.getAnimatable().hasPreviewAnimation()) {
+        if (event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
 
         // 跑酷模组兼容
         String parCoolAnimation = ParCoolCompat.getAnimation(player);
         if (parCoolAnimation != null) {
-            String modelId = event.getAnimatable().getModelId();
+            String modelId = event.getAnimatableEntity().getModelId();
             Optional<Animation> optional = ClientModelManager.getPlayerAnimation(modelId, parCoolAnimation);
             if (optional.isPresent()) {
                 return playAnimation(event, parCoolAnimation);
@@ -156,8 +156,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateOffhandHold(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (!player.swinging && !player.isUsingItem()) {
@@ -173,7 +173,7 @@ public final class AnimationManager {
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
             }
 
-            String id = event.getAnimatable().getModelId();
+            String id = event.getAnimatableEntity().getModelId();
             ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldOffhand()).orElse(null);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.OFF_HAND);
@@ -186,8 +186,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateMainhandHold(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (!player.swinging && !player.isUsingItem()) {
@@ -211,7 +211,7 @@ public final class AnimationManager {
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.LOOP);
             }
 
-            String id = event.getAnimatable().getModelId();
+            String id = event.getAnimatableEntity().getModelId();
             ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldMainhand()).orElse(null);
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(player, InteractionHand.MAIN_HAND);
@@ -224,8 +224,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateMainhandFire(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (!player.swinging && !player.isUsingItem()) {
@@ -244,8 +244,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateSwing(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (player.swinging && !player.isSleeping()) {
@@ -253,7 +253,7 @@ public final class AnimationManager {
                 // 空动画用于重置 PLAY_ONCE 动画
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
-            String id = event.getAnimatable().getModelId();
+            String id = event.getAnimatableEntity().getModelId();
             ConditionalSwing conditionalSwing = ClientModelManager.getModel(id).map(model -> (player.swingingArm == InteractionHand.MAIN_HAND) ? model.conditionManager().getSwingMainhand() : model.conditionManager().getSwingOffhand()).orElse(null);
             if (conditionalSwing != null) {
                 String name = conditionalSwing.doTest(player, player.swingingArm);
@@ -268,8 +268,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateUse(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         if (player.isUsingItem() && !player.isSleeping()) {
@@ -277,7 +277,7 @@ public final class AnimationManager {
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             if (player.getUsedItemHand() == InteractionHand.MAIN_HAND) {
-                String id = event.getAnimatable().getModelId();
+                String id = event.getAnimatableEntity().getModelId();
                 ConditionalUse conditionalUse = ClientModelManager.getModel(id).map(model -> model.conditionManager().getUseMainhand()).orElse(null);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(player, InteractionHand.MAIN_HAND);
@@ -287,7 +287,7 @@ public final class AnimationManager {
                 }
                 return playAnimation(event, "use_mainhand", ILoopType.EDefaultLoopTypes.LOOP);
             } else {
-                String id = event.getAnimatable().getModelId();
+                String id = event.getAnimatableEntity().getModelId();
                 ConditionalUse conditionalUse = ClientModelManager.getModel(id).map(model -> model.conditionManager().getUseOffhand()).orElse(null);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(player, InteractionHand.OFF_HAND);
@@ -302,8 +302,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicateArmor(AnimationEvent<CustomPlayerEntity> event, EquipmentSlot slot) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         ItemStack itemBySlot = EquipmentUtil.getEquippedItem(player, slot);
@@ -311,7 +311,7 @@ public final class AnimationManager {
             return PlayState.STOP;
         }
 
-        String id = event.getAnimatable().getModelId();
+        String id = event.getAnimatableEntity().getModelId();
         ConditionArmor conditionArmor = ClientModelManager.getModel(id).map(model -> model.conditionManager().getArmor()).orElse(null);
         if (conditionArmor != null) {
             String name = conditionArmor.doTest(player, slot);
@@ -320,7 +320,7 @@ public final class AnimationManager {
             }
         }
 
-        String modelId = event.getAnimatable().getModelId();
+        String modelId = event.getAnimatableEntity().getModelId();
         String defaultName = slot.getName() + ":default";
         if (ClientModelManager.getPlayerAnimation(modelId, defaultName).isPresent()) {
             return playAnimation(event, defaultName, ILoopType.EDefaultLoopTypes.LOOP);
@@ -330,8 +330,8 @@ public final class AnimationManager {
 
     @Nullable
     public PlayState getVehicleAnimation(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return null;
         }
         Entity vehicle = player.getVehicle();
@@ -344,7 +344,7 @@ public final class AnimationManager {
             return playAnimation(event, swemAnimation, ILoopType.EDefaultLoopTypes.LOOP);
         }
 
-        String id = event.getAnimatable().getModelId();
+        String id = event.getAnimatableEntity().getModelId();
         ConditionalVehicle vehicleCondition = ClientModelManager.getModel(id).map(model -> model.conditionManager().getVehicle()).orElse(null);
         if (vehicleCondition != null) {
             String name = vehicleCondition.doTest(player);
@@ -370,8 +370,8 @@ public final class AnimationManager {
     }
 
     public PlayState predicatePassengerAnimation(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         Entity passenger = player.getFirstPassenger();
@@ -379,7 +379,7 @@ public final class AnimationManager {
             return PlayState.STOP;
         }
 
-        String id = event.getAnimatable().getModelId();
+        String id = event.getAnimatableEntity().getModelId();
         ConditionalPassenger conditionalPassenger = ClientModelManager.getModel(id).map(model -> model.conditionManager().getPassenger()).orElse(null);
         if (conditionalPassenger != null) {
             String name = conditionalPassenger.doTest(player);

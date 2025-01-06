@@ -3,12 +3,12 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatCheckbox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatRatioBox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatSlider;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
-import com.elfmcys.yesstevemodel.client.model.CustomPlayerModel;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
@@ -72,15 +72,15 @@ public class AnimationRouletteScreen extends Screen {
     private final Map<String, ExtraAnimationButton> buttonMap;
     private final Map<String, FifoHashMap<String, String>> classifyMap;
     private final ModelProperties modelProperties;
-    private final CustomPlayerModel customPlayerModel;
+    private final CustomPlayerEntity customPlayerEntity;
 
     public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap,
                                    Map<String, FifoHashMap<String, String>> classifyMap,
                                    ModelProperties modelProperties,
-                                   CustomPlayerModel customPlayerModel) {
+                                   CustomPlayerEntity customPlayerEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.modelProperties = modelProperties;
-        this.customPlayerModel = customPlayerModel;
+        this.customPlayerEntity = customPlayerEntity;
         this.classifyMap = classifyMap;
         this.buttonMap = buttonMap;
 
@@ -96,10 +96,10 @@ public class AnimationRouletteScreen extends Screen {
         }
     }
 
-    public AnimationRouletteScreen(String modelId, ModelProperties properties, CustomPlayerModel customPlayerModel) {
+    public AnimationRouletteScreen(String modelId, ModelProperties properties, CustomPlayerEntity customPlayerEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.modelProperties = properties;
-        this.customPlayerModel = customPlayerModel;
+        this.customPlayerEntity = customPlayerEntity;
         this.classifyMap = properties.extraAnimationClassifyMap();
         this.buttonMap = properties.extraAnimationButtonsMap();
 
@@ -147,7 +147,7 @@ public class AnimationRouletteScreen extends Screen {
         this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 70, 115, 15, name, b -> {
             if (CACHE.size() > 1) {
                 CACHE.removeLast();
-                AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerModel);
+                AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerEntity);
                 this.getMinecraft().setScreen(screen);
             } else {
                 this.getMinecraft().setScreen(null);
@@ -241,7 +241,7 @@ public class AnimationRouletteScreen extends Screen {
         int number = Math.round(transformNumber(result));
 
         FlatSlider slider = new FlatSlider(this.x + 125, this.y + yOffset[0],
-                title, number, this.customPlayerModel, rangeForms.value(), rangeForms.step(), rangeForms.min(), rangeForms.max());
+                title, number, this.customPlayerEntity, rangeForms.value(), rangeForms.step(), rangeForms.min(), rangeForms.max());
         slider.setTooltip(description);
 
         return slider;
@@ -291,7 +291,7 @@ public class AnimationRouletteScreen extends Screen {
     private void executeMolang(String molang, @Nullable Consumer<String> resultConsumer) {
         try {
             IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molang);
-            this.customPlayerModel.execute(parsed, resultConsumer);
+            this.customPlayerEntity.executeMolangExp(parsed, resultConsumer);
         } catch (ParseException exception) {
             YesSteveModel.LOGGER.error(exception);
         }
@@ -394,7 +394,7 @@ public class AnimationRouletteScreen extends Screen {
         FifoHashMap<String, String> map = classifyMap.get(key);
         if (map != null) {
             CACHE.addLast(MutablePair.of(key, 0));
-            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerModel);
+            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerEntity);
             this.getMinecraft().setScreen(screen);
         }
     }

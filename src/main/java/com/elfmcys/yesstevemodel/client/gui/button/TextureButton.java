@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
+import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
@@ -19,9 +19,9 @@ import net.minecraft.util.FormattedCharSequence;
 import java.util.List;
 
 public class TextureButton extends Button {
-    private final GuiModelInstance instance;
+    private final CustomGuiPlayerEntity instance;
 
-    public TextureButton(int pX, int pY, GuiModelInstance instance) {
+    public TextureButton(int pX, int pY, CustomGuiPlayerEntity instance) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
         }, DEFAULT_NARRATION);
         this.instance = instance;
@@ -32,8 +32,8 @@ public class TextureButton extends Button {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.setTexture(instance.getTextureName());
-                if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
+                cap.setTextureName(instance.getTextureName());
+                if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
                     NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureName(), roamingStruct.getInstanceId()));
                 }
             });

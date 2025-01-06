@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.geo;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.yesstevemodel.geckolib3.util.IRenderCycle;
@@ -15,12 +16,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import org.joml.Matrix4f;
 
 import org.jetbrains.annotations.NotNull;
 
-public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extends EntityRenderer<AbstractArrow> implements IGeoRenderer<T> {
+public abstract class GeoProjectilesRenderer<TEntity extends Projectile, T extends AnimatableEntity<TEntity>> extends EntityRenderer<TEntity> implements IGeoRenderer<T> {
     protected Matrix4f dispatchedMat = new Matrix4f();
     protected Matrix4f renderEarlyMat = new Matrix4f();
     private IRenderCycle currentModelRenderCycle = EModelRenderCycle.INITIAL;
@@ -35,7 +36,7 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
         if (event == null) {
             return;
         }
-        var entity = instance.getAnimatable().getEntity();
+        var entity = instance.getEntity();
         this.dispatchedMat = new Matrix4f(poseStack.last().pose());
         setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
         poseStack.pushPose();
@@ -43,7 +44,7 @@ public abstract class GeoProjectilesRenderer<T extends GeoInstance<?, ?>> extend
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
         Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
         RenderType renderType = getRenderType(instance.getTextureLocation());
-        GeoModelState model = instance.getAnimatableModel().getCurrentModel();
+        GeoModelState model = instance.getCurrentModel();
         render(model, instance, partialTick, renderType, poseStack, bufferSource, 0, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
         poseStack.popPose();
     }

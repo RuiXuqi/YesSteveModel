@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.util;
 
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
-import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
+import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -34,10 +34,10 @@ public final class RenderUtil {
         return RenderSystem.isOnRenderThread() && renderingEntitiesInInventory;
     }
 
-    public static void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, GuiModelInstance instance, boolean showGround) {
+    public static void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, CustomGuiPlayerEntity instance, boolean showGround) {
         CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
-        CustomPlayerEntity entity = instance.getAnimatable();
-        AbstractClientPlayer player = instance.getAnimatable().getEntity();
+        CustomPlayerEntity entity = instance;
+        AbstractClientPlayer player = instance.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
@@ -168,9 +168,9 @@ public final class RenderUtil {
         Minecraft.getInstance().getBlockRenderer().renderSingleBlock(Blocks.RED_TULIP.defaultBlockState(), poseStack, bufferSource, 0xf000f0, OverlayTexture.NO_OVERLAY);
     }
 
-    private static void renderExtraEntity(float yaw, GuiModelInstance instance, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource) throws ExecutionException {
-        CustomPlayerEntity playerEntity = instance.getAnimatable();
-        AbstractClientPlayer player = instance.getAnimatable().getEntity();
+    private static void renderExtraEntity(float yaw, CustomGuiPlayerEntity instance, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource) throws ExecutionException {
+        CustomPlayerEntity playerEntity = instance;
+        AbstractClientPlayer player = instance.getEntity();
 
         if (playerEntity.hasPreviewAnimation("ride")) {
             Entity entity = AnimatableCacheUtil.ENTITIES_CACHE.get(EntityType.getKey(EntityType.HORSE), () -> EntityType.HORSE.create(player.level()));
@@ -196,13 +196,13 @@ public final class RenderUtil {
         poseStack.popPose();
     }
 
-    public static void renderModelInInventory(int pPosX, int pPosY, int pScale, GuiModelInstance instance) {
+    public static void renderModelInInventory(int pPosX, int pPosY, int pScale, CustomGuiPlayerEntity instance) {
         CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
         renderModel((double) pPosX, (double) pPosY, (float) pScale, instance, renderer);
     }
 
-    private static void renderModel(double pPosX, double pPosY, float pScale, GuiModelInstance instance, CustomPlayerRenderer renderer) {
-        AbstractClientPlayer player = instance.getAnimatable().getEntity();
+    private static void renderModel(double pPosX, double pPosY, float pScale, CustomGuiPlayerEntity instance, CustomPlayerRenderer renderer) {
+        AbstractClientPlayer player = instance.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();

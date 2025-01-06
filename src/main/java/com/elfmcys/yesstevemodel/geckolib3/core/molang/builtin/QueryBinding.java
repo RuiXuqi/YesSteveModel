@@ -41,7 +41,7 @@ public class QueryBinding extends ContextBinding {
 
         var("actor_count", ctx -> ctx.level().getEntityCount());
         var("anim_time", ctx -> ctx.animationControllerContext().animTime());
-        var("life_time", ctx -> ctx.geoInstance().getAnimatableModel().seekTime / 20.0);
+        var("life_time", ctx -> ctx.animatableEntity().getSeekTime() / 20.0);
         var("head_x_rotation", ctx -> ctx.data().netHeadYaw);
         var("head_y_rotation", ctx -> ctx.data().headPitch);
         var("moon_phase", ctx -> ctx.level().getMoonPhase());

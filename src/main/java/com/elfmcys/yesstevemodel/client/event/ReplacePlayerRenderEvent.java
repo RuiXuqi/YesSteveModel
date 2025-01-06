@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
-import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,7 +24,7 @@ public class ReplacePlayerRenderEvent {
         if (!playerRender.equals(playerSelf) && GeneralConfig.DISABLE_OTHER_MODEL.get()) {
             return;
         }
-        if(!playerRender.getCapability(PlayerGeoCapabilityProvider.CAP).map(GeoInstance::isInitialized).orElse(false)) {
+        if(!playerRender.getCapability(PlayerGeoCapabilityProvider.CAP).map(CustomPlayerEntity::isInitialized).orElse(false)) {
             return;
         }
         event.setCanceled(true);

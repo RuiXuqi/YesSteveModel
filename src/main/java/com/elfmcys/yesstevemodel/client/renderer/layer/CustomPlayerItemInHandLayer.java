@@ -5,7 +5,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeRender;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
-import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerInstance> {
+public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEntity> {
     private final ItemInHandRenderer itemInHandRenderer;
 
     public CustomPlayerItemInHandLayer(ItemInHandRenderer itemInHandRenderer) {
@@ -26,9 +26,9 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerIn
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerInstance instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        LivingEntity entityLivingBaseIn = instance.getAnimatable().getEntity();
-        GeoModelState geoModel = instance.getAnimatableModel().getCurrentModel();
+    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        LivingEntity entityLivingBaseIn = instance.getEntity();
+        GeoModelState geoModel = instance.getCurrentModel();
         if (geoModel == null) {
             return;
         }

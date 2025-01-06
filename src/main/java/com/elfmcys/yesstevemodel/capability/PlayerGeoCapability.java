@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.capability;
 
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
-import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -9,13 +9,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class PlayerGeoCapability extends CustomPlayerInstance {
+public class PlayerGeoCapability extends CustomPlayerEntity {
     public PlayerGeoCapability(AbstractClientPlayer player) {
-        super(player, true, player instanceof LocalPlayer);
+        super(player, player instanceof LocalPlayer, true);
     }
 
     private boolean isFirstPersonModActive() {
-        if (animatable.getEntity() instanceof LocalPlayer) {
+        if (isLocalPlayer()) {
             return Minecraft.getInstance().options.getCameraType().isFirstPerson() && FirstPersonCompat.isInstalled() && FirstPersonCompat.isEnabled();
         }
         return false;

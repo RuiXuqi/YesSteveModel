@@ -76,7 +76,7 @@ public class SyncModelInfo {
     private static void handleCapability(Entity entity, ModelInfoCapability newCap) {
         entity.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setModelAndTexture(newCap.getModelId(), newCap.getSelectTexture());
-            cap.getAnimatable().setRemoteVariables(newCap.getInstanceId(), newCap.getVariables());
+            cap.setRemoteVariables(newCap.getInstanceId(), newCap.getVariables());
             if (newCap.isPlayAnimation()) {
                 cap.playAnimation(newCap.getAnimation());
             } else {

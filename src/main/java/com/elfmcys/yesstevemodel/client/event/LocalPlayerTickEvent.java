@@ -51,7 +51,7 @@ public class LocalPlayerTickEvent {
 
     private static void submitRoamingVariableChanges(LocalPlayer player) {
         player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            if (cap.getAnimatable().getRemoteStruct() instanceof RoamingStruct roamingStruct) {
+            if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
                 if(!roamingStruct.isDirty()) {
                     return;
                 }

@@ -22,7 +22,7 @@ public abstract class BoneParamFunction extends EntityFunction {
             return null;
         }
 
-        var bone = context.entity().geoInstance().getAnimatableModel().getBone(str);
+        var bone = context.entity().animatableEntity().getBone(str);
         if (bone == null) {
             return null;
         }

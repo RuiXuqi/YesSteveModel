@@ -8,7 +8,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableS
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.ITempVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.VariableStorage;
-import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -20,7 +20,7 @@ import java.util.Random;
 
 public class AnimationContext<TEntity> implements IContext<TEntity> {
     protected final TEntity entity;
-    protected final GeoInstance<?, ?> instance;
+    protected final AnimatableEntity<?> animatableEntity;
     protected final AnimationEvent<?> animationEvent;
     protected final EntityModelData data;
 
@@ -30,16 +30,16 @@ public class AnimationContext<TEntity> implements IContext<TEntity> {
     protected IForeignVariableStorage foreignStorage;
     private DebugSource debugSource;
 
-    public AnimationContext(TEntity entity, GeoInstance<?, ?> instance, AnimationEvent<?> animationEvent, EntityModelData data) {
+    public AnimationContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data) {
         this.entity = entity;
-        this.instance = instance;
+        this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
         this.data = data;
     }
 
-    private AnimationContext(TEntity entity, GeoInstance<?, ?> instance, AnimationEvent<?> animationEvent, EntityModelData data, AnimationControllerContext animationControllerContext, Random random, VariableStorage storage) {
+    private AnimationContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationControllerContext animationControllerContext, Random random, VariableStorage storage) {
         this.entity = entity;
-        this.instance = instance;
+        this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
         this.data = data;
         this.animationControllerContext = animationControllerContext;
@@ -47,11 +47,11 @@ public class AnimationContext<TEntity> implements IContext<TEntity> {
         this.storage = storage;
         if (entity instanceof Player) {
             ((Entity) entity).getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                foreignStorage = cap.getAnimatableModel().getPublicVariableStorage();
+                foreignStorage = cap.getPublicVariableStorage();
             });
         } else if (entity instanceof AbstractArrow) {
             ((AbstractArrow) entity).getCapability(ArrowGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                foreignStorage = cap.getAnimatableModel().getPublicVariableStorage();
+                foreignStorage = cap.getPublicVariableStorage();
             });
         }
     }
@@ -62,8 +62,8 @@ public class AnimationContext<TEntity> implements IContext<TEntity> {
     }
 
     @Override
-    public GeoInstance<?, ?> geoInstance() {
-        return instance;
+    public AnimatableEntity<?> animatableEntity() {
+        return animatableEntity;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class AnimationContext<TEntity> implements IContext<TEntity> {
 
     @Override
     public <TChild> IContext<TChild> createChild(TChild child) {
-        return new AnimationContext<>(child, instance, animationEvent, data, animationControllerContext, random, storage);
+        return new AnimationContext<>(child, animatableEntity, animationEvent, data, animationControllerContext, random, storage);
     }
 
     @Override

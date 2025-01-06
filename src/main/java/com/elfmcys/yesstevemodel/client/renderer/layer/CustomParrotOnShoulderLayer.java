@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
-import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
@@ -18,7 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Parrot;
 
-public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerInstance> {
+public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerEntity> {
     private static final String ID = "id";
     private static final String VARIANT = "Variant";
     private final ParrotModel model;
@@ -28,9 +28,9 @@ public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerIn
     }
 
     @Override
-    public void render(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerInstance instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        AbstractClientPlayer player = instance.getAnimatable().getEntity();
-        GeoModelState geoModel = instance.getAnimatableModel().getCurrentModel();
+    public void render(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        AbstractClientPlayer player = instance.getEntity();
+        GeoModelState geoModel = instance.getCurrentModel();
         if (geoModel == null) {
             return;
         }

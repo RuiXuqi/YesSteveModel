@@ -28,7 +28,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
         player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             int[] y = {5};
 
-            DebugInfo debugInfo = cap.getAnimatableModel().getDebugInfo();
+            DebugInfo debugInfo = cap.getDebugInfo();
             debugInfo.enumerate((name, result) -> {
                 renderCustomText(gui, graphics, y, name, result);
             });

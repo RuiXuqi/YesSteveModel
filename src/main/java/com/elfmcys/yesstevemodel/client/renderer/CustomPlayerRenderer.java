@@ -2,13 +2,12 @@ package com.elfmcys.yesstevemodel.client.renderer;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.gui.GuiModelInstance;
-import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerElytraLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerItemInHandLayer;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
-import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -26,7 +25,7 @@ import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
-public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClientPlayer, CustomPlayerInstance> {
+public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClientPlayer, CustomPlayerEntity> {
 
     @SuppressWarnings("all")
     public CustomPlayerRenderer(EntityRendererProvider.Context ctx) {
@@ -44,7 +43,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
             return;
         }
 
-        var event = new SpecialPlayerRenderEvent(player, cap.getAnimatable(), cap.getModelId());
+        var event = new SpecialPlayerRenderEvent(player, cap, cap.getModelId());
         if (MinecraftForge.EVENT_BUS.post(event)) {
             return;
         }
@@ -52,7 +51,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
         renderGeoInstance(cap, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    public void renderModelInGui(GuiModelInstance instance, float entityYaw, float partialTick, PoseStack poseStack,
+    public void renderModelInGui(CustomGuiPlayerEntity instance, float entityYaw, float partialTick, PoseStack poseStack,
                                  MultiBufferSource bufferSource, int packedLight) {
         renderGeoInstance(instance, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
@@ -91,7 +90,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
     @Override
     @NotNull
     public ResourceLocation getTextureLocation(AbstractClientPlayer pEntity) {
-        return pEntity.getCapability(PlayerGeoCapabilityProvider.CAP).map(GeoInstance::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
+        return pEntity.getCapability(PlayerGeoCapabilityProvider.CAP).map(CustomPlayerEntity::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
     }
 
     @Override

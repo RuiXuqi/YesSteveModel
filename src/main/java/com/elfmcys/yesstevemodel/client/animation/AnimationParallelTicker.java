@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
-import com.elfmcys.yesstevemodel.geckolib3.geo.GeoInstance;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 
 public class AnimationParallelTicker {
-    private static final ReferenceArrayList<WeakReference<GeoInstance<?, ?>>> INSTANCE_LIST = new ReferenceArrayList<>(64);
+    private static final ReferenceArrayList<WeakReference<AnimatableEntity<?>>> INSTANCE_LIST = new ReferenceArrayList<>(64);
 
     public static void tickAll(final float partialTick) {
         final Minecraft mc = Minecraft.getInstance();
@@ -22,9 +22,9 @@ public class AnimationParallelTicker {
             return;
         }
 
-        final Iterator<WeakReference<GeoInstance<?, ?>>> iterator = INSTANCE_LIST.iterator();
+        final Iterator<WeakReference<AnimatableEntity<?>>> iterator = INSTANCE_LIST.iterator();
         while (iterator.hasNext()) {
-            final GeoInstance<?, ?> instance = iterator.next().get();
+            final AnimatableEntity<?> instance = iterator.next().get();
             if (instance == null) {
                 iterator.remove();
                 continue;
@@ -39,7 +39,7 @@ public class AnimationParallelTicker {
                 continue;
             }
 
-            final Entity entity = instance.getAnimatable().getEntity();
+            final Entity entity = instance.getEntity();
             if (entity instanceof AbstractClientPlayer) {
                 if (entity instanceof LocalPlayer) {
                     if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
@@ -60,7 +60,7 @@ public class AnimationParallelTicker {
         }
     }
 
-    public static void register(GeoInstance<?, ?> instance) {
+    public static void register(AnimatableEntity<?> instance) {
         INSTANCE_LIST.add(new WeakReference<>(instance));
     }
 }

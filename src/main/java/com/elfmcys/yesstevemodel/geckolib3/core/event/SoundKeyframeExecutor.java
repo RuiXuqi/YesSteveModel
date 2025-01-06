@@ -6,25 +6,25 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.event;
 
 import com.elfmcys.yesstevemodel.client.sound.CustomSoundInstance;
-import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.EventKeyFrame;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.init.ModSounds;
 import net.minecraft.client.Minecraft;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class SoundKeyframeEvecutor {
+public class SoundKeyframeExecutor {
     private final List<EventKeyFrame<String>> list;
     private List<CustomSoundInstance> cachePlaySounds;
     private int nextIndex = 0;
 
-    public SoundKeyframeEvecutor(List<EventKeyFrame<String>> list) {
+    public SoundKeyframeExecutor(List<EventKeyFrame<String>> list) {
         this.list = list;
         this.cachePlaySounds = new LinkedList<>();
     }
 
-    public <T extends IAnimatable<?>> void executeTo(T animatable, double currentTick) {
+    public void executeTo(AnimatableEntity<?> animatable, double currentTick) {
         while (!reachEnd()) {
             EventKeyFrame<String> keyFrame = list.get(nextIndex);
             if (keyFrame.getStartTick() > currentTick) {

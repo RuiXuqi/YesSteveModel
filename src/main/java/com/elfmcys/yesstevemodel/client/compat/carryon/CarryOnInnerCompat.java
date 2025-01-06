@@ -11,8 +11,8 @@ import tschipp.carryon.common.carry.CarryOnDataManager;
 
 public class CarryOnInnerCompat {
     static PlayState predicateCarryOn(AnimationEvent<CustomPlayerEntity> event) {
-        Player player = event.getAnimatable().getEntity();
-        if (player == null || event.getAnimatable().hasPreviewAnimation()) {
+        Player player = event.getAnimatableEntity().getEntity();
+        if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
         CarryOnInnerCompat.Type carryOnType = getCarryOnType(player);

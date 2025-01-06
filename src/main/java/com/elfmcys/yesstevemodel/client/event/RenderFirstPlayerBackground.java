@@ -9,7 +9,6 @@ import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoTranslucentRenderType;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -62,13 +61,13 @@ public class RenderFirstPlayerBackground {
             CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
             final PoseStack poseStack = event.getPoseStack();
             MultiBufferSource multiBufferSource = event.getMultiBufferSource();
-            CustomPlayerEntity customPlayer = cap.getAnimatable();
+            CustomPlayerEntity customPlayer = cap;
             if (MinecraftForge.EVENT_BUS.post(new SpecialPlayerRenderEvent(player, customPlayer, modelId))) {
                 return;
             }
 
-            ResourceLocation textureLocation = cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID;
-            int textureIndex = cap.isModelPresent() ? cap.getTextureIndex() : 0;
+            ResourceLocation textureLocation = cap.getTextureLocation();
+            int textureIndex = cap.getTextureIndex();
             var vertexConsumer = multiBufferSource.getBuffer(GeoTranslucentRenderType.create(textureLocation));
 
             if (renderer != null) {

@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PlayerModelScreen extends Screen {
-    private static final GuiModelInstance[] MODEL_PREVIEW_INSTANCE = new GuiModelInstance[10];
+    private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_INSTANCE = new CustomGuiPlayerEntity[10];
 
     private static int page = 0;
 
@@ -52,8 +52,8 @@ public class PlayerModelScreen extends Screen {
 
     static {
         for (int i = 0; i < MODEL_PREVIEW_INSTANCE.length; i++) {
-            GuiModelInstance instance = new GuiModelInstance();
-            instance.getAnimatable().setPreviewAnimation(AnimationRegister.IDLE);
+            CustomGuiPlayerEntity instance = new CustomGuiPlayerEntity();
+            instance.setPreviewAnimation(AnimationRegister.IDLE);
             MODEL_PREVIEW_INSTANCE[i] = instance;
         }
     }
@@ -61,8 +61,8 @@ public class PlayerModelScreen extends Screen {
     public PlayerModelScreen() {
         super(Component.literal("YSM Player Model GUI"));
         this.category = Category.ALL;
-        for (GuiModelInstance instance : MODEL_PREVIEW_INSTANCE) {
-            instance.getAnimatable().setPlayer(Minecraft.getInstance().player);
+        for (CustomGuiPlayerEntity instance : MODEL_PREVIEW_INSTANCE) {
+            instance.setPlayer(Minecraft.getInstance().player);
         }
     }
 
@@ -210,11 +210,11 @@ public class PlayerModelScreen extends Screen {
             int xStart = x + 143 + 55 * (i % 5);
             int yStart = y + 28 + 93 * (i / 5);
             if (minecraft != null && minecraft.player != null) {
-                final GuiModelInstance instance = MODEL_PREVIEW_INSTANCE[i];
+                final CustomGuiPlayerEntity instance = MODEL_PREVIEW_INSTANCE[i];
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                     var model = models.get(id);
                     instance.setModelAndTexture(id, model.defaultTextureName());
-                    instance.getAnimatable().setPreviewAnimation(model.modelInfo().properties().previewAnimation());
+                    instance.setPreviewAnimation(model.modelInfo().properties().previewAnimation());
                     addRenderableWidget(new ModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), instance, model));
                 });
             }

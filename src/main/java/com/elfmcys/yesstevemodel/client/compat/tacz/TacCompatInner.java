@@ -90,7 +90,7 @@ class TacCompatInner {
      */
     static PlayState playGunMainAnimation(AnimationEvent<CustomPlayerEntity> event, String animationName, ILoopType loopType) {
         String tacName = "tac:" + animationName;
-        String modelId = event.getAnimatable().getModelId();
+        String modelId = event.getAnimatableEntity().getModelId();
         Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, tacName);
         if (playerAnimation.isPresent()) {
             return playAnimation(event, tacName, loopType);
@@ -117,7 +117,7 @@ class TacCompatInner {
         }
         CommonGunIndex gunIndex = indexOptional.get();
         String weaponType = gunIndex.getType();
-        Player player = event.getAnimatable().getEntity();
+        Player player = event.getAnimatableEntity().getEntity();
         IGunOperator operator = IGunOperator.fromLivingEntity(player);
 
         if (!player.isSwimming() && player.getPose() == Pose.SWIMMING) {
@@ -163,7 +163,7 @@ class TacCompatInner {
 
         CommonGunIndex gunIndex = indexOptional.get();
         String weaponType = gunIndex.getType();
-        Player player = event.getAnimatable().getEntity();
+        Player player = event.getAnimatableEntity().getEntity();
         IGunOperator operator = IGunOperator.fromLivingEntity(player);
         long fireTick = operator.getSynShootCoolDown();
 
@@ -216,10 +216,10 @@ class TacCompatInner {
 
     @NotNull
     private static PlayState getGunTypeAnimation(AnimationEvent<CustomPlayerEntity> event, String weaponType, String prefix, ILoopType loopType) {
-        String modelId = event.getAnimatable().getModelId();
+        String modelId = event.getAnimatableEntity().getModelId();
         ConditionTAC conditionTAC = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
         if (conditionTAC != null) {
-            ItemStack stack = event.getAnimatable().getEntity().getMainHandItem();
+            ItemStack stack = event.getAnimatableEntity().getEntity().getMainHandItem();
             String name = conditionTAC.doTest(stack, prefix);
             if (StringUtils.isNoneBlank(name)) {
                 return playAnimation(event, name, loopType);

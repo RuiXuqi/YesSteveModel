@@ -3,13 +3,12 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 
-public class GuiModelInstance extends CustomPlayerInstance {
-    public GuiModelInstance() {
+public class CustomGuiPlayerEntity extends CustomPlayerEntity {
+    public CustomGuiPlayerEntity() {
         super(Minecraft.getInstance().player, false, false);
     }
 
@@ -19,13 +18,17 @@ public class GuiModelInstance extends CustomPlayerInstance {
     }
 
     @Override
-    protected AnimationEvent<CustomPlayerEntity> performUpdate(float partialTicks) {
+    protected AnimationEvent<?> performUpdate(float partialTicks) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return null;
         }
-        animatable.setPlayer(player);
+        setPlayer(player);
         return super.performUpdate(partialTicks);
+    }
+
+    public void setPlayer(LocalPlayer player) {
+        entity = player;
     }
 
     public void waitForCapabilityUpdate() {

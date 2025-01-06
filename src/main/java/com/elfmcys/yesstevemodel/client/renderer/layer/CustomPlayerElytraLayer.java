@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
-import com.elfmcys.yesstevemodel.client.instance.CustomPlayerInstance;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
@@ -21,7 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 
-public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerInstance> {
+public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerEntity> {
     private static final ResourceLocation WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
     private final ElytraModel<LivingEntity> elytraModel;
 
@@ -30,10 +30,10 @@ public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerInstan
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerInstance instance, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        AbstractClientPlayer player = instance.getAnimatable().getEntity();
+    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity instance, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
+        AbstractClientPlayer player = instance.getEntity();
         ItemStack stack = EquipmentUtil.getEquippedElytraItem(player);
-        GeoModelState geoModel = instance.getAnimatableModel().getCurrentModel();
+        GeoModelState geoModel = instance.getCurrentModel();
         if (!stack.isEmpty() && geoModel != null) {
             if (!geoModel.elytraBones().isEmpty()) {
                 ResourceLocation texture;

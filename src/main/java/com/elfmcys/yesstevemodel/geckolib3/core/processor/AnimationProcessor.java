@@ -1,7 +1,5 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.processor;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatable;
-import com.elfmcys.yesstevemodel.geckolib3.core.IAnimatableModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
@@ -15,6 +13,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
@@ -30,8 +29,8 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class AnimationProcessor<T extends IAnimatable<?>> {
+@SuppressWarnings({"unchecked"})
+public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private static final int ROAMING_STRUCT_NAME = StringPool.computeIfAbsent("roaming");
 
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelRendererList = new ReferenceArrayList<>();
@@ -41,7 +40,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
     private final DebugInfo debugInfo = new DebugInfo();
     private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
     private final RateLimiter rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
-    private final IAnimatableModel animatedModel;
+    private final T animatable;
 
     private List<IValue> initializationValues;
     private List<IValue> preAnimationValues;
@@ -49,12 +48,12 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
     private boolean rendererDirty = false;
     public boolean reloadAnimations = false;
 
-    public AnimationProcessor(IAnimatableModel animatedModel) {
-        this.animatedModel = animatedModel;
+    public AnimationProcessor(T animatable) {
+        this.animatable = animatable;
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public boolean tickAnimation(IAnimatable entity, double seekTime, boolean forceUpdate, AnimationEvent<T> event, AnimationContext<?> ctx, boolean crashWhenCantFindBone) {
+    public boolean tickAnimation(double seekTime, boolean forceUpdate, AnimationEvent<T> event, AnimationContext<?> ctx) {
         var shouldUpdate = rateLimiter.request((float) (seekTime / 20));
         if (!forceUpdate && !shouldUpdate) {
             return false;
@@ -66,7 +65,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
         preProcess(evaluator);
 
         // InstancedAnimationFactory 仅保有一个 AnimationData 实例，与传入的 uniqueID 无关
-        AnimationData manager = entity.getFactory().getOrCreateAnimationData(0, animatedModel);
+        AnimationData manager = this.animatable.getAnimationData();
         for (AnimationController<T> controller : manager.getAnimationControllers()) {
             if (reloadAnimations) {
                 controller.markNeedsReload();
@@ -76,7 +75,7 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
             // 将当前控制器设置为动画测试事件
             event.setController(controller);
             // 处理动画并向点队列添加新值
-            controller.process(seekTime, event, evaluator, modelRendererList, crashWhenCantFindBone, rendererDirty, shouldUpdate);
+            controller.process(seekTime, event, evaluator, modelRendererList, rendererDirty, shouldUpdate);
             boolean isParallelController = controller.getName().startsWith("parallel_");
             // 遍历每个骨骼，并对属性进行插值计算
             for (BoneAnimationQueue boneAnimation : controller.getBoneAnimationQueues()) {
@@ -208,10 +207,6 @@ public class AnimationProcessor<T extends IAnimatable<?>> {
 
     public boolean isModelRendererEmpty() {
         return modelRendererList.isEmpty();
-    }
-
-    public void preAnimationSetup(IAnimatable animatable, double seekTime) {
-
     }
 
     private void preProcess(ExpressionEvaluator<AnimationContext<?>> evaluator) {

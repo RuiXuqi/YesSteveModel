@@ -72,7 +72,7 @@ public class MolangCommand {
         }
         Minecraft.getInstance().execute(() ->
                 Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                    cap.getAnimatableModel().getDebugInfo().add(phase, expName, value);
+                    cap.getDebugInfo().add(phase, expName, value);
                 }));
 
         return Command.SINGLE_SUCCESS;
@@ -85,7 +85,7 @@ public class MolangCommand {
         String expName = StringArgumentType.getString(ctx, EXPRESSION_NAME_NAME);
         Minecraft.getInstance().execute(() ->
                 Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                    cap.getAnimatableModel().getDebugInfo().remove(expName);
+                    cap.getDebugInfo().remove(expName);
                 }));
 
         return Command.SINGLE_SUCCESS;
@@ -97,7 +97,7 @@ public class MolangCommand {
         }
         Minecraft.getInstance().execute(() ->
                 Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                    cap.getAnimatableModel().getDebugInfo().clear();
+                    cap.getDebugInfo().clear();
                 }));
 
         return Command.SINGLE_SUCCESS;
@@ -117,7 +117,7 @@ public class MolangCommand {
         }
 
         Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.getAnimatableModel().execute(value, result -> {
+            cap.executeMolangExp(value, result -> {
                 Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.result", result));
             });
         });

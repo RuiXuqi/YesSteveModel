@@ -10,7 +10,6 @@ import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoTranslucentRenderType;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -45,13 +44,13 @@ public class ReplacePlayerHandRenderEvent {
             final PoseStack poseStack = event.getPoseStack();
             MultiBufferSource multiBufferSource = event.getMultiBufferSource();
 
-            CustomPlayerEntity customPlayer = cap.getAnimatable();
+            CustomPlayerEntity customPlayer = cap;
             SpecialPlayerRenderEvent renderEvent = new SpecialPlayerRenderEvent(player, customPlayer, modelId);
             if (MinecraftForge.EVENT_BUS.post(renderEvent)) {
                 return;
             }
-            ResourceLocation textureLocation = renderEvent.getTextureLocationOverride() != null ? renderEvent.getTextureLocationOverride() : (cap.isModelPresent() ? cap.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID);
-            int textureIndex = renderEvent.getTextureLocationOverride() == null && cap.isModelPresent() ? cap.getTextureIndex() : 0;
+            ResourceLocation textureLocation = renderEvent.getTextureLocationOverride() != null ? renderEvent.getTextureLocationOverride() : cap.getTextureLocation();
+            int textureIndex = renderEvent.getTextureLocationOverride() == null ? cap.getTextureIndex() : 0;
             var vertexConsumer = multiBufferSource.getBuffer(GeoTranslucentRenderType.create(textureLocation));
 
             if (renderer != null) {

@@ -4,12 +4,12 @@ import com.elfmcys.yesstevemodel.api.ILivingRenderer;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.yesstevemodel.geckolib3.util.IRenderCycle;
 import com.elfmcys.yesstevemodel.mixin.client.LivingEntityAccessor;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -34,8 +34,8 @@ import org.joml.Matrix4f;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TInstance extends GeoInstance<?, ?>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<TInstance> {
-    protected final List<GeoLayerRenderer<TInstance>> layerRenderers = new ObjectArrayList<>();
+public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T extends AnimatableEntity<TEntity>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<T> {
+    protected final List<GeoLayerRenderer<T>> layerRenderers = new ObjectArrayList<>();
     protected Matrix4f dispatchedMat = new Matrix4f();
     protected Matrix4f renderEarlyMat = new Matrix4f();
     protected MultiBufferSource rtb = null;
@@ -61,7 +61,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
     }
 
     @Override
-    public void renderEarly(TInstance instance, PoseStack poseStack, float partialTick,
+    public void renderEarly(T instance, PoseStack poseStack, float partialTick,
                             MultiBufferSource bufferSource, VertexConsumer buffer, int packedLight, int packedOverlayIn,
                             float red, float green, float blue, float alpha) {
         this.renderEarlyMat = new Matrix4f(poseStack.last().pose());
@@ -69,13 +69,13 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
     }
 
     @SuppressWarnings("unchecked")
-    protected void renderGeoInstance(TInstance instance, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
+    protected void renderGeoInstance(T instance, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
                                      MultiBufferSource bufferSource, int packedLight) {
         AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
 
-        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>((LivingEntity) instance.getAnimatable().getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
+        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(instance.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
-        final TEntity entity = (TEntity) instance.getAnimatable().getEntity();
+        final TEntity entity = (TEntity) instance.getEntity();
         if (event != null) {
             final EntityModelData data = (EntityModelData) event.getExtraData().get(0);
             this.dispatchedMat = new Matrix4f(poseStack.last().pose());
@@ -96,10 +96,10 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
             poseStack.translate(0, 0.01f, 0);
 
             Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
-            var renderType = getRenderType(textureLocationOverride != null ? textureLocationOverride : (instance.isModelPresent() ? instance.getTextureLocation() : ModelIdUtil.DEFAULT_TEXTURE_ID));
-            var textureIndex = textureLocationOverride == null && instance.isModelPresent() ? instance.getTextureIndex() : 0;
+            var renderType = getRenderType(textureLocationOverride != null ? textureLocationOverride : instance.getTextureLocation());
+            var textureIndex = textureLocationOverride == null ? instance.getTextureIndex() : 0;
 
-            GeoModelState model = instance.getAnimatableModel().getCurrentModel();
+            GeoModelState model = instance.getCurrentModel();
             boolean renderLayersFirst = ClientModelManager.getModel(instance.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
             if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
                 preRender(model, instance, partialTick, renderType, poseStack, bufferSource, null,
@@ -107,7 +107,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
                 if (renderLayersFirst && !entity.isSpectator()) {
-                    for (GeoLayerRenderer<TInstance> layerRenderer : this.layerRenderers) {
+                    for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
                         layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
                                 data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
                     }
@@ -117,7 +117,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
                 if (!renderLayersFirst && !entity.isSpectator()) {
-                    for (GeoLayerRenderer<TInstance> layerRenderer : this.layerRenderers) {
+                    for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
                         layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
                                 data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
                     }
@@ -178,7 +178,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, TI
         return entity == this.entityRenderDispatcher.crosshairPickEntity && entity.hasCustomName() && Minecraft.renderNames();
     }
 
-    public final boolean addLayer(GeoLayerRenderer<TInstance> layer) {
+    public final boolean addLayer(GeoLayerRenderer<T> layer) {
         return this.layerRenderers.add(layer);
     }
 
