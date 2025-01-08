@@ -19,9 +19,11 @@ public class RateLimiter {
             return false;
         }
 
-        do {
-            aggregate -= interval;
-        } while (aggregate >= interval);
+        this.aggregate = this.aggregate % this.interval;
         return true;
+    }
+
+    public float getInterval() {
+        return interval;
     }
 }

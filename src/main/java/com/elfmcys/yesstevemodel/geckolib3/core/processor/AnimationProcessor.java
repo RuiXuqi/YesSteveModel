@@ -1,5 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.processor;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.SecondOrder;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
@@ -14,19 +16,22 @@ import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 @SuppressWarnings({"unchecked"})
@@ -39,6 +44,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private final Random random = new Random();
     private final DebugInfo debugInfo = new DebugInfo();
     private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
+    private final ConcurrentMap<String, SecondOrder> physicsValues = new ConcurrentHashMap<>();
     private final RateLimiter rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
     private final T animatable;
 
@@ -196,6 +202,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             this.modelRendererList.add(renderer);
         }
         this.animationStorage.initialize(null);
+        this.physicsValues.clear();
         this.rendererDirty = true;
     }
 
@@ -203,6 +210,18 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         if (remoteStruct != null) {
             animationStorage.setScoped(ROAMING_STRUCT_NAME, remoteStruct);
         }
+    }
+
+    public double putIfAbsentPhysicsValue(String argumentIn, float frequency, float coefficient, float response) {
+        try {
+            IValue argument = CustomMolangParser.parseSingleExpressionUnsafe(argumentIn);
+            SecondOrder secondOrder = new SecondOrder(argument, frequency, coefficient, response);
+            SecondOrder order = this.physicsValues.putIfAbsent(argumentIn, secondOrder);
+            return order == null ? 0 : order.getValue();
+        } catch (ParseException e) {
+            e.fillInStackTrace();
+        }
+        return 0;
     }
 
     public boolean isModelRendererEmpty() {
@@ -225,8 +244,9 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     private void postProcess(ExpressionEvaluator<AnimationContext<?>> evaluator) {
+        physicsValues.forEach((key, value) -> value.update(evaluator, this.rateLimiter.getInterval()));
         debugInfo.evaluatePost(evaluator);
-        while(!pendingValues.isEmpty()) {
+        while (!pendingValues.isEmpty()) {
             Pair<IValue, Consumer<String>> pair = pendingValues.poll();
             String result;
             try {

@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.animation.molang;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.*;
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.SecondOrderFunction;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.FirstPersonModHideVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.LadderFacingVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.TextureNameVariable;
@@ -112,6 +113,8 @@ public class YSMBinding extends ContextBinding {
         playerVar("entity_gravity", ctx -> ctx.entity().getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()));
         playerVar("step_height_addition", ctx -> ctx.entity().getAttributeValue(ForgeMod.STEP_HEIGHT_ADDITION.get()));
         playerVar("nametag_distance", ctx -> ctx.entity().getAttributeValue(ForgeMod.NAMETAG_DISTANCE.get()));
+
+        function("second_order", new SecondOrderFunction());
 
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());
