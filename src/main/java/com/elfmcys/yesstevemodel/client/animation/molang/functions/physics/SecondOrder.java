@@ -10,7 +10,7 @@ import net.minecraft.util.Mth;
  *
  * <a href="https://www.youtube.com/watch?v=KPoeNZZ6H4s">Giving Personality to Procedural Animations using Math</a>
  */
-public class SecondOrder {
+public class SecondOrder implements IPhysics {
     private final IValue argument;
     private final double k1;
     private final double k2;
@@ -29,6 +29,7 @@ public class SecondOrder {
         this.k3 = response * coefficient / 2 / Math.PI / frequency;
     }
 
+    @Override
     public void update(ExpressionEvaluator<AnimationContext<?>> evaluator, double timeStep) {
         double input = this.argument.evalAsDouble(evaluator);
 
@@ -42,6 +43,7 @@ public class SecondOrder {
         lastSimulationDot = tmpLastSimulationDot;
     }
 
+    @Override
     public double getValue() {
         return lastSimulation;
     }

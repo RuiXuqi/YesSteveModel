@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.processor;
 
-import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
-import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.SecondOrder;
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.IPhysics;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
@@ -16,7 +15,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
-import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
@@ -44,7 +42,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private final Random random = new Random();
     private final DebugInfo debugInfo = new DebugInfo();
     private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
-    private final ConcurrentMap<String, SecondOrder> physicsValues = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Integer, IPhysics> physicsValues = new ConcurrentHashMap<>();
     private final RateLimiter rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
     private final T animatable;
 
@@ -212,16 +210,13 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         }
     }
 
-    public double putIfAbsentPhysicsValue(String argumentIn, float frequency, float coefficient, float response) {
-        try {
-            IValue argument = CustomMolangParser.parseSingleExpressionUnsafe(argumentIn);
-            SecondOrder secondOrder = new SecondOrder(argument, frequency, coefficient, response);
-            SecondOrder order = this.physicsValues.putIfAbsent(argumentIn, secondOrder);
-            return order == null ? 0 : order.getValue();
-        } catch (ParseException e) {
-            e.fillInStackTrace();
-        }
-        return 0;
+    public void putPhysicsValue(Integer key, IPhysics physics) {
+        this.physicsValues.put(key, physics);
+    }
+
+    @Nullable
+    public IPhysics getPhysicsValue(Integer key) {
+        return this.physicsValues.get(key);
     }
 
     public boolean isModelRendererEmpty() {
