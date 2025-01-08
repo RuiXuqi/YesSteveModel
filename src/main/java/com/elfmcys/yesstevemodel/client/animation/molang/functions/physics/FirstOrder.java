@@ -6,7 +6,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 
 public class FirstOrder implements IPhysics {
     private final IValue argument;
-    private final float response;
+    private float response;
     private double lastSimulation = 0;
 
     public FirstOrder(IValue argument, float response) {
@@ -17,7 +17,12 @@ public class FirstOrder implements IPhysics {
     @Override
     public void update(ExpressionEvaluator<AnimationContext<?>> evaluator, double timeStep) {
         double input = this.argument.evalAsDouble(evaluator);
-        lastSimulation = (1 - timeStep / this.response) * lastSimulation + timeStep / this.response * input;
+        lastSimulation = (1 - timeStep / response) * lastSimulation + timeStep / response * input;
+    }
+
+    @Override
+    public void setArgs(float... args) {
+        this.response = args[0];
     }
 
     @Override

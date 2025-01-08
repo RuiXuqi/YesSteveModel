@@ -29,13 +29,14 @@ public class FirstOrderFunction extends EntityFunction {
         }
 
         // 将所有的参数作为 key，这样相同参数的函数值可以复用，不同参数的函数值不会冲突
-        Integer key = Objects.hash("FirstOrder", input, response);
+        Integer key = Objects.hash("FirstOrder", input);
         AnimationProcessor<?> processor = context.entity().animatableEntity().getAnimationProcessor();
         IPhysics physicsValue = processor.getPhysicsValue(key);
         if (physicsValue == null) {
             putValue(input, response, processor, key);
             return 0;
         }
+        physicsValue.setArgs(response);
         return physicsValue.getValue();
     }
 

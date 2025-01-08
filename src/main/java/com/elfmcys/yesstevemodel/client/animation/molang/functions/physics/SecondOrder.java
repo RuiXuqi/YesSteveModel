@@ -12,26 +12,29 @@ import net.minecraft.util.Mth;
  */
 public class SecondOrder implements IPhysics {
     private final IValue argument;
-    private final double k1;
-    private final double k2;
-    private final double k3;
 
     private double inputFunction = 0;
     private double lastSimulation = 0;
     private double lastSimulationDot = 0;
+    private float[] args = new float[3];
 
     public SecondOrder(IValue argument, float frequency, float coefficient, float response) {
         this.argument = argument;
-        frequency = Mth.clamp(frequency, 0, 5);
-        coefficient = Mth.clamp(coefficient, 0, 1);
-        this.k1 = coefficient / Math.PI / frequency;
-        this.k2 = 1 / (2 * Math.PI * frequency) / (2 * Math.PI * frequency);
-        this.k3 = response * coefficient / 2 / Math.PI / frequency;
+        this.args[0] = Mth.clamp(frequency, 0, 5);
+        this.args[1] = Mth.clamp(coefficient, 0, 1);
+        this.args[2] = response;
     }
 
     @Override
     public void update(ExpressionEvaluator<AnimationContext<?>> evaluator, double timeStep) {
         double input = this.argument.evalAsDouble(evaluator);
+        float frequency = Mth.clamp(args[0], 0, 5);
+        float coefficient = Mth.clamp(args[1], 0, 1);
+        float response = args[2];
+
+        double k1 = coefficient / Math.PI / frequency;
+        double k2 = 1 / (2 * Math.PI * frequency) / (2 * Math.PI * frequency);
+        double k3 = response * coefficient / 2 / Math.PI / frequency;
 
         double inputFunctionDot = (input - inputFunction) / timeStep;
         inputFunction = input;
@@ -41,6 +44,11 @@ public class SecondOrder implements IPhysics {
 
         lastSimulation = tmpLastSimulation;
         lastSimulationDot = tmpLastSimulationDot;
+    }
+
+    @Override
+    public void setArgs(float... args) {
+        this.args = args;
     }
 
     @Override

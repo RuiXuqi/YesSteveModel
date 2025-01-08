@@ -35,13 +35,14 @@ public class SecondOrderFunction extends EntityFunction {
         }
 
         // 将所有的参数作为 key，这样相同参数的函数值可以复用，不同参数的函数值不会冲突
-        Integer key = Objects.hash("SecondOrder", input, frequency, coefficient, response);
+        Integer key = Objects.hash("SecondOrder", input);
         AnimationProcessor<?> processor = context.entity().animatableEntity().getAnimationProcessor();
         IPhysics physicsValue = processor.getPhysicsValue(key);
         if (physicsValue == null) {
             putValue(input, frequency, coefficient, response, processor, key);
             return 0;
         }
+        physicsValue.setArgs(frequency, coefficient, response);
         return physicsValue.getValue();
     }
 

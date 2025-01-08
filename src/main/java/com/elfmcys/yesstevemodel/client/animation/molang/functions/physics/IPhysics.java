@@ -6,5 +6,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 public interface IPhysics {
     void update(ExpressionEvaluator<AnimationContext<?>> evaluator, double timeStep);
 
+    void setArgs(float... args);
+
     double getValue();
 }
