@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.functions.HandItemCheck
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.RideCheck;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
@@ -54,6 +55,7 @@ public class CtrlBinding extends ContextBinding {
         TACZCompat.addBinding(this);
         SwemCompat.addBinding(this);
         ParCoolCompat.addBinding(this);
+        SlashBladeCompat.addBinding(this);
     }
 
     private static boolean isMoving(LivingEntity entity) {

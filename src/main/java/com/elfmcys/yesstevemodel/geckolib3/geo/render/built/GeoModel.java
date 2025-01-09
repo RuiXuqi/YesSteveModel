@@ -34,6 +34,11 @@ public class GeoModel {
     @NotNull
     public final List<String> rightShoulderBones;
 
+    @NotNull
+    public final List<String> bladeBones;
+    @NotNull
+    public final List<String> sheathBones;
+
     public final boolean hasFirstPersonLeftArm;
     public final boolean hasFirstPersonRightArm;
     public final boolean hasFirstPersonBackground;
@@ -60,6 +65,9 @@ public class GeoModel {
         this.rightWaistBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[6]));
         this.leftShoulderBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[7]));
         this.rightShoulderBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[8]));
+
+        this.bladeBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[9]));
+        this.sheathBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[10]));
 
         hasFirstPersonLeftArm = hasRendererFeature[0];
         hasFirstPersonRightArm = hasRendererFeature[1];

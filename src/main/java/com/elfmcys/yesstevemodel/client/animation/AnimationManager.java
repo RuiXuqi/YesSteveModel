@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.*;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
@@ -248,6 +249,22 @@ public final class AnimationManager {
         if (player == null || event.getAnimatableEntity().hasPreviewAnimation()) {
             return PlayState.STOP;
         }
+
+        // 拔刀剑兼容，拔刀剑的使用不受 swing 限制
+        if (!player.isSleeping()) {
+            String animationName = SlashBladeCompat.getAnimationName(event);
+            if (StringUtils.isNoneBlank(animationName)) {
+                String id = event.getAnimatableEntity().getModelId();
+                return ClientModelManager.getModel(id).map(clientModel -> {
+                    if (clientModel.animations().containsKey(animationName)) {
+                        return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                    }
+                    return PlayState.STOP;
+                }).orElse(PlayState.STOP);
+            }
+        }
+
+        // 其他情况
         if (player.swinging && !player.isSleeping()) {
             if (player.swingTime == 0) {
                 // 空动画用于重置 PLAY_ONCE 动画

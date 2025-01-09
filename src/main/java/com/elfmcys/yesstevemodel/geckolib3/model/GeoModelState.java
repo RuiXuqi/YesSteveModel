@@ -38,6 +38,10 @@ public class GeoModelState {
     private final List<IBone> leftShoulderBones;
     @NotNull
     private final List<IBone> rightShoulderBones;
+    @NotNull
+    private final List<IBone> bladeBones;
+    @NotNull
+    private final List<IBone> sheathBones;
     @Nullable
     private final IBone firstPersonHead;
     @Nullable
@@ -67,6 +71,8 @@ public class GeoModelState {
         rightWaistBones = findBones(model.rightWaistBones);
         leftShoulderBones = findBones(model.leftShoulderBones);
         rightShoulderBones = findBones(model.rightShoulderBones);
+        bladeBones = findBones(model.bladeBones);
+        sheathBones = findBones(model.sheathBones);
         firstPersonHead = boneMap.get("AllHead");
         firstPersonViewLocator = boneMap.get("ViewLocator");
     }
@@ -139,6 +145,14 @@ public class GeoModelState {
     @NotNull
     public List<IBone> rightShoulderBones() {
         return rightShoulderBones;
+    }
+
+    public @NotNull List<IBone> bladeBones() {
+        return bladeBones;
+    }
+
+    public @NotNull List<IBone> sheathBones() {
+        return sheathBones;
     }
 
     @Nullable
