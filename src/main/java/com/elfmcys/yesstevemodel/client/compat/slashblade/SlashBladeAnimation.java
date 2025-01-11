@@ -1,6 +1,11 @@
 package com.elfmcys.yesstevemodel.client.compat.slashblade;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
@@ -14,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.Optional;
 
 public class SlashBladeAnimation {
     static String getAnimationName(AnimationEvent<CustomPlayerEntity> event) {
@@ -24,6 +30,21 @@ public class SlashBladeAnimation {
     static String getAnimationName(IContext<AbstractClientPlayer> context) {
         AbstractClientPlayer player = context.entity();
         return getCombName(player.getMainHandItem(), player.level());
+    }
+
+    /**
+     * slashblade:idle
+     * slashblade:run
+     * slashblade:walk
+     */
+    static PlayState playMainAnimation(AnimationEvent<CustomPlayerEntity> event, String animationName, ILoopType loopType) {
+        String name = "slashblade:" + animationName;
+        String modelId = event.getAnimatableEntity().getModelId();
+        Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, name);
+        if (playerAnimation.isPresent()) {
+            return playAnimation(event, name, loopType);
+        }
+        return playAnimation(event, animationName, loopType);
     }
 
     @NotNull
@@ -40,5 +61,11 @@ public class SlashBladeAnimation {
             }
             return StringUtils.EMPTY;
         }).orElse(StringUtils.EMPTY);
+    }
+
+    @NotNull
+    private static PlayState playAnimation(AnimationEvent<?> event, String animationName, ILoopType loopType) {
+        event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
+        return PlayState.CONTINUE;
     }
 }

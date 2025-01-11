@@ -148,6 +148,14 @@ public final class AnimationManager {
                 if (state.getPredicate().test(player, event)) {
                     String animationName = state.getAnimationName();
                     ILoopType loopType = state.getLoopType();
+
+                    // 先判断拔刀剑动画
+                    PlayState slashBladeAnimation = SlashBladeCompat.playMainAnimation(player, event, animationName, loopType);
+                    if (slashBladeAnimation != null) {
+                        return slashBladeAnimation;
+                    }
+
+                    // 再判断 tacz 动画
                     PlayState gunMainAnimation = TACZCompat.playGunMainAnimation(player, event, animationName, loopType);
                     return Objects.requireNonNullElseGet(gunMainAnimation, () -> playAnimation(event, animationName, loopType));
                 }
@@ -251,7 +259,11 @@ public final class AnimationManager {
         }
 
         // 拔刀剑兼容，拔刀剑的使用不受 swing 限制
-        if (!player.isSleeping()) {
+        if (!player.isSleeping() && SlashBladeCompat.isSlashBladeItem(player.getItemInHand(InteractionHand.MAIN_HAND))) {
+            // 起手阻止后续原挥剑动画
+            if (player.swingTime == 0) {
+                return PlayState.CONTINUE;
+            }
             String animationName = SlashBladeCompat.getAnimationName(event);
             if (StringUtils.isNoneBlank(animationName)) {
                 String id = event.getAnimatableEntity().getModelId();

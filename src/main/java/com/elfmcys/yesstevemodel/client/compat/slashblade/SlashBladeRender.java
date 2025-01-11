@@ -84,7 +84,7 @@ public class SlashBladeRender {
             // 移动到定位组
             RenderUtils.prepMatrixForLocator(matrixStack, leftWaistBones);
             // 定位点定在刀中心，刀朝向前方（默认）
-            matrixStack.translate(0, 0, -0.7);
+            matrixStack.translate(0, 0.025, -0.6);
             matrixStack.scale(0.01F, 0.01F, 0.01F);
             matrixStack.mulPose(Axis.YP.rotationDegrees(-90));
             matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
@@ -104,8 +104,8 @@ public class SlashBladeRender {
 
             // 移动到定位组
             RenderUtils.prepMatrixForLocator(matrixStack, bladeBones);
-            // 定位点定在刀中心，刀朝向前方（默认）
-            matrixStack.translate(0, 0, -0.7);
+            // 定位点定在刀柄中心，刀朝向前方（默认）
+            matrixStack.translate(0, 0.035, 0);
             matrixStack.scale(0.01F, 0.01F, 0.01F);
             matrixStack.mulPose(Axis.YP.rotationDegrees(-90));
             matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
@@ -123,8 +123,8 @@ public class SlashBladeRender {
 
             // 移动到定位组
             RenderUtils.prepMatrixForLocator(matrixStack, sheathBones);
-            // 定位点定在刀中心，刀朝向前方（默认）
-            matrixStack.translate(0, 0, -0.7);
+            // 定位点定在刀鞘最末端，刀朝向前方（默认）
+            matrixStack.translate(0, 0.025, -0.6);
             matrixStack.scale(0.01F, 0.01F, 0.01F);
             matrixStack.mulPose(Axis.YP.rotationDegrees(-90));
             matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
