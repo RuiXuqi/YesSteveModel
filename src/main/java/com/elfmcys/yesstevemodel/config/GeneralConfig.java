@@ -12,6 +12,7 @@ public class GeneralConfig {
     public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_ID;
     public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_TEXTURE;
     public static ForgeConfigSpec.BooleanValue USE_COMPATIBILITY_RENDERER;
+    public static ForgeConfigSpec.DoubleValue SOUND_VOLUME;
 
     public static ForgeConfigSpec init() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -50,6 +51,9 @@ public class GeneralConfig {
 
         builder.comment("If rendering errors occur, try turning on this.");
         USE_COMPATIBILITY_RENDERER = builder.define("UseCompatibilityRenderer", false);
+
+        builder.comment("The amount of volume when the animation is played.");
+        SOUND_VOLUME = builder.defineInRange("SoundVolume", 100.0, 0.0, 100.0);
 
         builder.pop();
     }

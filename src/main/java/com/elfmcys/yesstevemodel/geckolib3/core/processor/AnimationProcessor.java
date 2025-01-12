@@ -42,7 +42,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private final Random random = new Random();
     private final DebugInfo debugInfo = new DebugInfo();
     private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
-    private final ConcurrentMap<Integer, IPhysics> physicsValues = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, IPhysics> physicsValues = new ConcurrentHashMap<>();
     private final RateLimiter rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
     private final T animatable;
 
@@ -210,12 +210,12 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         }
     }
 
-    public void putPhysicsValue(Integer key, IPhysics physics) {
+    public void putPhysicsValue(String key, IPhysics physics) {
         this.physicsValues.put(key, physics);
     }
 
     @Nullable
-    public IPhysics getPhysicsValue(Integer key) {
+    public IPhysics getPhysicsValue(String key) {
         return this.physicsValues.get(key);
     }
 
@@ -239,7 +239,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     private void postProcess(ExpressionEvaluator<AnimationContext<?>> evaluator) {
-        physicsValues.forEach((key, value) -> value.update(evaluator, this.rateLimiter.getInterval()));
+        physicsValues.forEach((key, value) -> value.update(this.rateLimiter.getInterval()));
         debugInfo.evaluatePost(evaluator);
         while (!pendingValues.isEmpty()) {
             Pair<IValue, Consumer<String>> pair = pendingValues.poll();

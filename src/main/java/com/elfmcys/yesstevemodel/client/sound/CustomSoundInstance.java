@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.sound;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.mojang.blaze3d.audio.SoundBuffer;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -24,6 +25,7 @@ public class CustomSoundInstance extends AbstractTickableSoundInstance {
 
     @Override
     public void tick() {
+        this.volume = GeneralConfig.SOUND_VOLUME.get().floatValue() / 100.0f;
         if (this.entity.isRemoved()) {
             this.stop();
         } else {

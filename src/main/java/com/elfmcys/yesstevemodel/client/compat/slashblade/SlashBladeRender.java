@@ -108,7 +108,7 @@ public class SlashBladeRender {
             matrixStack.translate(0, 0.035, 0);
             matrixStack.scale(0.01F, 0.01F, 0.01F);
             matrixStack.mulPose(Axis.YP.rotationDegrees(-90));
-            matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(180));
 
             BladeRenderState.renderOverrided(stack, obj, part, texture, matrixStack, bufferIn, lightIn);
             BladeRenderState.renderOverridedLuminous(stack, obj, part + "_luminous", texture, matrixStack, bufferIn, lightIn);

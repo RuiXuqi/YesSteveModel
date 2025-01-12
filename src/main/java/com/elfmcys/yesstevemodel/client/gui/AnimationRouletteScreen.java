@@ -430,6 +430,11 @@ public class AnimationRouletteScreen extends Screen {
                 if (buttonMap.containsKey(configValue)) {
                     ExtraAnimationButton button = buttonMap.get(configValue);
                     animationValue = button.getName();
+
+                    int configR = 35;
+                    int configIconX = (int) (x + configR * Mth.cos(startDeg));
+                    int configIconY = (int) (y + configR * Mth.sin(startDeg) - font.lineHeight / 2f);
+                    graphics.drawCenteredString(font, Component.literal("⚙").withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD), configIconX, configIconY, 0xFFFFFF);
                 }
             }
 
@@ -511,11 +516,14 @@ public class AnimationRouletteScreen extends Screen {
             isSelected = onDrawFan(startDeg, theta, endDeg, distance, isSelected, hasConfig, i, bufferbuilder, pMatrix);
 
             boolean isConfigHover = startDeg < theta && theta < endDeg && 20 < distance && distance < 50;
-            if (isConfigHover && hasConfig) {
-                drawFan(bufferbuilder, pMatrix, 15, 50, startDeg, endDeg, 0xf000ceff);
-
-                isConfigSelected = true;
-                this.hoverConfigId = index;
+            if (hasConfig) {
+                if (isConfigHover) {
+                    drawFan(bufferbuilder, pMatrix, 15, 50, startDeg, endDeg, 0xf000ceff);
+                    isConfigSelected = true;
+                    this.hoverConfigId = index;
+                } else {
+                    drawFan(bufferbuilder, pMatrix, 25, 50, startDeg, endDeg, 0x7000ceff);
+                }
             }
         }
         if (!isSelected) {

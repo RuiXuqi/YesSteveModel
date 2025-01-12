@@ -12,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -26,7 +27,23 @@ public class TACZCompat {
     public static void addBinding(CtrlBinding ctrlBinding) {
         if (isInstalled()) {
             TacCtrlBinding.addInnerBinding(ctrlBinding);
+        } else {
+            addEmptyBinding(ctrlBinding);
         }
+    }
+
+    /**
+     * 没有安装此模组时，这些 molang 应该存在，否则会报错
+     */
+    private static void addEmptyBinding(CtrlBinding binding) {
+        binding.playerVar("tac_hold_gun", ctx -> false);
+        binding.playerVar("tac_gun_type", ctx -> StringUtils.EMPTY);
+        binding.playerVar("tac_gun_id", ctx -> StringUtils.EMPTY);
+        binding.playerVar("tac_is_fire", ctx -> false);
+        binding.playerVar("tac_is_aim", ctx -> false);
+        binding.playerVar("tac_is_reload", ctx -> false);
+        binding.playerVar("tac_is_melee", ctx -> false);
+        binding.playerVar("tac_is_draw", ctx -> false);
     }
 
     public static void renderOffsetHand(ItemStack offhandItem, GeoModelState geoModel, LivingEntity livingEntity, PoseStack poseStack, int packedLight, float partialTicks) {

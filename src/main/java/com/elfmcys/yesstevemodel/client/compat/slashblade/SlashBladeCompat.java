@@ -41,6 +41,15 @@ public class SlashBladeCompat {
     public static void addBinding(CtrlBinding binding) {
         if (isSlashBladeLoaded()) {
             SlashBladeBinding.addInnerBinding(binding);
+        } else {
+            addEmptyBinding(binding);
         }
+    }
+
+    /**
+     * 没有安装此模组时，这些 molang 应该存在，否则会报错
+     */
+    private static void addEmptyBinding(CtrlBinding binding) {
+        binding.playerVar("slashblade_animation", ctx -> StringUtils.EMPTY);
     }
 }

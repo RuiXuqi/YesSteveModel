@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.compat.parcool;
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.loading.LoadingModList;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 public class ParCoolCompat {
@@ -28,6 +29,15 @@ public class ParCoolCompat {
     public static void addBinding(CtrlBinding binding) {
         if (isInstalled()) {
             ParCoolCtrlBinding.addInnerBinding(binding);
+        } else {
+            addEmptyBinding(binding);
         }
+    }
+
+    /**
+     * 没有安装此模组时，这些 molang 应该存在，否则会报错
+     */
+    private static void addEmptyBinding(CtrlBinding binding) {
+        binding.playerVar("parcool_state", ctx -> StringUtils.EMPTY);
     }
 }
