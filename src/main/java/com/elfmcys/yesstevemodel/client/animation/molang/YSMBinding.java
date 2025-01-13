@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.*;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.FirstPersonModHideVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.LadderFacingVariable;
+import com.elfmcys.yesstevemodel.client.animation.molang.variable.MoveInputVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.TextureNameVariable;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
@@ -60,6 +61,9 @@ public class YSMBinding extends ContextBinding {
         var("weather", ctx -> getWeather(ctx.level()));
         var("dimension_name", ctx -> ctx.level().dimension().location().toString());
         var("fps", ctx -> Minecraft.getInstance().getFps());
+
+        entityVar("input_vertical", MoveInputVariable::getVertical);
+        entityVar("input_horizontal", MoveInputVariable::getHorizontal);
 
         entityVar("is_passenger", ctx -> ctx.entity().isPassenger());
         entityVar("is_sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);

@@ -79,6 +79,10 @@ public final class NewAnimationManager {
                 // 强制把 transitionLength 修改为当前数值，防止重载时候失效
                 controller.transitionLengthTicks = state.blendTransition() * 20;
                 controller.setAnimation(new AnimationBuilder().addAnimation(name));
+                // 需要在此处更新 animIsFinished 变量到 animationControllerContext
+                if (evaluator.entity().animationControllerContext() != null) {
+                    evaluator.entity().animationControllerContext().setAnimIsFinished(controller.animIsFinished);
+                }
                 break;
             }
         }

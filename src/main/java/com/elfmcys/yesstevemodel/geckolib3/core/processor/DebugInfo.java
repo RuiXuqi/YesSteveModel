@@ -4,9 +4,11 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
+import java.text.DecimalFormat;
 import java.util.function.BiConsumer;
 
 public class DebugInfo {
+    private static final DecimalFormat FORMATTER = new DecimalFormat("#.########");
     private final ReferenceArrayList<DebugItem> items = new ReferenceArrayList<>();
     private boolean enabled = false;
 
@@ -31,29 +33,29 @@ public class DebugInfo {
     }
 
     public void evaluatePre(ExpressionEvaluator<?> evaluator) {
-        if(!enabled) {
+        if (!enabled) {
             return;
         }
-        for(DebugItem item : items) {
-            if(item.phase == Phase.PRE_ANIMATION) {
+        for (DebugItem item : items) {
+            if (item.phase == Phase.PRE_ANIMATION) {
                 item.eval(evaluator);
             }
         }
     }
 
     public void evaluatePost(ExpressionEvaluator<?> evaluator) {
-        if(!enabled) {
+        if (!enabled) {
             return;
         }
-        for(DebugItem item : items) {
-            if(item.phase == Phase.POST_ANIMATION) {
+        for (DebugItem item : items) {
+            if (item.phase == Phase.POST_ANIMATION) {
                 item.eval(evaluator);
             }
         }
     }
 
     public void enumerate(BiConsumer<String, String> enumerator) {
-        for(DebugItem item : items) {
+        for (DebugItem item : items) {
             enumerator.accept(item.name, item.result);
         }
     }
@@ -77,6 +79,8 @@ public class DebugInfo {
                     result = "null";
                 } else if (ret instanceof String) {
                     result = "'" + ret + "'";
+                } else if (ret instanceof Number) {
+                    result = FORMATTER.format(ret);
                 } else {
                     result = ret.toString();
                 }

@@ -13,8 +13,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.ParticleKeyFrameEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
@@ -83,13 +83,19 @@ public class AnimationController<T extends AnimatableEntity<?>> {
      * 当前状态名
      */
     private String stateName = null;
+    /**
+     * 当前控制器播放的动画是否已经播放过至少一次了
+     * <p>
+     * 这个是专为控制器使用的一个变量，因为更新顺序问题，不能直接写入 animationControllerContext
+     */
+    public boolean animIsFinished = false;
 
     /**
      * 实例化动画控制器，每个控制器同一时间只能播放一个动画 <br>
      * 你可以为一个实体附加多个动画控制器 <br>
      * 比如一个控制器控制实体大小，另一个控制移动，攻击等等
      *
-     * @param animatableEntity            实体
+     * @param animatableEntity      实体
      * @param name                  动画控制器名称
      * @param transitionLengthTicks 动画过渡时间（tick）
      */
@@ -108,7 +114,7 @@ public class AnimationController<T extends AnimatableEntity<?>> {
      * 你可以为一个实体附加多个动画控制器 <br>
      * 比如一个控制器控制实体大小，另一个控制移动，攻击等等
      *
-     * @param animatableEntity            实体
+     * @param animatableEntity      实体
      * @param name                  动画控制器名称
      * @param transitionLengthTicks 动画过渡时间（tick）
      * @param easingtype            动画过渡插值类型，默认没有
@@ -123,6 +129,7 @@ public class AnimationController<T extends AnimatableEntity<?>> {
         this.animationPredicate = animationPredicate;
         this.tickOffset = 0.0d;
     }
+
 
     /**
      * 此方法使用 AnimationBuilder 设置当前动画
@@ -279,6 +286,7 @@ public class AnimationController<T extends AnimatableEntity<?>> {
             }
             if (this.currentAnimation != null) {
                 context.setAnimTime(0);
+                animIsFinished = false;
                 for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
                     BoneAnimation boneAnimation = boneAnimationQueue.animation;
                     if (boneAnimation == null) {
@@ -337,6 +345,7 @@ public class AnimationController<T extends AnimatableEntity<?>> {
         // 如果动画已经结束了
         if (tick >= this.currentAnimation.animationLength) {
             context.setAnimTime(this.currentAnimation.animationLength / 20.0f);
+            animIsFinished = true;
             // 如果动画为循环播放，继续重头播放
             if (!this.currentAnimationLoop.isRepeatingAfterEnd()) {
                 // 从队列中提取下一个动画
