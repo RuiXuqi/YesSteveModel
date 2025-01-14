@@ -34,9 +34,9 @@ license="All rights reserved"
     ordering="NONE"
     side="BOTH"
 
-#[[dependencies.yes_steve_model]]
-#    modId="epicfight"
-#    mandatory=false
-#    versionRange="[INCOMPATIBLE]"
-#    ordering="NONE"
-#    side="BOTH"
+[[dependencies.yes_steve_model]]
+    modId="slashblade"
+    mandatory=false
+    versionRange="[1.0.0,)"
+    ordering="NONE"
+    side="BOTH"

@@ -377,6 +377,16 @@
 					]
 				},
 				{
+					"name": "SheathLocator",
+					"parent": "LeftHand",
+					"pivot": [4.575, 18.725, 0.025]
+				},
+				{
+					"name": "LeftWaistLocator",
+					"parent": "LeftHand",
+					"pivot": [4.575, 18.725, 0.025]
+				},
+				{
 					"name": "RightArm",
 					"parent": "Arm",
 					"pivot": [-4.25, 29.775, 0],
@@ -413,6 +423,11 @@
 					]
 				},
 				{
+					"name": "BladeLocator",
+					"parent": "RightHand",
+					"pivot": [-4.575, 18.825, 0.025]
+				},
+				{
 					"name": "RifleLocator",
 					"parent": "UpBody",
 					"pivot": [0, 25.15, 2.3],
@@ -434,12 +449,6 @@
 					"parent": "UpBody",
 					"pivot": [-4, 21, 0],
 					"rotation": [-5, 0, 0]
-				},
-				{
-					"name": "LeftWaistLocator",
-					"parent": "UpBody",
-					"pivot": [4, 21, 0],
-					"rotation": [-20, 0, 0]
 				},
 				{
 					"name": "DownBody",

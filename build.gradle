@@ -1,5 +1,5 @@
-import proguard.gradle.ProGuardTask
 import net.neoforged.moddevgradle.legacyforge.tasks.RemapJar
+import proguard.gradle.ProGuardTask
 
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -136,7 +136,7 @@ dependencies {
     modCompileOnly 'libs:oculus_legacy:mc1.20.1-1.6.13'
     modImplementation 'libs:oculus:mc1.20.1-1.7.0'
     modImplementation "curse.maven:embeddium-908741:${embeddium_id}"
-    modImplementation "curse.maven:slashblade-241596:${slashblade_id}"
+    modImplementation "maven.modrinth:slashblade-resharped:1.1.6-1.20.1"
     modImplementation "curse.maven:carry-on-274259:${carry_on_id}"
     modImplementation "curse.maven:curios-309927:${curios_id}"
     modImplementation "curse.maven:caelus-308989:${caelus_id}"
@@ -155,7 +155,7 @@ jar {
     manifest.attributes([
             "Implementation-Title"  : project.name,
             "Implementation-Version": "${version}",
-            "MixinConfigs": "yes_steve_model.mixins.json"
+            "MixinConfigs"          : "yes_steve_model.mixins.json"
     ])
     archiveClassifier = "raw"
 }

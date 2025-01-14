@@ -261,7 +261,7 @@ public final class AnimationManager {
         // 拔刀剑兼容，拔刀剑的使用不受 swing 限制
         if (!player.isSleeping() && SlashBladeCompat.isSlashBladeItem(player.getItemInHand(InteractionHand.MAIN_HAND))) {
             // 起手阻止后续原挥剑动画
-            if (player.swingTime == 0) {
+            if (player.swinging && player.swingTime == 0) {
                 return PlayState.CONTINUE;
             }
             String animationName = SlashBladeCompat.getAnimationName(event);
@@ -271,7 +271,7 @@ public final class AnimationManager {
                     if (clientModel.animations().containsKey(animationName)) {
                         return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
                     }
-                    return PlayState.STOP;
+                    return PlayState.CONTINUE;
                 }).orElse(PlayState.STOP);
             }
         }

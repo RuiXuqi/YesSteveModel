@@ -9,16 +9,17 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
-import mods.flammpfeil.slashblade.capability.slashblade.ComboState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
+import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
 import java.util.Optional;
 
 public class SlashBladeAnimation {
@@ -54,10 +55,14 @@ public class SlashBladeAnimation {
         }
         return mainHandItem.getCapability(CapabilitySlashBlade.BLADESTATE).map(bladeState -> {
             long time = (level.getGameTime() - bladeState.getLastActionTime()) * 50;
-            ComboState comboSeq = bladeState.getComboSeq();
+            ResourceLocation id = bladeState.getComboSeq();
+            ComboState comboSeq = ComboStateRegistry.REGISTRY.get().getValue(id);
+            if (comboSeq == null) {
+                return StringUtils.EMPTY;
+            }
             int timeout = comboSeq.getTimeoutMS();
             if (55 <= time && time <= timeout) {
-                return "slashblade:" + comboSeq.getName().toLowerCase(Locale.ENGLISH);
+                return id.toString();
             }
             return StringUtils.EMPTY;
         }).orElse(StringUtils.EMPTY);
