@@ -142,8 +142,9 @@ dependencies {
     modImplementation "curse.maven:caelus-308989:${caelus_id}"
     modImplementation "curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}"
     modImplementation "curse.maven:elytra-slot-317716:${elytra_slot_id}"
+    //modCompileOnly "maven.modrinth:parcool:1.20.1-3.3.0.2"
     modImplementation "curse.maven:parcool-482378:${parcool_id}"
-    modImplementation 'curse.maven:timeless-and-classics-zero-1028108:5529117-sources-5529578'
+    modImplementation 'curse.maven:timeless-and-classics-zero-1028108:6069384-sources-6069403'
     // swem 需要
     modRuntimeOnly "curse.maven:playeranimator-658587:4587214"
     modImplementation "curse.maven:geckolib-388172:5460309"

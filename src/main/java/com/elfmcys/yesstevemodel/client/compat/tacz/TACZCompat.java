@@ -22,6 +22,9 @@ public class TACZCompat {
 
     public static void init() {
         INSTALLED = ModList.get().isLoaded(MOD_ID);
+        if (INSTALLED) {
+            TacCompatInner.registerEvent();
+        }
     }
 
     public static void addBinding(CtrlBinding ctrlBinding) {
@@ -73,7 +76,7 @@ public class TACZCompat {
     @Nullable
     public static PlayState playGunFireAnimation(ItemStack mainHandItem, AnimationEvent<CustomPlayerEntity> event) {
         if (isInstalled() && TacCompatInner.isGun(mainHandItem)) {
-            return TacCompatInner.playGunFireAnimation(event, mainHandItem);
+            return TacCompatInner.playGunOnceAnimation(event, mainHandItem);
         }
         return PlayState.STOP;
     }

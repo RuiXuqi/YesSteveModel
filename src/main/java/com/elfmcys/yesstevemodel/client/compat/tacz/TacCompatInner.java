@@ -31,6 +31,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +42,10 @@ import java.util.Optional;
 class TacCompatInner {
     static boolean isGun(ItemStack itemStack) {
         return itemStack.getItem() instanceof IGun;
+    }
+
+    static void registerEvent() {
+        MinecraftForge.EVENT_BUS.register(new TacEvent());
     }
 
     static boolean isGrenade(ItemStack itemStack) {
@@ -128,15 +133,6 @@ class TacCompatInner {
             }
         }
 
-        float reloadProgress = operator.getSynReloadState().getCountDown();
-        if (reloadProgress > 0) {
-            if (reloadProgress == 1) {
-                event.getController().shouldResetTick = true;
-                event.getController().adjustTick(0);
-            }
-            return getGunTypeAnimation(event, weaponType, "tac:reload:");
-        }
-
         float aimProgress = operator.getSynAimingProgress();
         if (aimProgress > 0) {
             return getGunTypeAnimation(event, weaponType, "tac:aim:");
@@ -149,9 +145,9 @@ class TacCompatInner {
     }
 
     /**
-     * 因为开火没有明确的起止时间，所以单独分一个动画轨道
+     * 这些动画可能是带有后摇的动画，故需要单独分一个频道来播放，从而才能超过时长进行播放
      */
-    static PlayState playGunFireAnimation(AnimationEvent<CustomPlayerEntity> event, ItemStack heldItem) {
+    static PlayState playGunOnceAnimation(AnimationEvent<CustomPlayerEntity> event, ItemStack heldItem) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return PlayState.STOP;
@@ -167,8 +163,14 @@ class TacCompatInner {
         IGunOperator operator = IGunOperator.fromLivingEntity(player);
         long fireTick = operator.getSynShootCoolDown();
 
-        if (!player.isSwimming() && player.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) <= 0.05 && fireTick > 0) {
-            return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        if (event.getAnimatableEntity().tacGunAnimationNeedReload) {
+            playLoopAnimation(event, "empty");
+        }
+        event.getAnimatableEntity().tacGunAnimationNeedReload = false;
+
+        float reloadProgress = operator.getSynReloadState().getCountDown();
+        if (reloadProgress > 0) {
+            return getGunTypeAnimation(event, weaponType, "tac:reload:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         }
 
         long synMeleeCoolDown = operator.getSynMeleeCoolDown();
@@ -176,15 +178,20 @@ class TacCompatInner {
             return getGunTypeAnimation(event, weaponType, "tac:melee:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         }
 
-        float aimProgress = operator.getSynAimingProgress();
         if (fireTick > 0) {
+            float aimProgress = operator.getSynAimingProgress();
+            boolean isClimbing = !player.isSwimming() && player.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) <= 0.05;
+
+            if (isClimbing) {
+                return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            }
             if (aimProgress > 0) {
                 return getGunTypeAnimation(event, weaponType, "tac:aim:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             } else {
                 return getGunTypeAnimation(event, weaponType, "tac:hold:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
         }
-        return playLoopAnimation(event, "empty");
+        return PlayState.CONTINUE;
     }
 
     static void openFlashShellRender(LivingEntity livingEntity) {

@@ -63,6 +63,11 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     private final Vector2f headRot = new Vector2f();
     private volatile boolean renderedWithTempChanges = false;
 
+    /**
+     * 专为 tacz 枪械事件使用的，用来将枪械动画重置
+     */
+    public boolean tacGunAnimationNeedReload = false;
+
     public CustomPlayerEntity(AbstractClientPlayer player, boolean localPlayer, boolean asyncUpdate) {
         super(player, asyncUpdate);
         this.localPlayer = localPlayer;

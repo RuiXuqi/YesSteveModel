@@ -263,8 +263,9 @@ public final class AnimationManager {
         // 拔刀剑兼容，拔刀剑的使用不受 swing 限制
         if (!player.isSleeping() && SlashBladeCompat.isSlashBladeItem(player.getItemInHand(InteractionHand.MAIN_HAND))) {
             // 起手阻止后续原挥剑动画
-            if (player.swinging && player.swingTime == 0) {
-                return PlayState.CONTINUE;
+            if (event.getController().animIsFinished) {
+                // 空动画用于重置 PLAY_ONCE 动画
+                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
             String animationName = SlashBladeCompat.getAnimationName(event);
             if (StringUtils.isNoneBlank(animationName)) {
