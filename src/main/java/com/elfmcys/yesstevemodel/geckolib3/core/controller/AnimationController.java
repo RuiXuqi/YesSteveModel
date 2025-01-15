@@ -512,7 +512,7 @@ public class AnimationController<T extends AnimatableEntity<?>> {
     /**
      * 每次给音频关键帧重新赋值时，都需要进行一次清理，停掉先前的音频
      */
-    protected void stopSoundKeyFrames() {
+    public void stopSoundKeyFrames() {
         if (this.soundKeyFrameExecutor != null) {
             this.soundKeyFrameExecutor.reset();
         }

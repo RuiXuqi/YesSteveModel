@@ -96,6 +96,8 @@ public final class AnimationManager {
                 }
                 return playAnimation(event, cap.getAnimationName());
             }
+            // 在轮盘动画没有播放时，需要关闭轮盘的音频播放
+            event.getController().stopSoundKeyFrames();
             return PlayState.STOP;
         }).orElse(PlayState.STOP);
     }

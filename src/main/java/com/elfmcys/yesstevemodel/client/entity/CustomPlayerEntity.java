@@ -272,7 +272,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     public boolean setCustomAnimations(AnimationContext ctx, @NotNull AnimationEvent animationEvent) {
         List extraData = animationEvent.getExtraData();
         if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
-                && entity != null) {
+            && entity != null) {
             EntityModelData data = (EntityModelData) extraData.get(0);
             boolean update = super.setCustomAnimations(ctx, animationEvent);
             this.codeAnimation(animationEvent, data, entity, update);
@@ -330,7 +330,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
 
     @Override
     public DebugSource getDebugSource() {
-        if(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
+        if (DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
             return CustomDebugSource.INSTANCE;
         } else {
             return null;
