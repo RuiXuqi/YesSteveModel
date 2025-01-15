@@ -10,13 +10,35 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import org.jetbrains.annotations.Nullable;
 
 public class SlashBladeCompat {
     private static final String SLASH_BLADE_ID = "slashblade";
+    private static boolean IS_LOADED = false;
+    private static boolean IS_RESHARPED = false;
+
+    public static void init() {
+        ModList.get().getModContainerById(SLASH_BLADE_ID).ifPresent(modContainer -> {
+            IS_LOADED = true;
+            try {
+                ArtifactVersion modVersion = modContainer.getModInfo().getVersion();
+                // 旧版拔刀剑最后是 0.1.2 版本
+                VersionRange versionRange = VersionRange.createFromVersionSpec("(,0.1.2]");
+                IS_RESHARPED = !versionRange.containsVersion(modVersion);
+            } catch (InvalidVersionSpecificationException e) {
+                e.fillInStackTrace();
+            }
+            if (!IS_RESHARPED) {
+                SlashBladeUnsafe.initFiledOffset();
+            }
+        });
+    }
 
     public static boolean isSlashBladeLoaded() {
-        return ModList.get().isLoaded(SLASH_BLADE_ID);
+        return IS_LOADED;
     }
 
     public static boolean isSlashBladeItem(ItemStack stack) {
@@ -44,6 +66,10 @@ public class SlashBladeCompat {
         } else {
             addEmptyBinding(binding);
         }
+    }
+
+    public static boolean isResharped() {
+        return IS_RESHARPED;
     }
 
     /**

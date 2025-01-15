@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.*;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
@@ -32,6 +33,7 @@ public class ClientSetupEvent {
         TACZCompat.init();
         CarryOnCompat.init();
         ParCoolCompat.init();
+        SlashBladeCompat.init();
         SwemCompat.init();
         initCoreClient();
     }

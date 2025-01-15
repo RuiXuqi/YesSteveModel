@@ -19,6 +19,7 @@ public class ParCoolCompat {
         if (INSTALLED) {
             DefaultArtifactVersion modVersion = new DefaultArtifactVersion(modFileById.versionString());
             VERSION_3_3_1_0 = modVersion.compareTo(new DefaultArtifactVersion("3.3.1.0")) >= 0;
+            ParCoolUnsafe.initFiledOffset();
         }
     }
 

@@ -136,13 +136,14 @@ dependencies {
     modCompileOnly 'libs:oculus_legacy:mc1.20.1-1.6.13'
     modImplementation 'libs:oculus:mc1.20.1-1.7.0'
     modImplementation "curse.maven:embeddium-908741:${embeddium_id}"
-    modImplementation "maven.modrinth:slashblade-resharped:1.1.6-1.20.1"
+    modImplementation "curse.maven:slashblade-241596:4789018"
+    modCompileOnly "maven.modrinth:slashblade-resharped:1.1.6-1.20.1"
     modImplementation "curse.maven:carry-on-274259:${carry_on_id}"
     modImplementation "curse.maven:curios-309927:${curios_id}"
     modImplementation "curse.maven:caelus-308989:${caelus_id}"
     modImplementation "curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}"
     modImplementation "curse.maven:elytra-slot-317716:${elytra_slot_id}"
-    //modCompileOnly "maven.modrinth:parcool:1.20.1-3.3.0.2"
+    // modImplementation "maven.modrinth:parcool:1.20.1-3.3.0.2"
     modImplementation "curse.maven:parcool-482378:${parcool_id}"
     modImplementation 'curse.maven:timeless-and-classics-zero-1028108:6069384-sources-6069403'
     // swem 需要

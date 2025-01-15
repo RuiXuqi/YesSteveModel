@@ -97,8 +97,8 @@ public class ParCoolAnimationManger {
             }
 
             // 墙跳
-            if (animator instanceof WallJumpAnimatorAccessor accessor) {
-                boolean swingRightArm = accessor.isSwingRightArm();
+            if (animator instanceof WallJumpAnimator wallJumpAnimator) {
+                boolean swingRightArm = ParCoolUnsafe.isSwingRightArm(wallJumpAnimator);
                 return swingRightArm ? "parcool:wall_jump_right" : "parcool:wall_jump_left";
             }
 

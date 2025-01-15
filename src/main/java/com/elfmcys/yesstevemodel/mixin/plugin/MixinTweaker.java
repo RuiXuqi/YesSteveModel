@@ -48,8 +48,7 @@ public class MixinTweaker implements IMixinConfigPlugin {
                     "client.parcool.FlippingAnimatorAccessor",
                     "client.parcool.HorizontalWallRunAnimatorAccessor",
                     "client.parcool.RollAnimatorAccessor",
-                    "client.parcool.SpeedVaultAnimatorAccessor",
-                    "client.parcool.WallJumpAnimatorAccessor");
+                    "client.parcool.SpeedVaultAnimatorAccessor");
         } else {
             return null;
         }

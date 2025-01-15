@@ -8,32 +8,19 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
-import com.google.common.collect.Maps;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
-import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class SlashBladeAnimation {
-    /**
-     * 未来兼容新旧两版拔刀剑，部分不一致的动画名在这里归一化
-     */
-    private static final Map<String, String> NAME_FIX = Maps.newHashMap();
-
-    static {
-        NAME_FIX.put("slashblade:combo_a4_ex", "slashblade:combo_a4ex");
-    }
-
     static String getAnimationName(AnimationEvent<CustomPlayerEntity> event) {
         Player player = event.getAnimatableEntity().getEntity();
         return getCombName(player.getMainHandItem(), player.level());
@@ -66,24 +53,15 @@ public class SlashBladeAnimation {
         }
         return mainHandItem.getCapability(CapabilitySlashBlade.BLADESTATE).map(bladeState -> {
             long time = (level.getGameTime() - bladeState.getLastActionTime()) * 50;
-            ResourceLocation id = bladeState.getComboSeq();
-            ComboState comboSeq = ComboStateRegistry.REGISTRY.get().getValue(id);
-            if (comboSeq == null) {
-                return StringUtils.EMPTY;
-            }
-            int timeout = comboSeq.getTimeoutMS();
-            if (time <= timeout) {
-                return nameFix(id.toString());
+            if (SlashBladeCompat.isResharped()) {
+                // 重锋兼容
+                return SlashBladeResharped.getResharpedComboStateName(bladeState, time);
+            } else if (bladeState instanceof SlashBladeState slashBladeState) {
+                // 旧版拔刀兼容
+                return SlashBladeUnsafe.getOldComboStateName(slashBladeState, time);
             }
             return StringUtils.EMPTY;
         }).orElse(StringUtils.EMPTY);
-    }
-
-    private static String nameFix(String rawName) {
-        if (NAME_FIX.containsKey(rawName)) {
-            return NAME_FIX.get(rawName);
-        }
-        return rawName;
     }
 
     @NotNull

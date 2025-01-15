@@ -33,10 +33,3 @@ license="All rights reserved"
     versionRange="[1.0.2,)"
     ordering="NONE"
     side="BOTH"
-
-[[dependencies.yes_steve_model]]
-    modId="slashblade"
-    mandatory=false
-    versionRange="[1.0.0,)"
-    ordering="NONE"
-    side="BOTH"
