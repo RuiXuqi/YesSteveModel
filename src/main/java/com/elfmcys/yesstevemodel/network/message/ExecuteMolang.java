@@ -7,8 +7,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
@@ -18,6 +18,11 @@ import java.util.function.Supplier;
 public class ExecuteMolang {
     private final int[] entityIds;
     private final String molangExpression;
+
+    public ExecuteMolang(int entityId, String molangExpression) {
+        this.entityIds = new int[]{entityId};
+        this.molangExpression = molangExpression;
+    }
 
     public ExecuteMolang(int[] entityIds, String molangExpression) {
         this.entityIds = entityIds;

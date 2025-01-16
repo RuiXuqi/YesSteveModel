@@ -5,6 +5,8 @@ import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
+import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.network.message.SubmitRouletteConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -30,8 +32,11 @@ public class FlatSlider extends ForgeSlider {
     @Override
     protected void applyValue() {
         try {
-            IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molang + "=" + getValue());
+            String molangExpress = molang + "=" + getValue();
+            IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molangExpress);
             this.customPlayerEntity.executeMolangExp(parsed, null);
+            // 同步到周围的玩家
+            NetworkHandler.sendToServer(new SubmitRouletteConfig(molangExpress));
         } catch (ParseException exception) {
             YesSteveModel.LOGGER.error(exception);
         }

@@ -20,6 +20,7 @@ import com.elfmcys.yesstevemodel.info.roulette.forms.RangeForms;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
+import com.elfmcys.yesstevemodel.network.message.SubmitRouletteConfig;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -221,6 +222,8 @@ public class AnimationRouletteScreen extends Screen {
             FlatCheckbox checkbox = new FlatCheckbox(xOffset, this.y + yOffset[0], perWidth,
                     labelName, data -> {
                 executeMolang(labelValue, null);
+                // 同步到周围的玩家
+                NetworkHandler.sendToServer(new SubmitRouletteConfig(labelValue));
                 this.init();
             });
             checkbox.setStateTriggered(isSelected);
@@ -259,6 +262,8 @@ public class AnimationRouletteScreen extends Screen {
             String value = data ? "1" : "0";
             String molang = checkboxForms.value() + "=" + value;
             executeMolang(molang, null);
+            // 同步到周围的玩家
+            NetworkHandler.sendToServer(new SubmitRouletteConfig(molang));
         });
         checkbox.setStateTriggered(number > 0);
         checkbox.setTooltip(description);

@@ -18,7 +18,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Optional;
 
 public final class NetworkHandler {
-    public static final String VERSION = "2.2.2";
+    public static final String VERSION = "2.2.3";
     public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION.replace('.', '_'));
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION, p -> true, p -> true);
     private static final AttributeKey<String> ATTRIBUTE_CHANNEL_VERSION = AttributeKey.valueOf(YesSteveModel.MOD_ID + "_channel_version");
@@ -76,6 +76,8 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(16, SyncArrowModelInfo.class, SyncArrowModelInfo::encode, SyncArrowModelInfo::decode, SyncArrowModelInfo::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(17, SubmitRouletteConfig.class, SubmitRouletteConfig::encode, SubmitRouletteConfig::decode, SubmitRouletteConfig::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
         CHANNEL.registerMessage(51, ServerInfo.class, ServerInfo::encode, ServerInfo::decode, ServerInfo::handleOnClient,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
