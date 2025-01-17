@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
+import com.elfmcys.yesstevemodel.init.ModItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -9,34 +10,47 @@ public class InnerClassify {
 
     public static String doClassifyTest(String extraPre, Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
-        Item item = itemInHand.getItem();
-        String classify = getClassify(item);
+        String classify = getClassify(itemInHand);
         if (!classify.equals(EMPTY)) {
             return extraPre + classify;
         }
         return EMPTY;
     }
 
-    public static String getClassify(Item item) {
-        if (item instanceof SwordItem) {
+    public static String getClassify(ItemStack itemInHand) {
+        Item item = itemInHand.getItem();
+        if (item instanceof SwordItem || itemInHand.is(ModItemTags.SWORDS)) {
             return "sword";
         }
-        if (item instanceof AxeItem) {
+        if (item instanceof AxeItem || itemInHand.is(ModItemTags.AXES)) {
             return "axe";
         }
-        if (item instanceof PickaxeItem) {
+        if (item instanceof PickaxeItem || itemInHand.is(ModItemTags.PICKAXES)) {
             return "pickaxe";
         }
-        if (item instanceof ShovelItem) {
+        if (item instanceof ShovelItem || itemInHand.is(ModItemTags.SHOVELS)) {
             return "shovel";
         }
-        if (item instanceof HoeItem) {
+        if (item instanceof HoeItem || itemInHand.is(ModItemTags.HOES)) {
             return "hoe";
         }
-        if (item instanceof ShieldItem) {
+        if (item instanceof ShieldItem || itemInHand.is(ModItemTags.SHIELDS)) {
             return "shield";
         }
-        if (item instanceof ThrowablePotionItem) {
+        if (item instanceof CrossbowItem || itemInHand.is(ModItemTags.CROSSBOWS)) {
+            return "crossbow";
+        }
+        if (item instanceof BowItem || itemInHand.is(ModItemTags.BOWS)) {
+            return "bow";
+        }
+        if (item instanceof FishingRodItem || itemInHand.is(ModItemTags.FISHING_RODS)) {
+            return "fishing_rod";
+        }
+        // 对，就这个名字
+        if (item instanceof TridentItem || itemInHand.is(ModItemTags.TRIDENTS)) {
+            return "spear";
+        }
+        if (item instanceof ThrowablePotionItem || itemInHand.is(ModItemTags.THROWABLE_POTION)) {
             return "throwable_potion";
         }
         return EMPTY;

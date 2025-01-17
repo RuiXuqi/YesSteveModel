@@ -737,7 +737,7 @@
 				}
 			}
 		},
-		"swing$minecraft:fishing_rod": {
+		"swing:fishing_rod": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.6667,
 			"bones": {
@@ -980,7 +980,7 @@
 				}
 			}
 		},
-		"swing_offhand$minecraft:fishing_rod": {
+		"swing_offhand:fishing_rod": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.6667,
 			"bones": {

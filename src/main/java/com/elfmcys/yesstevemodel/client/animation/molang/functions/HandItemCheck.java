@@ -96,7 +96,7 @@ public class HandItemCheck extends LivingEntityFunction {
         }
 
         if (input.startsWith(EXTRA_PREFIX)) {
-            String innerName = InnerClassify.getClassify(item.getItem());
+            String innerName = InnerClassify.getClassify(item);
             if (StringUtils.isNotBlank(innerName) && innerName.equals(subInput)) {
                 return TRUE;
             }
