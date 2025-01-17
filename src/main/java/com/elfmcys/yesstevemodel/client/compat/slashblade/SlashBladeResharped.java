@@ -27,6 +27,10 @@ public class SlashBladeResharped {
             return StringUtils.EMPTY;
         }
         int timeout = comboSeq.getTimeoutMS();
+        // standby 的剑技时间比动画还长，会有问题，需要和动画时长对齐
+        if ("slashblade:standby".equals(id.toString())) {
+            timeout -= 553;
+        }
         if (time <= timeout) {
             return nameFix(id.toString());
         }

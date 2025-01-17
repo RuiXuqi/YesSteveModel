@@ -12,8 +12,10 @@ import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
 import com.elfmcys.yesstevemodel.client.gui.button.StarButton;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -31,17 +33,16 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.fml.ModList;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class PlayerModelScreen extends Screen {
     private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_INSTANCE = new CustomGuiPlayerEntity[10];
 
     private static int page = 0;
 
+    private final HashSet<String> clientNotDisplayModels = Sets.newHashSet();
     private Map<String, ClientModel> models = Maps.newHashMap();
     private List<String> modelOrderList;
     private int maxPage;
@@ -64,6 +65,7 @@ public class PlayerModelScreen extends Screen {
         for (CustomGuiPlayerEntity instance : MODEL_PREVIEW_INSTANCE) {
             instance.setPlayer(Minecraft.getInstance().player);
         }
+        clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
     }
 
     private void calculateModelList() {
@@ -94,10 +96,24 @@ public class PlayerModelScreen extends Screen {
             }
         }
 
+        String search;
         if (textField != null) {
-            String search = this.textField.getValue().toLowerCase(Locale.US);
-            models.entrySet().removeIf(next -> !next.getKey().contains(search));
+            search = this.textField.getValue().toLowerCase(Locale.US);
+        } else {
+            search = StringUtils.EMPTY;
         }
+        // 依据配置文件和搜索字符串进行过滤
+        models.entrySet().removeIf(next -> {
+            String key = next.getKey();
+            if (clientNotDisplayModels.contains(key)) {
+                return true;
+            }
+            if (StringUtils.isNotBlank(search)) {
+                return !key.contains(search);
+            }
+            return false;
+        });
+
         this.modelOrderList = Lists.newArrayList(models.keySet());
         this.modelOrderList.sort(String::compareTo);
         this.maxPage = (models.size() - 1) / 10;

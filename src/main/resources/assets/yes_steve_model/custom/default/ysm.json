@@ -49,7 +49,7 @@
     "height_scale": 0.7,
     "width_scale": 0.7,
     "extra_animation": {
-      "extra0": "",
+      "extra0": "#extra_config",
       "extra1": "",
       "extra2": "",
       "extra3": "",
@@ -58,6 +58,30 @@
       "extra6": "",
       "extra7": ""
     },
+    "extra_animation_buttons": [
+      {
+        "id": "extra_config",
+        "name": "0",
+        "config_forms": [
+          {
+            "type": "range",
+            "title": "Size/大小: ",
+            "description": "Change the player size (改变玩家大小)",
+            "value": "v.player_size",
+            "step": 0.05,
+            "min": 0.2,
+            "max": 3
+          },
+          {
+            "type": "checkbox",
+            "title": "headdress/头饰",
+            "description": "Used to hide/show the red bow headdress (用来显示或开启玩家头饰)",
+            "value": "v.red_bow_headdress"
+          }
+        ]
+      }
+    ],
+    "extra_animation_classify": [],
     "preview_animation": "idle",
     "default_texture": "default",
     "render_layers_first": false,
@@ -79,12 +103,12 @@
         "swem": "animations/swem.animation.json",
         "slashblade": "animations/slashblade.animation.json"
       },
-      "animation_controllers": [
-      ],
+      "animation_controllers": [],
       "texture": [
         "textures/default.png",
         "textures/blue.png"
-      ]
+      ],
+      "sound_path": "sounds"
     },
     "arrow": {
       "model": "models/arrow.json",

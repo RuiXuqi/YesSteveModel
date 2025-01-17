@@ -125,6 +125,7 @@ public class YSMBinding extends ContextBinding {
         abstractArrowVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));
         abstractArrowVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
         abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
+        abstractArrowVar("shoot_item_id", ctx -> ((IArrowExtraInfo) ctx.entity()).getShootItemId());
     }
 
     private static boolean getEyeCloseState(AnimationEvent<?> animationEvent, LivingEntity player) {

@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel;
 
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.init.ModSounds;
 import com.elfmcys.yesstevemodel.util.NativeLibUtil;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -20,6 +21,7 @@ public class YesSteveModel {
     public YesSteveModel() throws IOException {
         NativeLibUtil.loadCoreLibrary();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GeneralConfig.init());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.init());
         ModSounds.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 }

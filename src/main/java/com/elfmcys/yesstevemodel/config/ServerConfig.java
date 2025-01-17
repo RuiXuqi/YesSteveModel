@@ -1,6 +1,9 @@
 package com.elfmcys.yesstevemodel.config;
 
+import com.google.common.collect.Lists;
 import net.minecraftforge.common.ForgeConfigSpec;
+
+import java.util.List;
 
 // Native Access
 public class ServerConfig {
@@ -12,7 +15,16 @@ public class ServerConfig {
     public static ForgeConfigSpec.IntValue CLIENT_SYNC_TIMEOUT;
     public static ForgeConfigSpec.BooleanValue CAN_SWITCH_MODEL;
 
-    public static void init(ForgeConfigSpec.Builder builder) {
+    // 禁止在玩家客户端 GUI 界面显示的模型 ID
+    public static ForgeConfigSpec.ConfigValue<List<String>> CLIENT_NOT_DISPLAY_MODELS;
+
+    public static ForgeConfigSpec init() {
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        ServerConfig.init(builder);
+        return builder.build();
+    }
+
+    private static void init(ForgeConfigSpec.Builder builder) {
         builder.comment("Only available on dedicated servers.");
         builder.push("server_scheduler");
 
@@ -27,6 +39,10 @@ public class ServerConfig {
 
         builder.comment("Whether or not players are allowed to switch models");
         CAN_SWITCH_MODEL = builder.define("CanSwitchModel", true);
+
+        builder.comment("Models that are not displayed on the client model selection screen");
+        builder.comment("Example: [\"default\", \"default_boy\", \"alex\", \"steve\", \"qingluka\", \"wine_fox\", \"wine_fox_jk\"]");
+        CLIENT_NOT_DISPLAY_MODELS = builder.define("ClientNotDisplayModels", Lists.newArrayList());
 
         builder.pop();
     }
