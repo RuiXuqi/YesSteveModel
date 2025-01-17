@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.event.DownloadScreenInterModEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
@@ -194,7 +195,7 @@ public class PlayerModelScreen extends Screen {
             this.getMinecraft().setScreen(new ConfigScreen(this));
         }).setTooltips("gui.yes_steve_model.config"));
         addRenderableWidget(new FlatIconButton(x + 377, y + 5, 18, 18, 0, 16, (b) -> {
-            this.getMinecraft().setScreen(new DownloadScreen(this));
+            DownloadScreenInterModEvent.openDownloadScreen(this);
         }).setTooltips("gui.yes_steve_model.download"));
         addRenderableWidget(new FlatIconButton(x + 357, y + 5, 18, 18, 80, 0, (b) -> {
             this.getMinecraft().setScreen(new OpenModelFolderScreen(this));
