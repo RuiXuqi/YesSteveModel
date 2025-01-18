@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
+import com.elfmcys.yesstevemodel.init.ModItemTags;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
@@ -21,6 +22,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public class SlashBladeAnimation {
+    static boolean isSlashBlade(ItemStack stack) {
+        return stack.getItem() instanceof ItemSlashBlade || stack.is(ModItemTags.SLASH_BLADE);
+    }
+
     static String getAnimationName(AnimationEvent<CustomPlayerEntity> event) {
         Player player = event.getAnimatableEntity().getEntity();
         return getCombName(player.getMainHandItem(), player.level());
@@ -48,7 +53,7 @@ public class SlashBladeAnimation {
 
     @NotNull
     private static String getCombName(ItemStack mainHandItem, Level level) {
-        if (!(mainHandItem.getItem() instanceof ItemSlashBlade)) {
+        if (!SlashBladeCompat.isSlashBladeItem(mainHandItem)) {
             return StringUtils.EMPTY;
         }
         return mainHandItem.getCapability(CapabilitySlashBlade.BLADESTATE).map(bladeState -> {

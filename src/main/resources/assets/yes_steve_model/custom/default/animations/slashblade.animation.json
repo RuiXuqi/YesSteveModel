@@ -2076,10 +2076,10 @@
 				}
 			}
 		},
-		"hold_offhand$slashblade:slashblade": {
+		"hold_offhand:slashblade": {
 			"loop": true
 		},
-		"hold_mainhand$slashblade:slashblade": {
+		"hold_mainhand:slashblade": {
 			"loop": true,
 			"bones": {
 				"LeftWaistLocator": {
@@ -2093,10 +2093,10 @@
 				}
 			}
 		},
-		"use_mainhand$slashblade:slashblade": {
+		"use_mainhand:slashblade": {
 			"loop": true
 		},
-		"swing$slashblade:slashblade": {
+		"swing:slashblade": {
 			"loop": true
 		},
 		"slashblade:combo_a1": {

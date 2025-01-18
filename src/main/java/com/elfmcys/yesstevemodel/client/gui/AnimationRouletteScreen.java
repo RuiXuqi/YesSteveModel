@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatCheckbox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatRatioBox;
@@ -136,6 +137,19 @@ public class AnimationRouletteScreen extends Screen {
         if (this.extraAnimationMap.size() <= this.selectId) {
             this.selectId = 0;
         }
+
+        // 锁定按钮
+        this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20,
+                Component.empty(), b -> PlayerMoveEvent.switchLock()) {
+            @Override
+            @NotNull
+            public Component getMessage() {
+                if (PlayerMoveEvent.isLocked()) {
+                    return Component.translatable("gui.yes_steve_model.roulette.lock_on");
+                }
+                return Component.translatable("gui.yes_steve_model.roulette.lock_off");
+            }
+        });
 
         // 翻页按钮
         this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 87, 15, 15,

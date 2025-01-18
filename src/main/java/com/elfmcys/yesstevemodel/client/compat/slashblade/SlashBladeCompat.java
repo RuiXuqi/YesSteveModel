@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
@@ -14,6 +13,8 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.jetbrains.annotations.Nullable;
+
+import static com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeAnimation.isSlashBlade;
 
 public class SlashBladeCompat {
     private static final String SLASH_BLADE_ID = "slashblade";
@@ -42,7 +43,7 @@ public class SlashBladeCompat {
     }
 
     public static boolean isSlashBladeItem(ItemStack stack) {
-        return isSlashBladeLoaded() && stack.getItem() instanceof ItemSlashBlade;
+        return isSlashBladeLoaded() && isSlashBlade(stack);
     }
 
     public static String getAnimationName(AnimationEvent<CustomPlayerEntity> event) {

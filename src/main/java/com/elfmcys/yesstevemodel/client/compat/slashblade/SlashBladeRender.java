@@ -10,7 +10,6 @@ import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
@@ -48,7 +47,7 @@ public class SlashBladeRender {
 
     public static void renderMainhandSlashBlade(LivingEntity livingEntity, GeoModelState model, PoseStack matrixStack,
                                                 MultiBufferSource bufferIn, int lightIn, ItemStack stack, float partialTicks) {
-        if (stack.getItem() instanceof ItemSlashBlade) {
+        if (SlashBladeCompat.isSlashBladeItem(stack)) {
             List<IBone> leftWaistBones = model.leftWaistBones();
             List<IBone> bladeBones = model.bladeBones();
             List<IBone> sheathBones = model.sheathBones();
@@ -178,7 +177,7 @@ public class SlashBladeRender {
     }
 
     public static void renderOffhandSlashBlade(GeoModelState model, PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, ItemStack stack) {
-        if (stack.getItem() instanceof ItemSlashBlade) {
+        if (SlashBladeCompat.isSlashBladeItem(stack)) {
             matrixStack.pushPose();
             // 副手的刀渲染在右边
             if (!model.rightWaistBones().isEmpty()) {

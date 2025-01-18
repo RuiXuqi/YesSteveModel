@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
+import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.init.ModItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +20,10 @@ public class InnerClassify {
 
     public static String getClassify(ItemStack itemInHand) {
         Item item = itemInHand.getItem();
+        // 优先判断拔刀剑
+        if (SlashBladeCompat.isSlashBladeItem(itemInHand)){
+            return "slashblade";
+        }
         if (item instanceof SwordItem || itemInHand.is(ModItemTags.SWORDS)) {
             return "sword";
         }

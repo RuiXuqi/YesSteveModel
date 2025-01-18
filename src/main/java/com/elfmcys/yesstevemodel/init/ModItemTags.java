@@ -18,6 +18,7 @@ public class ModItemTags {
     public static final TagKey<Item> FISHING_RODS = tag("fishing_rods");
     public static final TagKey<Item> SHIELDS = tag("shields");
     public static final TagKey<Item> TRIDENTS = tag("tridents");
+    public static final TagKey<Item> SLASH_BLADE = tag("slashblade");
 
     private static TagKey<Item> tag(String name) {
         return ItemTags.create(new ResourceLocation(YesSteveModel.MOD_ID, name));

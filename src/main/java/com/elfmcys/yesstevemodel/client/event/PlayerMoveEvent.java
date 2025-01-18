@@ -13,12 +13,14 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class PlayerMoveEvent {
+    private static boolean LOCK_EXTRA_ANIMATION = false;
+
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (isMoveKey() && player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                if (cap.isPlayingAnimation()) {
+                if (!LOCK_EXTRA_ANIMATION && cap.isPlayingAnimation()) {
                     if (NetworkHandler.isRemoteChannelPresent()) {
                         NetworkHandler.sendToServer(SetPlayAnimation.stop());
                     } else {
@@ -32,6 +34,14 @@ public class PlayerMoveEvent {
     public static boolean isMoveKey() {
         Options options = Minecraft.getInstance().options;
         return options.keyUp.isDown() || options.keyDown.isDown() || options.keyLeft.isDown() || options.keyRight.isDown()
-                || options.keyJump.isDown() || options.keyShift.isDown();
+               || options.keyJump.isDown() || options.keyShift.isDown();
+    }
+
+    public static void switchLock() {
+        LOCK_EXTRA_ANIMATION = !LOCK_EXTRA_ANIMATION;
+    }
+
+    public static boolean isLocked() {
+        return LOCK_EXTRA_ANIMATION;
     }
 }

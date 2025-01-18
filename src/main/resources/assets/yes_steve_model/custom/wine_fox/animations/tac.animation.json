@@ -6514,8 +6514,7 @@
 					}
 				},
 				"RightHandLocator": {
-					"rotation": [37.47917, 10.76049, 6.10976],
-					"position": [-1, -1, 2]
+					"rotation": [37.47917, 10.76049, 6.10976]
 				},
 				"Arm": {
 					"rotation": {
@@ -6658,8 +6657,7 @@
 					}
 				},
 				"RightHandLocator": {
-					"rotation": [37.47917, 10.76049, 6.10976],
-					"position": [-1, -1, 2]
+					"rotation": [37.47917, 10.76049, 6.10976]
 				},
 				"Arm": {
 					"rotation": {
