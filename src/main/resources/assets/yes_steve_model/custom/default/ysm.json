@@ -83,6 +83,7 @@
     ],
     "extra_animation_classify": [],
     "preview_animation": "idle",
+    "disable_preview_rotation": false,
     "default_texture": "default",
     "render_layers_first": false,
     "free": true

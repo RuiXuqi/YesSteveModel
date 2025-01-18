@@ -72,7 +72,8 @@
       "extra7": "舞蹈"
     },
     "preview_animation": "gui",
-    "free": true
+    "free": true,
+    "disable_preview_rotation": true
   },
   "files": {
     "player": {

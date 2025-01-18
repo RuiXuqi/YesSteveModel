@@ -196,12 +196,12 @@ public final class RenderUtil {
         poseStack.popPose();
     }
 
-    public static void renderModelInInventory(int pPosX, int pPosY, int pScale, CustomGuiPlayerEntity instance) {
+    public static void renderModelInInventory(int pPosX, int pPosY, int pScale, CustomGuiPlayerEntity instance, boolean disablePreviewRotation) {
         CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
-        renderModel((double) pPosX, (double) pPosY, (float) pScale, instance, renderer);
+        renderModel((double) pPosX, (double) pPosY, (float) pScale, instance, renderer, disablePreviewRotation);
     }
 
-    private static void renderModel(double pPosX, double pPosY, float pScale, CustomGuiPlayerEntity instance, CustomPlayerRenderer renderer) {
+    private static void renderModel(double pPosX, double pPosY, float pScale, CustomGuiPlayerEntity instance, CustomPlayerRenderer renderer, boolean disablePreviewRotation) {
         AbstractClientPlayer player = instance.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
@@ -211,10 +211,10 @@ public final class RenderUtil {
         RenderSystem.applyModelViewMatrix();
 
         PoseStack poseStack = new PoseStack();
-        poseStack.translate(0.0D, 0.0D, 1000.0D);
+        poseStack.translate(0.0D, disablePreviewRotation ? 5.5 : 0, 1000.0D);
         poseStack.scale(pScale, pScale, pScale);
         Quaternionf zp = Axis.ZP.rotationDegrees(180.0F);
-        Quaternionf xp = Axis.XP.rotationDegrees(-10);
+        Quaternionf xp = Axis.XP.rotationDegrees(disablePreviewRotation ? 0 : -10);
         zp.mul(xp);
         poseStack.mulPose(zp);
 
@@ -240,8 +240,9 @@ public final class RenderUtil {
             i++;
         }
 
-        player.yBodyRot = 200;
-        player.setYRot(200);
+        float yRotGui = disablePreviewRotation ? 180 : 200;
+        player.yBodyRot = yRotGui;
+        player.setYRot(yRotGui);
         player.setXRot(0);
         player.yHeadRot = player.getYRot();
         player.yHeadRotO = player.getYRot();
@@ -249,7 +250,7 @@ public final class RenderUtil {
         // 修正骑乘时 GUI 界面歪头的 bug
         if (player.getVehicle() instanceof LivingEntity vehicle) {
             float vehicleYRot = vehicle.getYRot();
-            poseStack.mulPose(Axis.YP.rotationDegrees(vehicleYRot - 200));
+            poseStack.mulPose(Axis.YP.rotationDegrees(vehicleYRot - yRotGui));
             player.yHeadRot = vehicleYRot;
             player.yHeadRotO = vehicleYRot;
         }

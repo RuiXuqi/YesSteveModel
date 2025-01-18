@@ -18,13 +18,14 @@ public class ModelProperties {
     private final Map<String, FifoHashMap<String, String>> extraAnimationClassifyMap;
     private final boolean free;
     private final boolean renderLayersFirst;
+    private final boolean disablePreviewRotation;
 
     // Native Access
     public ModelProperties(float widthScale, float heightScale, String defaultTexture, String previewAnimation,
                            FifoHashMap<String, String> extraAnimationOrderMap,
                            ExtraAnimationButton[] extraAnimationButtonsList,
                            ExtraAnimationClassify[] extraAnimationClassifyList,
-                           boolean free, boolean renderLayersFirst) {
+                           boolean free, boolean renderLayersFirst, boolean disablePreviewRotation) {
         this.widthScale = widthScale;
         this.heightScale = heightScale;
         this.defaultTexture = defaultTexture;
@@ -34,6 +35,7 @@ public class ModelProperties {
         this.extraAnimationClassifyMap = transformExtraAnimationClassify(extraAnimationClassifyList);
         this.free = free;
         this.renderLayersFirst = renderLayersFirst;
+        this.disablePreviewRotation = disablePreviewRotation;
     }
 
     private static Map<String, ExtraAnimationButton> transformExtraAnimationButton(ExtraAnimationButton[] extraAnimationButtonsList) {
@@ -86,5 +88,9 @@ public class ModelProperties {
 
     public boolean renderLayersFirst() {
         return renderLayersFirst;
+    }
+
+    public boolean disablePreviewRotation() {
+        return disablePreviewRotation;
     }
 }

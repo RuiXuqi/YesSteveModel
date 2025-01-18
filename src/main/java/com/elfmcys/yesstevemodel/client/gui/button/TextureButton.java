@@ -20,11 +20,13 @@ import java.util.List;
 
 public class TextureButton extends Button {
     private final CustomGuiPlayerEntity instance;
+    private final boolean disablePreviewRotation;
 
-    public TextureButton(int pX, int pY, CustomGuiPlayerEntity instance) {
+    public TextureButton(int pX, int pY, CustomGuiPlayerEntity instance, boolean disablePreviewRotation) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
         }, DEFAULT_NARRATION);
         this.instance = instance;
+        this.disablePreviewRotation = disablePreviewRotation;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class TextureButton extends Button {
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, instance);
+        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, instance, this.disablePreviewRotation);
         RenderSystem.disableScissor();
 
         Component message = Component.literal(instance.getTextureName());

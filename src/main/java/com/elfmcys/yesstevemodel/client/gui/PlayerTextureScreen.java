@@ -43,6 +43,7 @@ public class PlayerTextureScreen extends Screen {
     private final String modelId;
     private final FifoHashMap<String, ResourceLocation> textures;
     private final List<String> animations;
+    private final boolean disablePreviewRotation;
     private String animation = "";
     private int maxTexturePage;
     private int texturePage;
@@ -74,6 +75,7 @@ public class PlayerTextureScreen extends Screen {
         this.animations = new ArrayList<>(model.animations().keySet());
         this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
         this.animations.sort(String::compareTo);
+        this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
         PREVIEW_INSTANCE.setPlayer(Minecraft.getInstance().player);
         for (CustomGuiPlayerEntity instance : TEXTURE_BUTTON_INSTANCE) {
             instance.setPlayer(Minecraft.getInstance().player);
@@ -170,7 +172,7 @@ public class PlayerTextureScreen extends Screen {
             int yStart = y + 5 + 104 * (i / 2);
             CustomGuiPlayerEntity instance = TEXTURE_BUTTON_INSTANCE[i];
             instance.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
-            addRenderableWidget(new TextureButton(xStart, yStart, instance));
+            addRenderableWidget(new TextureButton(xStart, yStart, instance, this.disablePreviewRotation));
         }
     }
 

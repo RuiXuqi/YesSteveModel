@@ -35,6 +35,7 @@ public class ModelButton extends Button {
     private final String hoverFadeoutAnimationName;
     private final String focusAnimationName;
     private final double fadeoutTime;
+    private final boolean disablePreviewRotation;
 
     private long hoverTime = -1L;
 
@@ -45,6 +46,7 @@ public class ModelButton extends Button {
         this.color = needAuth ? 0x7F_000000 : 0xFF_434242;
         this.model = model;
         this.instance = instance;
+        this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
 
         var animations = model.animations();
         // 如果有 hover 动画
@@ -119,7 +121,7 @@ public class ModelButton extends Button {
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 20, 30, instance);
+        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 20, 30, instance, disablePreviewRotation);
         RenderSystem.disableScissor();
 
         Component message = this.getMessage();
