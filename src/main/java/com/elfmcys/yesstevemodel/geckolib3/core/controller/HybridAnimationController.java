@@ -1,0 +1,53 @@
+package com.elfmcys.yesstevemodel.geckolib3.core.controller;
+
+import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+public class HybridAnimationController<T extends AnimatableEntity<?>> implements IAnimationController<T> {
+    private final String name;
+    private final T animatableEntity;
+    private final CodedAnimationController<T> codedAnimationController;
+    private final BedrockAnimationController<T> bedrockAnimationController;
+
+    private IAnimationController<T> activeController;
+
+    public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, CodedAnimationController.IAnimationPredicate<T> animationPredicate) {
+        this.name = name;
+        this.animatableEntity = animatableEntity;
+        this.codedAnimationController = new CodedAnimationController<>(animatableEntity, name, transitionLengthTicks, animationPredicate);
+        this.bedrockAnimationController = new BedrockAnimationController<>(animatableEntity, name, transitionLengthTicks);
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
+        var animationControllerData = animatableEntity.getAnimationControllerData(this.name);
+        if (animationControllerData != null) {
+            this.bedrockAnimationController.updateRenderer(modelRendererList, animationControllerData);
+            this.activeController = this.bedrockAnimationController;
+        } else {
+            this.codedAnimationController.updateRenderer(modelRendererList);
+            this.activeController = this.codedAnimationController;
+        }
+    }
+
+    @Override
+    public void process(final double tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
+        this.activeController.process(tick, event, evaluator, scheduledUpdate);
+    }
+
+    @Override
+    public void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor) {
+        this.activeController.visitBoneAnimationQueues(visitor);
+    }
+}

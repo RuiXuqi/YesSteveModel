@@ -15,10 +15,11 @@ public class BoneAnimationQueue {
     public final BoneSnapshot controllerSnapshot;
     @Nullable 
     public BoneAnimation animation;
+    private boolean active = false;
 
-    public AnimationPointQueue rotationQueue = new AnimationPointQueue();
-    public AnimationPointQueue positionQueue = new AnimationPointQueue();
-    public AnimationPointQueue scaleQueue = new AnimationPointQueue();
+    public final AnimationPointQueue rotationQueue = new AnimationPointQueue();
+    public final AnimationPointQueue positionQueue = new AnimationPointQueue();
+    public final AnimationPointQueue scaleQueue = new AnimationPointQueue();
 
     public BoneAnimationQueue(BoneTopLevelSnapshot snapshot) {
         topLevelSnapshot = snapshot;
@@ -45,10 +46,18 @@ public class BoneAnimationQueue {
         controllerSnapshot.copyFrom(topLevelSnapshot);
     }
 
-    // 链表重开比 clear() 快
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    // 此处链表一般只含一个元素
     public void resetQueues() {
-        rotationQueue = new AnimationPointQueue();
-        positionQueue = new AnimationPointQueue();
-        scaleQueue = new AnimationPointQueue();
+        rotationQueue.clear();
+        positionQueue.clear();
+        scaleQueue.clear();
     }
 }

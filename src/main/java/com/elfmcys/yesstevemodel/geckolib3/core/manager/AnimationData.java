@@ -5,14 +5,14 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.manager;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public class AnimationData {
-    private final List<AnimationController> animationControllers = new ReferenceArrayList<>(32);
+    private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(32);
     public double tick;
     public boolean isFirstTick = true;
     public double startTick = -1;
@@ -22,9 +22,8 @@ public class AnimationData {
     public AnimationData() {
     }
 
-    public AnimationController addAnimationController(AnimationController value) {
+    public void addAnimationController(IAnimationController value) {
         animationControllers.add(value);
-        return value;
     }
 
     public double getResetSpeed() {
@@ -40,7 +39,7 @@ public class AnimationData {
         this.resetTickLength = resetTickLength < 0 ? 0 : resetTickLength;
     }
 
-    public List<AnimationController> getAnimationControllers() {
+    public List<IAnimationController> getAnimationControllers() {
         return animationControllers;
     }
 }

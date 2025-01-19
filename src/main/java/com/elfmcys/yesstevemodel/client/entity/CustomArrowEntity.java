@@ -8,9 +8,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -34,11 +33,11 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
 
     @SuppressWarnings("unchecked,rawtypes")
     public void registerControllers() {
-        addAnimationController(new AnimationController(this, "main", 2, this::predicateMain));
+        addAnimationController(new CodedAnimationController(this, "main", 2, this::predicateMain));
         for (int i = 0; i < 8; i++) {
             String controllerName = String.format("parallel_%d_controller", i);
             String animationName = String.format("parallel%d", i);
-            addAnimationController(new AnimationController<>(this, controllerName, 0, (event, evaluator) -> predicateParallel(event, animationName)));
+            addAnimationController(new CodedAnimationController<>(this, controllerName, 0, (event, evaluator) -> predicateParallel(event, animationName)));
         }
     }
 
@@ -46,7 +45,7 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
         this.modelId = ownerModelId;
     }
 
-    protected PlayState predicateMain(AnimationEvent<CustomArrowEntity> event, ExpressionEvaluator<AnimationContext<?>> evaluator) {
+    protected PlayState predicateMain(AnimationEvent<CustomArrowEntity> event, ExpressionEvaluator<?> evaluator) {
         AbstractArrow arrowEntity = entity;
         if (arrowEntity == null) {
             return PlayState.STOP;
@@ -72,7 +71,7 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
     }
 
     private static <P extends AnimatableEntity<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
-        event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, ILoopType.EDefaultLoopTypes.LOOP));
+        event.getCodedController().setAnimation(new AnimationBuilder().addAnimation(animationName, ILoopType.EDefaultLoopTypes.LOOP));
         return PlayState.CONTINUE;
     }
 

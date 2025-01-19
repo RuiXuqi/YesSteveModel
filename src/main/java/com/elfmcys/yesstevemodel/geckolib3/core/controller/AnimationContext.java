@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
-public class AnimationControllerContext {
+public class AnimationContext {
     private double animTime;
     /**
      * 如果当前动画已播放至少一次，则返回 true
@@ -11,6 +11,7 @@ public class AnimationControllerContext {
         this.animTime = animTime;
     }
 
+    // FIXME: 完成混合动画支持
     public void setAnimIsFinished(boolean animIsFinished) {
         this.animIsFinished = animIsFinished;
     }

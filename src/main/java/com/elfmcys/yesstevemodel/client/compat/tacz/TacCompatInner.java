@@ -248,7 +248,7 @@ class TacCompatInner {
 
     @NotNull
     private static PlayState playAnimation(AnimationEvent<?> event, String animationName, ILoopType loopType) {
-        event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
+        event.getCodedController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
         return PlayState.CONTINUE;
     }
 

@@ -61,13 +61,13 @@ public final class AnimationManager {
 
     @NotNull
     private static <P extends AnimatableEntity<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName, ILoopType loopType) {
-        event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
+        event.getCodedController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
         return PlayState.CONTINUE;
     }
 
     @NotNull
     private static <P extends AnimatableEntity<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
-        event.getController().setAnimation(new AnimationBuilder().addAnimation(animationName));
+        event.getCodedController().setAnimation(new AnimationBuilder().addAnimation(animationName));
         return PlayState.CONTINUE;
     }
 
@@ -92,12 +92,12 @@ public final class AnimationManager {
             if (cap.isPlayingAnimation()) {
                 if (cap.isAnimationDirty()) {
                     cap.clearAnimationDirty();
-                    event.getController().markNeedsReload();
+                    event.getCodedController().markNeedsReload();
                 }
                 return playAnimation(event, cap.getAnimationName());
             }
             // 在轮盘动画没有播放时，需要关闭轮盘的音频播放
-            event.getController().stopSoundKeyFrames();
+            event.getCodedController().stopSoundKeyFrames();
             return PlayState.STOP;
         }).orElse(PlayState.STOP);
     }
@@ -263,7 +263,7 @@ public final class AnimationManager {
         // 拔刀剑兼容，拔刀剑的使用不受 swing 限制
         if (!player.isSleeping() && SlashBladeCompat.isSlashBladeItem(player.getItemInHand(InteractionHand.MAIN_HAND))) {
             // 起手阻止后续原挥剑动画
-            if (event.getController().animIsFinished) {
+            if (event.getCodedController().isAnimFinished()) {
                 // 空动画用于重置 PLAY_ONCE 动画
                 playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             }
