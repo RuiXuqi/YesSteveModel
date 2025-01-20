@@ -249,6 +249,9 @@ public class AnimationRouletteScreen extends Screen {
                 yOffset[0] += 14;
             }
         }
+
+        // 最后记得换行
+        yOffset[0] += 17;
     }
 
     @NotNull
@@ -278,7 +281,14 @@ public class AnimationRouletteScreen extends Screen {
             executeMolang(molang, null);
             // 同步到周围的玩家
             NetworkHandler.sendToServer(new SubmitRouletteConfig(molang));
-        });
+        }) {
+            // 给单选框加上背景
+            @Override
+            public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+                graphics.fill(this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + getHeight(), 0xef_434242);
+                super.renderWidget(graphics, mouseX, mouseY, partialTicks);
+            }
+        };
         checkbox.setStateTriggered(number > 0);
         checkbox.setTooltip(description);
 
