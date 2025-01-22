@@ -250,7 +250,7 @@ public class AnimationPlayer {
                     // 添加即将出现的动画的初始位置，以便模型转换到新动画的初始状态
                     List<BoneKeyFrame> rotationKeyFrames = boneAnimation.rotationKeyFrames;
                     if (!rotationKeyFrames.isEmpty()) {
-                        AnimationPoint point = getTransitionPointAtTick(rotationKeyFrames, adjustedTick,
+                        AnimationPoint point = getTransitionPointAtTick(rotationKeyFrames, true, adjustedTick,
                                 new Vector3f(boneSnapshot.rotationValueX - initialSnapshot.rotationValueX,
                                         boneSnapshot.rotationValueY - initialSnapshot.rotationValueY,
                                         boneSnapshot.rotationValueZ - initialSnapshot.rotationValueZ),
@@ -260,7 +260,7 @@ public class AnimationPlayer {
 
                     List<BoneKeyFrame> positionKeyFrames = boneAnimation.positionKeyFrames;
                     if (!positionKeyFrames.isEmpty()) {
-                        AnimationPoint point = getTransitionPointAtTick(positionKeyFrames, adjustedTick,
+                        AnimationPoint point = getTransitionPointAtTick(positionKeyFrames, false, adjustedTick,
                                 new Vector3f(boneSnapshot.positionOffsetX,
                                         boneSnapshot.positionOffsetY,
                                         boneSnapshot.positionOffsetZ),
@@ -270,7 +270,7 @@ public class AnimationPlayer {
 
                     List<BoneKeyFrame> scaleKeyFrames = boneAnimation.scaleKeyFrames;
                     if (!scaleKeyFrames.isEmpty()) {
-                        AnimationPoint point = getTransitionPointAtTick(scaleKeyFrames, adjustedTick,
+                        AnimationPoint point = getTransitionPointAtTick(scaleKeyFrames, false, adjustedTick,
                                 new Vector3f(boneSnapshot.scaleValueX,
                                         boneSnapshot.scaleValueY,
                                         boneSnapshot.scaleValueZ),
@@ -443,9 +443,9 @@ public class AnimationPlayer {
     /**
      * 返回过渡进度
      **/
-    private TransitionPoint getTransitionPointAtTick(List<BoneKeyFrame> frames, double tick, Vector3f offsetPoint, AnimationContext context) {
+    private TransitionPoint getTransitionPointAtTick(List<BoneKeyFrame> frames, boolean rotation, double tick, Vector3f offsetPoint, AnimationContext context) {
         BoneKeyFrame dstFrame = frames.get(0);
-        return new TransitionPoint(tick, this.transitionLengthTicks, offsetPoint, dstFrame, context);
+        return new TransitionPoint(tick, this.transitionLengthTicks, offsetPoint, dstFrame, rotation, context);
     }
 
     private void resetEventKeyFrames(boolean reachEnd, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {

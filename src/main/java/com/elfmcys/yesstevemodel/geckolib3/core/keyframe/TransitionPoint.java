@@ -9,17 +9,18 @@ import org.joml.Vector3f;
 public class TransitionPoint extends AnimationPoint {
     private final Vector3f offsetPoint;
     private final BoneKeyFrame dstKeyframe;
+    private final boolean rotation;
 
-    public TransitionPoint(double currentTick, double totalTick, Vector3f offsetPoint, BoneKeyFrame dstKeyframe, AnimationContext context) {
+    public TransitionPoint(double currentTick, double totalTick, Vector3f offsetPoint, BoneKeyFrame dstKeyframe, boolean rotation, AnimationContext context) {
         super(currentTick, totalTick, context);
         this.offsetPoint = offsetPoint;
         this.dstKeyframe = dstKeyframe;
+        this.rotation = rotation;
     }
 
-    // TODO: wrapDegrees
     @Override
     public Vector3f getLerpPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
         setupAnimationContext(evaluator);
-        return dstKeyframe.getTransitionPoint(evaluator, offsetPoint, getPercentCompleted());
+        return dstKeyframe.getTransitionPoint(evaluator, offsetPoint, rotation, getPercentCompleted());
     }
 }

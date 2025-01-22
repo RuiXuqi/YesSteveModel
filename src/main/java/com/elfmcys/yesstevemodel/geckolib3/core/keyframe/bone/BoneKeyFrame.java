@@ -25,14 +25,23 @@ public abstract class BoneKeyFrame {
 
     public abstract Vector3f getLerpPoint(ExpressionEvaluator<?> evaluator, double percentCompleted);
 
-    public Vector3f getTransitionPoint(ExpressionEvaluator<?> evaluator, Vector3f offsetPoint, double percentCompleted) {
-        if (isBegin(percentCompleted)) {
-            return offsetPoint;
+    public Vector3f getTransitionPoint(ExpressionEvaluator<?> evaluator, Vector3f offsetPoint, boolean rotation, double percentCompleted) {
+        if (!rotation) {
+            if (isBegin(percentCompleted)) {
+                return offsetPoint;
+            }
+            if (isEnd(percentCompleted)) {
+                return this.beginPoint.eval(evaluator);
+            }
+
+            return MathUtil.lerpValues(percentCompleted, offsetPoint, this.beginPoint.eval(evaluator));
+        } else {
+            if (isEnd(percentCompleted)) {
+                return this.beginPoint.eval(evaluator);
+            }
+
+            return MathUtil.rotLerp((float) percentCompleted, offsetPoint, this.beginPoint.eval(evaluator));
         }
-        if (isEnd(percentCompleted)) {
-            return beginPoint.eval(evaluator);
-        }
-        return MathUtil.lerpValues(percentCompleted, offsetPoint, beginPoint.eval(evaluator));
     }
 
     protected static boolean isBegin(double percentCompleted) {
