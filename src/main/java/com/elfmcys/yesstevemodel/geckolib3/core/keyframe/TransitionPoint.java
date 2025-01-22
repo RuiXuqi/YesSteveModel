@@ -16,6 +16,7 @@ public class TransitionPoint extends AnimationPoint {
         this.dstKeyframe = dstKeyframe;
     }
 
+    // TODO: wrapDegrees
     @Override
     public Vector3f getLerpPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
         setupAnimationContext(evaluator);

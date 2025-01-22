@@ -101,7 +101,6 @@ public class AnimationPlayer {
         this.tickOffset = 0.0d;
     }
 
-
     /**
      * 此方法使用 AnimationBuilder 设置当前动画
      * 你可以每帧运行此方法，如果每次都传入相同的 AnimationBuilder，它将不会重新启动。
@@ -237,11 +236,14 @@ public class AnimationPlayer {
             if (this.currentAnimation != null) {
                 context.setAnimTime(0);
                 animIsFinished = false;
+                var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsDouble(evaluator) : 1;
                 for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
                     BoneAnimation boneAnimation = boneAnimationQueue.animation;
                     if (boneAnimation == null) {
                         continue;
                     }
+                    boneAnimationQueue.setBlendWeight(blendWeight);
+
                     BoneSnapshot boneSnapshot = boneAnimationQueue.snapshot();
                     BoneSnapshot initialSnapshot = boneAnimationQueue.topLevelSnapshot.bone.getInitialSnapshot();
 
@@ -328,8 +330,10 @@ public class AnimationPlayer {
         context.setAnimTime(tick / 20.0f);
 
         // 循环遍历当前动画中的每个骨骼动画并处理值
+        var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsDouble(evaluator) : 1;
         for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
             BoneAnimation boneAnimation = boneAnimationQueue.animation;
+            boneAnimationQueue.setBlendWeight(blendWeight);
 
             List<BoneKeyFrame> rotationKeyFrames = boneAnimation.rotationKeyFrames;
             if (!rotationKeyFrames.isEmpty()) {

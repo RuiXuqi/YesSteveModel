@@ -16,6 +16,7 @@ public class BoneAnimationQueue {
     @Nullable 
     public BoneAnimation animation;
     private boolean active = false;
+    private float blendWeight = 1;
 
     public final AnimationPointQueue rotationQueue = new AnimationPointQueue();
     public final AnimationPointQueue positionQueue = new AnimationPointQueue();
@@ -46,12 +47,23 @@ public class BoneAnimationQueue {
         controllerSnapshot.copyFrom(topLevelSnapshot);
     }
 
+    /**
+     * 该骨骼上是否有动画
+     */
     public boolean isActive() {
         return active;
     }
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public float getBlendWeight() {
+        return blendWeight;
+    }
+
+    public void setBlendWeight(double blendWeight) {
+        this.blendWeight = (float) blendWeight;
     }
 
     // 此处链表一般只含一个元素
