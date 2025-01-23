@@ -111,6 +111,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         for (var snapshot : modelRendererList) {
             this.blendAnimationQueues.add(new BlendBoneAnimationQueue(snapshot));
         }
+        this.modelRendererList = modelRendererList;
     }
 
     public void clearRenderer() {
@@ -301,6 +302,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 }
                 var point = pointGetter.apply(queue);
                 if (point == null) {
+                    continue;
+                }
+                if (!pair.left().shouldApply()) {
                     continue;
                 }
                 active = true;
