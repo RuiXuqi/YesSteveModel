@@ -160,7 +160,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             }
 
             holder.conditionHolder().setApplyCondition(animPair.getRight());
-            holder.animationPlayer().transitionLengthTicks = state.blendTransition();
+            holder.animationPlayer().transitionLengthTicks = state.blendTransition() * 20;;
             holder.animationPlayer().setAnimation(new AnimationBuilder().addAnimation(animPair.getLeft()));
         }
     }
