@@ -18,10 +18,15 @@ import java.util.HashMap;
 public class ParCoolAnimationManger {
     private static final HashMap<Class<? extends Animator>, String> INDEX_MAP = Maps.newHashMap();
 
+    static boolean hasAnimation(Player player) {
+        Animation animation = Animation.get(player);
+        return animation != null && animation.hasAnimator();
+    }
+
     @Nullable
     static String getAnimation(Player player) {
         Animation animation = Animation.get(player);
-        if (animation.hasAnimator()) {
+        if (animation != null && animation.hasAnimator()) {
             Animator animator = ((AnimationAccessor) animation).getAnimator();
             Parkourability parkourability = Parkourability.get(player);
             if (parkourability == null) {

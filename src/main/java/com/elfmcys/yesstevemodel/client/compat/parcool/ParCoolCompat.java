@@ -1,12 +1,16 @@
 package com.elfmcys.yesstevemodel.client.compat.parcool;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.loading.LoadingModList;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jetbrains.annotations.Nullable;
+
+import static com.elfmcys.yesstevemodel.util.ControllerUtils.PARCOOL_CONTROLLER;
 
 public class ParCoolCompat {
     private static final String MOD_ID = "parcool";
@@ -29,6 +33,19 @@ public class ParCoolCompat {
 
     public static boolean isVersion3310() {
         return VERSION_3_3_1_0;
+    }
+
+    public static void addParcoolPredicate(CustomPlayerEntity entity) {
+        if (INSTALLED) {
+            entity.addAnimationController(new HybridAnimationController<>(entity, PARCOOL_CONTROLLER, 2, new ParCoolPredicate()));
+        }
+    }
+
+    public static boolean hasAnimation(Player player) {
+        if (isInstalled()) {
+            return ParCoolAnimationManger.hasAnimation(player);
+        }
+        return false;
     }
 
     @Nullable

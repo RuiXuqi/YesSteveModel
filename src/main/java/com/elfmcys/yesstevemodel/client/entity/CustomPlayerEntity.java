@@ -4,6 +4,8 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
+import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
@@ -93,17 +95,16 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
             addAnimationController(new HybridAnimationController(this, controllerName, 0, new ParallelPredicate(animationName)));
         }
 
+        ParCoolCompat.addParcoolPredicate(this);
+        addAnimationController(new HybridAnimationController(this, VEHICLE_CONTROLLER, 2, new VehiclePredicate()));
         addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 2, new PlayerMainPredicate()));
         addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0, new OffhandPredicate()));
         addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0, new MainhandPredicate()));
-        addAnimationController(new HybridAnimationController(this, FIRE_CONTROLLER, 0, new GunFirePredicate()));
+        TACZCompat.addTaczPredicate(this);
         addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
         addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 2, new UsePredicate()));
         addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 2, new PassengerPredicate()));
-
-        if (CarryOnCompat.isInstalled()) {
-            CarryOnCompat.addCarryOnPredicate(this);
-        }
+        CarryOnCompat.addCarryOnPredicate(this);
 
         // 下面不需要自定义动画控制器
         {
