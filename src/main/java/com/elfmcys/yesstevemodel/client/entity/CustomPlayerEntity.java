@@ -9,8 +9,8 @@ import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
@@ -137,7 +137,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
             String controllerName = String.format("parallel_%d_controller", i);
             String animationName = String.format("parallel%d", i);
             addAnimationController(new HybridAnimationController(this, controllerName, 0,
-                    (event, evaluator) -> manager.predicateParallel(event, animationName)));
+                    (event, evaluator) -> manager.predicateParallel(event, animationName), true));
         }
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {

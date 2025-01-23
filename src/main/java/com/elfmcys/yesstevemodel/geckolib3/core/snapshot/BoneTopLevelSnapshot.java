@@ -8,7 +8,10 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.PointData;
  */
 public class BoneTopLevelSnapshot extends BoneSnapshot {
     public final IBone bone;
-    public final PointData cachedPointData = new PointData(); // 并行动画控制器需要缓存旋转参数
+
+    // 历史遗留问题，CodedAnimationController 的并行动画控制器需要缓存旋转参数
+    @Deprecated
+    public final PointData cachedPointData = new PointData();
 
     public float mostRecentResetRotationTick = 0;
     public float mostRecentResetPositionTick = 0;

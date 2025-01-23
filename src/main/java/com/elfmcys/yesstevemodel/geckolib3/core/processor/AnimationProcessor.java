@@ -73,18 +73,19 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             // 将当前控制器设置为动画测试事件
             // 处理动画并向点队列添加新值
             controller.process(seekTime, event, evaluator, shouldUpdate);
-            boolean isParallelController = controller.getName().startsWith("parallel_");
+            // 解决一个历史遗留问题而保留的动画混合
+            @Deprecated boolean blendRotation = controller.blendRotation();
             // 遍历每个骨骼，并对属性进行插值计算
             controller.visitBoneAnimationQueues(boneAnimation -> {
                 BoneTopLevelSnapshot snapshot = boneAnimation.getSnapshot();
 
                 boneAnimation.pollRotationPoint(evaluator).ifPresent(rot -> {
                     BoneSnapshot initialSnapshot = snapshot.bone.getInitialSnapshot();
-                    PointData pointData = snapshot.cachedPointData;
+                    @Deprecated PointData pointData = snapshot.cachedPointData;
                     pointData.rotationValueX += rot.x();
                     pointData.rotationValueY += rot.y();
                     pointData.rotationValueZ += rot.z();
-                    if (isParallelController) {
+                    if (blendRotation) {
                         snapshot.rotationValueX = pointData.rotationValueX + initialSnapshot.rotationValueX;
                         snapshot.rotationValueY = pointData.rotationValueY + initialSnapshot.rotationValueY;
                         snapshot.rotationValueZ = pointData.rotationValueZ + initialSnapshot.rotationValueZ;

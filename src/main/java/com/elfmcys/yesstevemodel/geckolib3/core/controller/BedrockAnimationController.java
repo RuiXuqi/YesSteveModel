@@ -45,7 +45,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
      * 你可以为一个实体附加多个动画控制器 <br>
      * 比如一个控制器控制实体大小，另一个控制移动，攻击等等
      *
-     * @param animatableEntity            实体
+     * @param animatableEntity      实体
      * @param name                  动画控制器名称
      * @param transitionLengthTicks 动画过渡时间（tick）
      */

@@ -18,9 +18,14 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     private IAnimationController<T> activeController;
 
     public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, CodedAnimationController.IAnimationPredicate<T> animationPredicate) {
+        this(animatableEntity, name, transitionLengthTicks, animationPredicate, false);
+    }
+
+    @Deprecated
+    public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, CodedAnimationController.IAnimationPredicate<T> animationPredicate, boolean blendRotation) {
         this.name = name;
         this.animatableEntity = animatableEntity;
-        this.codedAnimationController = new CodedAnimationController<>(animatableEntity, name, transitionLengthTicks, animationPredicate);
+        this.codedAnimationController = new CodedAnimationController<>(animatableEntity, name, transitionLengthTicks, animationPredicate, blendRotation);
         this.bedrockAnimationController = new BedrockAnimationController<>(animatableEntity, name, transitionLengthTicks);
     }
 
@@ -49,5 +54,10 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     @Override
     public void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor) {
         this.activeController.visitBoneAnimationQueues(visitor);
+    }
+
+    @Override
+    public boolean blendRotation() {
+        return this.activeController.blendRotation();
     }
 }

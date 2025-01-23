@@ -20,22 +20,30 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     private final IAnimationPredicate<T> animationPredicate;
     private final AnimationPlayer animationPlayer;
     private final ReferenceArrayList<SingleBoneAnimationQueue> boneAnimationQueues;
+    private final boolean blendRotation;
 
     /**
      * 实例化硬编码动画控制器，每个控制器同一时间只能播放一个动画 <br>
      * 你可以为一个实体附加多个动画控制器 <br>
      * 比如一个控制器控制实体大小，另一个控制移动，攻击等等
      *
-     * @param animatableEntity            实体
+     * @param animatableEntity      实体
      * @param name                  动画控制器名称
      * @param transitionLengthTicks 动画过渡时间（tick）
      */
     public CodedAnimationController(T animatableEntity, String name, float transitionLengthTicks,
                                     IAnimationPredicate<T> animationPredicate) {
+        this(animatableEntity, name, transitionLengthTicks, animationPredicate, false);
+    }
+
+    @Deprecated
+    public CodedAnimationController(T animatableEntity, String name, float transitionLengthTicks,
+                                    IAnimationPredicate<T> animationPredicate, boolean blendRotation) {
         this.name = name;
         this.animationPredicate = animationPredicate;
         this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
         this.boneAnimationQueues = new ReferenceArrayList<>();
+        this.blendRotation = blendRotation;
     }
 
     @Override
@@ -93,12 +101,16 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.stopSoundKeyFrames();
     }
 
+    public boolean isBlendRotation() {
+        return blendRotation;
+    }
+
     /**
      * 每个 CodedAnimationController 每个关键帧都会运行一次 AnimationPredicate
      * test 方法就是你改变动画、停止动画、重置的地方
      */
     @FunctionalInterface
-    public interface IAnimationPredicate <P extends AnimatableEntity<?>> {
+    public interface IAnimationPredicate<P extends AnimatableEntity<?>> {
         PlayState test(AnimationEvent<P> event, ExpressionEvaluator<?> evaluator);
     }
 
