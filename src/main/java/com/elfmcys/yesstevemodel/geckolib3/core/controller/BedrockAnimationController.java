@@ -263,8 +263,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 return false;
             }
             for (var pair : this.underlyingQueues) {
-                // 此处不能检查 shouldApply
-                if (pair.right().isActive()) {
+                if (pair.left().shouldApply() && pair.right().isActive()) {
                     return true;
                 }
             }
@@ -302,9 +301,6 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 }
                 var point = pointGetter.apply(queue);
                 if (point == null) {
-                    continue;
-                }
-                if (!pair.left().shouldApply()) {
                     continue;
                 }
                 active = true;

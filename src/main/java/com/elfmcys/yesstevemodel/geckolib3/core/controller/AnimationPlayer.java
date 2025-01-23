@@ -167,7 +167,6 @@ public class AnimationPlayer {
      * @param tick              当前 tick + 插值 tick
      */
     public void process(final double tick, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
-        AnimationContext context = new AnimationContext();
         if (this.currentAnimation != null) {
             Animation animation = animatableEntity.getAnimation(currentAnimation.animationName);
             if (animation != null && this.currentAnimation != animation) {
@@ -187,7 +186,7 @@ public class AnimationPlayer {
 
         double adjustedTick = adjustTick(tick);
         // 过渡结束，重置 tick 并将动画设置为运行
-        if (animationState == AnimationState.TRANSITIONING && adjustedTick >= this.transitionLengthTicks) {
+        if (animationQueue.isEmpty() && animationState == AnimationState.TRANSITIONING && adjustedTick >= this.transitionLengthTicks) {
             this.shouldResetTick = true;
             this.animationState = AnimationState.RUNNING;
             adjustedTick = adjustTick(tick);
@@ -211,6 +210,8 @@ public class AnimationPlayer {
         } else if (this.animationState != AnimationState.TRANSITIONING) {
             this.animationState = AnimationState.RUNNING;
         }
+
+        AnimationContext context = new AnimationContext();
 
         // 处理过渡到其他动画（或仅开始一个动画）
         if (this.animationState == AnimationState.TRANSITIONING) {
