@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
+import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
@@ -87,64 +87,42 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
      */
     @SuppressWarnings("all")
     public void registerControllers() {
-        AnimationManager manager = AnimationManager.getInstance();
         for (int i = 0; i < 8; i++) {
-            String controllerName = String.format("pre_parallel_%d_controller", i);
+            String controllerName = PRE_PARALLEL_CONTROLLER + i;
             String animationName = String.format("pre_parallel%d", i);
-            addAnimationController(new HybridAnimationController(this, controllerName, 0,
-                    (event, evaluator) -> manager.predicateParallel(event, animationName)));
+            addAnimationController(new HybridAnimationController(this, controllerName, 0, new ParallelPredicate(animationName)));
         }
 
-        addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 2,
-                (event, evaluator) -> manager.predicateMain(event)));
-
-        addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0,
-                (event, evaluator) -> manager.predicateOffhandHold(event)));
-
-        addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0,
-                (event, evaluator) -> manager.predicateMainhandHold(event)));
-
-        addAnimationController(new HybridAnimationController(this, FIRE_MAINHAND_CONTROLLER, 0,
-                (event, evaluator) -> manager.predicateMainhandFire(event)));
-
-        addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0,
-                (event, evaluator) -> manager.predicateSwing(event)));
-
-        addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 2,
-                (event, evaluator) -> manager.predicateUse(event)));
-
-        addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 2,
-                (event, evaluator) -> manager.predicatePassengerAnimation(event)));
+        addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 2, new PlayerMainPredicate()));
+        addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0, new OffhandPredicate()));
+        addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0, new MainhandPredicate()));
+        addAnimationController(new HybridAnimationController(this, FIRE_CONTROLLER, 0, new GunFirePredicate()));
+        addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
+        addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 2, new UsePredicate()));
+        addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 2, new PassengerPredicate()));
 
         if (CarryOnCompat.isInstalled()) {
-            addAnimationController(new HybridAnimationController(this, CARRY_ON_CONTROLLER, 2,
-                    (event, evaluator) -> CarryOnCompat.predicateCarryOn(event)));
+            CarryOnCompat.addCarryOnPredicate(this);
         }
 
         // 下面不需要自定义动画控制器
         {
-            addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 2,
-                    (event, evaluator) -> manager.predicateCap(event)));
-
-            addAnimationController(new CodedAnimationController(this, HOVER_CONTROLLER, 0,
-                    (event, evaluator) -> manager.predicateHover(event)));
-
-            addAnimationController(new CodedAnimationController(this, FOCUS_CONTROLLER, 0,
-                    (event, evaluator) -> manager.predicateFocus(event)));
+            addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 2, new CapPredicate()));
+            addAnimationController(new CodedAnimationController(this, HOVER_CONTROLLER, 0, new HoverPredicate()));
+            addAnimationController(new CodedAnimationController(this, FOCUS_CONTROLLER, 0, new FocusPredicate()));
         }
 
         for (int i = 0; i < 8; i++) {
-            String controllerName = String.format("parallel_%d_controller", i);
+            String controllerName = PARALLEL_CONTROLLER + i;
             String animationName = String.format("parallel%d", i);
             addAnimationController(new HybridAnimationController(this, controllerName, 0,
-                    (event, evaluator) -> manager.predicateParallel(event, animationName), true));
+                    new ParallelPredicate(animationName), true));
         }
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                String controllerName = String.format("%s_controller", slot.getName());
-                addAnimationController(new HybridAnimationController(this, controllerName, 0,
-                        (event, evaluator) -> manager.predicateArmor(event, slot)));
+                String controllerName = ARMOR_CONTROLLER + slot.getName();
+                addAnimationController(new HybridAnimationController(this, controllerName, 0, new ArmorPredicate(slot)));
             }
         }
     }

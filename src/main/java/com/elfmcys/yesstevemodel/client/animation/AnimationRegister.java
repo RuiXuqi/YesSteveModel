@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
+import com.elfmcys.yesstevemodel.client.animation.predicate.PlayerMainPredicate;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -45,8 +46,7 @@ public class AnimationRegister {
     }
 
     private static void register(String animationName, ILoopType loopType, int priority, BiPredicate<Player, AnimationEvent<CustomPlayerEntity>> predicate) {
-        AnimationManager manager = AnimationManager.getInstance();
-        manager.register(new AnimationState(animationName, loopType, priority, predicate));
+        PlayerMainPredicate.register(new AnimationState(animationName, loopType, priority, predicate));
     }
 
     private static void register(String animationName, int priority, BiPredicate<Player, AnimationEvent<CustomPlayerEntity>> predicate) {

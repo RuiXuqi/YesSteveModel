@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
+import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -103,15 +104,6 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
     public boolean isBlendRotation() {
         return blendRotation;
-    }
-
-    /**
-     * 每个 CodedAnimationController 每个关键帧都会运行一次 AnimationPredicate
-     * test 方法就是你改变动画、停止动画、重置的地方
-     */
-    @FunctionalInterface
-    public interface IAnimationPredicate<P extends AnimatableEntity<?>> {
-        PlayState test(AnimationEvent<P> event, ExpressionEvaluator<?> evaluator);
     }
 
     private static class SingleBoneAnimationQueue implements IBoneAnimationQueue {

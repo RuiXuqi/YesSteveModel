@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
+import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
@@ -17,12 +18,12 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
 
     private IAnimationController<T> activeController;
 
-    public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, CodedAnimationController.IAnimationPredicate<T> animationPredicate) {
+    public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, IAnimationPredicate<T> animationPredicate) {
         this(animatableEntity, name, transitionLengthTicks, animationPredicate, false);
     }
 
     @Deprecated
-    public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, CodedAnimationController.IAnimationPredicate<T> animationPredicate, boolean blendRotation) {
+    public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, IAnimationPredicate<T> animationPredicate, boolean blendRotation) {
         this.name = name;
         this.animatableEntity = animatableEntity;
         this.codedAnimationController = new CodedAnimationController<>(animatableEntity, name, transitionLengthTicks, animationPredicate, blendRotation);

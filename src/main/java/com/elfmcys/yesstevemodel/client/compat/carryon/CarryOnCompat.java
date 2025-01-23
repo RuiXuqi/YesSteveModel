@@ -2,11 +2,13 @@ package com.elfmcys.yesstevemodel.client.compat.carryon;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
+
+import static com.elfmcys.yesstevemodel.util.ControllerUtils.CARRY_ON_CONTROLLER;
 
 public class CarryOnCompat {
     private static final String CARRY_ON_ID = "carryon";
@@ -20,11 +22,10 @@ public class CarryOnCompat {
         return INSTALLED;
     }
 
-    public static PlayState predicateCarryOn(AnimationEvent<CustomPlayerEntity> event) {
+    public static void addCarryOnPredicate(CustomPlayerEntity entity) {
         if (INSTALLED) {
-            return CarryOnInnerCompat.predicateCarryOn(event);
+            entity.addAnimationController(new HybridAnimationController<>(entity, CARRY_ON_CONTROLLER, 2, new CarryOnPredicate()));
         }
-        return PlayState.STOP;
     }
 
     public static boolean isCarryOnPrincess(Player player, AnimationEvent<CustomPlayerEntity> event) {
