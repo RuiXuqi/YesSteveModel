@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.builder.controller;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.IBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceLists;
@@ -14,11 +15,11 @@ public class GeoAnimationControllerState {
     private final List<Pair<String, IValue>> transitions;
     private final List<IValue> onEntry;
     private final List<IValue> onExit;
-    private final float blendTransition;
+    private final IBlendTransition blendTransition;
     private final boolean blendViaShortestPath;
 
     // Native Access
-    public GeoAnimationControllerState(Pair<String, IValue>[] animations, Pair<String, IValue>[] transitions, IValue[] onEntry, IValue[] onExit, float blendTransition, boolean blendViaShortestPath) {
+    public GeoAnimationControllerState(Pair<String, IValue>[] animations, Pair<String, IValue>[] transitions, IValue[] onEntry, IValue[] onExit, IBlendTransition blendTransition, boolean blendViaShortestPath) {
         this.animations = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(animations));
         this.transitions = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(transitions));
         this.onEntry = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(onEntry));
@@ -43,7 +44,7 @@ public class GeoAnimationControllerState {
         return onExit;
     }
 
-    public float blendTransition() {
+    public IBlendTransition blendTransition() {
         return blendTransition;
     }
 
