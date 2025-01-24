@@ -61,6 +61,20 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             return;
         }
 
+        // 需要在更新控制器状态之前，写入 all_animations_finished 和 any_animation_finished 变量，供控制器使用
+        if (evaluator.entity().animationContext() != null) {
+            evaluator.entity().animationContext().setAnyAnimationFinished(false);
+            evaluator.entity().animationContext().setAllAnimationsFinished(true);
+            for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
+                var holder = this.animationPlayers.get(i);
+                if (holder.animationPlayer.animIsFinished) {
+                    evaluator.entity().animationContext().setAnyAnimationFinished(true);
+                } else {
+                    evaluator.entity().animationContext().setAllAnimationsFinished(false);
+                }
+            }
+        }
+
         // 更新状态
         if (this.state == null) {
             var initialState = this.data.states().get(this.data.initialState());
@@ -160,7 +174,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             }
 
             holder.conditionHolder().setApplyCondition(animPair.getRight());
-            holder.animationPlayer().transitionLengthTicks = state.blendTransition() * 20;;
+            holder.animationPlayer().transitionLengthTicks = state.blendTransition() * 20;
             holder.animationPlayer().setAnimation(new AnimationBuilder().addAnimation(animPair.getLeft()));
         }
     }
