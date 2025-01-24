@@ -10,6 +10,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.IBlendTransition;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.LinearBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
@@ -44,8 +46,7 @@ public class AnimationPlayer {
     /**
      * 在动画之间过渡需要多长时间
      */
-    public double transitionLengthTicks;
-    public final double initTransitionLengthTicks;
+    public IBlendTransition transition;
     public boolean isJustStarting = false;
     public double tickOffset;
     public double animationSpeed = 1D;
@@ -82,8 +83,7 @@ public class AnimationPlayer {
      */
     public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
         this.animatableEntity = animatableEntity;
-        this.transitionLengthTicks = transitionLengthTicks;
-        this.initTransitionLengthTicks = transitionLengthTicks;
+        this.transition = new LinearBlendTransition(transitionLengthTicks);
         this.tickOffset = 0.0d;
     }
 
@@ -96,8 +96,7 @@ public class AnimationPlayer {
      */
     public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks, EasingType easingtype) {
         this.animatableEntity = animatableEntity;
-        this.transitionLengthTicks = transitionLengthTicks;
-        this.initTransitionLengthTicks = transitionLengthTicks;
+        this.transition = new LinearBlendTransition(transitionLengthTicks);
         this.easingType = easingtype;
         this.tickOffset = 0.0d;
     }
@@ -187,7 +186,7 @@ public class AnimationPlayer {
 
         double adjustedTick = adjustTick(tick);
         // 过渡结束，重置 tick 并将动画设置为运行
-        if (animationQueue.isEmpty() && animationState == AnimationState.TRANSITIONING && adjustedTick >= this.transitionLengthTicks) {
+        if (animationQueue.isEmpty() && animationState == AnimationState.TRANSITIONING && adjustedTick >= this.transition.length()) {
             this.shouldResetTick = true;
             this.animationState = AnimationState.RUNNING;
             adjustedTick = adjustTick(tick);
@@ -354,7 +353,7 @@ public class AnimationPlayer {
             instructionKeyFrameExecutor.executeTo(evaluator, tick);
         }
 
-        if (this.transitionLengthTicks == 0 && shouldResetTick && this.animationState == AnimationState.TRANSITIONING) {
+        if (this.transition.length() == 0 && shouldResetTick && this.animationState == AnimationState.TRANSITIONING) {
             Pair<ILoopType, Animation> current = animationQueue.poll();
             if (current != null) {
                 this.currentAnimation = current.getSecond();
@@ -432,7 +431,7 @@ public class AnimationPlayer {
      **/
     private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, boolean rotation, double tick, Vector3f offsetPoint, AnimationContext context) {
         BoneKeyFrame dstFrame = frames.search(0);
-        return new TransitionPoint(tick, this.transitionLengthTicks, offsetPoint, dstFrame, rotation, context);
+        return new TransitionPoint(tick, this.transition, offsetPoint, dstFrame, rotation, context);
     }
 
     private void resetEventKeyFrames(boolean reachEnd, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
