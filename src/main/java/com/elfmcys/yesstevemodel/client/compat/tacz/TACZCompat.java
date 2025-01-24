@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,6 +16,8 @@ import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+import static com.elfmcys.yesstevemodel.util.ControllerUtils.TACZ_FIRE_CONTROLLER;
+
 
 public class TACZCompat {
     private static final String MOD_ID = "tacz";
@@ -24,6 +27,12 @@ public class TACZCompat {
         INSTALLED = ModList.get().isLoaded(MOD_ID);
         if (INSTALLED) {
             TacCompatInner.registerEvent();
+        }
+    }
+
+    public static void addTaczPredicate(CustomPlayerEntity entity) {
+        if (INSTALLED) {
+            entity.addAnimationController(new HybridAnimationController(entity, TACZ_FIRE_CONTROLLER, 0, new GunFirePredicate()));
         }
     }
 

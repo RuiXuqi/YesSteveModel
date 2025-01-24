@@ -40,10 +40,10 @@ public class QueryBinding extends ContextBinding {
         function("remaining_durability", new ItemRemainingDurability());
 
         var("actor_count", ctx -> ctx.level().getEntityCount());
-        var("anim_time", ctx -> ctx.animationControllerContext().animTime());
+        var("anim_time", ctx -> ctx.animationContext().animTime());
         // 目前控制器只能同时播放单一动画，所以两个 molang 都是一样的结果
-        var("all_animations_finished", ctx -> ctx.animationControllerContext().animIsFinished());
-        var("any_animation_finished", ctx -> ctx.animationControllerContext().animIsFinished());
+        var("all_animations_finished", ctx -> ctx.animationContext().isAllAnimationsFinished());
+        var("any_animation_finished", ctx -> ctx.animationContext().isAnyAnimationFinished());
         var("life_time", ctx -> ctx.animatableEntity().getSeekTime() / 20.0);
         var("head_x_rotation", ctx -> ctx.data().netHeadYaw);
         var("head_y_rotation", ctx -> ctx.data().headPitch);

@@ -7,22 +7,21 @@ package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
-import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.IBlendTransition;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.LinearBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameExecutor;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.ParticleKeyFrameEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.EasingType;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.geckolib3.util.OrderedSegmentSearcher;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -32,24 +31,22 @@ import org.joml.Vector3f;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-public class AnimationController<T extends AnimatableEntity<?>> {
-    /**
-     * 动画控制器名称
-     */
-    private final String name;
+public class AnimationPlayer {
     private final Object2ReferenceOpenHashMap<String, BoneAnimationQueue> boneAnimationQueues = new Object2ReferenceOpenHashMap<>();
     private final ReferenceArrayList<BoneAnimationQueue> activeBoneAnimationQueues = new ReferenceArrayList<>();
+    private boolean rendererDirty = true;
+
     private InstructionKeyFrameExecutor instructionKeyFrameExecutor;
     private SoundKeyframeExecutor soundKeyFrameExecutor;
     /**
      * 在动画之间过渡需要多长时间
      */
-    public double transitionLengthTicks;
-    public final double initTransitionLengthTicks;
+    public IBlendTransition transition;
     public boolean isJustStarting = false;
     public double tickOffset;
     public double animationSpeed = 1D;
@@ -61,11 +58,7 @@ public class AnimationController<T extends AnimatableEntity<?>> {
     /**
      * 实体对象
      */
-    protected final T animatableEntity;
-    /**
-     * 动画谓词，每次触发前都会调用一次
-     */
-    protected IAnimationPredicate<T> animationPredicate;
+    protected final AnimatableEntity<?> animatableEntity;
     protected AnimationState animationState = AnimationState.STOPPED;
     protected Queue<Pair<ILoopType, Animation>> animationQueue = new LinkedList<>();
     protected Animation currentAnimation;
@@ -74,62 +67,39 @@ public class AnimationController<T extends AnimatableEntity<?>> {
     public boolean shouldResetTick = false;
     protected boolean justStartedTransition = false;
     protected boolean needsAnimationReload = false;
-    /**
-     * 播放粒子关键帧时触发的 Particle Listener
-     */
-    private IParticleListener<T> particleListener;
     private boolean justStopped = false;
     /**
-     * 当前状态名
-     */
-    private String stateName = null;
-    /**
-     * 当前控制器播放的动画是否已经播放过至少一次了
+     * 当前播放器播放的动画是否已经播放过至少一次了
      * <p>
-     * 这个是专为控制器使用的一个变量，因为更新顺序问题，不能直接写入 animationControllerContext
+     * 这个是专为播放器使用的一个变量，因为更新顺序问题，不能直接写入 animationContext
      */
     public boolean animIsFinished = false;
 
     /**
-     * 实例化动画控制器，每个控制器同一时间只能播放一个动画 <br>
-     * 你可以为一个实体附加多个动画控制器 <br>
-     * 比如一个控制器控制实体大小，另一个控制移动，攻击等等
+     * 实例化动画播放器，每个播放器同一时间只能播放一个动画
      *
      * @param animatableEntity      实体
-     * @param name                  动画控制器名称
      * @param transitionLengthTicks 动画过渡时间（tick）
      */
-    public AnimationController(T animatableEntity, String name, float transitionLengthTicks,
-                               IAnimationPredicate<T> animationPredicate) {
+    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
         this.animatableEntity = animatableEntity;
-        this.name = name;
-        this.transitionLengthTicks = transitionLengthTicks;
-        this.initTransitionLengthTicks = transitionLengthTicks;
-        this.animationPredicate = animationPredicate;
+        this.transition = new LinearBlendTransition(transitionLengthTicks);
         this.tickOffset = 0.0d;
     }
 
     /**
-     * 实例化动画控制器，每个控制器同一时间只能播放一个动画 <br>
-     * 你可以为一个实体附加多个动画控制器 <br>
-     * 比如一个控制器控制实体大小，另一个控制移动，攻击等等
+     * 实例化动画播放器，每个播放器同一时间只能播放一个动画
      *
      * @param animatableEntity      实体
-     * @param name                  动画控制器名称
      * @param transitionLengthTicks 动画过渡时间（tick）
      * @param easingtype            动画过渡插值类型，默认没有
      */
-    public AnimationController(T animatableEntity, String name, float transitionLengthTicks, EasingType easingtype,
-                               IAnimationPredicate<T> animationPredicate) {
+    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks, EasingType easingtype) {
         this.animatableEntity = animatableEntity;
-        this.name = name;
-        this.transitionLengthTicks = transitionLengthTicks;
-        this.initTransitionLengthTicks = transitionLengthTicks;
+        this.transition = new LinearBlendTransition(transitionLengthTicks);
         this.easingType = easingtype;
-        this.animationPredicate = animationPredicate;
         this.tickOffset = 0.0d;
     }
-
 
     /**
      * 此方法使用 AnimationBuilder 设置当前动画
@@ -170,13 +140,6 @@ public class AnimationController<T extends AnimatableEntity<?>> {
     }
 
     /**
-     * 获取动画控制器名称
-     */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
      * 当前动画，可以为 null
      */
     @Nullable
@@ -185,7 +148,7 @@ public class AnimationController<T extends AnimatableEntity<?>> {
     }
 
     /**
-     * 当前动画控制器状态
+     * 当前动画播放器状态
      */
     public AnimationState getAnimationState() {
         return this.animationState;
@@ -194,27 +157,16 @@ public class AnimationController<T extends AnimatableEntity<?>> {
     /**
      * 当前动画骨骼动画队列
      */
-    public List<BoneAnimationQueue> getBoneAnimationQueues() {
-        return this.activeBoneAnimationQueues;
-    }
-
-    /**
-     * 注册 Particle Listener
-     */
-    public void registerParticleListener(IParticleListener<T> particleListener) {
-        this.particleListener = particleListener;
+    public Map<String, BoneAnimationQueue> getBoneAnimationQueues() {
+        return this.boneAnimationQueues;
     }
 
     /**
      * 此方法每帧调用一次，以便填充动画点队列并处理动画状态逻辑。
      *
      * @param tick              当前 tick + 插值 tick
-     * @param event             动画测试事件
-     * @param modelRendererList 所有的 AnimatedModelRender 列表
      */
-    public void process(final double tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationContext<?>> evaluator, List<BoneTopLevelSnapshot> modelRendererList,
-                        boolean isRendererDirty, boolean scheduledUpdate) {
-        AnimationControllerContext context = new AnimationControllerContext();
+    public void process(final double tick, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
         if (this.currentAnimation != null) {
             Animation animation = animatableEntity.getAnimation(currentAnimation.animationName);
             if (animation != null && this.currentAnimation != animation) {
@@ -225,8 +177,8 @@ public class AnimationController<T extends AnimatableEntity<?>> {
             }
         }
 
-        if (isRendererDirty) {
-            switchRenderer(modelRendererList);
+        if (this.rendererDirty) {
+            this.rendererDirty = false;
             if (currentAnimation != null) {
                 switchAnimation();
             }
@@ -234,19 +186,15 @@ public class AnimationController<T extends AnimatableEntity<?>> {
 
         double adjustedTick = adjustTick(tick);
         // 过渡结束，重置 tick 并将动画设置为运行
-        if (animationState == AnimationState.TRANSITIONING && adjustedTick >= this.transitionLengthTicks) {
+        if (animationQueue.isEmpty() && animationState == AnimationState.TRANSITIONING && adjustedTick >= this.transition.length()) {
             this.shouldResetTick = true;
             this.animationState = AnimationState.RUNNING;
             adjustedTick = adjustTick(tick);
         }
         assert adjustedTick >= 0 : "GeckoLib: Tick was less than zero";
 
-        // 测试动画谓词
-        PlayState playState = this.testAnimationPredicate(event, evaluator);
-        if (playState == PlayState.STOP || (this.currentAnimation == null && this.animationQueue.isEmpty())) {
-            // 动画过渡到模型的初始状态
-            this.animationState = AnimationState.STOPPED;
-            this.justStopped = true;
+        if (this.currentAnimation == null && this.animationQueue.isEmpty()) {
+            stop();
             return;
         }
 
@@ -262,6 +210,8 @@ public class AnimationController<T extends AnimatableEntity<?>> {
         } else if (this.animationState != AnimationState.TRANSITIONING) {
             this.animationState = AnimationState.RUNNING;
         }
+
+        AnimationContext context = new AnimationContext();
 
         // 处理过渡到其他动画（或仅开始一个动画）
         if (this.animationState == AnimationState.TRANSITIONING) {
@@ -287,18 +237,18 @@ public class AnimationController<T extends AnimatableEntity<?>> {
             if (this.currentAnimation != null) {
                 context.setAnimTime(0);
                 animIsFinished = false;
+                resetQueues();
+
+                var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsDouble(evaluator) : 1;
                 for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
-                    BoneAnimation boneAnimation = boneAnimationQueue.animation;
-                    if (boneAnimation == null) {
-                        continue;
-                    }
+                    boneAnimationQueue.setBlendWeight(blendWeight);
+
                     BoneSnapshot boneSnapshot = boneAnimationQueue.snapshot();
                     BoneSnapshot initialSnapshot = boneAnimationQueue.topLevelSnapshot.bone.getInitialSnapshot();
 
                     // 添加即将出现的动画的初始位置，以便模型转换到新动画的初始状态
-                    List<BoneKeyFrame> rotationKeyFrames = boneAnimation.rotationKeyFrames;
-                    if (!rotationKeyFrames.isEmpty()) {
-                        AnimationPoint point = getTransitionPointAtTick(rotationKeyFrames, adjustedTick,
+                    if (boneAnimationQueue.rotationKeyFrames != null) {
+                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, true, adjustedTick,
                                 new Vector3f(boneSnapshot.rotationValueX - initialSnapshot.rotationValueX,
                                         boneSnapshot.rotationValueY - initialSnapshot.rotationValueY,
                                         boneSnapshot.rotationValueZ - initialSnapshot.rotationValueZ),
@@ -306,9 +256,8 @@ public class AnimationController<T extends AnimatableEntity<?>> {
                         boneAnimationQueue.rotationQueue().add(point);
                     }
 
-                    List<BoneKeyFrame> positionKeyFrames = boneAnimation.positionKeyFrames;
-                    if (!positionKeyFrames.isEmpty()) {
-                        AnimationPoint point = getTransitionPointAtTick(positionKeyFrames, adjustedTick,
+                    if (boneAnimationQueue.positionKeyFrames != null) {
+                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, false, adjustedTick,
                                 new Vector3f(boneSnapshot.positionOffsetX,
                                         boneSnapshot.positionOffsetY,
                                         boneSnapshot.positionOffsetZ),
@@ -316,9 +265,8 @@ public class AnimationController<T extends AnimatableEntity<?>> {
                         boneAnimationQueue.positionQueue().add(point);
                     }
 
-                    List<BoneKeyFrame> scaleKeyFrames = boneAnimation.scaleKeyFrames;
-                    if (!scaleKeyFrames.isEmpty()) {
-                        AnimationPoint point = getTransitionPointAtTick(scaleKeyFrames, adjustedTick,
+                    if (boneAnimationQueue.scaleKeyFrames != null) {
+                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, false, adjustedTick,
                                 new Vector3f(boneSnapshot.scaleValueX,
                                         boneSnapshot.scaleValueY,
                                         boneSnapshot.scaleValueZ),
@@ -334,13 +282,17 @@ public class AnimationController<T extends AnimatableEntity<?>> {
         }
     }
 
-    protected PlayState testAnimationPredicate(AnimationEvent<T> event, ExpressionEvaluator<AnimationContext<?>> evaluator) {
-        return this.animationPredicate.test(event, evaluator);
+    /**
+     * 动画过渡到模型的初始状态
+     */
+    public void stop() {
+        this.animationState = AnimationState.STOPPED;
+        this.justStopped = true;
     }
 
-    private void processCurrentAnimation(AnimationControllerContext context, ExpressionEvaluator<AnimationContext<?>> evaluator, double tick, double actualTick, boolean scheduledUpdate) {
+    private void processCurrentAnimation(AnimationContext context, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, double tick, double actualTick, boolean scheduledUpdate) {
         assert currentAnimation != null;
-        evaluator.entity().setAnimationControllerContext(context);
+        evaluator.entity().setAnimationContext(context);
 
         // 如果动画已经结束了
         if (tick >= this.currentAnimation.animationLength) {
@@ -374,22 +326,20 @@ public class AnimationController<T extends AnimatableEntity<?>> {
         context.setAnimTime(tick / 20.0f);
 
         // 循环遍历当前动画中的每个骨骼动画并处理值
+        var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsDouble(evaluator) : 1;
         for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
-            BoneAnimation boneAnimation = boneAnimationQueue.animation;
+            boneAnimationQueue.setBlendWeight(blendWeight);
 
-            List<BoneKeyFrame> rotationKeyFrames = boneAnimation.rotationKeyFrames;
-            if (!rotationKeyFrames.isEmpty()) {
-                boneAnimationQueue.rotationQueue().add(getKeyFramePointAtTick(rotationKeyFrames, tick, context));
+            if (boneAnimationQueue.rotationKeyFrames != null) {
+                boneAnimationQueue.rotationQueue().add(getKeyFramePointAtTick(boneAnimationQueue.rotationKeyFrames, tick, context));
             }
 
-            List<BoneKeyFrame> positionKeyFrames = boneAnimation.positionKeyFrames;
-            if (!positionKeyFrames.isEmpty()) {
-                boneAnimationQueue.positionQueue().add(getKeyFramePointAtTick(positionKeyFrames, tick, context));
+            if (boneAnimationQueue.positionKeyFrames != null) {
+                boneAnimationQueue.positionQueue().add(getKeyFramePointAtTick(boneAnimationQueue.positionKeyFrames, tick, context));
             }
 
-            List<BoneKeyFrame> scaleKeyFrames = boneAnimation.scaleKeyFrames;
-            if (!scaleKeyFrames.isEmpty()) {
-                boneAnimationQueue.scaleQueue().add(getKeyFramePointAtTick(scaleKeyFrames, tick, context));
+            if (boneAnimationQueue.scaleKeyFrames != null) {
+                boneAnimationQueue.scaleQueue().add(getKeyFramePointAtTick(boneAnimationQueue.scaleKeyFrames, tick, context));
             }
         }
 
@@ -398,23 +348,12 @@ public class AnimationController<T extends AnimatableEntity<?>> {
             soundKeyFrameExecutor.executeTo(animatableEntity, tick);
         }
 
-        /*
-        if (this.particleListener != null) {
-            for (ParticleEventKeyFrame particleEventKeyFrame : this.currentAnimation.particleKeyFrames) {
-                if (this.executedKeyFrames.add(particleEventKeyFrame) && tick >= particleEventKeyFrame.getStartTick()) {
-                    ParticleKeyFrameEvent<T> event = new ParticleKeyFrameEvent<>(this.animatable, tick, particleEventKeyFrame.effect, particleEventKeyFrame.locator, particleEventKeyFrame.script, this);
-                    this.particleListener.summonParticle(event);
-                }
-            }
-        }
-*/
-
         // 计划外更新不执行指令关键帧
         if (instructionKeyFrameExecutor != null && scheduledUpdate) {
             instructionKeyFrameExecutor.executeTo(evaluator, tick);
         }
 
-        if (this.transitionLengthTicks == 0 && shouldResetTick && this.animationState == AnimationState.TRANSITIONING) {
+        if (this.transition.length() == 0 && shouldResetTick && this.animationState == AnimationState.TRANSITIONING) {
             Pair<ILoopType, Animation> current = animationQueue.poll();
             if (current != null) {
                 this.currentAnimation = current.getSecond();
@@ -433,26 +372,28 @@ public class AnimationController<T extends AnimatableEntity<?>> {
 
     // 在开始新的过渡时，将模型的初始旋转、位置和缩放存储为快照
     private void switchAnimation() {
-        activeBoneAnimationQueues.clear();
+        clearActiveBoneAnimationQueues();
         for (BoneAnimation animation : currentAnimation.boneAnimations) {
             BoneAnimationQueue queue = boneAnimationQueues.get(animation.boneName);
             if (queue == null) {
                 continue;
             }
-            queue.animation = animation;
+            queue.setBoneAnimation(animation);
             queue.updateSnapshot();
             queue.resetQueues();
+            queue.setActive(true);
             activeBoneAnimationQueues.add(queue);
         }
     }
 
     // 切换模型，重新填充所有初始动画点队列
-    private void switchRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
+    public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
+        this.rendererDirty = true;
         this.boneAnimationQueues.clear();
         for (BoneTopLevelSnapshot modelRenderer : modelRendererList) {
             this.boneAnimationQueues.put(modelRenderer.name, new BoneAnimationQueue(modelRenderer));
         }
-        activeBoneAnimationQueues.clear();
+        clearActiveBoneAnimationQueues();
         markNeedsReload();
     }
 
@@ -480,26 +421,20 @@ public class AnimationController<T extends AnimatableEntity<?>> {
     /**
      * 返回当前关键帧播放进度
      **/
-    private AnimationPoint getKeyFramePointAtTick(List<BoneKeyFrame> frames, double tick, AnimationControllerContext context) {
-        for (int i = 0; i < frames.size(); i++) {
-            if (frames.get(i).getStartTick() > tick) {
-                BoneKeyFrame frame = frames.get(i - 1);
-                return new KeyFramePoint(tick - frame.getStartTick(), frame, context);
-            }
-        }
-        BoneKeyFrame frame = frames.get(frames.size() - 1);
+    private AnimationPoint getKeyFramePointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, double tick, AnimationContext context) {
+        var frame = frames.search(tick);
         return new KeyFramePoint(tick - frame.getStartTick(), frame, context);
     }
 
     /**
      * 返回过渡进度
      **/
-    private TransitionPoint getTransitionPointAtTick(List<BoneKeyFrame> frames, double tick, Vector3f offsetPoint, AnimationControllerContext context) {
-        BoneKeyFrame dstFrame = frames.get(0);
-        return new TransitionPoint(tick, this.transitionLengthTicks, offsetPoint, dstFrame, context);
+    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, boolean rotation, double tick, Vector3f offsetPoint, AnimationContext context) {
+        BoneKeyFrame dstFrame = frames.search(0);
+        return new TransitionPoint(tick, this.transition, offsetPoint, dstFrame, rotation, context);
     }
 
-    private void resetEventKeyFrames(boolean reachEnd, ExpressionEvaluator<AnimationContext<?>> evaluator) {
+    private void resetEventKeyFrames(boolean reachEnd, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
         if (instructionKeyFrameExecutor != null) {
             if (reachEnd) {
                 instructionKeyFrameExecutor.executeRemaining(evaluator);
@@ -520,6 +455,14 @@ public class AnimationController<T extends AnimatableEntity<?>> {
 
     public void markNeedsReload() {
         this.needsAnimationReload = true;
+        clearActiveBoneAnimationQueues();
+    }
+
+    private void clearActiveBoneAnimationQueues() {
+        for (var queue : this.activeBoneAnimationQueues) {
+            queue.setActive(false);
+        }
+        this.activeBoneAnimationQueues.clear();
     }
 
     public void clearAnimationCache() {
@@ -532,32 +475,5 @@ public class AnimationController<T extends AnimatableEntity<?>> {
 
     public void setAnimationSpeed(double animationSpeed) {
         this.animationSpeed = animationSpeed;
-    }
-
-    /**
-     * 每个 AnimationController 每个关键帧都会运行一次 AnimationPredicate
-     * test 方法就是你改变动画、停止动画、重置的地方
-     */
-    @FunctionalInterface
-    public interface IAnimationPredicate<P extends AnimatableEntity<?>> {
-        PlayState test(AnimationEvent<P> event, ExpressionEvaluator<AnimationContext<?>> evaluator);
-    }
-
-    @FunctionalInterface
-    public interface ISoundListener<A extends AnimatableEntity<?>> {
-        void playSound(SoundKeyframeEvent<A> event);
-    }
-
-    @FunctionalInterface
-    public interface IParticleListener<A extends AnimatableEntity<?>> {
-        void summonParticle(ParticleKeyFrameEvent<A> event);
-    }
-
-    public String getStateName() {
-        return stateName;
-    }
-
-    public void setStateName(String stateName) {
-        this.stateName = stateName;
     }
 }

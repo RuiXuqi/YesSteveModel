@@ -1,10 +1,13 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.event.predicate;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final T animatable;
@@ -14,7 +17,8 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final boolean isMoving;
     private final List<Object> extraData;
     public double animationTick;
-    protected AnimationController<T> controller;
+    @Nullable
+    protected CodedAnimationController<T> codedController;
 
     public AnimationEvent(T animatable, float limbSwing, float limbSwingAmount, float partialTick, boolean isMoving,
                           List<Object> extraData) {
@@ -53,12 +57,14 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         return isMoving;
     }
 
-    public AnimationController<T> getController() {
-        return controller;
+    @NotNull
+    public CodedAnimationController<T> getCodedController() {
+        Objects.requireNonNull(codedController);
+        return codedController;
     }
 
-    public void setController(AnimationController<T> controller) {
-        this.controller = controller;
+    public void setCodedAnimationController(@NotNull CodedAnimationController<T> controller) {
+        this.codedController = controller;
     }
 
     public List<Object> getExtraData() {

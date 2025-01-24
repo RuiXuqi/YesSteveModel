@@ -3,10 +3,11 @@ package com.elfmcys.yesstevemodel.geckolib3.model;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -57,7 +58,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return seekTime;
     }
 
-    public void addAnimationController(AnimationController value) {
+    public void addAnimationController(IAnimationController value) {
         this.manager.addAnimationController(value);
     }
 
@@ -80,6 +81,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     @Nullable
     public abstract Animation getAnimation(String name);
 
+    @Nullable
+    public GeoAnimationController getAnimationControllerData(String animationControllerName) {
+        return null;
+    }
+
     public int getTextureIndex() {
         return 0;
     }
@@ -101,7 +107,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return animationProcessor.getBone(boneName);
     }
 
-    public boolean setCustomAnimations(AnimationContext<?> ctx, @NotNull AnimationEvent<?> animationEvent) {
+    public boolean setCustomAnimations(AnimationMolangContext<?> ctx, @NotNull AnimationEvent<?> animationEvent) {
         Minecraft mc = Minecraft.getInstance();
 
         boolean forceUpdate = this.shouldForceUpdate();
@@ -254,7 +260,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         entityModelData.lerpedAge = entity.tickCount + partialTicks;
 
         AnimationEvent<?> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, partialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), Collections.singletonList(entityModelData));
-        AnimationContext<?> ctx = new AnimationContext<>(entity, this, event, entityModelData);
+        AnimationMolangContext<?> ctx = new AnimationMolangContext<>(entity, this, event, entityModelData);
         ctx.setDebugSource(getDebugSource());
         this.setCustomAnimations(ctx, event);
         return event;

@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
 import com.elfmcys.yesstevemodel.capability.ArrowGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationControllerContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -18,31 +18,31 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 
 import java.util.Random;
 
-public class AnimationContext<TEntity> implements IContext<TEntity> {
+public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     protected final TEntity entity;
     protected final AnimatableEntity<?> animatableEntity;
     protected final AnimationEvent<?> animationEvent;
     protected final EntityModelData data;
 
-    protected AnimationControllerContext animationControllerContext;
+    protected AnimationContext animationContext;
     protected Random random;
     protected VariableStorage storage;
     protected IForeignVariableStorage foreignStorage;
     private DebugSource debugSource;
 
-    public AnimationContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data) {
+    public AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data) {
         this.entity = entity;
         this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
         this.data = data;
     }
 
-    private AnimationContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationControllerContext animationControllerContext, Random random, VariableStorage storage) {
+    private AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, Random random, VariableStorage storage) {
         this.entity = entity;
         this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
         this.data = data;
-        this.animationControllerContext = animationControllerContext;
+        this.animationContext = animationContext;
         this.random = random;
         this.storage = storage;
         if (entity instanceof Player) {
@@ -72,8 +72,8 @@ public class AnimationContext<TEntity> implements IContext<TEntity> {
     }
 
     @Override
-    public AnimationControllerContext animationControllerContext() {
-        return animationControllerContext;
+    public AnimationContext animationContext() {
+        return animationContext;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class AnimationContext<TEntity> implements IContext<TEntity> {
 
     @Override
     public <TChild> IContext<TChild> createChild(TChild child) {
-        return new AnimationContext<>(child, animatableEntity, animationEvent, data, animationControllerContext, random, storage);
+        return new AnimationMolangContext<>(child, animatableEntity, animationEvent, data, animationContext, random, storage);
     }
 
     @Override
@@ -133,8 +133,8 @@ public class AnimationContext<TEntity> implements IContext<TEntity> {
         }
     }
 
-    public void setAnimationControllerContext(AnimationControllerContext animationControllerContext) {
-        this.animationControllerContext = animationControllerContext;
+    public void setAnimationContext(AnimationContext animationContext) {
+        this.animationContext = animationContext;
     }
 
     public void setStorage(VariableStorage storage) {

@@ -1,19 +1,20 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.animation.AnimationManager;
-import com.elfmcys.yesstevemodel.client.animation.controller.NewAnimationManager;
+import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
+import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -88,78 +89,41 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
      */
     @SuppressWarnings("all")
     public void registerControllers() {
-        AnimationManager manager = AnimationManager.getInstance();
         for (int i = 0; i < 8; i++) {
-            String controllerName = String.format("pre_parallel_%d_controller", i);
+            String controllerName = PRE_PARALLEL_CONTROLLER + i;
             String animationName = String.format("pre_parallel%d", i);
-            addAnimationController(new AnimationController(this, controllerName, 0,
-                    (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateParallel(e, animationName))));
+            addAnimationController(new HybridAnimationController(this, controllerName, 0, new ParallelPredicate(animationName)));
         }
 
-        addAnimationController(new AnimationController(this, MAIN_CONTROLLER, 2,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateMain(event))));
-
-        addAnimationController(new AnimationController(this, HOLD_OFFHAND_CONTROLLER, 0,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateOffhandHold(event))));
-
-        addAnimationController(new AnimationController(this, HOLD_MAINHAND_CONTROLLER, 0,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateMainhandHold(event))));
-
-        addAnimationController(new AnimationController(this, FIRE_MAINHAND_CONTROLLER, 0,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateMainhandFire(event))));
-
-        addAnimationController(new AnimationController(this, SWING_CONTROLLER, 0,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator,
-                        e -> {
-                            if (entity.swinging && !entity.isSleeping() && entity.swingTime == 0) {
-                                // 空动画用于重置 PLAY_ONCE 动画
-                                event.getController().setAnimation(new AnimationBuilder().addAnimation("empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE));
-                            }
-                        },
-                        (e, v) -> manager.predicateSwing(event))));
-
-        addAnimationController(new AnimationController(this, USE_CONTROLLER, 2,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator,
-                        e -> {
-                            if (entity.isUsingItem() && !entity.isSleeping() && entity.getTicksUsingItem() == 1) {
-                                // 空动画用于重置 PLAY_ONCE 动画
-                                event.getController().setAnimation(new AnimationBuilder().addAnimation("empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE));
-                            }
-                        },
-                        (e, v) -> manager.predicateUse(event))));
-
-        addAnimationController(new AnimationController(this, PASSENGER_CONTROLLER, 2,
-                (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicatePassengerAnimation(event))));
-
-        if (CarryOnCompat.isInstalled()) {
-            addAnimationController(new AnimationController(this, CARRY_ON_CONTROLLER, 2,
-                    (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> CarryOnCompat.predicateCarryOn(event))));
-        }
+        ParCoolCompat.addParcoolPredicate(this);
+        addAnimationController(new HybridAnimationController(this, VEHICLE_CONTROLLER, 2, new VehiclePredicate()));
+        addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 2, new PlayerMainPredicate()));
+        addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0, new OffhandPredicate()));
+        addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0, new MainhandPredicate()));
+        TACZCompat.addTaczPredicate(this);
+        addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
+        addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 2, new UsePredicate()));
+        addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 2, new PassengerPredicate()));
+        CarryOnCompat.addCarryOnPredicate(this);
 
         // 下面不需要自定义动画控制器
         {
-            addAnimationController(new AnimationController(this, CAP_CONTROLLER, 2,
-                    (event, evaluator) -> manager.predicateCap(event)));
-
-            addAnimationController(new AnimationController(this, HOVER_CONTROLLER, 0,
-                    (event, evaluator) -> manager.predicateHover(event)));
-
-            addAnimationController(new AnimationController(this, FOCUS_CONTROLLER, 0,
-                    (event, evaluator) -> manager.predicateFocus(event)));
+            addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 2, new CapPredicate()));
+            addAnimationController(new CodedAnimationController(this, HOVER_CONTROLLER, 0, new HoverPredicate()));
+            addAnimationController(new CodedAnimationController(this, FOCUS_CONTROLLER, 0, new FocusPredicate()));
         }
 
         for (int i = 0; i < 8; i++) {
-            String controllerName = String.format("parallel_%d_controller", i);
+            String controllerName = PARALLEL_CONTROLLER + i;
             String animationName = String.format("parallel%d", i);
-            addAnimationController(new AnimationController(this, controllerName, 0,
-                    (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateParallel(event, animationName))));
+            addAnimationController(new HybridAnimationController(this, controllerName, 0,
+                    new ParallelPredicate(animationName), true));
         }
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                String controllerName = String.format("%s_controller", slot.getName());
-                addAnimationController(new AnimationController(this, controllerName, 0,
-                        (event, evaluator) -> NewAnimationManager.predicate(event, evaluator, (e, v) -> manager.predicateArmor(event, slot))));
+                String controllerName = ARMOR_CONTROLLER + slot.getName();
+                addAnimationController(new HybridAnimationController(this, controllerName, 0, new ArmorPredicate(slot)));
             }
         }
     }
@@ -262,6 +226,12 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
                 .orElse(null);
     }
 
+    @Nullable
+    @Override
+    public GeoAnimationController getAnimationControllerData(String animationControllerName) {
+        return ClientModelManager.getModel(getModelId()).map(model -> model.animationControllers().get(animationControllerName)).orElse(null);
+    }
+
     @Override
     @NotNull
     public ResourceLocation getTextureLocation() {
@@ -274,7 +244,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
 
     @Override
     @SuppressWarnings("all")
-    public boolean setCustomAnimations(AnimationContext ctx, @NotNull AnimationEvent animationEvent) {
+    public boolean setCustomAnimations(AnimationMolangContext ctx, @NotNull AnimationEvent animationEvent) {
         List extraData = animationEvent.getExtraData();
         if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
             && entity != null) {
