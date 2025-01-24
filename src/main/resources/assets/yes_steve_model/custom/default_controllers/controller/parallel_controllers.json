@@ -1,0 +1,152 @@
+{
+	"format_version": "1.19.0",
+	"animation_controllers": {
+		"player.pre_parallel_0": {
+			"states": {
+				"default": {
+					"animations": ["pre_parallel0", "pre_parallel1", "pre_parallel2", "pre_parallel3", "pre_parallel4", "pre_parallel5", "pre_parallel6", "pre_parallel7"]
+				}
+			}
+		},
+		"player.pre_parallel_1": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.pre_parallel_2": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.pre_parallel_3": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.pre_parallel_4": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.pre_parallel_5": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.pre_parallel_6": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.pre_parallel_7": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.parallel_0": {
+			"states": {
+				"default": {
+					"animations": ["parallel0", "parallel1", "parallel2", "parallel3", "parallel4", "parallel5", "parallel6", "parallel7"]
+				}
+			}
+		},
+		"player.parallel_1": {
+			"states": {
+				"default": {
+					"animations": ["attack_empty"],
+					"transitions": [
+						{"attack1": "ctrl.swing('mainhand', ':sword')"}
+					]
+				},
+				"attack1": {
+					"animations": ["sword_attack_01"],
+					"transitions": [
+						{"attack2": "ctrl.swing('mainhand', ':sword') && query.all_animations_finished"}
+					],
+					"blend_transition": 0.1
+				},
+				"attack2": {
+					"animations": ["sword_attack_02"],
+					"transitions": [
+						{"attack3": "ctrl.swing('mainhand', ':sword') && query.all_animations_finished"}
+					],
+					"blend_transition": 0.1
+				},
+				"attack3": {
+					"animations": ["sword_attack_03"],
+					"transitions": [
+						{"default": "ctrl.swing('mainhand', ':sword') && query.all_animations_finished"}
+					],
+					"blend_transition": {
+						"0.0": 1,
+						"0.0222": 0.96985,
+						"0.0444": 0.88302,
+						"0.0667": 0.75,
+						"0.0889": 0.58682,
+						"0.1111": 0.41318,
+						"0.1333": 0.25,
+						"0.1556": 0.11698,
+						"0.1778": 0.03015,
+						"0.2": 0
+					}
+				}
+			}
+		},
+		"player.parallel_2": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.parallel_3": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.parallel_4": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.parallel_5": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.parallel_6": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		},
+		"player.parallel_7": {
+			"states": {
+				"default": {
+					"animations": []
+				}
+			}
+		}
+	}
+}

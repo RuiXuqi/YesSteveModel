@@ -31,7 +31,7 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
 
     @SuppressWarnings("unchecked,rawtypes")
     public void registerControllers() {
-        addAnimationController(new HybridAnimationController(this, ARROW_MAIN_CONTROLLER, 2, new ArrowMainPredicate()));
+        addAnimationController(new HybridAnimationController(this, ARROW_MAIN_CONTROLLER, 0.1f, new ArrowMainPredicate()));
         for (int i = 0; i < 8; i++) {
             String controllerName = ARROW_PARALLEL_CONTROLLER + i;
             String animationName = String.format("parallel%d", i);

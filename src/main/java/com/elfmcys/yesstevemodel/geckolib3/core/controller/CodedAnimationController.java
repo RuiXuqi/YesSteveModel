@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.AnimationPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
@@ -120,29 +121,25 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
         @Override
         public Optional<Vector3f> pollRotationPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            var rot = this.queue.rotationQueue.poll();
-            if (rot != null) {
-                return Optional.of(rot.getLerpPoint(evaluator));
-            }
-            return Optional.empty();
+            return pollAndBlend(this.queue.rotationQueue.poll(), evaluator);
         }
 
         @Override
         public Optional<Vector3f> pollPositionPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            var pos = this.queue.positionQueue.poll();
-            if (pos != null) {
-                return Optional.of(pos.getLerpPoint(evaluator));
-            }
-            return Optional.empty();
+            return pollAndBlend(this.queue.positionQueue.poll(), evaluator);
         }
 
         @Override
         public Optional<Vector3f> pollScalePoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            var scale = this.queue.scaleQueue.poll();
-            if (scale != null) {
-                return Optional.of(scale.getLerpPoint(evaluator));
+            return pollAndBlend(this.queue.scaleQueue.poll(), evaluator);
+        }
+
+        private Optional<Vector3f> pollAndBlend(AnimationPoint point, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+            if (point == null) {
+                return Optional.empty();
             }
-            return Optional.empty();
+            var pointValue = point.getLerpPoint(evaluator);
+            return Optional.of(pointValue.mul(queue.getBlendWeight()));
         }
 
         public boolean isActive() {

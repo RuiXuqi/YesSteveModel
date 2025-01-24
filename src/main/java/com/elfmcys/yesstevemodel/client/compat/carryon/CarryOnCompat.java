@@ -24,7 +24,7 @@ public class CarryOnCompat {
 
     public static void addCarryOnPredicate(CustomPlayerEntity entity) {
         if (INSTALLED) {
-            entity.addAnimationController(new HybridAnimationController<>(entity, CARRY_ON_CONTROLLER, 2, new CarryOnPredicate()));
+            entity.addAnimationController(new HybridAnimationController<>(entity, CARRY_ON_CONTROLLER, 0.1f, new CarryOnPredicate()));
         }
     }
 

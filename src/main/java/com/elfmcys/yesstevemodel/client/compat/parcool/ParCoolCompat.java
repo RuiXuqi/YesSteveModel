@@ -37,7 +37,7 @@ public class ParCoolCompat {
 
     public static void addParcoolPredicate(CustomPlayerEntity entity) {
         if (INSTALLED) {
-            entity.addAnimationController(new HybridAnimationController<>(entity, PARCOOL_CONTROLLER, 2, new ParCoolPredicate()));
+            entity.addAnimationController(new HybridAnimationController<>(entity, PARCOOL_CONTROLLER, 0.1f, new ParCoolPredicate()));
         }
     }
 

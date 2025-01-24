@@ -96,19 +96,19 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         }
 
         ParCoolCompat.addParcoolPredicate(this);
-        addAnimationController(new HybridAnimationController(this, VEHICLE_CONTROLLER, 2, new VehiclePredicate()));
-        addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 2, new PlayerMainPredicate()));
+        addAnimationController(new HybridAnimationController(this, VEHICLE_CONTROLLER, 0.1f, new VehiclePredicate()));
+        addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 0.1f, new PlayerMainPredicate()));
         addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0, new OffhandPredicate()));
         addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0, new MainhandPredicate()));
         TACZCompat.addTaczPredicate(this);
         addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
-        addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 2, new UsePredicate()));
-        addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 2, new PassengerPredicate()));
+        addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 0.1f, new UsePredicate()));
+        addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 0.1f, new PassengerPredicate()));
         CarryOnCompat.addCarryOnPredicate(this);
 
         // 下面不需要自定义动画控制器
         {
-            addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 2, new CapPredicate()));
+            addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0.1f, new CapPredicate()));
             addAnimationController(new CodedAnimationController(this, HOVER_CONTROLLER, 0, new HoverPredicate()));
             addAnimationController(new CodedAnimationController(this, FOCUS_CONTROLLER, 0, new FocusPredicate()));
         }
