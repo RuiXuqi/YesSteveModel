@@ -103,7 +103,9 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.stopSoundKeyFrames();
     }
 
-    public boolean isBlendRotation() {
+    @Override
+    @Deprecated
+    public boolean blendRotation() {
         return blendRotation;
     }
 
