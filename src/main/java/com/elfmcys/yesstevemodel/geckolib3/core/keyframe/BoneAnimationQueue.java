@@ -5,16 +5,24 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 
+import com.elfmcys.yesstevemodel.geckolib3.util.OrderedSegmentSearcher;
 import org.jetbrains.annotations.Nullable;
 
 public class BoneAnimationQueue {
     public final BoneTopLevelSnapshot topLevelSnapshot;
     public final BoneSnapshot controllerSnapshot;
+
     @Nullable 
-    public BoneAnimation animation;
+    public OrderedSegmentSearcher<BoneKeyFrame> rotationKeyFrames;
+    @Nullable
+    public OrderedSegmentSearcher<BoneKeyFrame> positionKeyFrames;
+    @Nullable
+    public OrderedSegmentSearcher<BoneKeyFrame> scaleKeyFrames;
+
     private boolean active = false;
     private float blendWeight = 1;
 
@@ -25,6 +33,24 @@ public class BoneAnimationQueue {
     public BoneAnimationQueue(BoneTopLevelSnapshot snapshot) {
         topLevelSnapshot = snapshot;
         controllerSnapshot = new BoneSnapshot(snapshot);
+    }
+
+    public void setBoneAnimation(BoneAnimation animation) {
+        if (!animation.rotationKeyFrames.isEmpty()) {
+            rotationKeyFrames = new OrderedSegmentSearcher<>(animation.rotationKeyFrames, 0, BoneKeyFrame::getEndTick);
+        } else {
+            rotationKeyFrames = null;
+        }
+        if (!animation.positionKeyFrames.isEmpty()) {
+            positionKeyFrames = new OrderedSegmentSearcher<>(animation.positionKeyFrames, 0, BoneKeyFrame::getEndTick);
+        } else {
+            positionKeyFrames = null;
+        }
+        if (!animation.scaleKeyFrames.isEmpty()) {
+            scaleKeyFrames = new OrderedSegmentSearcher<>(animation.scaleKeyFrames, 0, BoneKeyFrame::getEndTick);
+        } else {
+            scaleKeyFrames = null;
+        }
     }
 
     public BoneSnapshot snapshot() {
