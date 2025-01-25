@@ -251,18 +251,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         private final BoneTopLevelSnapshot snapshot;
         private final ReferenceArrayList<Pair<ConditionHolder, BoneAnimationQueue>> underlyingQueues;
 
-        private final Vector3f initRotation;
-        private final Vector3f initPosition;
-        private final Vector3f initScale;
-
         public BlendBoneAnimationQueue(BoneTopLevelSnapshot snapshot) {
             this.snapshot = snapshot;
             this.underlyingQueues = new ReferenceArrayList<>(4);
-
-            var initState = snapshot.bone.getInitialSnapshot();
-            this.initRotation = new Vector3f(initState.rotationValueX, initState.rotationValueY, initState.rotationValueZ);
-            this.initPosition = new Vector3f(initState.positionOffsetX, initState.positionOffsetY, initState.positionOffsetZ);
-            this.initScale = new Vector3f(initState.scaleValueX, initState.scaleValueY, initState.scaleValueZ);
         }
 
         public String boneName() {
@@ -292,21 +283,21 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
         @Override
         public Optional<Vector3f> pollRotationPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            return pollAndBlend(initRotation, queue -> queue.rotationQueue.poll(), evaluator);
+            return pollAndBlend(queue -> queue.rotationQueue.poll(), evaluator);
         }
 
         @Override
         public Optional<Vector3f> pollPositionPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            return pollAndBlend(initPosition, queue -> queue.positionQueue.poll(), evaluator);
+            return pollAndBlend(queue -> queue.positionQueue.poll(), evaluator);
         }
 
         @Override
         public Optional<Vector3f> pollScalePoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            return pollAndBlend(initScale, queue -> queue.scaleQueue.poll(), evaluator);
+            return pollAndBlend(queue -> queue.scaleQueue.poll(), evaluator);
         }
 
-        private Optional<Vector3f> pollAndBlend(Vector3f init, Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            var target = new Vector3f(init);
+        private Optional<Vector3f> pollAndBlend(Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+            var target = new Vector3f();
             var active = false;
 
             for (var pair : this.underlyingQueues) {
@@ -323,8 +314,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 }
                 active = true;
                 var pointValue = point.getLerpPoint(evaluator);
-                var delta = pointValue.sub(init);
-                target.fma(pair.right().getBlendWeight(), delta);
+                target.fma(pair.right().getBlendWeight(), pointValue);
             }
 
             if (active) {
