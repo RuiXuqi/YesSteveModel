@@ -164,7 +164,7 @@ public class AnimationPlayer {
     /**
      * 此方法每帧调用一次，以便填充动画点队列并处理动画状态逻辑。
      *
-     * @param tick              当前 tick + 插值 tick
+     * @param tick 当前 tick + 插值 tick
      */
     public void process(final double tick, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
         if (this.currentAnimation != null) {
@@ -297,30 +297,34 @@ public class AnimationPlayer {
         // 如果动画已经结束了
         if (tick >= this.currentAnimation.animationLength) {
             context.setAnimTime(this.currentAnimation.animationLength / 20.0f);
-            animIsFinished = true;
-            // 如果动画为循环播放，继续重头播放
-            if (!this.currentAnimationLoop.isRepeatingAfterEnd()) {
-                // 从队列中提取下一个动画
-                Pair<ILoopType, Animation> peek = this.animationQueue.peek();
-                if (peek == null) {
-                    // 没有动画了，那么停止
-                    this.animationState = AnimationState.STOPPED;
-                    return;
-                } else {
-                    // 否则，将状态设置为过渡并开始过渡到下一个动画为下一帧
-                    this.animationState = AnimationState.TRANSITIONING;
-                    this.shouldResetTick = true;
-                    this.currentAnimation = peek.getSecond();
-                    this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(peek.getSecond().customInstructionKeyframes);
-                    this.stopSoundKeyFrames();
-                    this.soundKeyFrameExecutor = new SoundKeyframeExecutor(peek.getSecond().soundKeyFrames);
-                    this.currentAnimationLoop = peek.getFirst();
-                }
+            // 这里多加一个 animIsFinished 的判断，使动画重置在下一帧执行，避免过渡动画被重置
+            if (!animIsFinished) {
+                animIsFinished = true;
             } else {
-                // 重置 tick，以便下一个动画从刻度 0 开始
-                this.shouldResetTick = true;
-                tick = adjustTick(actualTick);
-                resetEventKeyFrames(true, evaluator);
+                // 如果动画为循环播放，继续重头播放
+                if (!this.currentAnimationLoop.isRepeatingAfterEnd()) {
+                    // 从队列中提取下一个动画
+                    Pair<ILoopType, Animation> peek = this.animationQueue.peek();
+                    if (peek == null) {
+                        // 没有动画了，那么停止
+                        this.animationState = AnimationState.STOPPED;
+                        return;
+                    } else {
+                        // 否则，将状态设置为过渡并开始过渡到下一个动画为下一帧
+                        this.animationState = AnimationState.TRANSITIONING;
+                        this.shouldResetTick = true;
+                        this.currentAnimation = peek.getSecond();
+                        this.instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(peek.getSecond().customInstructionKeyframes);
+                        this.stopSoundKeyFrames();
+                        this.soundKeyFrameExecutor = new SoundKeyframeExecutor(peek.getSecond().soundKeyFrames);
+                        this.currentAnimationLoop = peek.getFirst();
+                    }
+                } else {
+                    // 重置 tick，以便下一个动画从刻度 0 开始
+                    this.shouldResetTick = true;
+                    tick = adjustTick(actualTick);
+                    resetEventKeyFrames(true, evaluator);
+                }
             }
         }
         context.setAnimTime(tick / 20.0f);

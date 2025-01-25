@@ -20,10 +20,8 @@ public class ParCoolAnimationManger {
     private static final String PARCOOL_JUMP_CHARGING = "parcool:jump_charging";
 
     static boolean hasAnimation(Player player) {
-        Animation animation = Animation.get(player);
-        if (animation != null && animation.hasAnimator()) {
-            Animator animator = ((AnimationAccessor) animation).getAnimator();
-            String animationName = getAnimationName(animator);
+        String animationName = getAnimation(player);
+        if (StringUtils.isNotBlank(animationName)) {
             // 目前 jump_charging 动画还没有，暂时不播放
             return !PARCOOL_JUMP_CHARGING.equals(animationName);
         }
