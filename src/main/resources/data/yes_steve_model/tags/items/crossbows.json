@@ -1,5 +1,8 @@
 {
   "values": [
-    "#forge:tools/crossbows"
+    {
+      "id": "#forge:tools/crossbows",
+      "required": false
+    }
   ]
 }

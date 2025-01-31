@@ -42,6 +42,7 @@ public class ClientSetupEvent {
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(PlayerModelScreenKey.PLAYER_MODEL_KEY);
         event.register(AnimationRouletteKey.ANIMATION_ROULETTE_KEY);
+        event.register(AnimationRouletteKey.LOCK_ROULETTE_KEY);
         event.register(DebugAnimationKey.DEBUG_ANIMATION_KEY);
         event.register(ExtraPlayerConfigKey.EXTRA_PLAYER_RENDER_KEY);
         ExtraAnimationKey.registerKeyBinding(event);

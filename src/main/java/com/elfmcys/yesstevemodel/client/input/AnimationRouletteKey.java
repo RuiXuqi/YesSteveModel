@@ -24,6 +24,13 @@ public class AnimationRouletteKey {
             GLFW.GLFW_KEY_Z,
             "key.category.yes_steve_model");
 
+    public static final KeyMapping LOCK_ROULETTE_KEY = new KeyMapping("key.yes_steve_model.lock_roulette.desc",
+            KeyConflictContext.IN_GAME,
+            KeyModifier.ALT,
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_L,
+            "key.category.yes_steve_model");
+
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
         if (event.getAction() == GLFW.GLFW_PRESS && ANIMATION_ROULETTE_KEY.matches(event.getKey(), event.getScanCode()) && DisableSwitch.CAN_SWITCH) {

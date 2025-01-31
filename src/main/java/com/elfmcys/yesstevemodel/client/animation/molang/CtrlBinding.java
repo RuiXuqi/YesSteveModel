@@ -24,8 +24,8 @@ public class CtrlBinding extends ContextBinding {
         livingEntityVar("riptide", ctx -> ctx.entity().isAutoSpinAttack());
         livingEntityVar("sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);
         livingEntityVar("swim", ctx -> ctx.entity().isSwimming());
-        livingEntityVar("climb", ctx -> ctx.entity().getPose() == Pose.SWIMMING && isMoving(ctx.entity()));
-        livingEntityVar("climbing", ctx -> ctx.entity().getPose() == Pose.SWIMMING && !isMoving(ctx.entity()));
+        livingEntityVar("climb", ctx -> !ctx.entity().isSwimming() && ctx.entity().getPose() == Pose.SWIMMING && isMoving(ctx.entity()));
+        livingEntityVar("climbing", ctx -> !ctx.entity().isSwimming() && ctx.entity().getPose() == Pose.SWIMMING && !isMoving(ctx.entity()));
 
         livingEntityVar("ladder_up", ctx -> ctx.entity().onClimbable() && getVerticalSpeed(ctx.entity()) > 0);
         livingEntityVar("ladder_stillness", ctx -> ctx.entity().onClimbable() && getVerticalSpeed(ctx.entity()) == 0);

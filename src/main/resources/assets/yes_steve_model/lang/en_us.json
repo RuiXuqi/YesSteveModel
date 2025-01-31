@@ -362,6 +362,7 @@
   "commands.yes_steve_model.export.not_exist": "§6§l[§aYSM§6§l] §r'%s' is not exist",
   "key.yes_steve_model.player_model.desc": "Open Player Model GUI",
   "key.yes_steve_model.animation_roulette.desc": "Open Animation Roulette",
+  "key.yes_steve_model.lock_roulette.desc": "Lock Roulette",
   "key.yes_steve_model.extra_animation.none": "None",
   "key.yes_steve_model.extra_animation.0.desc": "Play Extra Animation 0",
   "key.yes_steve_model.extra_animation.1.desc": "Play Extra Animation 1",

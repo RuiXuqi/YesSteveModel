@@ -10,6 +10,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.lwjgl.glfw.GLFW;
+
+import static com.elfmcys.yesstevemodel.client.input.AnimationRouletteKey.LOCK_ROULETTE_KEY;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class PlayerMoveEvent {
@@ -28,6 +31,10 @@ public class PlayerMoveEvent {
                     }
                 }
             });
+        }
+
+        if (event.getAction() == GLFW.GLFW_PRESS && LOCK_ROULETTE_KEY.matches(event.getKey(), event.getScanCode())) {
+            LOCK_EXTRA_ANIMATION = !LOCK_EXTRA_ANIMATION;
         }
     }
 

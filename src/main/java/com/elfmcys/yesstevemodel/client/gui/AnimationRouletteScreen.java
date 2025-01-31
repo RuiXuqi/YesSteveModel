@@ -217,14 +217,13 @@ public class AnimationRouletteScreen extends Screen {
 
         Component title = Component.literal(radioForms.title());
         Tooltip description = Tooltip.create(Component.literal(radioForms.description()));
-        // 当每行一个时，高度需要 -14
-        int maxHeight = (labels.size() / countPerLine + 1) * 14 + (countPerLine > 1 ? 14 : 0);
+        int maxHeight = ((labels.size() - 1) / countPerLine + 1) * 14 + 14;
         FlatRatioBox ratioBox = new FlatRatioBox(this.x + 125, this.y + yOffset[0], maxHeight, title);
         ratioBox.setTooltip(description);
         this.addRenderableOnly(ratioBox);
-        yOffset[0] += 14;
 
         // 遍历添加每个 label
+        int tempYOffset = yOffset[0] + 14;
         for (int i = 0; i < labels.size(); i++) {
             Component labelName = Component.literal(labels.getKeyAt(i));
             String labelValue = labels.getValueAt(i);
@@ -233,7 +232,7 @@ public class AnimationRouletteScreen extends Screen {
             int perWidth = Math.round(110f / countPerLine);
             int xOffset = this.x + 127 + perWidth * (i % countPerLine);
 
-            FlatCheckbox checkbox = new FlatCheckbox(xOffset, this.y + yOffset[0], perWidth,
+            FlatCheckbox checkbox = new FlatCheckbox(xOffset, this.y + tempYOffset, perWidth,
                     labelName, data -> {
                 executeMolang(labelValue, null);
                 // 同步到周围的玩家
@@ -246,12 +245,12 @@ public class AnimationRouletteScreen extends Screen {
 
             // 每满 countPerLine 个时，换行
             if (i % countPerLine == (countPerLine - 1)) {
-                yOffset[0] += 14;
+                tempYOffset += 14;
             }
         }
 
         // 最后记得换行
-        yOffset[0] += 17;
+        yOffset[0] = yOffset[0] + maxHeight + 3;
     }
 
     @NotNull

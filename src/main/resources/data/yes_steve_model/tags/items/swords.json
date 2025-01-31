@@ -7,6 +7,9 @@
     "minecraft:netherite_sword",
     "minecraft:wooden_sword",
     "minecraft:iron_sword",
-    "tconstruct:melting_pan"
+    {
+      "id": "tconstruct:melting_pan",
+      "required": false
+    }
   ]
 }
