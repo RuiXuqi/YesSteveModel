@@ -11,7 +11,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
-import com.elfmcys.yesstevemodel.util.RenderUtil;
+import com.elfmcys.yesstevemodel.util.PersonView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -64,6 +64,7 @@ public class YSMBinding extends ContextBinding {
 
         entityVar("input_vertical", MoveInputVariable::getVertical);
         entityVar("input_horizontal", MoveInputVariable::getHorizontal);
+        entityVar("person_view", PersonView::getPersonView);
 
         entityVar("is_passenger", ctx -> ctx.entity().isPassenger());
         entityVar("is_sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);
@@ -85,7 +86,7 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("armor_value", ctx -> ctx.entity().getArmorValue());
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
         livingEntityVar("is_close_eyes", ctx -> getEyeCloseState(ctx.animationEvent(), ctx.entity()));
-        livingEntityVar("rendering_in_inventory", ctx -> RenderUtil.isRenderingEntitiesInInventory());
+        livingEntityVar("rendering_in_inventory", PersonView::isInInventory);
         livingEntityVar("on_ladder", ctx -> ctx.entity().onClimbable());
         livingEntityVar("ladder_facing", new LadderFacingVariable());
         livingEntityVar("arrow_count", ctx -> ctx.entity().getArrowCount());

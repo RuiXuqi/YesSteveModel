@@ -53,7 +53,10 @@ public class ExtraAnimationKey {
                     var animationMap = properties.extraAnimationOrderMap();
                     if (animationMap.size() > index) {
                         String keyName = animationMap.getKeyAt(index);
-                        if (keyName.startsWith("#") && properties.extraAnimationClassifyMap().containsKey(keyName.substring(1))) {
+                        if ("#return".equals(keyName)) {
+                            // #return 为停止播放轮盘动画
+                            NetworkHandler.sendToServer(SetPlayAnimation.stop());
+                        } else if (keyName.startsWith("#") && properties.extraAnimationClassifyMap().containsKey(keyName.substring(1))) {
                             addRootClassify(keyName.substring(1));
                             AnimationRouletteScreen screen = new AnimationRouletteScreen(
                                     properties.extraAnimationButtonsMap(),
@@ -61,8 +64,9 @@ public class ExtraAnimationKey {
                                     properties, cap
                             );
                             Minecraft.getInstance().setScreen(screen);
+                        } else {
+                            NetworkHandler.sendToServer(new SetPlayAnimation(index, ""));
                         }
-                        NetworkHandler.sendToServer(new SetPlayAnimation(index, ""));
                     }
                 }));
                 return;

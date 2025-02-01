@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
+import com.elfmcys.yesstevemodel.util.PersonView;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -61,7 +62,7 @@ public class QueryBinding extends ContextBinding {
         entityVar("vertical_speed", ctx -> getVerticalSpeed(ctx.entity()));
         entityVar("walk_distance", ctx -> ctx.entity().moveDist);
         entityVar("has_rider", ctx -> ctx.entity().isVehicle());
-        entityVar("is_first_person", ctx -> ctx.mc().options.getCameraType() == CameraType.FIRST_PERSON);
+        entityVar("is_first_person", ctx -> PersonView.getPersonView(ctx) == CameraType.FIRST_PERSON.ordinal());
         entityVar("is_in_water", ctx -> ctx.entity().isInWater());
         entityVar("is_in_water_or_rain", ctx -> ctx.entity().isInWaterRainOrBubble());
         entityVar("is_on_fire", ctx -> ctx.entity().isOnFire());

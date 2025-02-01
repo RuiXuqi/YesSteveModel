@@ -53,6 +53,7 @@ import java.util.function.Consumer;
 
 public class AnimationRouletteScreen extends Screen {
     private static final String SPEC_PREFIX = "#";
+    private static final String SPEC_RETURN = "#return";
     private static final int MAX_ROULETTE_COUNT = 8;
     /**
      * 用来缓存当前页面的打开情况，用于在每次打开时，都能记住上一次的页数
@@ -159,15 +160,7 @@ public class AnimationRouletteScreen extends Screen {
 
         // 添加返回按钮
         Component name = Component.translatable("gui.yes_steve_model.model.return");
-        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 70, 115, 15, name, b -> {
-            if (CACHE.size() > 1) {
-                CACHE.removeLast();
-                AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerEntity);
-                this.getMinecraft().setScreen(screen);
-            } else {
-                this.getMinecraft().setScreen(null);
-            }
-        }));
+        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 70, 115, 15, name, b -> this.clickReturn()));
 
         // 配置按钮
         if (configButtons != null) {
@@ -257,7 +250,7 @@ public class AnimationRouletteScreen extends Screen {
     private FlatSlider getFlatSlider(RangeForms rangeForms, String result, int[] yOffset) {
         Component title = Component.literal(rangeForms.title());
         Tooltip description = Tooltip.create(Component.literal(rangeForms.description()));
-        int number = Math.round(transformNumber(result));
+        float number = transformNumber(result);
 
         FlatSlider slider = new FlatSlider(this.x + 125, this.y + yOffset[0],
                 title, number, this.customPlayerEntity, rangeForms.value(), rangeForms.step(), rangeForms.min(), rangeForms.max());
@@ -361,7 +354,10 @@ public class AnimationRouletteScreen extends Screen {
             // 点击普通界面
             this.getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             String selectKey = extraAnimationMap.getKeyAt(selectId);
-            if (selectKey.startsWith(SPEC_PREFIX)) {
+            if (SPEC_RETURN.equals(selectKey)) {
+                // 如果是 #return，那么就是自定义的返回按钮
+                this.clickReturn();
+            } else if (selectKey.startsWith(SPEC_PREFIX)) {
                 // 如果 key 以 # 开头，那么说明选择的是子页面
                 this.clickClassify(selectKey);
             } else {
@@ -424,6 +420,16 @@ public class AnimationRouletteScreen extends Screen {
             CACHE.addLast(MutablePair.of(key, 0));
             AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerEntity);
             this.getMinecraft().setScreen(screen);
+        }
+    }
+
+    private void clickReturn() {
+        if (CACHE.size() > 1) {
+            CACHE.removeLast();
+            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerEntity);
+            this.getMinecraft().setScreen(screen);
+        } else {
+            this.getMinecraft().setScreen(null);
         }
     }
 

@@ -23,6 +23,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.util.OrderedSegmentSearcher;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -33,10 +35,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class AnimationPlayer {
+    /**
+     * 首次进入存档时，因为动画不存在会疯狂刷屏。
+     * <p>
+     * 但是为了方便调试，又必须打印出这段日志。故这里缓存一下同名内容，避免刷屏。
+     */
+    private static final Cache<String, String> NOT_EXIST_ANIMATION_NAME_CACHE = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.SECONDS).build();
     private final Object2ReferenceOpenHashMap<String, BoneAnimationQueue> boneAnimationQueues = new Object2ReferenceOpenHashMap<>();
     private final ReferenceArrayList<BoneAnimationQueue> activeBoneAnimationQueues = new ReferenceArrayList<>();
     private boolean rendererDirty = true;
@@ -115,7 +124,11 @@ public class AnimationPlayer {
             LinkedList<Pair<ILoopType, Animation>> animations = builder.getRawAnimationList().stream().map((rawAnimation) -> {
                 Animation animation = animatableEntity.getAnimation(rawAnimation.animationName);
                 if (animation == null) {
-                    YesSteveModel.LOGGER.warn("Could not load animation: {}. Is it missing?", rawAnimation.animationName);
+                    String cacheName = NOT_EXIST_ANIMATION_NAME_CACHE.getIfPresent(rawAnimation.animationName);
+                    if (cacheName == null) {
+                        YesSteveModel.LOGGER.warn("Could not load animation: {}. Is it missing?", rawAnimation.animationName);
+                        NOT_EXIST_ANIMATION_NAME_CACHE.put(rawAnimation.animationName, rawAnimation.animationName);
+                    }
                     encounteredError.set(true);
                     return null;
                 } else {

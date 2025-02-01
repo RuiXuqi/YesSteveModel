@@ -40,8 +40,9 @@ public class CtrlBinding extends ContextBinding {
         livingEntityVar("sneak", ctx -> ctx.entity().onGround() && ctx.entity().getPose() == Pose.CROUCHING && isMoving(ctx.entity()));
         livingEntityVar("sneaking", ctx -> ctx.entity().onGround() && ctx.entity().getPose() == Pose.CROUCHING && !isMoving(ctx.entity()));
 
-        livingEntityVar("run", ctx -> ctx.entity().onGround() && ctx.entity().isSprinting());
-        livingEntityVar("walk", ctx -> ctx.entity().onGround() && !ctx.entity().isSprinting() && isMoving(ctx.entity()));
+        livingEntityVar("run", ctx -> ctx.entity().getPose() == Pose.STANDING && ctx.entity().onGround() && ctx.entity().isSprinting());
+        livingEntityVar("walk", ctx -> ctx.entity().getPose() == Pose.STANDING && ctx.entity().onGround() && !ctx.entity().isSprinting() && isMoving(ctx.entity()));
+        livingEntityVar("idle", ctx -> ctx.entity().getPose() == Pose.STANDING && ctx.entity().onGround() && !ctx.entity().isSprinting() && !isMoving(ctx.entity()));
 
         // 条件动画的
         function("hold", HandItemCheck.holdCheck());
