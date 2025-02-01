@@ -12,6 +12,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.elfmcys.yesstevemodel.util.PersonView;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -65,6 +66,7 @@ public class YSMBinding extends ContextBinding {
         entityVar("input_vertical", MoveInputVariable::getVertical);
         entityVar("input_horizontal", MoveInputVariable::getHorizontal);
         entityVar("person_view", PersonView::getPersonView);
+        entityVar("rendering_in_paperdoll", ctx -> RenderUtil.isRenderingEntitiesInPaperDoll());
 
         entityVar("is_passenger", ctx -> ctx.entity().isPassenger());
         entityVar("is_sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);

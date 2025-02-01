@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 @SuppressWarnings("all")
 public final class RenderUtil {
     private static boolean renderingEntitiesInInventory = false;
+    private static boolean renderingEntitiesInPaperDoll = false;
 
     public static void setRenderingEntitiesInInventory(boolean value) {
         renderingEntitiesInInventory = value;
@@ -32,6 +33,14 @@ public final class RenderUtil {
 
     public static boolean isRenderingEntitiesInInventory() {
         return RenderSystem.isOnRenderThread() && renderingEntitiesInInventory;
+    }
+
+    public static void setRenderingEntitiesInPaperDoll(boolean renderingEntitiesInPaperDoll) {
+        RenderUtil.renderingEntitiesInPaperDoll = renderingEntitiesInPaperDoll;
+    }
+
+    public static boolean isRenderingEntitiesInPaperDoll() {
+        return renderingEntitiesInPaperDoll;
     }
 
     public static void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, CustomGuiPlayerEntity instance, boolean showGround) {
@@ -292,6 +301,7 @@ public final class RenderUtil {
     }
 
     public static void renderExtraPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z) {
+        setRenderingEntitiesInInventory(true);
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
         viewStack.translate(posX + scale * 0.5, posY + scale * 2, 0);
@@ -317,5 +327,6 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
+        setRenderingEntitiesInInventory(false);
     }
 }

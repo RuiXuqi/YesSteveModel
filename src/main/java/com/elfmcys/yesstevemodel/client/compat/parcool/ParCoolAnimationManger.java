@@ -17,15 +17,10 @@ import java.util.HashMap;
 
 public class ParCoolAnimationManger {
     private static final HashMap<Class<? extends Animator>, String> INDEX_MAP = Maps.newHashMap();
-    private static final String PARCOOL_JUMP_CHARGING = "parcool:jump_charging";
 
     static boolean hasAnimation(Player player) {
         String animationName = getAnimation(player);
-        if (StringUtils.isNotBlank(animationName)) {
-            // 目前 jump_charging 动画还没有，暂时不播放
-            return !PARCOOL_JUMP_CHARGING.equals(animationName);
-        }
-        return false;
+        return StringUtils.isNotBlank(animationName);
     }
 
     @Nullable

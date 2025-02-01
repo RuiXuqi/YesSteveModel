@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 public final class PersonView {
     public static int getPersonView(IContext<? extends Entity> ctx) {
         // 是客户端玩家，而且不在 GUI 渲染内
-        if (ctx.entity() == Minecraft.getInstance().player && isInInventory(ctx)) {
+        if (ctx.entity() == Minecraft.getInstance().player && !isInInventory(ctx)) {
             return ctx.mc().options.getCameraType().ordinal();
         } else {
             // 否则永远返回第三人称正面视角
@@ -20,6 +20,6 @@ public final class PersonView {
 
     public static boolean isInInventory(IContext<? extends Entity> ctx) {
         AnimatableEntity<?> animatableEntity = ctx.animatableEntity();
-        return !(animatableEntity instanceof CustomGuiPlayerEntity) && !RenderUtil.isRenderingEntitiesInInventory();
+        return animatableEntity instanceof CustomGuiPlayerEntity || RenderUtil.isRenderingEntitiesInInventory();
     }
 }
