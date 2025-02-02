@@ -22,8 +22,6 @@ public class SecondOrder implements IPhysics {
 
     @Override
     public void update(double timeStep) {
-        double step = 1 / 60d;
-
         float input = args[0];
         float frequency = Mth.clamp(args[1], 0, 5);
         float coefficient = Mth.clamp(args[2], 0, 1);
@@ -33,11 +31,11 @@ public class SecondOrder implements IPhysics {
         double k2 = 1 / (2 * Math.PI * frequency) / (2 * Math.PI * frequency);
         double k3 = response * coefficient / 2 / Math.PI / frequency;
 
-        double inputFunctionDot = (input - inputFunction) / step;
+        double inputFunctionDot = (input - inputFunction) / timeStep;
         inputFunction = input;
 
-        double tmpLastSimulation = lastSimulation + step * lastSimulationDot;
-        double tmpLastSimulationDot = lastSimulationDot + step * (k3 * inputFunctionDot + inputFunction - tmpLastSimulation - k1 * lastSimulationDot) / k2;
+        double tmpLastSimulation = lastSimulation + timeStep * lastSimulationDot;
+        double tmpLastSimulationDot = lastSimulationDot + timeStep * (k3 * inputFunctionDot + inputFunction - tmpLastSimulation - k1 * lastSimulationDot) / k2;
 
         lastSimulation = tmpLastSimulation;
         lastSimulationDot = tmpLastSimulationDot;

@@ -12,8 +12,7 @@ public class FirstOrder implements IPhysics {
 
     @Override
     public void update(double timeStep) {
-        double step = 1 / 60d;
-        lastSimulation = (1 - step / response) * lastSimulation + step / response * input;
+        lastSimulation = (1 - timeStep / response) * lastSimulation + timeStep / response * input;
     }
 
     @Override

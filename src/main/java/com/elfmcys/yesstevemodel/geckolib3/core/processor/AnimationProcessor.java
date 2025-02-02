@@ -19,7 +19,9 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -47,6 +49,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private List<IValue> preAnimationValues;
 
     private boolean rendererDirty = false;
+    private long cachePhysicsTimeStamp = -1L;
 
     public AnimationProcessor(T animatable) {
         this.animatable = animatable;
@@ -188,6 +191,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         }
         this.animationStorage.initialize(null);
         this.physicsValues.clear();
+        this.cachePhysicsTimeStamp = -1L;
         this.rendererDirty = true;
     }
 
@@ -226,7 +230,16 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     private void postProcess(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-        physicsValues.forEach((key, value) -> value.update(this.rateLimiter.getInterval()));
+        double interval;
+        long currentTime = Util.getNanos();
+        if (cachePhysicsTimeStamp <= 0) {
+            interval = 1 / 60d;
+        } else {
+            interval = Mth.clamp((currentTime - cachePhysicsTimeStamp) / 1000_000_000d, 0d, 0.1);
+        }
+        cachePhysicsTimeStamp = currentTime;
+        physicsValues.forEach((key, value) -> value.update(interval));
+
         debugInfo.evaluatePost(evaluator);
         while (!pendingValues.isEmpty()) {
             Pair<IValue, Consumer<String>> pair = pendingValues.poll();
