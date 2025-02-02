@@ -18,8 +18,20 @@ public final class PersonView {
         }
     }
 
+    public static boolean isFirstPersonView(AnimatableEntity<? extends Entity> animatable) {
+        Entity entity = animatable.getEntity();
+        if (entity == Minecraft.getInstance().player && !isInInventory(animatable)) {
+            return Minecraft.getInstance().options.getCameraType().ordinal() == CameraType.FIRST_PERSON.ordinal();
+        }
+        return false;
+    }
+
     public static boolean isInInventory(IContext<? extends Entity> ctx) {
         AnimatableEntity<?> animatableEntity = ctx.animatableEntity();
+        return isInInventory(animatableEntity);
+    }
+
+    public static boolean isInInventory(AnimatableEntity<?> animatableEntity) {
         return animatableEntity instanceof CustomGuiPlayerEntity || RenderUtil.isRenderingEntitiesInInventory();
     }
 }

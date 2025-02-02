@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.entity;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
@@ -290,15 +291,20 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         }
 
         // 更新第一人称相机偏移与头部隐藏
-        if (animationEvent.getAnimatableEntity().isLocalPlayer() && FirstPersonCompat.isInstalled()) {
-            if (model.firstPersonHead() != null) {
-                model.firstPersonHead().setHidden(FirstPersonCompat.shouldHideHead());
+        if (animationEvent.getAnimatableEntity().isLocalPlayer()) {
+            if (FirstPersonCompat.isInstalled()) {
+                if (model.firstPersonHead() != null) {
+                    model.firstPersonHead().setHidden(FirstPersonCompat.shouldHideHead());
+                }
+                if (model != null && model.firstPersonViewLocator() != null) {
+                    FirstPersonCompat.setHeadPos(model.firstPersonViewLocator().getPivotY() * animationEvent.getAnimatableEntity().getHeightScale());
+                } else if (update) {
+                    FirstPersonCompat.setHeadPos(head == null ? 24f : (head.getPivotY() * animationEvent.getAnimatableEntity().getHeightScale()));
+                }
             }
 
-            if (model != null && model.firstPersonViewLocator() != null) {
-                FirstPersonCompat.setHeadPos(model.firstPersonViewLocator().getPivotY() * animationEvent.getAnimatableEntity().getHeightScale());
-            } else if (update) {
-                FirstPersonCompat.setHeadPos(head == null ? 24f : (head.getPivotY() * animationEvent.getAnimatableEntity().getHeightScale()));
+            if (BetterCombatCompat.isInstalled() && model.firstPersonHead() != null) {
+                model.firstPersonHead().setHidden(BetterCombatCompat.shouldHideHead(this));
             }
         }
     }

@@ -20,7 +20,6 @@ import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -49,7 +48,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected AnimatableEntity(TEntity entity, boolean asyncUpdate) {
         this.entity = entity;
         this.animationProcessor = new AnimationProcessor(this);
-        if(asyncUpdate) {
+        if (asyncUpdate) {
             AnimationParallelTicker.register(this);
         }
     }
@@ -179,12 +178,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     public AnimationEvent<?> waitForAsyncUpdate() {
-        if(task != null) {
+        if (task != null) {
             AnimationEvent<?> result = null;
             try {
                 result = task.get();
-            } catch(InterruptedException ignored) {
-            } catch(Exception e) {
+            } catch (InterruptedException ignored) {
+            } catch (Exception e) {
                 YesSteveModel.LOGGER.error("Error updating animation.", e);
             }
             task = null;
@@ -194,7 +193,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     public AnimationEvent<?> waitOrUpdate(float partialTicks) {
-        if(task != null) {
+        if (task != null) {
             return waitForAsyncUpdate();
         } else {
             return performUpdate(partialTicks);
@@ -208,11 +207,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     @Nullable
     protected AnimationEvent<?> performUpdate(float partialTicks) {
-        if(!this.updateCurrentModel()) {
+        if (!this.updateCurrentModel()) {
             return null;
         }
         final Entity entity = this.entity;
-        final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity)entity : null;
+        final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
 
         boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
         float limbSwingAmount = 0;
@@ -233,7 +232,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         float lerpHeadRot = 0;
         float netHeadYaw = 0;
 
-        if(livingEntity != null) {
+        if (livingEntity != null) {
             entityModelData.isChild = livingEntity.isBaby();
             lerpBodyRot = Mth.rotLerp(partialTicks, livingEntity.yBodyRotO, livingEntity.yBodyRot);
             lerpHeadRot = Mth.rotLerp(partialTicks, livingEntity.yHeadRotO, livingEntity.yHeadRot);
@@ -284,6 +283,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     public boolean isActive() {
-        return !entity.isRemoved();
+        return Minecraft.getInstance().level == entity.level() && !entity.isRemoved();
     }
 }
