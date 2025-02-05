@@ -1,6 +1,9 @@
 {
   "values": [
-    "#minecraft:hoes",
+    {
+      "id": "#minecraft:hoes",
+      "required": false
+    },
     "minecraft:diamond_hoe",
     "minecraft:stone_hoe",
     "minecraft:golden_hoe",

@@ -62,15 +62,16 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
 
         // 需要在更新控制器状态之前，写入 all_animations_finished 和 any_animation_finished 变量，供控制器使用
-        if (evaluator.entity().animationContext() != null) {
-            evaluator.entity().animationContext().setAnyAnimationFinished(false);
-            evaluator.entity().animationContext().setAllAnimationsFinished(true);
+        AnimationContext animationContext = evaluator.entity().animationContext();
+        if (animationContext != null) {
+            animationContext.setAnyAnimationFinished(false);
+            animationContext.setAllAnimationsFinished(true);
             for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
                 var holder = this.animationPlayers.get(i);
                 if (holder.animationPlayer.animIsFinished) {
-                    evaluator.entity().animationContext().setAnyAnimationFinished(true);
+                    animationContext.setAnyAnimationFinished(true);
                 } else {
-                    evaluator.entity().animationContext().setAllAnimationsFinished(false);
+                    animationContext.setAllAnimationsFinished(false);
                 }
             }
         }

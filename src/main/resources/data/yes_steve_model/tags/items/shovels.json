@@ -1,6 +1,9 @@
 {
   "values": [
-    "#minecraft:shovels",
+    {
+      "id": "#minecraft:shovels",
+      "required": false
+    },
     "minecraft:diamond_shovel",
     "minecraft:stone_shovel",
     "minecraft:golden_shovel",

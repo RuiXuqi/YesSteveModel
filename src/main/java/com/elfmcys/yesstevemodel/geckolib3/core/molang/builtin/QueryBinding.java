@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin;
 
 import com.elfmcys.yesstevemodel.client.event.LocalPlayerTickEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
@@ -19,6 +20,8 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Optional;
 
 public class QueryBinding extends ContextBinding {
     public static final QueryBinding INSTANCE = new QueryBinding();
@@ -41,10 +44,10 @@ public class QueryBinding extends ContextBinding {
         function("remaining_durability", new ItemRemainingDurability());
 
         var("actor_count", ctx -> ctx.level().getEntityCount());
-        var("anim_time", ctx -> ctx.animationContext().animTime());
+        var("anim_time", ctx -> getAnimationContext(ctx).map(AnimationContext::animTime).orElse(0d));
         // 目前控制器只能同时播放单一动画，所以两个 molang 都是一样的结果
-        var("all_animations_finished", ctx -> ctx.animationContext().isAllAnimationsFinished());
-        var("any_animation_finished", ctx -> ctx.animationContext().isAnyAnimationFinished());
+        var("all_animations_finished", ctx -> getAnimationContext(ctx).map(AnimationContext::isAllAnimationsFinished).orElse(false));
+        var("any_animation_finished", ctx -> getAnimationContext(ctx).map(AnimationContext::isAnyAnimationFinished).orElse(false));
         var("life_time", ctx -> ctx.animatableEntity().getSeekTime() / 20.0);
         var("head_x_rotation", ctx -> ctx.data().netHeadYaw);
         var("head_y_rotation", ctx -> ctx.data().headPitch);
@@ -91,6 +94,11 @@ public class QueryBinding extends ContextBinding {
         playerVar("cape_flap_amount", QueryBinding::getCapeFlapAmount);
         playerVar("player_level", ctx -> ctx.entity().experienceLevel);
         playerVar("is_jumping", ctx -> !ctx.entity().getAbilities().flying && !ctx.entity().isPassenger() && !ctx.entity().onGround() && !ctx.entity().isInWater());
+    }
+
+    private static Optional<AnimationContext> getAnimationContext(IContext<?> ctx) {
+        AnimationContext animationContext = ctx.animationContext();
+        return Optional.ofNullable(animationContext);
     }
 
     private static boolean hasCape(AbstractClientPlayer player) {

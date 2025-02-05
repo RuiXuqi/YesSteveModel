@@ -1,6 +1,9 @@
 {
   "values": [
-    "#minecraft:swords",
+    {
+      "id": "#minecraft:swords",
+      "required": false
+    },
     "minecraft:diamond_sword",
     "minecraft:stone_sword",
     "minecraft:golden_sword",

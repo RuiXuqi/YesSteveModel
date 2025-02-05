@@ -10,6 +10,7 @@ import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 
+import javax.annotation.Nullable;
 import java.util.Random;
 
 public interface IContext<TEntity> {
@@ -25,6 +26,8 @@ public interface IContext<TEntity> {
 
     EntityModelData data();
 
+    // FIXME: 莫名其妙会为 null
+    @Nullable
     AnimationContext animationContext();
 
     Random random();
