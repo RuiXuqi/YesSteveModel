@@ -64,15 +64,6 @@
         "name": "0",
         "config_forms": [
           {
-            "type": "range",
-            "title": "Size/大小: ",
-            "description": "Change the player size (改变玩家大小)",
-            "value": "v.player_size",
-            "step": 0.05,
-            "min": 0.2,
-            "max": 3
-          },
-          {
             "type": "checkbox",
             "title": "headdress/头饰",
             "description": "Used to hide/show the red bow headdress (用来显示或开启玩家头饰)",

@@ -37,7 +37,7 @@
     "height_scale": 0.7,
     "width_scale": 0.7,
     "extra_animation": {
-      "extra0": "",
+      "extra0": "#extra_config",
       "extra1": "",
       "extra2": "",
       "extra3": "",
@@ -46,6 +46,23 @@
       "extra6": "",
       "extra7": ""
     },
+    "extra_animation_buttons": [
+      {
+        "id": "extra_config",
+        "name": "0",
+        "config_forms": [
+          {
+            "type": "range",
+            "title": "Size/大小: ",
+            "description": "Change the player size (改变玩家大小)",
+            "value": "v.player_size",
+            "step": 0.05,
+            "min": 0.2,
+            "max": 3
+          }
+        ]
+      }
+    ],
     "preview_animation": "idle",
     "default_texture": "default",
     "render_layers_first": false,

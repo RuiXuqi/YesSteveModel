@@ -516,7 +516,12 @@
 			}
 		},
 		"parallel1": {
-			"loop": true
+			"loop": true,
+			"bones": {
+				"Root": {
+					"scale": "v.player_size??1"
+				}
+			}
 		},
 		"parallel2": {
 			"loop": true
@@ -536,10 +541,10 @@
 		"parallel7": {
 			"loop": true
 		},
-		"pre_parallel0": {
+		"hair_physics": {
 			"loop": true,
 			"bones": {
-				"FLongHair": {
+				"FLonghair": {
 					"rotation": ["ysm.second_order('抬头头发防穿模', ysm.head_pitch>-40?ysm.head_pitch:-40, 2, 0.6, 0)", 0, 0]
 				},
 				"ElytraLocator": {
@@ -549,7 +554,7 @@
 						"ysm.second_order('头发角速度', math.clamp(-0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
 					]
 				},
-				"MLongHair": {
+				"MLonghair": {
 					"rotation": [
 						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
 						0,

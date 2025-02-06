@@ -301,7 +301,6 @@ public final class RenderUtil {
     }
 
     public static void renderExtraPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z) {
-        setRenderingEntitiesInInventory(true);
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
         viewStack.translate(posX + scale * 0.5, posY + scale * 2, 0);
@@ -327,6 +326,5 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        setRenderingEntitiesInInventory(false);
     }
 }
