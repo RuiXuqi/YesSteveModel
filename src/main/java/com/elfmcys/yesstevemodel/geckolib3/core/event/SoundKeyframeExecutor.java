@@ -28,12 +28,18 @@ public class SoundKeyframeExecutor {
         this.cachePlaySounds = new LinkedList<>();
     }
 
-    public void executeTo(AnimatableEntity<?> animatable, double currentTick) {
+    public void executeTo(AnimatableEntity<?> animatable, double currentTick, boolean dryRun) {
         while (!reachEnd()) {
             EventKeyFrame<String> keyFrame = list.get(nextIndex);
             if (keyFrame.getStartTick() > currentTick) {
                 return;
             }
+            nextIndex++;
+
+            if (dryRun) {
+                continue;
+            }
+
             String soundName = keyFrame.getEventData();
             if (soundName.contains(":")) {
                 // 如果声音名带冒号，那么大概率就是调用原版音频，因为 Windows 中冒号不是合法的文件名

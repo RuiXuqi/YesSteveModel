@@ -53,7 +53,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         event.setCodedAnimationController(this);
         PlayState playState = this.animationPredicate.test(event, evaluator);
         if (playState == PlayState.CONTINUE) {
-            this.animationPlayer.process(tick, evaluator, scheduledUpdate);
+            this.animationPlayer.process(tick, evaluator, scheduledUpdate, false);
         } else {
             this.animationPlayer.stop();
         }

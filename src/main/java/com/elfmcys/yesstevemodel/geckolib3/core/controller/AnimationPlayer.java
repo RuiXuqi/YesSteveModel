@@ -179,7 +179,7 @@ public class AnimationPlayer {
      *
      * @param tick 当前 tick + 插值 tick
      */
-    public void process(final double tick, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
+    public void process(final double tick, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate, boolean dryRun) {
         if (this.currentAnimation != null) {
             Animation animation = animatableEntity.getAnimation(currentAnimation.animationName);
             if (animation != null && this.currentAnimation != animation) {
@@ -291,7 +291,7 @@ public class AnimationPlayer {
         } else if (getAnimationState() == AnimationState.RUNNING) {
             resetQueues();
             // 开始运行动画
-            processCurrentAnimation(context, evaluator, adjustedTick, tick, scheduledUpdate);
+            processCurrentAnimation(context, evaluator, adjustedTick, tick, scheduledUpdate, dryRun);
         }
     }
 
@@ -303,7 +303,7 @@ public class AnimationPlayer {
         this.justStopped = true;
     }
 
-    private void processCurrentAnimation(AnimationContext context, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, double tick, double actualTick, boolean scheduledUpdate) {
+    private void processCurrentAnimation(AnimationContext context, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, double tick, double actualTick, boolean scheduledUpdate, boolean dryRun) {
         assert currentAnimation != null;
         evaluator.entity().setAnimationContext(context);
 
@@ -362,7 +362,7 @@ public class AnimationPlayer {
 
         // 计划外更新不执行声音关键帧
         if (soundKeyFrameExecutor != null && scheduledUpdate) {
-            soundKeyFrameExecutor.executeTo(animatableEntity, tick);
+            soundKeyFrameExecutor.executeTo(animatableEntity, tick, dryRun);
         }
 
         // 计划外更新不执行指令关键帧
