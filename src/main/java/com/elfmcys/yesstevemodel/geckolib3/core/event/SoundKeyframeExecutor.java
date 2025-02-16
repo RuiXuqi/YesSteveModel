@@ -44,7 +44,7 @@ public class SoundKeyframeExecutor {
                 Minecraft.getInstance().getSoundManager().play(instance);
             } else {
                 // 否则认为是自定义的音频文件
-                CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM.get(), soundName, animatable.getEntity());
+                CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundName, animatable.getEntity());
                 cachePlaySounds.add(instance);
                 Minecraft.getInstance().getSoundManager().play(instance);
             }

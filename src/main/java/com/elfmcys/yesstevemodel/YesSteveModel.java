@@ -4,10 +4,12 @@ import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.init.ModSounds;
 import com.elfmcys.yesstevemodel.util.NativeLibUtil;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,6 +24,8 @@ public class YesSteveModel {
         NativeLibUtil.loadCoreLibrary();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GeneralConfig.init());
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.init());
-        ModSounds.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            ModSounds.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        }
     }
 }
