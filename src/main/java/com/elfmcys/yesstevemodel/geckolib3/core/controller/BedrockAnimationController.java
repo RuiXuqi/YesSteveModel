@@ -99,8 +99,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         // 更新动画
         for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
             var holder = this.animationPlayers.get(i);
-            holder.animationPlayer().process(tick, evaluator, scheduledUpdate, !holder.conditionHolder.shouldApply());
             holder.conditionHolder().evaluateApplyCondition(evaluator);
+            holder.animationPlayer().process(tick, evaluator, scheduledUpdate, !holder.conditionHolder().shouldApply());
         }
     }
 
