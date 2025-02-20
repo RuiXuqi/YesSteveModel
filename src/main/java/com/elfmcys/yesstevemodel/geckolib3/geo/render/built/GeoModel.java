@@ -39,6 +39,11 @@ public class GeoModel {
     @NotNull
     public final List<String> sheathBones;
 
+    @NotNull
+    public final List<String> headBones;
+    @NotNull
+    public final List<String> backpackBones;
+
     public final boolean hasFirstPersonLeftArm;
     public final boolean hasFirstPersonRightArm;
     public final boolean hasFirstPersonBackground;
@@ -68,6 +73,10 @@ public class GeoModel {
 
         this.bladeBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[9]));
         this.sheathBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[10]));
+
+        // 头部和背包，主要是兼容女仆的
+        this.headBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[11]));
+        this.backpackBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[12]));
 
         hasFirstPersonLeftArm = hasRendererFeature[0];
         hasFirstPersonRightArm = hasRendererFeature[1];

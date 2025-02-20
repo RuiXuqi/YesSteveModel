@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.PlayerMainPredicate;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 
@@ -45,11 +46,11 @@ public class AnimationRegister {
         register(IDLE, Priority.LOWEST, (player, event) -> true);
     }
 
-    private static void register(String animationName, ILoopType loopType, int priority, BiPredicate<Player, AnimationEvent<CustomPlayerEntity>> predicate) {
-        PlayerMainPredicate.register(new AnimationState(animationName, loopType, priority, predicate));
+    private static void register(String animationName, ILoopType loopType, int priority, BiPredicate<AbstractClientPlayer, AnimationEvent<CustomPlayerEntity>> predicate) {
+        PlayerMainPredicate.register(new AnimationState<>(animationName, loopType, priority, predicate));
     }
 
-    private static void register(String animationName, int priority, BiPredicate<Player, AnimationEvent<CustomPlayerEntity>> predicate) {
+    private static void register(String animationName, int priority, BiPredicate<AbstractClientPlayer, AnimationEvent<CustomPlayerEntity>> predicate) {
         register(animationName, ILoopType.EDefaultLoopTypes.LOOP, priority, predicate);
     }
 

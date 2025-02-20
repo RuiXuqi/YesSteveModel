@@ -19,8 +19,8 @@ import net.minecraft.util.FormattedCharSequence;
 import java.util.List;
 
 public class TextureButton extends Button {
-    private final CustomGuiPlayerEntity instance;
-    private final boolean disablePreviewRotation;
+    protected final CustomGuiPlayerEntity instance;
+    protected final boolean disablePreviewRotation;
 
     public TextureButton(int pX, int pY, CustomGuiPlayerEntity instance, boolean disablePreviewRotation) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
@@ -48,15 +48,7 @@ public class TextureButton extends Button {
         Font font = minecraft.font;
 
         graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF_434242, 0xFF_434242);
-        Window window = Minecraft.getInstance().getWindow();
-        double scale = window.getGuiScale();
-        int scissorX = (int) (this.getX() * scale);
-        int scissorY = (int) (window.getHeight() - ((this.getY() + this.height - 20) * scale));
-        int scissorW = (int) (this.width * scale);
-        int scissorH = (int) ((this.height - 20) * scale);
-        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, instance, this.disablePreviewRotation);
-        RenderSystem.disableScissor();
+        renderReferenceEntity(graphics);
 
         Component message = Component.literal(instance.getTextureName());
         List<FormattedCharSequence> split = font.split(message, 50);
@@ -72,5 +64,17 @@ public class TextureButton extends Button {
             graphics.fillGradient(this.getX() + this.width - 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height - 1, 0xff_F3EFE0, 0xff_F3EFE0);
             graphics.fillGradient(this.getX(), this.getY() + this.height - 1, this.getX() + this.width, this.getY() + this.height, 0xff_F3EFE0, 0xff_F3EFE0);
         }
+    }
+
+    protected void renderReferenceEntity(GuiGraphics graphics) {
+        Window window = Minecraft.getInstance().getWindow();
+        double scale = window.getGuiScale();
+        int scissorX = (int) (this.getX() * scale);
+        int scissorY = (int) (window.getHeight() - ((this.getY() + this.height - 20) * scale));
+        int scissorW = (int) (this.width * scale);
+        int scissorH = (int) ((this.height - 20) * scale);
+        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
+        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, instance, this.disablePreviewRotation);
+        RenderSystem.disableScissor();
     }
 }

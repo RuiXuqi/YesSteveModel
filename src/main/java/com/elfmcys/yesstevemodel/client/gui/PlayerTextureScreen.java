@@ -49,8 +49,8 @@ public class PlayerTextureScreen extends Screen {
     private int texturePage;
     private int maxAnimationPage;
     private int animationPage;
-    private int x;
-    private int y;
+    protected int x;
+    protected int y;
 
     private float posX = 0;
     private float posY = -60;
@@ -80,6 +80,10 @@ public class PlayerTextureScreen extends Screen {
         for (CustomGuiPlayerEntity instance : TEXTURE_BUTTON_INSTANCE) {
             instance.setPlayer(Minecraft.getInstance().player);
         }
+    }
+
+    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity instance, boolean disablePreviewRotation, int modelIndex) {
+        return new TextureButton(pX, pY, instance, disablePreviewRotation);
     }
 
     @Override
@@ -172,7 +176,7 @@ public class PlayerTextureScreen extends Screen {
             int yStart = y + 5 + 104 * (i / 2);
             CustomGuiPlayerEntity instance = TEXTURE_BUTTON_INSTANCE[i];
             instance.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
-            addRenderableWidget(new TextureButton(xStart, yStart, instance, this.disablePreviewRotation));
+            addRenderableWidget(getTextureButton(xStart, yStart, instance, this.disablePreviewRotation, modelIndex));
         }
     }
 
@@ -198,12 +202,7 @@ public class PlayerTextureScreen extends Screen {
         if (!PREVIEW_INSTANCE.hasPreviewAnimation(animation)) {
             PREVIEW_INSTANCE.setPreviewAnimation(animation);
         }
-        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        PREVIEW_INSTANCE.getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            PREVIEW_INSTANCE.setModelAndTexture(modelId, cap.getTextureName());
-            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_INSTANCE, showGround);
-        });
-        RenderSystem.disableScissor();
+        renderReferenceEntity(graphics, scissorX, scissorY, scissorW, scissorH);
 
         String texturePageInfo = String.format("%d/%d", texturePage + 1, this.maxTexturePage + 1);
         graphics.drawString(font, texturePageInfo, x + 302 + (118 - font.width(texturePageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
@@ -214,6 +213,15 @@ public class PlayerTextureScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTick);
         this.renderables.stream().filter(r -> r instanceof FlatColorButton)
                 .forEach(r -> ((FlatColorButton) r).renderToolTip(graphics, this, mouseX, mouseY));
+    }
+
+    protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY, int scissorW, int scissorH) {
+        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
+        PREVIEW_INSTANCE.getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            PREVIEW_INSTANCE.setModelAndTexture(modelId, cap.getTextureName());
+            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_INSTANCE, showGround);
+        });
+        RenderSystem.disableScissor();
     }
 
     @Override

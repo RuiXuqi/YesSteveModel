@@ -2,14 +2,13 @@ package com.elfmcys.yesstevemodel.client.animation.condition;
 
 import com.elfmcys.yesstevemodel.util.EnumUtil;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
-import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -62,19 +61,19 @@ public class ConditionArmor {
         }
     }
 
-    public String doTest(Player player, EquipmentSlot slot) {
-        ItemStack item = EquipmentUtil.getEquippedItem(player, slot);
+    public String doTest(LivingEntity livingEntity, EquipmentSlot slot) {
+        ItemStack item = EquipmentUtil.getEquippedItem(livingEntity, slot);
         if (item.isEmpty()) {
             return EMPTY;
         }
-        String result = doIdTest(player, slot);
+        String result = doIdTest(livingEntity, slot);
         if (result.isEmpty()) {
-            return doTagTest(player, slot);
+            return doTagTest(livingEntity, slot);
         }
         return result;
     }
 
-    private String doIdTest(Player player, EquipmentSlot slot) {
+    private String doIdTest(LivingEntity livingEntity, EquipmentSlot slot) {
         if (idTest.isEmpty()) {
             return EMPTY;
         }
@@ -82,7 +81,7 @@ public class ConditionArmor {
             return EMPTY;
         }
         Set<ResourceLocation> idListTest = idTest.get(slot);
-        ItemStack item = EquipmentUtil.getEquippedItem(player, slot);
+        ItemStack item = EquipmentUtil.getEquippedItem(livingEntity, slot);
         ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(item.getItem());
         if (registryName == null) {
             return EMPTY;
@@ -93,7 +92,7 @@ public class ConditionArmor {
         return EMPTY;
     }
 
-    private String doTagTest(Player player, EquipmentSlot slot) {
+    private String doTagTest(LivingEntity livingEntity, EquipmentSlot slot) {
         if (tagTest.isEmpty()) {
             return EMPTY;
         }
@@ -101,7 +100,7 @@ public class ConditionArmor {
             return EMPTY;
         }
         List<TagKey<Item>> tagListTest = tagTest.get(slot);
-        ItemStack item = EquipmentUtil.getEquippedItem(player, slot);
+        ItemStack item = EquipmentUtil.getEquippedItem(livingEntity, slot);
         ITagManager<Item> tags = ForgeRegistries.ITEMS.tags();
         if (tags == null) {
             return EMPTY;

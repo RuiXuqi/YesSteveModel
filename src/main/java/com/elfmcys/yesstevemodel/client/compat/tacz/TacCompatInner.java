@@ -2,12 +2,12 @@ package com.elfmcys.yesstevemodel.client.compat.tacz;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,7 +28,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -80,7 +79,7 @@ class TacCompatInner {
         });
     }
 
-    static PlayState playGrenadeAnimation(AnimationEvent<CustomPlayerEntity> event, InteractionHand hand) {
+    static PlayState playGrenadeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, InteractionHand hand) {
         // TODO 手雷还没有
         if (hand == InteractionHand.MAIN_HAND) {
             return playLoopAnimation(event, "tac:mainhand:grenade");
@@ -93,7 +92,7 @@ class TacCompatInner {
      * tac:run
      * tac:walk
      */
-    static PlayState playGunMainAnimation(AnimationEvent<CustomPlayerEntity> event, String animationName, ILoopType loopType) {
+    static PlayState playGunMainAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, ILoopType loopType) {
         String tacName = "tac:" + animationName;
         String modelId = event.getAnimatableEntity().getModelId();
         Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, tacName);
@@ -111,7 +110,7 @@ class TacCompatInner {
      * tac:hold_shoot:pistol
      * tac:run:pistol
      */
-    static PlayState playGunHoldAnimation(AnimationEvent<CustomPlayerEntity> event, ItemStack heldItem) {
+    static PlayState playGunHoldAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return PlayState.STOP;
@@ -122,10 +121,10 @@ class TacCompatInner {
         }
         CommonGunIndex gunIndex = indexOptional.get();
         String weaponType = gunIndex.getType();
-        Player player = event.getAnimatableEntity().getEntity();
-        IGunOperator operator = IGunOperator.fromLivingEntity(player);
+        LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
+        IGunOperator operator = IGunOperator.fromLivingEntity(livingEntity);
 
-        if (!player.isSwimming() && player.getPose() == Pose.SWIMMING) {
+        if (!livingEntity.isSwimming() && livingEntity.getPose() == Pose.SWIMMING) {
             if (Math.abs(event.getLimbSwingAmount()) > 0.05) {
                 return getGunTypeAnimation(event, weaponType, "tac:climb:");
             } else {
@@ -137,7 +136,7 @@ class TacCompatInner {
         if (aimProgress > 0) {
             return getGunTypeAnimation(event, weaponType, "tac:aim:");
         } else {
-            if (player.onGround() && player.isSprinting()) {
+            if (livingEntity.onGround() && livingEntity.isSprinting()) {
                 return getGunTypeAnimation(event, weaponType, "tac:run:");
             }
             return getGunTypeAnimation(event, weaponType, "tac:hold:");
@@ -147,7 +146,7 @@ class TacCompatInner {
     /**
      * 这些动画可能是带有后摇的动画，故需要单独分一个频道来播放，从而才能超过时长进行播放
      */
-    static PlayState playGunOnceAnimation(AnimationEvent<CustomPlayerEntity> event, ItemStack heldItem) {
+    static PlayState playGunOnceAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return PlayState.STOP;
@@ -159,14 +158,14 @@ class TacCompatInner {
 
         CommonGunIndex gunIndex = indexOptional.get();
         String weaponType = gunIndex.getType();
-        Player player = event.getAnimatableEntity().getEntity();
-        IGunOperator operator = IGunOperator.fromLivingEntity(player);
+        LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
+        IGunOperator operator = IGunOperator.fromLivingEntity(livingEntity);
         long fireTick = operator.getSynShootCoolDown();
 
-        if (event.getAnimatableEntity().tacGunAnimationNeedReload) {
+        if (event.getAnimatableEntity().isTacGunAnimationNeedReload()) {
             playLoopAnimation(event, "empty");
         }
-        event.getAnimatableEntity().tacGunAnimationNeedReload = false;
+        event.getAnimatableEntity().setTacGunAnimationNeedReload(false);
 
         float reloadProgress = operator.getSynReloadState().getCountDown();
         if (reloadProgress > 0) {
@@ -180,7 +179,7 @@ class TacCompatInner {
 
         if (fireTick > 0) {
             float aimProgress = operator.getSynAimingProgress();
-            boolean isClimbing = !player.isSwimming() && player.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) <= 0.05;
+            boolean isClimbing = !livingEntity.isSwimming() && livingEntity.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) <= 0.05;
 
             if (isClimbing) {
                 return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
@@ -217,12 +216,12 @@ class TacCompatInner {
     }
 
     @NotNull
-    private static PlayState getGunTypeAnimation(AnimationEvent<CustomPlayerEntity> event, String weaponType, String prefix) {
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String weaponType, String prefix) {
         return getGunTypeAnimation(event, weaponType, prefix, ILoopType.EDefaultLoopTypes.LOOP);
     }
 
     @NotNull
-    private static PlayState getGunTypeAnimation(AnimationEvent<CustomPlayerEntity> event, String weaponType, String prefix, ILoopType loopType) {
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String weaponType, String prefix, ILoopType loopType) {
         String modelId = event.getAnimatableEntity().getModelId();
         ConditionTAC conditionTAC = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
         if (conditionTAC != null) {

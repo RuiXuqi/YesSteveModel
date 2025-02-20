@@ -4013,6 +4013,11 @@
 					"rotation": [-30, 0, 0]
 				},
 				{
+					"name": "BackpackLocator",
+					"parent": "UpperBody",
+					"pivot": [0, 29, 0]
+				},
+				{
 					"name": "clothe",
 					"parent": "UpBody",
 					"pivot": [0, 22.825, -0.075]

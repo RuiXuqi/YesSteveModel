@@ -444,6 +444,11 @@
 					"rotation": [0, 0, 45]
 				},
 				{
+					"name": "BackpackLocator",
+					"parent": "UpperBody",
+					"pivot": [0, 30, 0]
+				},
+				{
 					"name": "PistolLocator",
 					"parent": "UpBody",
 					"pivot": [-4, 24.75, -1.6],

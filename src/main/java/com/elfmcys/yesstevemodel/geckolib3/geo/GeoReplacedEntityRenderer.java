@@ -107,26 +107,27 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
                 if (renderLayersFirst && !entity.isSpectator()) {
-                    for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
-                        layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
-                                data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
-                    }
+                    renderLayer(instance, partialTick, poseStack, bufferSource, packedLight, event, data);
                 }
                 render(model, instance, partialTick, renderType, poseStack, bufferSource, textureIndex, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
                 if (!renderLayersFirst && !entity.isSpectator()) {
-                    for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
-                        layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
-                                data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
-                    }
+                    renderLayer(instance, partialTick, poseStack, bufferSource, packedLight, event, data);
                 }
             }
             poseStack.popPose();
         }
         ((ILivingRenderer) this).superRender(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Post<>(entity, this, partialTick, poseStack, bufferSource, packedLight));
+    }
+
+    protected void renderLayer(T instance, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AnimationEvent<?> event, EntityModelData data) {
+        for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
+            layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
+                    data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
+        }
     }
 
     protected float getOverlayProgress(TEntity entity, float partialTicks) {

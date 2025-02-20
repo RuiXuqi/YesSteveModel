@@ -11,8 +11,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
 
@@ -20,7 +20,7 @@ import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPre
 
 public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEntity> {
     @SuppressWarnings("unchecked")
-    private static final ReferenceArrayList<AnimationState>[] DATA = new ReferenceArrayList[Priority.LOWEST + 1];
+    private static final ReferenceArrayList<AnimationState<AbstractClientPlayer, CustomPlayerEntity>>[] DATA = new ReferenceArrayList[Priority.LOWEST + 1];
 
     static {
         for (int i = 0; i < DATA.length; i++) {
@@ -28,13 +28,13 @@ public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEnti
         }
     }
 
-    public static void register(AnimationState state) {
+    public static void register(AnimationState<AbstractClientPlayer, CustomPlayerEntity> state) {
         DATA[state.getPriority()].add(state);
     }
 
     @Override
     public PlayState test(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<?> evaluator) {
-        Player player = event.getAnimatableEntity().getEntity();
+        AbstractClientPlayer player = event.getAnimatableEntity().getEntity();
         if (player == null) {
             return PlayState.STOP;
         }
@@ -53,7 +53,7 @@ public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEnti
         }
 
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {
-            for (AnimationState state : DATA[i]) {
+            for (AnimationState<AbstractClientPlayer, CustomPlayerEntity> state : DATA[i]) {
                 if (state.getPredicate().test(player, event)) {
                     String animationName = state.getAnimationName();
                     ILoopType loopType = state.getLoopType();

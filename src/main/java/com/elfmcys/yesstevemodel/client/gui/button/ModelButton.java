@@ -27,10 +27,10 @@ import java.util.List;
 
 public class ModelButton extends Button {
     private final static ResourceLocation ICON = new ResourceLocation(YesSteveModel.MOD_ID, "texture/icon.png");
-    private final boolean needAuth;
+    protected final boolean needAuth;
     private final int color;
     private final ClientModel model;
-    private final CustomGuiPlayerEntity instance;
+    protected final CustomGuiPlayerEntity instance;
     private final String hoverAnimationName;
     private final String hoverFadeoutAnimationName;
     private final String focusAnimationName;

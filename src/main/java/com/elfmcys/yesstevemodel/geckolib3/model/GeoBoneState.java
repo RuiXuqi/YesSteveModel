@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.model;
 
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.util.TlmConverterHelper;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
@@ -39,6 +40,13 @@ public class GeoBoneState implements IBone {
     private final int outputStateOffset;
 
     private final BoneSnapshot initialSnapshot;
+
+    /**
+     * 仅用于 TLM 定位组获取的的 AnimationModel
+     * <p>
+     * FIXME: 其实不应该这样耦合的
+     */
+    private Object tlmBone = null;
 
     public GeoBoneState(GeoBone bone, float[] inputState, int inputStateOffset, float[] outputState, int outputStateOffset) {
         this.name = bone.name();
@@ -222,5 +230,14 @@ public class GeoBoneState implements IBone {
     @Override
     public void setTracking(boolean value) {
         this.inputState[inputStateOffset + IN_IDX_TRACKING] = value ? 1 : 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getTlmBone() {
+        if (this.tlmBone == null) {
+            // FIXME: 有可能会触发类加载？
+            this.tlmBone = TlmConverterHelper.convertToTlmGeoBone(this);
+        }
+        return (T) this.tlmBone;
     }
 }

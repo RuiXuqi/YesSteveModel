@@ -3,7 +3,7 @@ package com.elfmcys.yesstevemodel.client.compat.swem;
 import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntityBase;
 import com.google.common.collect.Maps;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -14,8 +14,8 @@ public class SwemCompatInner {
 
     @Nullable
     @SuppressWarnings("all")
-    static String getAnimation(Player player) {
-        if (player.getVehicle() instanceof SWEMHorseEntityBase horse) {
+    static String getAnimation(LivingEntity livingEntity) {
+        if (livingEntity.getVehicle() instanceof SWEMHorseEntityBase horse) {
             SWEMHorseEntityBase.Gait gait = horse.getGait();
             // 判断跳跃
             double jumpHeight = horse.jumpHeight;

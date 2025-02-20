@@ -77,6 +77,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     public abstract float getHeightScale();
 
+    public boolean hasPreviewAnimation() {
+        // 是否有预览动画功能，目前仅有玩家支持此功能
+        return false;
+    }
+
     @Nullable
     public abstract Animation getAnimation(String name);
 
@@ -94,7 +99,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     protected void preAnimationSetup(double seekTime) {
-
     }
 
     public final TEntity getEntity() {
@@ -284,5 +288,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     public boolean isActive() {
         return Minecraft.getInstance().level == entity.level() && !entity.isRemoved();
+    }
+
+    public boolean isTacGunAnimationNeedReload() {
+        return false;
+    }
+
+    public void setTacGunAnimationNeedReload(boolean needReload) {
     }
 }

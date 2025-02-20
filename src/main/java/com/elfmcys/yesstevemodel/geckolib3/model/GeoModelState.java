@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.model;
 
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.util.TlmConverterHelper;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -20,6 +21,8 @@ public class GeoModelState {
     private final float[] outputState;
     private final GeoModel model;
 
+    @NotNull
+    private final List<IBone> headBones;
     @NotNull
     private final List<IBone> leftHandBones;
     @NotNull
@@ -42,10 +45,20 @@ public class GeoModelState {
     private final List<IBone> bladeBones;
     @NotNull
     private final List<IBone> sheathBones;
+    @NotNull
+    private final List<IBone> backpackBones;
     @Nullable
     private final IBone firstPersonHead;
     @Nullable
     private final IBone firstPersonViewLocator;
+
+    /**
+     * 仅用于 TLM 定位组
+     * <p>
+     * FIXME: 其实不应该这样耦合的
+     */
+    @Nullable
+    private Object tlmAnimatedGeoModel = null;
 
     public GeoModelState(GeoModel model) {
         this.model = model;
@@ -62,6 +75,7 @@ public class GeoModelState {
         }
         this.boneMap = Object2ReferenceMaps.unmodifiable(boneMap);
 
+        headBones = findBones(model.headBones);
         leftHandBones = findBones(model.leftHandBones);
         rightHandBones = findBones(model.rightHandBones);
         elytraBones = findBones(model.elytraBones);
@@ -73,6 +87,7 @@ public class GeoModelState {
         rightShoulderBones = findBones(model.rightShoulderBones);
         bladeBones = findBones(model.bladeBones);
         sheathBones = findBones(model.sheathBones);
+        backpackBones = findBones(model.backpackBones);
         firstPersonHead = boneMap.get("AllHead");
         firstPersonViewLocator = boneMap.get("ViewLocator");
     }
@@ -115,6 +130,11 @@ public class GeoModelState {
     @NotNull
     public List<IBone> elytraBones() {
         return elytraBones;
+    }
+
+    @NotNull
+    public List<IBone> backpackBones() {
+        return backpackBones;
     }
 
     @NotNull
@@ -163,5 +183,18 @@ public class GeoModelState {
     @Nullable
     public IBone firstPersonViewLocator() {
         return firstPersonViewLocator;
+    }
+
+    public List<IBone> headBones() {
+        return headBones;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getTlmAnimatedGeoModel() {
+        if (this.tlmAnimatedGeoModel == null) {
+            // FIXME: 有可能会触发类加载？
+            this.tlmAnimatedGeoModel = TlmConverterHelper.convertToTlmAnimatedModel(this);
+        }
+        return (T) this.tlmAnimatedGeoModel;
     }
 }

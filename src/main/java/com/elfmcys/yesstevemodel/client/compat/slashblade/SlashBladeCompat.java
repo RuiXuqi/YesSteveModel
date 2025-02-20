@@ -1,11 +1,11 @@
 package com.elfmcys.yesstevemodel.client.compat.slashblade;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import net.minecraft.world.entity.player.Player;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +46,7 @@ public class SlashBladeCompat {
         return isSlashBladeLoaded() && isSlashBlade(stack);
     }
 
-    public static String getAnimationName(AnimationEvent<CustomPlayerEntity> event) {
+    public static String getAnimationName(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
         if (isSlashBladeLoaded()) {
             return SlashBladeAnimation.getAnimationName(event);
         }
@@ -54,8 +54,8 @@ public class SlashBladeCompat {
     }
 
     @Nullable
-    public static PlayState playMainAnimation(Player player, AnimationEvent<CustomPlayerEntity> event, String animationName, ILoopType loopType) {
-        if (isSlashBladeLoaded() && isSlashBladeItem(player.getMainHandItem())) {
+    public static PlayState playMainAnimation(LivingEntity livingEntity, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, ILoopType loopType) {
+        if (isSlashBladeLoaded() && isSlashBladeItem(livingEntity.getMainHandItem())) {
             return SlashBladeAnimation.playMainAnimation(event, animationName, loopType);
         }
         return null;

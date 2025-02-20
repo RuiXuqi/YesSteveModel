@@ -68,7 +68,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
      */
-    public boolean tacGunAnimationNeedReload = false;
+    private boolean tacGunAnimationNeedReload = false;
 
     public CustomPlayerEntity(AbstractClientPlayer player, boolean localPlayer, boolean asyncUpdate) {
         super(player, asyncUpdate);
@@ -371,5 +371,15 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     @Override
     protected void preAnimationSetup(double seekTime) {
         getAnimationProcessor().putRemoteStruct(getRemoteStruct());
+    }
+
+    @Override
+    public boolean isTacGunAnimationNeedReload() {
+        return tacGunAnimationNeedReload;
+    }
+
+    @Override
+    public void setTacGunAnimationNeedReload(boolean tacGunAnimationNeedReload) {
+        this.tacGunAnimationNeedReload = tacGunAnimationNeedReload;
     }
 }

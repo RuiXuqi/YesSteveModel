@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
@@ -69,26 +69,26 @@ public class ConditionalHold {
         }
     }
 
-    public String doTest(Player player, InteractionHand hand) {
-        if (player.getItemInHand(hand).isEmpty()) {
+    public String doTest(LivingEntity livingEntity, InteractionHand hand) {
+        if (livingEntity.getItemInHand(hand).isEmpty()) {
             return hand == InteractionHand.MAIN_HAND ? EMPTY_MAINHAND : EMPTY_OFFHAND;
         }
-        String result = doIdTest(player, hand);
+        String result = doIdTest(livingEntity, hand);
         if (result.isEmpty()) {
-            result = doTagTest(player, hand);
+            result = doTagTest(livingEntity, hand);
             if (result.isEmpty()) {
-                return doExtraTest(player, hand);
+                return doExtraTest(livingEntity, hand);
             }
             return result;
         }
         return result;
     }
 
-    private String doIdTest(Player player, InteractionHand hand) {
+    private String doIdTest(LivingEntity livingEntity, InteractionHand hand) {
         if (idTest.isEmpty()) {
             return EMPTY;
         }
-        ItemStack itemInHand = player.getItemInHand(hand);
+        ItemStack itemInHand = livingEntity.getItemInHand(hand);
         ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(itemInHand.getItem());
         if (registryName == null) {
             return EMPTY;
@@ -99,11 +99,11 @@ public class ConditionalHold {
         return EMPTY;
     }
 
-    private String doTagTest(Player player, InteractionHand hand) {
+    private String doTagTest(LivingEntity livingEntity, InteractionHand hand) {
         if (tagTest.isEmpty()) {
             return EMPTY;
         }
-        ItemStack itemInHand = player.getItemInHand(hand);
+        ItemStack itemInHand = livingEntity.getItemInHand(hand);
         ITagManager<Item> tags = ForgeRegistries.ITEMS.tags();
         if (tags == null) {
             return EMPTY;
@@ -111,15 +111,15 @@ public class ConditionalHold {
         return tagTest.stream().filter(itemInHand::is).findFirst().map(itemTagKey -> tagPre + itemTagKey.location()).orElse(EMPTY);
     }
 
-    private String doExtraTest(Player player, InteractionHand hand) {
+    private String doExtraTest(LivingEntity livingEntity, InteractionHand hand) {
         if (extraTest.isEmpty() && innerTest.isEmpty()) {
             return EMPTY;
         }
-        String innerName = InnerClassify.doClassifyTest(extraPre, player, hand);
+        String innerName = InnerClassify.doClassifyTest(extraPre, livingEntity, hand);
         if (StringUtils.isNotBlank(innerName) && this.innerTest.contains(innerName)) {
             return innerName;
         }
-        UseAnim anim = player.getItemInHand(hand).getUseAnimation();
+        UseAnim anim = livingEntity.getItemInHand(hand).getUseAnimation();
         if (this.extraTest.contains(anim)) {
             return extraPre + anim.name().toLowerCase(Locale.US);
         }

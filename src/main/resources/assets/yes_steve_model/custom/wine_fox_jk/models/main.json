@@ -4355,6 +4355,11 @@
 					"rotation": [-30, 0, 0]
 				},
 				{
+					"name": "BackpackLocator",
+					"parent": "UpperBody",
+					"pivot": [0, 29, 0]
+				},
+				{
 					"name": "MTail",
 					"parent": "MUpperBody",
 					"pivot": [0, 23.9644, 0]

@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
 import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerScreen;
 import com.elfmcys.yesstevemodel.client.input.*;
@@ -33,6 +34,7 @@ public class ClientSetupEvent {
         CosmeticArmorCompat.init();
         ElytraSlotCompat.init();
         TACZCompat.init();
+        TlmCompat.init();
         CarryOnCompat.init();
         ParCoolCompat.init();
         SlashBladeCompat.init();

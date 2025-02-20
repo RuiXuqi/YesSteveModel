@@ -725,6 +725,11 @@
 					"pivot": [-6, 23.75, 0]
 				},
 				{
+					"name": "BackpackLocator",
+					"parent": "UpperBody",
+					"pivot": [0, 22, 0]
+				},
+				{
 					"name": "DownBody",
 					"parent": "AllBody",
 					"pivot": [-1.9, 12, 0]

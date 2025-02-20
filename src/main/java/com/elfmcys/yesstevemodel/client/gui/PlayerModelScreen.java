@@ -49,8 +49,8 @@ public class PlayerModelScreen extends Screen {
     private int maxPage;
     private EditBox textField;
     private Category category;
-    private int x;
-    private int y;
+    protected int x;
+    protected int y;
 
     static {
         for (int i = 0; i < MODEL_PREVIEW_INSTANCE.length; i++) {
@@ -67,6 +67,14 @@ public class PlayerModelScreen extends Screen {
             instance.setPlayer(Minecraft.getInstance().player);
         }
         clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
+    }
+
+    protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity instance, ClientModel model) {
+        return new ModelButton(xStart, yStart, needAuth, instance, model);
+    }
+
+    protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
+        return new PlayerTextureScreen(parent, modelId, model);
     }
 
     private void calculateModelList() {
@@ -162,7 +170,7 @@ public class PlayerModelScreen extends Screen {
                 LocalPlayer player = Minecraft.getInstance().player;
                 player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                     ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
-                        Minecraft.getInstance().setScreen(new PlayerTextureScreen(this, cap.getModelId(), model));
+                        Minecraft.getInstance().setScreen(getTextureScreen(this, cap.getModelId(), model));
                     });
                 });
             }
@@ -232,7 +240,7 @@ public class PlayerModelScreen extends Screen {
                     var model = models.get(id);
                     instance.setModelAndTexture(id, model.defaultTextureName());
                     instance.setPreviewAnimation(model.modelInfo().properties().previewAnimation());
-                    addRenderableWidget(new ModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), instance, model));
+                    addRenderableWidget(getModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), instance, model));
                 });
             }
         }
@@ -248,6 +256,26 @@ public class PlayerModelScreen extends Screen {
         graphics.fillGradient(x + 351, y + 7, x + 352, y + 21, 0xFF_F3EFE0, 0xFF_F3EFE0);
 
         textField.render(graphics, mouseX, mouseY, partialTicks);
+        renderReferenceEntity(graphics, mouseX, mouseY);
+
+        if (textField.getValue().isEmpty() && !textField.isFocused()) {
+            graphics.drawString(font, Component.translatable("gui.yes_steve_model.search").withStyle(ChatFormatting.ITALIC), x + 148, y + 10, 0x777777);
+        }
+
+        String pageInfo = String.format("%d/%d", page + 1, this.maxPage + 1);
+        graphics.drawString(font, pageInfo, x + 138 + (282 - font.width(pageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
+
+        String debugInfo = String.format("%s-%s", SharedConstants.getCurrentVersion().getName(), ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString());
+        graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
+
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        this.renderables.stream().filter(r -> r instanceof FlatIconButton)
+                .forEach(r -> ((FlatIconButton) r).renderToolTip(graphics, this, mouseX, mouseY));
+        this.renderables.stream().filter(r -> r instanceof ModelButton)
+                .forEach(r -> ((ModelButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
+    }
+
+    protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             Window window = Minecraft.getInstance().getWindow();
@@ -271,22 +299,6 @@ public class PlayerModelScreen extends Screen {
                 }
             });
         }
-
-        if (textField.getValue().isEmpty() && !textField.isFocused()) {
-            graphics.drawString(font, Component.translatable("gui.yes_steve_model.search").withStyle(ChatFormatting.ITALIC), x + 148, y + 10, 0x777777);
-        }
-
-        String pageInfo = String.format("%d/%d", page + 1, this.maxPage + 1);
-        graphics.drawString(font, pageInfo, x + 138 + (282 - font.width(pageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
-
-        String debugInfo = String.format("%s-%s", SharedConstants.getCurrentVersion().getName(), ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString());
-        graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
-
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        this.renderables.stream().filter(r -> r instanceof FlatIconButton)
-                .forEach(r -> ((FlatIconButton) r).renderToolTip(graphics, this, mouseX, mouseY));
-        this.renderables.stream().filter(r -> r instanceof ModelButton)
-                .forEach(r -> ((ModelButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
     }
 
     @Override

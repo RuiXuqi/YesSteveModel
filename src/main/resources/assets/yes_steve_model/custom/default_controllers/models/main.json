@@ -3783,6 +3783,11 @@
 					"rotation": [-5, 0, 0]
 				},
 				{
+					"name": "BackpackLocator",
+					"parent": "UpBody",
+					"pivot": [0, 28, 0]
+				},
+				{
 					"name": "DownBody",
 					"parent": "AllBody",
 					"pivot": [0, 18, 0]

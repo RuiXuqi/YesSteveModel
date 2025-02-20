@@ -93,13 +93,13 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("ladder_facing", new LadderFacingVariable());
         livingEntityVar("arrow_count", ctx -> ctx.entity().getArrowCount());
         livingEntityVar("stinger_count", ctx -> ctx.entity().getStingerCount());
+        // 为了兼容其他模组，只有玩家能返回这个值，其他都是满值（20）
+        livingEntityVar("food_level", YSMBinding::getFoodLevel);
 
         playerVar("texture_name", new TextureNameVariable());
         playerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
         playerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
         playerVar("elytra_rot_z", ctx -> Math.toDegrees(ctx.entity().elytraRotZ));
-        // 之前默认值是 2
-        playerVar("food_level", ctx -> ctx.entity().getFoodData().getFoodLevel());
         playerVar("first_person_mod_hide", new FirstPersonModHideVariable());
         playerVar("has_left_shoulder_parrot", ctx -> hasParrot(ctx.entity(), true));
         playerVar("has_right_shoulder_parrot", ctx -> hasParrot(ctx.entity(), false));
@@ -129,6 +129,14 @@ public class YSMBinding extends ContextBinding {
         abstractArrowVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
         abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
         abstractArrowVar("shoot_item_id", ctx -> ((IArrowExtraInfo) ctx.entity()).getShootItemId());
+    }
+
+    private static int getFoodLevel(IContext<LivingEntity> ctx) {
+        LivingEntity entity = ctx.entity();
+        if (entity instanceof Player player) {
+            return player.getFoodData().getFoodLevel();
+        }
+        return 20;
     }
 
     private static boolean getEyeCloseState(AnimationEvent<?> animationEvent, LivingEntity player) {

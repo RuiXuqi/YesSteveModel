@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.swem;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -19,9 +19,9 @@ public class SwemCompat {
     }
 
     @Nullable
-    public static String getAnimation(Player player) {
+    public static String getAnimation(LivingEntity livingEntity) {
         if (isInstalled()) {
-            return SwemCompatInner.getAnimation(player);
+            return SwemCompatInner.getAnimation(livingEntity);
         }
         return null;
     }

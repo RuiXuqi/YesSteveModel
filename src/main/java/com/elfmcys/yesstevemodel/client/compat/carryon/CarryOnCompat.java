@@ -28,7 +28,7 @@ public class CarryOnCompat {
         }
     }
 
-    public static boolean isCarryOnPrincess(Player player, AnimationEvent<CustomPlayerEntity> event) {
+    public static boolean isCarryOnPrincess(Player player) {
         if (INSTALLED) {
             return CarryOnInnerCompat.isCarryOnPrincess(player);
         }

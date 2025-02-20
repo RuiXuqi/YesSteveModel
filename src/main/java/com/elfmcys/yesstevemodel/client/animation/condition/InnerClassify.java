@@ -3,14 +3,14 @@ package com.elfmcys.yesstevemodel.client.animation.condition;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.init.ModItemTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 
 public class InnerClassify {
     private static final String EMPTY = "";
 
-    public static String doClassifyTest(String extraPre, Player player, InteractionHand hand) {
-        ItemStack itemInHand = player.getItemInHand(hand);
+    public static String doClassifyTest(String extraPre, LivingEntity livingEntity, InteractionHand hand) {
+        ItemStack itemInHand = livingEntity.getItemInHand(hand);
         String classify = getClassify(itemInHand);
         if (!classify.equals(EMPTY)) {
             return extraPre + classify;
