@@ -28,6 +28,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -39,6 +41,7 @@ import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 /**
  * 基于 CustomPlayerEntity 复制来的，基本上没做删除，试想尝试让女仆能调用轮盘动画之类的,所以就先预留着
  */
+@OnlyIn(Dist.CLIENT)
 public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements IGeoEntity {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;

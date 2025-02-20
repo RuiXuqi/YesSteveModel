@@ -5,9 +5,12 @@ import com.elfmcys.yesstevemodel.geckolib3.model.GeoBoneState;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.core.processor.ILocationBone;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 
+@OnlyIn(Dist.CLIENT)
 public class TlmConverterHelper {
     /**
      * 转换成 TLM 下 Bone 的格式

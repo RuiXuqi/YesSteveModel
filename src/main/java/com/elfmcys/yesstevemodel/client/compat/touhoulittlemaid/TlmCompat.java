@@ -2,12 +2,15 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.GeoMaidAnimatedRegister;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 
+@OnlyIn(Dist.CLIENT)
 public class TlmCompat {
     private static final String MOD_ID = "touhou_little_maid";
     private static final VersionRange VERSION_RANGE;

@@ -1,15 +1,18 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.YsmMaidScreenEvent;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.SyncCapability;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.YsmMaidScreenEvent;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.render.CustomYsmMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.EntityMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 
+@OnlyIn(Dist.CLIENT)
 public class TlmCompatInner {
     static void registerEvent() {
         MinecraftForge.EVENT_BUS.register(new YsmMaidScreenEvent());
