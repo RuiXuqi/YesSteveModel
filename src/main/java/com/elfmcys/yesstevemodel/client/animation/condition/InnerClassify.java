@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
 import com.elfmcys.yesstevemodel.init.ModItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,11 +22,14 @@ public class InnerClassify {
     public static String getClassify(ItemStack itemInHand) {
         Item item = itemInHand.getItem();
         // 优先判断拔刀剑
-        if (SlashBladeCompat.isSlashBladeItem(itemInHand)){
+        if (SlashBladeCompat.isSlashBladeItem(itemInHand)) {
             return "slashblade";
         }
         if (item instanceof SwordItem || itemInHand.is(ModItemTags.SWORDS)) {
             return "sword";
+        }
+        if (TlmCompat.isGohei(item)) {
+            return "gohei";
         }
         if (item instanceof AxeItem || itemInHand.is(ModItemTags.AXES)) {
             return "axe";

@@ -13,6 +13,7 @@ public class ConditionManager {
     private final ConditionTAC tac = new ConditionTAC();
     private final ConditionalVehicle vehicle = new ConditionalVehicle();
     private final ConditionalPassenger passenger = new ConditionalPassenger();
+    private final ConditionalChair chair = new ConditionalChair();
 
     public void addTest(String name) {
         swing.addTest(name);
@@ -25,6 +26,7 @@ public class ConditionManager {
         tac.addTest(name);
         vehicle.addTest(name);
         passenger.addTest(name);
+        chair.addTest(name);
     }
 
     public ConditionalSwing getSwingMainhand() {
@@ -65,5 +67,9 @@ public class ConditionManager {
 
     public ConditionalPassenger getPassenger() {
         return passenger;
+    }
+
+    public ConditionalChair getChair() {
+        return chair;
     }
 }

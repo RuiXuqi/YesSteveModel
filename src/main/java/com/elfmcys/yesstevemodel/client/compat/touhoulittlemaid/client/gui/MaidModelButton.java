@@ -3,9 +3,11 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.gui;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
+import com.elfmcys.yesstevemodel.util.NameUtil;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.network.NetworkHandler;
 import com.github.tartaricacid.touhoulittlemaid.network.message.YsmMaidModelMessage;
+import net.minecraft.network.chat.Component;
 
 public class MaidModelButton extends ModelButton {
     private final EntityMaid maid;
@@ -20,7 +22,8 @@ public class MaidModelButton extends ModelButton {
         if (needAuth) {
             return;
         }
-        this.maid.setYsmModel(instance.getModelId(), instance.getTextureName());
-        NetworkHandler.CHANNEL.sendToServer(new YsmMaidModelMessage(this.maid.getId(), instance.getModelId(), instance.getTextureName()));
+        Component name = NameUtil.getModeName(model, instance.getModelId());
+        this.maid.setYsmModel(instance.getModelId(), instance.getTextureName(), name);
+        NetworkHandler.CHANNEL.sendToServer(new YsmMaidModelMessage(this.maid.getId(), instance.getModelId(), instance.getTextureName(), name));
     }
 }

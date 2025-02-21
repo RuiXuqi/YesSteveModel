@@ -70,9 +70,9 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
         if (maid.isMaidInSittingPose()) {
             poseStack.translate(0, -0.5, 0);
         }
-        // 女仆骑乘也是，但是要排除抱起女仆
-        if (maid.getVehicle() != null && !(maid.getVehicle() instanceof Player)) {
-            poseStack.translate(0, -0.5, 0);
+        if (maid.getVehicle() instanceof Player) {
+            // 抱起女仆需要额外的偏移
+            poseStack.translate(-0.05, 0.19, 0.24);
         }
     }
 }

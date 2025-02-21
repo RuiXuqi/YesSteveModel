@@ -3,7 +3,8 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predeicate.YsmMaidMainPredicate;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.MaidMiscPredicate;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
@@ -77,6 +78,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         TACZCompat.addTaczPredicate(this);
         addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
         addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 0.1f, new UsePredicate()));
+        addAnimationController(new HybridAnimationController(this, MAID_MISC, 0.1f, new MaidMiscPredicate()));
         addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 0.1f, new PassengerPredicate()));
 
         for (int i = 0; i < 8; i++) {

@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predeicate;
+package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation;
 
 import com.elfmcys.yesstevemodel.client.animation.AnimationState;
 import com.elfmcys.yesstevemodel.client.animation.Priority;

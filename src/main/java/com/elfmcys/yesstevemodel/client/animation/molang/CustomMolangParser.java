@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.MolangParser;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
@@ -42,6 +43,7 @@ public class CustomMolangParser {
     private static MolangParser createMolangParser() {
         EXTRA_BINDING.put("ysm", YSMBinding.INSTANCE);
         EXTRA_BINDING.put("ctrl", CtrlBinding.INSTANCE);
+        TlmCompat.addMolangParser(EXTRA_BINDING);
         return new MolangParser(EXTRA_BINDING);
     }
 }

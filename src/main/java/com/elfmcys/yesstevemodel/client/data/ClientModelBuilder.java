@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.info.ModelStats;
 import com.elfmcys.yesstevemodel.info.stats.GeoModelStats;
 import com.elfmcys.yesstevemodel.info.stats.ModelTextureStats;
@@ -54,7 +55,9 @@ public class ClientModelBuilder {
         var projectileModels = buildProjectileModels(data, isDefault);
 
         var displayInfo = buildDisplayInfo(data);
-        var info = new ClientModelInfo(displayInfo, isNeedAuth, authorAvatars);
+        ModelMetadata metadata = data.info().metadata();
+        String name = metadata != null ? metadata.name() : StringUtils.EMPTY;
+        var info = new ClientModelInfo(name, displayInfo, isNeedAuth, authorAvatars);
 
         var conditionManager = buildConditionManager(animations);
 

@@ -23,4 +23,6 @@ public final class ControllerUtils {
 
     public static final String ARROW_MAIN_CONTROLLER = "arrow.main";
     public static final String ARROW_PARALLEL_CONTROLLER = "arrow.parallel_";
+
+    public static final String MAID_MISC = "maid.misc";
 }

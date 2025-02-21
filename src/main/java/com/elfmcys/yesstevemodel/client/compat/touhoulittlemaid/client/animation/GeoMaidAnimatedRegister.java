@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animatio
 import com.elfmcys.yesstevemodel.client.animation.AnimationState;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predeicate.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.favorability.Type;
@@ -11,7 +10,6 @@ import com.github.tartaricacid.touhoulittlemaid.entity.item.EntitySit;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.vehicle.Boat;
 
 import java.util.function.BiPredicate;
 
@@ -34,14 +32,7 @@ public class GeoMaidAnimatedRegister {
         // register("fly", Priority.HIGH, (maid, event) -> livingEntity instanceof Player player && player.getAbilities().flying);
         register("elytra_fly", Priority.HIGH, (maid, event) -> maid.getPose() == Pose.FALL_FLYING && maid.isFallFlying());
 
-        register("gomoku", Priority.HIGH, (maid, event) -> sitInJoy(maid, Type.GOMOKU));
-        register("bookshelf", Priority.HIGH, (maid, event) -> sitInJoy(maid, Type.BOOKSHELF));
-        register("computer", Priority.HIGH, (maid, event) -> sitInJoy(maid, Type.COMPUTER));
-        register("keyboard", Priority.HIGH, (maid, event) -> sitInJoy(maid, Type.KEYBOARD));
-        register("picnic", Priority.HIGH, (maid, event) -> sitInJoy(maid, Type.ON_HOME_MEAL));
-
-        register("boat", Priority.HIGH, (maid, event) -> maid.asEntity().getVehicle() instanceof Boat);
-        register("chair", Priority.HIGH, (maid, event) -> maid.asEntity().isPassenger());
+        // FIXME：女仆的默认骑乘和待命都是 sit，这是否合适？
         register("sit", Priority.HIGH, (maid, event) -> maid.isMaidInSittingPose());
 
         register("swim_stand", Priority.NORMAL, (maid, event) -> maid.isInWater() && !maid.onGround());
@@ -54,10 +45,6 @@ public class GeoMaidAnimatedRegister {
         register("walk", Priority.LOW, (maid, event) -> maid.onGround() && event.getLimbSwingAmount() > MIN_SPEED);
 
         register("idle", Priority.LOWEST, (maid, event) -> true);
-    }
-
-    private static boolean sitInJoy(EntityMaid maid, Type type) {
-        return maid.asEntity().getVehicle() instanceof EntitySit sit && sit.getJoyType().equals(type.getTypeName());
     }
 
     private static void register(String animationName, ILoopType loopType, int priority, BiPredicate<EntityMaid, AnimationEvent<CustomYsmMaidEntity>> predicate) {

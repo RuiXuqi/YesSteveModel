@@ -1,10 +1,12 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalChair;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalVehicle;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -20,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
@@ -47,7 +50,21 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
         }
 
         String id = event.getAnimatableEntity().getModelId();
-        ConditionalVehicle vehicleCondition = ClientModelManager.getModel(id).map(model -> model.conditionManager().getVehicle()).orElse(null);
+        Optional<ClientModel> clientModel = ClientModelManager.getModel(id);
+
+        // 优先判断 chair
+        if (TlmCompat.isInstalled()) {
+            ConditionalChair conditionalChair = clientModel.map(model -> model.conditionManager().getChair()).orElse(null);
+            if (conditionalChair != null) {
+                String name = conditionalChair.doTest(entity);
+                if (StringUtils.isNoneBlank(name)) {
+                    return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                }
+            }
+        }
+
+        // 然后才是普通载具
+        ConditionalVehicle vehicleCondition = clientModel.map(model -> model.conditionManager().getVehicle()).orElse(null);
         if (vehicleCondition != null) {
             String name = vehicleCondition.doTest(entity);
             if (StringUtils.isNoneBlank(name)) {
@@ -65,11 +82,19 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
         if (vehicle instanceof Boat) {
             return playAnimation(event, "boat", ILoopType.EDefaultLoopTypes.LOOP);
         }
+
+        // carry on 兼容
         boolean playerIsOnPrincess = entity instanceof Player player && CarryOnCompat.isCarryOnPrincess(player);
         boolean maidIsOnPrincess = TlmCompat.isMaid(entity) && entity.getVehicle() instanceof Player;
         if (playerIsOnPrincess || maidIsOnPrincess) {
             return playAnimation(event, "carryon:princess", ILoopType.EDefaultLoopTypes.LOOP);
         }
+
+        // 如果是女仆，那么需要兼容几个女仆的内容
+        if (TlmCompat.isMaid(entity)) {
+            return TlmCompat.getMaidVehicleAnimation(event, entity, vehicle);
+        }
+
         return playAnimation(event, "sit", ILoopType.EDefaultLoopTypes.LOOP);
     }
 }

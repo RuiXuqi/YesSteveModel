@@ -7,14 +7,20 @@ import java.util.List;
 import java.util.Map;
 
 public class ClientModelInfo {
+    private final String name;
     private final List<Component> displayInfo;
     private final boolean needAuth;
     private final Map<String, ResourceLocation> authorAvatars;
 
-    public ClientModelInfo(List<Component> displayInfo, boolean needAuth, Map<String, ResourceLocation> authorAvatars) {
+    public ClientModelInfo(String name, List<Component> displayInfo, boolean needAuth, Map<String, ResourceLocation> authorAvatars) {
+        this.name = name;
         this.displayInfo = displayInfo;
         this.needAuth = needAuth;
         this.authorAvatars = authorAvatars;
+    }
+
+    public String name() {
+        return name;
     }
 
     public List<Component> displayInfo() {
