@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.Ysm
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.render.CustomYsmMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.EntityMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityChair;
+import com.github.tartaricacid.touhoulittlemaid.entity.item.EntitySit;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntityRenderer;
 import com.github.tartaricacid.touhoulittlemaid.item.ItemHakureiGohei;
@@ -39,6 +40,10 @@ public class TlmCompatInner {
 
     static boolean isChair(Entity entity) {
         return entity instanceof EntityChair;
+    }
+
+    static boolean isSit(Entity entity) {
+        return entity instanceof EntitySit;
     }
 
     static String getChairId(Entity entity) {

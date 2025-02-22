@@ -1,12 +1,12 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.TLMBinding;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.GeoMaidAnimatedRegister;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.MaidVehiclePredicate;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.TLMBinding;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.TLMBindingInner;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
-import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import com.mojang.blaze3d.audio.SoundBuffer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,8 +20,6 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public class TlmCompat {
@@ -68,6 +66,10 @@ public class TlmCompat {
         return isInstalled() && TlmCompatInner.isChair(entity);
     }
 
+    public static boolean isSit(Entity entity) {
+        return isInstalled() && TlmCompatInner.isSit(entity);
+    }
+
     public static boolean isGohei(Item item) {
         return isInstalled() && TlmCompatInner.isGohei(item);
     }
@@ -80,10 +82,21 @@ public class TlmCompat {
         return isInstalled() && TlmCompatInner.maidIsFishing(entity);
     }
 
-    public static void addMolangParser(Map<String, ObjectBinding> bindingMap) {
+    public static void addBinding(TLMBinding binding) {
         if (isInstalled()) {
-            bindingMap.put("tlm", TLMBinding.INSTANCE);
+            TLMBindingInner.addInnerBinding(binding);
+        } else {
+            addEmptyBinding(binding);
         }
+    }
+
+    /**
+     * 没有安装此模组时，这些 molang 应该存在，否则会报错
+     */
+    private static void addEmptyBinding(TLMBinding binding) {
+        binding.livingEntityVar("is_begging", ctx -> false);
+        binding.livingEntityVar("is_sitting", ctx -> false);
+        binding.livingEntityVar("has_backpack", ctx -> false);
     }
 
     @Nullable

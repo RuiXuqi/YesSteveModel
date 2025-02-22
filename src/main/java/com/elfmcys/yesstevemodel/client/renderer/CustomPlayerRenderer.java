@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.renderer;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
@@ -109,5 +111,15 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
         }
         super.renderNameTag(player, displayName, poseStack, buffer, packedLight);
         poseStack.popPose();
+    }
+
+    @Override
+    protected void setupRotations(AbstractClientPlayer player, PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
+        super.setupRotations(player, poseStack, pAgeInTicks, pRotationYaw, pPartialTicks);
+        // 如果是坐在女仆的实体上，则需要偏移回去（哎，屎山代码+1006）
+        Entity vehicle = player.getVehicle();
+        if (TlmCompat.isChair(vehicle) || TlmCompat.isSit(vehicle)) {
+            poseStack.translate(0, 0.5, 0);
+        }
     }
 }

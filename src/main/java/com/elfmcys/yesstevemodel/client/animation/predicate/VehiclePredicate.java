@@ -90,9 +90,10 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
             return playAnimation(event, "carryon:princess", ILoopType.EDefaultLoopTypes.LOOP);
         }
 
-        // 如果是女仆，那么需要兼容几个女仆的内容
-        if (TlmCompat.isMaid(entity)) {
-            return TlmCompat.getMaidVehicleAnimation(event, entity, vehicle);
+        // 安装女仆模组后，那么需要兼容几个女仆的内容
+        PlayState playState = TlmCompat.getMaidVehicleAnimation(event, entity, vehicle);
+        if (playState != null) {
+            return playState;
         }
 
         return playAnimation(event, "sit", ILoopType.EDefaultLoopTypes.LOOP);
