@@ -294,7 +294,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
         @Override
         public Optional<Vector3f> pollScalePoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-            return pollAndBlend(queue -> queue.scaleQueue.poll(), evaluator);
+            return pollAndBlendScale(queue -> queue.scaleQueue.poll(), evaluator);
         }
 
         private Optional<Vector3f> pollAndBlend(Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
@@ -316,6 +316,37 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 active = true;
                 var pointValue = point.getLerpPoint(evaluator);
                 target.fma(pair.right().getBlendWeight(), pointValue);
+            }
+
+            if (active) {
+                return Optional.of(target);
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        /**
+         * scale 的混合比较特殊，它不是累加，而是连乘
+         */
+        private Optional<Vector3f> pollAndBlendScale(Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+            var target = new Vector3f(1, 1, 1);
+            var active = false;
+
+            for (var pair : this.underlyingQueues) {
+                var queue = pair.right();
+                if (!queue.isActive()) {
+                    continue;
+                }
+                var point = pointGetter.apply(queue);
+                if (point == null) {
+                    continue;
+                }
+                if (!pair.left().shouldApply()) {
+                    continue;
+                }
+                active = true;
+                var pointValue = point.getLerpPoint(evaluator);
+                target.mul(pointValue.mul(pair.right().getBlendWeight()));
             }
 
             if (active) {

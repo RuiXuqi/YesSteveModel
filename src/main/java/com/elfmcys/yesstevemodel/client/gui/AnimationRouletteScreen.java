@@ -40,7 +40,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -291,8 +293,12 @@ public class AnimationRouletteScreen extends Screen {
         float number;
         if ("null".equals(result)) {
             number = 0;
-        } else {
+        } else if (NumberUtils.isParsable(result)) {
             number = Float.parseFloat(result);
+        } else if (BooleanUtils.toBooleanObject(result) != null) {
+            number = BooleanUtils.toBoolean(result) ? 1 : 0;
+        } else {
+            number = 0;
         }
         return number;
     }
