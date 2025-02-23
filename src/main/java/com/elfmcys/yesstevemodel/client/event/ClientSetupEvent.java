@@ -2,8 +2,10 @@ package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.*;
+import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
+import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
@@ -27,6 +29,7 @@ public class ClientSetupEvent {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         AnimationRegister.registerAnimationState();
+        CuriosCompat.init();
         FirstPersonCompat.init();
         BetterCombatCompat.init();
         IrisCompat.init();
@@ -39,6 +42,7 @@ public class ClientSetupEvent {
         ParCoolCompat.init();
         SlashBladeCompat.init();
         SwemCompat.init();
+        SophisticatedCompat.init();
         initCoreClient();
     }
 
