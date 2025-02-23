@@ -34,11 +34,17 @@ public class SecondOrder implements IPhysics {
         double inputFunctionDot = (input - inputFunction) / timeStep;
         inputFunction = input;
 
-        double tmpLastSimulation = lastSimulation + timeStep * lastSimulationDot;
-        double tmpLastSimulationDot = lastSimulationDot + timeStep * (k3 * inputFunctionDot + inputFunction - tmpLastSimulation - k1 * lastSimulationDot) / k2;
+        double maxTimeStep = Math.sqrt(4 * k2 + k1 * k1) - k1;
+        int cycleTime = (int) Math.ceil(timeStep / maxTimeStep);
+        timeStep = timeStep / cycleTime;
 
-        lastSimulation = tmpLastSimulation;
-        lastSimulationDot = tmpLastSimulationDot;
+        for (; cycleTime > 0; cycleTime--) {
+            double tmpLastSimulation = lastSimulation + timeStep * lastSimulationDot;
+            double tmpLastSimulationDot = lastSimulationDot + timeStep * (k3 * inputFunctionDot + inputFunction - tmpLastSimulation - k1 * lastSimulationDot) / k2;
+
+            lastSimulation = tmpLastSimulation;
+            lastSimulationDot = tmpLastSimulationDot;
+        }
     }
 
     @Override

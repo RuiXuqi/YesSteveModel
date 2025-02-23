@@ -235,7 +235,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         if (cachePhysicsTimeStamp <= 0) {
             interval = 1 / 60d;
         } else {
-            interval = Mth.clamp((currentTime - cachePhysicsTimeStamp) / 1000_000_000d, 0d, 0.1);
+            interval = Mth.clamp((currentTime - cachePhysicsTimeStamp) / 1000_000_000d, 0d, 1);
         }
         cachePhysicsTimeStamp = currentTime;
         physicsValues.forEach((key, value) -> value.update(interval));
