@@ -2355,6 +2355,15 @@
 				}
 			}
 		},
+		"broom": {
+			"loop": true
+		},
+		"statue": {
+			"loop": true
+		},
+		"garage_kit": {
+			"loop": true
+		},
 		"use_mainhand:gohei": {
 			"animation_length": 0.75,
 			"bones": {

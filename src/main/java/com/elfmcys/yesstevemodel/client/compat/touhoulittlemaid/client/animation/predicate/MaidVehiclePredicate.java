@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.github.tartaricacid.touhoulittlemaid.entity.favorability.Type;
+import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityBroom;
 import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityChair;
 import com.github.tartaricacid.touhoulittlemaid.entity.item.EntitySit;
 import net.minecraft.world.entity.Entity;
@@ -31,6 +32,9 @@ public class MaidVehiclePredicate {
         }
         if (vehicle instanceof EntityChair) {
             return playLoopAnimation(event, "chair");
+        }
+        if (vehicle instanceof EntityBroom) {
+            return playLoopAnimation(event, "broom");
         }
         return null;
     }

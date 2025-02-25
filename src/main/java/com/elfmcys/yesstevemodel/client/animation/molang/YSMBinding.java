@@ -32,6 +32,7 @@ import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
 import java.util.Locale;
@@ -93,6 +94,9 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("ladder_facing", new LadderFacingVariable());
         livingEntityVar("arrow_count", ctx -> ctx.entity().getArrowCount());
         livingEntityVar("stinger_count", ctx -> ctx.entity().getStingerCount());
+        livingEntityVar("entity_type", YSMBinding::getEntityType);
+        livingEntityVar("is_player", ctx -> "player".equals(getEntityType(ctx)));
+        livingEntityVar("is_maid", ctx -> "maid".equals(getEntityType(ctx)));
         // 为了兼容其他模组，只有玩家能返回这个值，其他都是满值（20）
         livingEntityVar("food_level", YSMBinding::getFoodLevel);
 
@@ -129,6 +133,21 @@ public class YSMBinding extends ContextBinding {
         abstractArrowVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
         abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
         abstractArrowVar("shoot_item_id", ctx -> ((IArrowExtraInfo) ctx.entity()).getShootItemId());
+    }
+
+    private static String getEntityType(IContext<LivingEntity> ctx) {
+        LivingEntity entity = ctx.entity();
+        if (entity instanceof Player) {
+            return "player";
+        }
+        ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
+        if (key == null) {
+            return StringUtils.EMPTY;
+        }
+        if ("touhou_little_maid".equals(key.getNamespace()) && "maid".equals(key.getPath())) {
+            return "maid";
+        }
+        return key.toString();
     }
 
     private static int getFoodLevel(IContext<LivingEntity> ctx) {
