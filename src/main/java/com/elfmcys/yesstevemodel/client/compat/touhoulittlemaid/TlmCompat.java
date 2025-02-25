@@ -98,6 +98,19 @@ public class TlmCompat {
         binding.livingEntityVar("is_begging", ctx -> false);
         binding.livingEntityVar("is_sitting", ctx -> false);
         binding.livingEntityVar("has_backpack", ctx -> false);
+        binding.livingEntityVar("favorability_point", ctx -> 0);
+        binding.livingEntityVar("favorability_level", ctx -> 0);
+        binding.livingEntityVar("task_id", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("schedule", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("activity", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("gomoku_win_count", ctx -> 0);
+        binding.livingEntityVar("gomoku_rank", ctx -> 1);
+        binding.livingEntityVar("game_statue", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("backpack_type", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("is_entity", ctx -> true);
+        binding.livingEntityVar("is_statue", ctx -> false);
+        binding.livingEntityVar("is_garage_kit", ctx -> false);
+        binding.livingEntityVar("show_item", ctx -> StringUtils.EMPTY);
     }
 
     @Nullable

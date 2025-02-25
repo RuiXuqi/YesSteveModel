@@ -10,6 +10,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
+import com.github.tartaricacid.touhoulittlemaid.api.client.render.MaidRenderState;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.world.entity.Entity;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.Entity;
 import java.util.Objects;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
+import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playLoopAnimation;
 
 public class YsmMaidMainPredicate implements IAnimationPredicate<CustomYsmMaidEntity> {
     @SuppressWarnings("unchecked")
@@ -38,6 +40,15 @@ public class YsmMaidMainPredicate implements IAnimationPredicate<CustomYsmMaidEn
         if (maid == null) {
             return PlayState.STOP;
         }
+
+        // 先检查女仆是否是雕像或者手办状态，如果是，那么播放对应动画
+        if (maid.renderState == MaidRenderState.STATUE) {
+            return playLoopAnimation(event, "statue");
+        }
+        if (maid.renderState == MaidRenderState.GARAGE_KIT) {
+            return playLoopAnimation(event, "garage_kit");
+        }
+
         // 跑酷模组只作用于玩家，故禁用
         // 载具动画单独检查
         Entity vehicle = maid.getVehicle();
