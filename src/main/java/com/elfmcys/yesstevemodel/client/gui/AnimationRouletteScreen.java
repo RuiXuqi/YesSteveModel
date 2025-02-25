@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatCheckbox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
@@ -12,6 +11,7 @@ import com.elfmcys.yesstevemodel.client.gui.button.FlatSlider;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
 import com.elfmcys.yesstevemodel.info.roulette.ExtraAnimationButton;
 import com.elfmcys.yesstevemodel.info.roulette.forms.CheckboxForms;
@@ -40,6 +40,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -77,15 +79,15 @@ public class AnimationRouletteScreen extends Screen {
     private final Map<String, ExtraAnimationButton> buttonMap;
     private final Map<String, FifoHashMap<String, String>> classifyMap;
     private final ModelProperties modelProperties;
-    private final CustomPlayerEntity customPlayerEntity;
+    private final AnimatableEntity<?> animatableEntity;
 
     public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap,
                                    Map<String, FifoHashMap<String, String>> classifyMap,
                                    ModelProperties modelProperties,
-                                   CustomPlayerEntity customPlayerEntity) {
+                                   AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.modelProperties = modelProperties;
-        this.customPlayerEntity = customPlayerEntity;
+        this.animatableEntity = animatableEntity;
         this.classifyMap = classifyMap;
         this.buttonMap = buttonMap;
 
@@ -101,10 +103,10 @@ public class AnimationRouletteScreen extends Screen {
         }
     }
 
-    public AnimationRouletteScreen(String modelId, ModelProperties properties, CustomPlayerEntity customPlayerEntity) {
+    public AnimationRouletteScreen(String modelId, ModelProperties properties, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.modelProperties = properties;
-        this.customPlayerEntity = customPlayerEntity;
+        this.animatableEntity = animatableEntity;
         this.classifyMap = properties.extraAnimationClassifyMap();
         this.buttonMap = properties.extraAnimationButtonsMap();
 
@@ -141,18 +143,28 @@ public class AnimationRouletteScreen extends Screen {
             this.selectId = 0;
         }
 
-        // 锁定按钮
-        this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20,
-                Component.empty(), b -> PlayerMoveEvent.switchLock()) {
-            @Override
-            @NotNull
-            public Component getMessage() {
-                if (PlayerMoveEvent.isLocked()) {
-                    return Component.translatable("gui.yes_steve_model.roulette.lock_on");
+        if (this.animatableEntity.getEntity() instanceof Player) {
+            // 如果是玩家，那么添加锁定按钮
+            this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20,
+                    Component.empty(), b -> PlayerMoveEvent.switchLock()) {
+                @Override
+                @NotNull
+                public Component getMessage() {
+                    if (PlayerMoveEvent.isLocked()) {
+                        return Component.translatable("gui.yes_steve_model.roulette.lock_on");
+                    }
+                    return Component.translatable("gui.yes_steve_model.roulette.lock_off");
                 }
-                return Component.translatable("gui.yes_steve_model.roulette.lock_off");
-            }
-        });
+            });
+        } else {
+            // 否则是停止播放轮盘动画按钮
+            this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20,
+                    Component.translatable("gui.yes_steve_model.roulette.stop"),
+                    b -> {
+                        NetworkHandler.sendToServer(SetPlayAnimation.stop(this.animatableEntity.getEntity().getId()));
+                        this.onClose();
+                    }));
+        }
 
         // 翻页按钮
         this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 87, 15, 15,
@@ -231,7 +243,7 @@ public class AnimationRouletteScreen extends Screen {
                     labelName, data -> {
                 executeMolang(labelValue, null);
                 // 同步到周围的玩家
-                NetworkHandler.sendToServer(new SubmitRouletteConfig(labelValue));
+                NetworkHandler.sendToServer(new SubmitRouletteConfig(labelValue, this.animatableEntity.getEntity().getId()));
                 this.init();
             });
             checkbox.setStateTriggered(isSelected);
@@ -255,7 +267,7 @@ public class AnimationRouletteScreen extends Screen {
         float number = transformNumber(result);
 
         FlatSlider slider = new FlatSlider(this.x + 125, this.y + yOffset[0],
-                title, number, this.customPlayerEntity, rangeForms.value(), rangeForms.step(), rangeForms.min(), rangeForms.max());
+                title, number, this.animatableEntity, rangeForms.value(), rangeForms.step(), rangeForms.min(), rangeForms.max());
         slider.setTooltip(description);
 
         return slider;
@@ -274,7 +286,7 @@ public class AnimationRouletteScreen extends Screen {
             String molang = checkboxForms.value() + "=" + value;
             executeMolang(molang, null);
             // 同步到周围的玩家
-            NetworkHandler.sendToServer(new SubmitRouletteConfig(molang));
+            NetworkHandler.sendToServer(new SubmitRouletteConfig(molang, this.animatableEntity.getEntity().getId()));
         }) {
             // 给单选框加上背景
             @Override
@@ -318,7 +330,7 @@ public class AnimationRouletteScreen extends Screen {
     private void executeMolang(String molang, @Nullable Consumer<String> resultConsumer) {
         try {
             IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molang);
-            this.customPlayerEntity.executeMolangExp(parsed, resultConsumer);
+            this.animatableEntity.executeMolangExp(parsed, resultConsumer);
         } catch (ParseException exception) {
             YesSteveModel.LOGGER.error(exception);
         }
@@ -399,7 +411,12 @@ public class AnimationRouletteScreen extends Screen {
             if (peekLast != null && StringUtils.isNotBlank(peekLast.getLeft())) {
                 classifyId = peekLast.getLeft();
             }
-            NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId));
+            Entity entity = animatableEntity.getEntity();
+            if (entity instanceof Player) {
+                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId));
+            } else {
+                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId, entity.getId()));
+            }
         } else if (player != null) {
             player.getCapability(PlayerGeoCapabilityProvider.CAP)
                     .ifPresent(cap -> cap.playAnimation(selectKey));
@@ -424,7 +441,7 @@ public class AnimationRouletteScreen extends Screen {
         FifoHashMap<String, String> map = classifyMap.get(key);
         if (map != null) {
             CACHE.addLast(MutablePair.of(key, 0));
-            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerEntity);
+            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.animatableEntity);
             this.getMinecraft().setScreen(screen);
         }
     }
@@ -432,7 +449,7 @@ public class AnimationRouletteScreen extends Screen {
     private void clickReturn() {
         if (CACHE.size() > 1) {
             CACHE.removeLast();
-            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.customPlayerEntity);
+            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.animatableEntity);
             this.getMinecraft().setScreen(screen);
         } else {
             this.getMinecraft().setScreen(null);

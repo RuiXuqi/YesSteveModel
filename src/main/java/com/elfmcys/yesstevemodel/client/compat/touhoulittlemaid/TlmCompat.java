@@ -2,8 +2,9 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.TLMBinding;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.GeoMaidAnimatedRegister;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.MaidVehiclePredicate;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.TLMBindingInner;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.molang.TLMBindingInner;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidVehiclePredicate;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.input.OpenRouletteScreen;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -118,5 +119,15 @@ public class TlmCompat {
             return TlmCompatInner.getSoundBuffer(maid, soundPath);
         }
         return null;
+    }
+
+    public static boolean pointToMaid() {
+        return isInstalled() && OpenRouletteScreen.pointToMaid();
+    }
+
+    public static void onRouletteMainKeyPressed() {
+        if (isInstalled()) {
+            OpenRouletteScreen.onRouletteMainKeyPressed();
+        }
     }
 }

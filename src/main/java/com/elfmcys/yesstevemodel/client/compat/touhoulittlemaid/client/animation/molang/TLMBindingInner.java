@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation;
+package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.molang;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.TLMBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;

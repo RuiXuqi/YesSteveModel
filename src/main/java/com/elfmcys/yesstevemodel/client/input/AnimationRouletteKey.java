@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.input;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
 import com.elfmcys.yesstevemodel.config.DisableSwitch;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -34,7 +35,9 @@ public class AnimationRouletteKey {
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
         if (event.getAction() == GLFW.GLFW_PRESS && ANIMATION_ROULETTE_KEY.matches(event.getKey(), event.getScanCode()) && DisableSwitch.CAN_SWITCH) {
-            if (Minecraft.getInstance().player != null) {
+            if (TlmCompat.pointToMaid()) {
+                TlmCompat.onRouletteMainKeyPressed();
+            } else if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                     String modelId = cap.getModelId();
                     var model = ClientModelManager.getModels().get(modelId);

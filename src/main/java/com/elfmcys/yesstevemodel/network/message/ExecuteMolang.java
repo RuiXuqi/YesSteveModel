@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.network.message;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmNetwork;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import net.minecraft.client.Minecraft;
@@ -65,6 +66,8 @@ public class ExecuteMolang {
                         YesSteveModel.LOGGER.error("Failed to execute molang " + message.molangExpression, e);
                     }
                 });
+            } else if (TlmNetwork.isMaid(entity)) {
+                TlmNetwork.handleExecuteMolang(entity, message.molangExpression);
             }
         }
     }

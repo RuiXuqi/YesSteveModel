@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animatio
 import com.elfmcys.yesstevemodel.client.animation.AnimationState;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;

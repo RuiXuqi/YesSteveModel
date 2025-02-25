@@ -3,17 +3,20 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.MaidMiscPredicate;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.YsmMaidMainPredicate;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidMiscPredicate;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidRoulettePredicate;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -25,6 +28,7 @@ import com.github.tartaricacid.touhoulittlemaid.client.resource.pojo.MaidModelIn
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntity;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -46,8 +50,12 @@ import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements IGeoEntity {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
+
+    private RoamingStruct remoteStruct = new RoamingStruct();
+
     private final Vector2f headRot = new Vector2f();
     private volatile boolean renderedWithTempChanges = false;
+
     /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
      */
@@ -80,6 +88,11 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 0.1f, new UsePredicate()));
         addAnimationController(new HybridAnimationController(this, MAID_MISC, 0.1f, new MaidMiscPredicate()));
         addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 0.1f, new PassengerPredicate()));
+
+        // 下面不需要自定义动画控制器
+        {
+            addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0.1f, new MaidRoulettePredicate()));
+        }
 
         for (int i = 0; i < 8; i++) {
             String controllerName = PARALLEL_CONTROLLER + i;
@@ -154,6 +167,37 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         } else {
             return super.setCustomAnimations(ctx, animationEvent);
         }
+    }
+
+    public boolean isRouletteAnimDirty() {
+        return this.entity.rouletteAnimDirty;
+    }
+
+    public void clearRouletteAnimDirty() {
+        this.entity.rouletteAnimDirty = false;
+    }
+
+    public boolean isRouletteAnimPlaying() {
+        return this.entity.rouletteAnimPlaying;
+    }
+
+    public String getRouletteAnim() {
+        return this.entity.rouletteAnim;
+    }
+
+    public void setRemoteStruct(Object2FloatOpenHashMap<String> roamingVars) {
+        int instanceId = this.remoteStruct.getInstanceId() + 1;
+        this.remoteStruct.reset(instanceId, roamingVars);
+    }
+
+    @Nullable
+    public RoamingStruct getRemoteStruct() {
+        return remoteStruct;
+    }
+
+    @Override
+    protected void preAnimationSetup(double seekTime) {
+        getAnimationProcessor().putRemoteStruct(getRemoteStruct());
     }
 
     @Override

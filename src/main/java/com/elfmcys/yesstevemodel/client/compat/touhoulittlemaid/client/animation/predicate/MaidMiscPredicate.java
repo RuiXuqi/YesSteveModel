@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation;
+package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;

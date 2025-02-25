@@ -12,6 +12,7 @@
   "gui.yes_steve_model.roulette.too_long": "The roulette's path is too long",
   "gui.yes_steve_model.roulette.lock_on": "Lock: ON",
   "gui.yes_steve_model.roulette.lock_off": "Lock: OFF",
+  "gui.yes_steve_model.roulette.stop": "Stop",
   "gui.yes_steve_model.search": "Search models...",
   "gui.yes_steve_model.url.home": "Home Page",
   "gui.yes_steve_model.url.donate": "Donate",

@@ -3,7 +3,9 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.SyncCapability;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.UpdateRemoteStruct;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.YsmMaidScreenEvent;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.YsmMaidTickEvent;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.render.CustomYsmMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.EntityMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityChair;
@@ -27,6 +29,8 @@ public class TlmCompatInner {
     static void registerEvent() {
         MinecraftForge.EVENT_BUS.register(new YsmMaidScreenEvent());
         MinecraftForge.EVENT_BUS.register(new SyncCapability());
+        MinecraftForge.EVENT_BUS.register(new YsmMaidTickEvent());
+        MinecraftForge.EVENT_BUS.register(new UpdateRemoteStruct());
     }
 
     @SuppressWarnings("all")

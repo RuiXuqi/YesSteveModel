@@ -2,8 +2,8 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SubmitRouletteConfig;
@@ -19,13 +19,13 @@ import java.text.DecimalFormat;
 public class FlatSlider extends ForgeSlider {
     private static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(YesSteveModel.MOD_ID, "texture/roulette.png");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
-    private final CustomPlayerEntity customPlayerEntity;
+    private final AnimatableEntity<?> animatableEntity;
     private final String molang;
 
-    public FlatSlider(int x, int y, Component prefix, double currentValue, CustomPlayerEntity customPlayerEntity, String molang,
+    public FlatSlider(int x, int y, Component prefix, double currentValue, AnimatableEntity<?> animatableEntity, String molang,
                       double step, double min, double max) {
         super(x, y, 115, 15, prefix, Component.empty(), min, max, currentValue, step, 0, true);
-        this.customPlayerEntity = customPlayerEntity;
+        this.animatableEntity = animatableEntity;
         this.molang = molang;
     }
 
@@ -34,9 +34,9 @@ public class FlatSlider extends ForgeSlider {
         try {
             String molangExpress = molang + "=" + getValue();
             IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molangExpress);
-            this.customPlayerEntity.executeMolangExp(parsed, null);
+            this.animatableEntity.executeMolangExp(parsed, null);
             // 同步到周围的玩家
-            NetworkHandler.sendToServer(new SubmitRouletteConfig(molangExpress));
+            NetworkHandler.sendToServer(new SubmitRouletteConfig(molangExpress, this.animatableEntity.getEntity().getId()));
         } catch (ParseException exception) {
             YesSteveModel.LOGGER.error(exception);
         }
