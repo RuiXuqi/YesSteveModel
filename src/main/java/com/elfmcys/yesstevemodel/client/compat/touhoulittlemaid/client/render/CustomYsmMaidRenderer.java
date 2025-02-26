@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsm
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityBroom;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.GeoLayerRenderer;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntity;
@@ -73,6 +74,10 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
         if (maid.getVehicle() instanceof Player) {
             // 抱起女仆需要额外的偏移
             poseStack.translate(-0.05, 0.19, 0.24);
+        }
+        if (maid.getVehicle() instanceof EntityBroom) {
+            // 扫帚为了做到玩家也能兼容，所以需要和玩家偏移同步
+            poseStack.translate(0, -0.5, 0);
         }
     }
 }

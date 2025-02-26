@@ -2363,7 +2363,7 @@
 				},
 				"AllBody": {
 					"rotation": [0, 20, 0],
-					"position": [0, -15, 0]
+					"position": [0, -5, 0]
 				},
 				"UpperBody": {
 					"rotation": [0, -10, 0]
