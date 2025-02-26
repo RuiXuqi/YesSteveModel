@@ -1,0 +1,84 @@
+package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.event;
+
+import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
+import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import com.github.tartaricacid.touhoulittlemaid.init.InitEntities;
+import com.github.tartaricacid.touhoulittlemaid.item.ItemHakureiGohei;
+import com.github.tartaricacid.touhoulittlemaid.tileentity.TileEntityGarageKit;
+import com.github.tartaricacid.touhoulittlemaid.tileentity.TileEntityStatue;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+public class CopyYsmModelEvent {
+    @SubscribeEvent
+    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        Player player = event.getEntity();
+
+        // 玩家必须是创造模式
+        if (!player.isCreative()) {
+            return;
+        }
+
+        // 玩家是拿着御币的
+        if (!(player.getMainHandItem().getItem() instanceof ItemHakureiGohei)) {
+            return;
+        }
+
+        BlockHitResult result = event.getHitVec();
+        BlockPos blockPos = result.getBlockPos();
+        BlockEntity te = player.level().getBlockEntity(blockPos);
+
+        if (te instanceof TileEntityGarageKit kit) {
+            applyGarageKitData(kit, player);
+        } else if (te instanceof TileEntityStatue statue) {
+            applyStatueData(statue, player);
+        }
+    }
+
+    private void applyStatueData(TileEntityStatue statue, Player player) {
+        if (!statue.isCoreBlock()) {
+            return;
+        }
+        CompoundTag data = statue.getExtraMaidData();
+        if (data == null) {
+            return;
+        }
+        EntityType.byString(data.getString("id")).ifPresent(type -> {
+            if (type.equals(InitEntities.MAID.get())) {
+                applyPlayerInfo(player, data);
+                statue.refresh();
+            }
+        });
+    }
+
+    private void applyGarageKitData(TileEntityGarageKit kit, Player player) {
+        CompoundTag data = kit.getExtraData();
+        EntityType.byString(data.getString("id")).ifPresent(type -> {
+            if (type.equals(InitEntities.MAID.get())) {
+                applyPlayerInfo(player, data);
+                kit.setData(kit.getFacing(), data);
+            }
+        });
+    }
+
+    private void applyPlayerInfo(Player player, CompoundTag compound) {
+        player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+            String modelId = cap.getModelId();
+            String texture = cap.getSelectTexture();
+            var roamingVars = cap.getVariables();
+
+            compound.putBoolean(EntityMaid.IS_YSM_MODEL_TAG, true);
+            compound.putString(EntityMaid.YSM_MODEL_ID_TAG, modelId);
+            compound.putString(EntityMaid.YSM_MODEL_TEXTURE_TAG, texture);
+            CompoundTag roamingVarsTag = new CompoundTag();
+            roamingVars.forEach(roamingVarsTag::putFloat);
+            compound.put(EntityMaid.YSM_ROAMING_VARS_TAG, roamingVarsTag);
+        });
+    }
+}

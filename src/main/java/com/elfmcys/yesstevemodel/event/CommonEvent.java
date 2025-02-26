@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.event;
 
 import com.elfmcys.yesstevemodel.capability.*;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmNetwork;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,6 +16,7 @@ public final class CommonEvent {
     @SubscribeEvent
     public static void onSetupEvent(FMLCommonSetupEvent event) {
         event.enqueueWork(NetworkHandler::init);
+        event.enqueueWork(TlmNetwork::registerEvent);
         initCoreCommon();
     }
 

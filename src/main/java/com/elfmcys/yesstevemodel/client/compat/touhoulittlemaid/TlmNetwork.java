@@ -1,9 +1,11 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.event.CopyYsmModelEvent;
 import com.elfmcys.yesstevemodel.network.message.SubmitVariableChanges;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
 
 /**
@@ -14,6 +16,12 @@ public class TlmNetwork {
 
     public static boolean isInstalled() {
         return ModList.get().isLoaded(MOD_ID);
+    }
+
+    public static void registerEvent() {
+        if (isInstalled()) {
+            MinecraftForge.EVENT_BUS.register(new CopyYsmModelEvent());
+        }
     }
 
     public static boolean isMaid(Entity entity) {

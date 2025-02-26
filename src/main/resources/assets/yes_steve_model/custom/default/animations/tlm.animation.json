@@ -2356,13 +2356,197 @@
 			}
 		},
 		"broom": {
-			"loop": true
+			"loop": true,
+			"bones": {
+				"Root": {
+					"rotation": [0, 90, 0]
+				},
+				"AllBody": {
+					"rotation": [0, 20, 0],
+					"position": [0, -15, 0]
+				},
+				"UpperBody": {
+					"rotation": [0, -10, 0]
+				},
+				"LeftArm": {
+					"rotation": ["14+math.sin(160+q.anim_time*240)*1", -17, "-2.6+math.sin(90+q.anim_time*240)*1"]
+				},
+				"LeftForeArm": {
+					"rotation": ["-22.5+math.sin(60+q.anim_time*240)*1", 0, 0]
+				},
+				"RightArm": {
+					"rotation": ["7.-math.sin(160+q.anim_time*240)*0.5", -17, "8-math.sin(90+q.anim_time*240)*0.5"]
+				},
+				"RightForeArm": {
+					"rotation": [-35, 0, 0]
+				},
+				"AllHead": {
+					"rotation": [0, 0, 0]
+				},
+				"MHead": {
+					"rotation": [0, 0, 0]
+				},
+				"Head": {
+					"rotation": [12.54092, -69.7716, -9.35595]
+				},
+				"FrontSkirt": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftLeg": {
+					"rotation": ["-58.4586+math.sin(80+q.anim_time*240)*1", 13.66758, -3.58877]
+				},
+				"LeftLowerLeg": {
+					"rotation": ["62.5+math.sin(-40+q.anim_time*240)*3", 0, 0]
+				},
+				"LeftFoot": {
+					"rotation": ["12.5+math.sin(-90+q.anim_time*240)*2", 0, 0]
+				},
+				"RightLeg": {
+					"rotation": ["-70.348+math.sin(60+q.anim_time*240)*1", 9.01838, -10.02344]
+				},
+				"RightLowerLeg": {
+					"rotation": ["102.5+math.sin(-60+q.anim_time*240)*2", 0, 0]
+				},
+				"RightFoot": {
+					"rotation": ["20+math.sin(-90+q.anim_time*240)*2", 0, 0]
+				}
+			}
 		},
 		"statue": {
-			"loop": true
+			"loop": true,
+			"bones": {
+				"UpBody": {
+					"rotation": [0, 0, 0]
+				},
+				"UpperBody": {
+					"rotation": [0, 0, 5]
+				},
+				"LeftArm": {
+					"rotation": [18.41527, -19.291, -5.38152]
+				},
+				"LeftForeArm": {
+					"rotation": [-123.59292, 10.24416, 25.63257]
+				},
+				"RightArm": {
+					"rotation": [-150, 10, -30]
+				},
+				"RightForeArm": {
+					"rotation": [0, 0, 0]
+				},
+				"RightHand": {
+					"rotation": [43.03064, -0.41417, -10.5834]
+				},
+				"Head": {
+					"rotation": [0, 0, -5]
+				},
+				"RightEyebrow": {
+					"position": [0, 0, 0]
+				},
+				"LeftEyebrow": {
+					"position": [0, 0, 0]
+				},
+				"LeftEyelid": {
+					"scale": 1
+				},
+				"LeftEylight": {
+					"rotation": [0, 0, 0]
+				},
+				"RightEyelid": {
+					"scale": 1
+				},
+				"RightEyelight": {
+					"rotation": [0, 0, 0]
+				},
+				"DownBody": {
+					"rotation": [0, -5, 0]
+				},
+				"LeftLeg": {
+					"rotation": [5, 0, -2.5]
+				},
+				"LeftLowerLeg": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftFoot": {
+					"rotation": [0, -5, 2.5]
+				},
+				"RightLeg": {
+					"rotation": [-0.00954, 4.99523, 2.28135]
+				},
+				"RightLowerLeg": {
+					"rotation": [0, 0, 0]
+				},
+				"RightFoot": {
+					"rotation": [0, 5, -2.5]
+				},
+				"Eyebrow": {
+					"position": [0, 0, 0]
+				}
+			}
 		},
 		"garage_kit": {
-			"loop": true
+			"loop": true,
+			"bones": {
+				"AllBody": {
+					"rotation": [0, 0, -5]
+				},
+				"UpBody": {
+					"rotation": [5, 0, 0]
+				},
+				"UpperBody": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftArm": {
+					"rotation": [-26.00251, -1.06466, -70.40109]
+				},
+				"LeftForeArm": {
+					"rotation": [-135.68718, -72.39303, 44.31282]
+				},
+				"RightArm": {
+					"rotation": [16.21349, 41.83885, 16.8725]
+				},
+				"RightForeArm": {
+					"rotation": [-55, 0, 0]
+				},
+				"Head": {
+					"rotation": [-5, -7.5, 12.5]
+				},
+				"Longhair": {
+					"rotation": [0, 0, -7.5]
+				},
+				"RightEyeBrow": {
+					"position": [0, 0, 0]
+				},
+				"LeftEyeBrow": {
+					"position": [0, -1.2, 0]
+				},
+				"LeftEyelid": {
+					"scale": 0
+				},
+				"RightEyelid": {
+					"scale": 1
+				},
+				"RightEyelight": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftLeg": {
+					"rotation": [5.32288, 7.27506, 0.01071]
+				},
+				"LeftLowerLeg": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftFoot": {
+					"rotation": [-2.5, 0, 7.5]
+				},
+				"RightLeg": {
+					"rotation": [-18.11432, -17.46046, 10.30451]
+				},
+				"RightLowerLeg": {
+					"rotation": [45, 0, 0]
+				},
+				"RightFoot": {
+					"rotation": [-7.5, 0, 0]
+				}
+			}
 		},
 		"use_mainhand:gohei": {
 			"animation_length": 0.75,

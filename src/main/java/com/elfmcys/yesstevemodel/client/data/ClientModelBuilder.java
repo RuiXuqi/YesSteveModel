@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+import javax.sound.sampled.AudioFormat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -163,7 +164,11 @@ public class ClientModelBuilder {
     private static SoundData bufferToSoundData(byte[] byteArray) {
         try {
             OggAudioStream oggStream = new OggAudioStream(new ByteArrayInputStream(byteArray));
-            return new SoundData(oggStream.readAll(), oggStream.getFormat());
+            AudioFormat rawFormat = oggStream.getFormat();
+            AudioFormat monoFormat = new AudioFormat(rawFormat.getEncoding(), rawFormat.getSampleRate(),
+                    rawFormat.getSampleSizeInBits(), 1, rawFormat.getFrameSize(),
+                    rawFormat.getFrameRate(), rawFormat.isBigEndian(), rawFormat.properties());
+            return new SoundData(oggStream.readAll(), monoFormat);
         } catch (IOException e) {
             e.fillInStackTrace();
         }
