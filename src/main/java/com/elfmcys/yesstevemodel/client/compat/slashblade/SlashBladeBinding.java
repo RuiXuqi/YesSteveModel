@@ -4,6 +4,6 @@ import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 
 public class SlashBladeBinding {
     static void addInnerBinding(CtrlBinding binding) {
-        binding.playerVar("slashblade_animation", SlashBladeAnimation::getAnimationName);
+        binding.livingEntityVar("slashblade_animation", SlashBladeAnimation::getAnimationName);
     }
 }

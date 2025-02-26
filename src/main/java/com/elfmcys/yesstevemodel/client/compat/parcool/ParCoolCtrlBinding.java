@@ -2,18 +2,21 @@ package com.elfmcys.yesstevemodel.client.compat.parcool;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.StringUtils;
 
 public class ParCoolCtrlBinding {
     static void addInnerBinding(CtrlBinding binding) {
-        binding.playerVar("parcool_state", ParCoolCtrlBinding::getState);
+        binding.livingEntityVar("parcool_state", ParCoolCtrlBinding::getState);
     }
 
-    private static String getState(IContext<AbstractClientPlayer> context) {
-        String animation = ParCoolAnimationManger.getAnimation(context.entity());
-        if (animation != null) {
-            return animation.substring("parcool:".length());
+    private static String getState(IContext<LivingEntity> context) {
+        if (context.entity() instanceof Player player) {
+            String animation = ParCoolAnimationManger.getAnimation(player);
+            if (animation != null) {
+                return animation.substring("parcool:".length());
+            }
         }
         return StringUtils.EMPTY;
     }

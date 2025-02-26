@@ -38,7 +38,7 @@ public class SwemCompat {
      * 没有安装此模组时，这些 molang 应该存在，否则会报错
      */
     private static void addEmptyBinding(CtrlBinding binding) {
-        binding.playerVar("swem_is_ride", ctx -> false);
-        binding.playerVar("swem_state", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("swem_is_ride", ctx -> false);
+        binding.livingEntityVar("swem_state", ctx -> StringUtils.EMPTY);
     }
 }

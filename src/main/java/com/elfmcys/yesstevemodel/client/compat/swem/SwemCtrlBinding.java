@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.google.common.collect.Maps;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,12 +18,12 @@ public class SwemCtrlBinding {
 
     static void addInnerBinding(CtrlBinding binding) {
         binding.livingEntityVar("swem_is_ride", ctx -> ctx.entity().getVehicle() instanceof SWEMHorseEntityBase);
-        binding.playerVar("swem_state", SwemCtrlBinding::getState);
+        binding.livingEntityVar("swem_state", SwemCtrlBinding::getState);
     }
 
     @Nullable
     @SuppressWarnings("all")
-    static String getState(IContext<AbstractClientPlayer> context) {
+    static String getState(IContext<LivingEntity> context) {
         if (context.entity().getVehicle() instanceof SWEMHorseEntityBase horse) {
             SWEMHorseEntityBase.Gait gait = horse.getGait();
             // 判断跳跃

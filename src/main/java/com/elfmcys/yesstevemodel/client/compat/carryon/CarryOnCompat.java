@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.client.compat.carryon;
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +46,7 @@ public class CarryOnCompat {
      * 没有安装此模组时，这些 molang 应该存在，否则会报错
      */
     private static void addEmptyBinding(CtrlBinding binding) {
-        binding.playerVar("carryon_type", ctx -> StringUtils.EMPTY);
-        binding.playerVar("carryon_is_princess", ctx -> false);
+        binding.livingEntityVar("carryon_type", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("carryon_is_princess", ctx -> false);
     }
 }

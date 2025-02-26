@@ -1,13 +1,14 @@
 package com.elfmcys.yesstevemodel.client.compat.carryon;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import tschipp.carryon.common.carry.CarryOnData;
 import tschipp.carryon.common.carry.CarryOnDataManager;
 
 public class CarryOnInnerCompat {
-    static boolean isCarryOnPrincess(Player player) {
-        Entity vehicle = player.getVehicle();
+    static boolean isCarryOnPrincess(LivingEntity entity) {
+        Entity vehicle = entity.getVehicle();
         return vehicle instanceof Player playerVehicle && getCarryOnType(playerVehicle) == CarryOnInnerCompat.Type.PLAYER;
     }
 

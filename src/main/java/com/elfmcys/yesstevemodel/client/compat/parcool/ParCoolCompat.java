@@ -68,6 +68,6 @@ public class ParCoolCompat {
      * 没有安装此模组时，这些 molang 应该存在，否则会报错
      */
     private static void addEmptyBinding(CtrlBinding binding) {
-        binding.playerVar("parcool_state", ctx -> StringUtils.EMPTY);
+        binding.livingEntityVar("parcool_state", ctx -> StringUtils.EMPTY);
     }
 }
