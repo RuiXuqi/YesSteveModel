@@ -73,6 +73,12 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         return this.name;
     }
 
+    @Override
+    public String getState() {
+        // 硬编码控制器没有状态，返回自己名称
+        return "Coded Controller";
+    }
+
     public void setAnimation(AnimationBuilder builder) {
         this.animationPlayer.setAnimation(builder);
     }

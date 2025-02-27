@@ -1,21 +1,39 @@
 package com.elfmcys.yesstevemodel.client.command.sub;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
+import com.elfmcys.yesstevemodel.molang.runtime.Struct;
+import com.google.common.collect.Sets;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
+import java.util.Set;
 import java.util.function.Supplier;
+
+import static com.elfmcys.yesstevemodel.client.command.ClientRootCommand.ALL_VARS;
 
 public class MolangCommand {
     private static final String MOLANG_NAME = "molang";
@@ -45,7 +63,7 @@ public class MolangCommand {
         LiteralArgumentBuilder<CommandSourceStack> execute = Commands.literal(EXECUTE_NAME);
 
         Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> expName = () -> Commands.argument(EXPRESSION_NAME_NAME, StringArgumentType.string());
-        Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> exp = () -> Commands.argument(EXPRESSION_NAME, StringArgumentType.greedyString());
+        Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> exp = () -> Commands.argument(EXPRESSION_NAME, StringArgumentType.greedyString()).suggests(ALL_VARS);
 
         watch.then(add.then(pre.then(expName.get().then(exp.get().executes(ctx -> addExpression(ctx, DebugInfo.Phase.PRE_ANIMATION)))))
                       .then(post.then(expName.get().then(exp.get().executes(ctx -> addExpression(ctx, DebugInfo.Phase.POST_ANIMATION))))))

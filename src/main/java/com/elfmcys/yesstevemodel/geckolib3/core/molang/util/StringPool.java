@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.util;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,6 +21,10 @@ public class StringPool {
 
     public static int getName(String str) {
         return POOL.getOrDefault(str, NONE);
+    }
+
+    public static Set<String> getAllName() {
+        return POOL.keySet();
     }
 
     public static String getString(int name) {

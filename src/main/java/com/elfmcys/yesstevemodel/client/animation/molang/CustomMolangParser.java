@@ -1,9 +1,12 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.MolangParser;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.MathBinding;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.QueryBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
+import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,5 +47,15 @@ public class CustomMolangParser {
         EXTRA_BINDING.put("ctrl", CtrlBinding.INSTANCE);
         EXTRA_BINDING.put("tlm", TLMBinding.INSTANCE);
         return new MolangParser(EXTRA_BINDING);
+    }
+
+    /**
+     * 给客户端指令补全用的
+     */
+    public static Map<String, ObjectBinding> getAllBinding() {
+        Map<String, ObjectBinding> output = Maps.newHashMap(EXTRA_BINDING);
+        output.put("math", MathBinding.INSTANCE);
+        output.put("q", QueryBinding.INSTANCE);
+        return output;
     }
 }

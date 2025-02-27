@@ -8,8 +8,9 @@ import it.unimi.dsi.fastutil.ints.Int2FloatMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
 
 public class RoamingStruct implements Struct {
     private final static int MAX_SIZE = 16;
@@ -91,6 +92,10 @@ public class RoamingStruct implements Struct {
         changes = new VariableChanges(instanceId);
         dirty = false;
         return ret;
+    }
+
+    public Set<String> getAllName() {
+        return names;
     }
 
     @Override

@@ -12,9 +12,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.variable.item.ItemVariabl
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
@@ -25,6 +22,11 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Set;
 
 public class ContextBinding implements ObjectBinding {
     protected final Object2ReferenceOpenHashMap<String, Object> bindings = new Object2ReferenceOpenHashMap<>();
@@ -32,6 +34,10 @@ public class ContextBinding implements ObjectBinding {
     @Override
     public Object getProperty(String name) {
         return bindings.get(name);
+    }
+
+    public Set<String> getAllName() {
+        return bindings.keySet();
     }
 
     public void function(String name, Function function) {

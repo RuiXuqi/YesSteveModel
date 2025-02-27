@@ -50,6 +50,7 @@ import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements IGeoEntity {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
+    private int roamingVarsUpdateFlag = -1;
     private final RoamingStruct remoteStruct = new RoamingStruct();
     private final Vector2f headRot = new Vector2f();
     private volatile boolean renderedWithTempChanges = false;
@@ -186,6 +187,14 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     public void setRemoteStruct(Object2FloatOpenHashMap<String> roamingVars) {
         int instanceId = this.remoteStruct.getInstanceId();
         this.remoteStruct.reset(instanceId, roamingVars);
+    }
+
+    @Override
+    public void updateRoamingVars(Object2FloatOpenHashMap<String> roamingVars) {
+        if (this.roamingVarsUpdateFlag != this.entity.roamingVarsUpdateFlag) {
+            this.remoteStruct.reset(this.remoteStruct.getInstanceId() + 1, roamingVars);
+            this.roamingVarsUpdateFlag = this.entity.roamingVarsUpdateFlag;
+        }
     }
 
     public RoamingStruct getRemoteStruct() {

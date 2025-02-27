@@ -2,7 +2,10 @@ package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,8 +13,11 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
+import java.util.List;
+
 public class DebugAnimationScreen implements IGuiOverlay {
     private static final int DEBUG_BG_WIDTH = 1000;
+    private static final IntList DEBUG_CONTROLLERS_INDEX = new IntArrayList();
 
     @Override
     public void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
@@ -20,6 +26,15 @@ public class DebugAnimationScreen implements IGuiOverlay {
         }
     }
 
+    public static void addDebugControllerIndex(int index) {
+        DEBUG_CONTROLLERS_INDEX.add(index);
+    }
+
+    public static void clearDebugControllerIndex() {
+        DEBUG_CONTROLLERS_INDEX.clear();
+    }
+
+    @SuppressWarnings("all")
     private static void renderCustom(ForgeGui gui, GuiGraphics graphics) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
@@ -31,6 +46,16 @@ public class DebugAnimationScreen implements IGuiOverlay {
             DebugInfo debugInfo = cap.getDebugInfo();
             debugInfo.enumerate((name, result) -> {
                 renderCustomText(gui, graphics, y, name, result);
+            });
+
+            // 渲染状态机信息
+            List<IAnimationController> controllers = cap.getAnimationData().getAnimationControllers();
+            int size = controllers.size();
+            DEBUG_CONTROLLERS_INDEX.forEach(index -> {
+                if (index < size) {
+                    IAnimationController controller = controllers.get(index);
+                    renderCustomText(gui, graphics, y, controller.getName(), controller.getState());
+                }
             });
         });
     }

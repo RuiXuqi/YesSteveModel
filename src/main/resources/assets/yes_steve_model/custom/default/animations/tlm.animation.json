@@ -1435,7 +1435,7 @@
 					}
 				},
 				"AllBody": {
-					"position": [0, -16, 0]
+					"position": [0, -14, -2]
 				},
 				"Head": {
 					"rotation": {

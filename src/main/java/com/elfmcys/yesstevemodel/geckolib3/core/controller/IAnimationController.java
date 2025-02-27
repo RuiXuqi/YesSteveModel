@@ -16,6 +16,11 @@ public interface IAnimationController<T extends AnimatableEntity<?>> {
     String getName();
 
     /**
+     * 获取控制器当时所处状态
+     */
+    String getState();
+
+    /**
      * 更新模型
      */
     void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList);

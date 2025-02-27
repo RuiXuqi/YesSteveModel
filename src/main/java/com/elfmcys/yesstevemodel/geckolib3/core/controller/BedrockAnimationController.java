@@ -35,6 +35,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private GeoAnimationController data;
     @Nullable
     private GeoAnimationControllerState state;
+    @Nullable
+    private String stateName;
 
     private final ReferenceArrayList<AnimationPlayerHolder> animationPlayers = new ReferenceArrayList<>(8);
     private final ReferenceArrayList<BlendBoneAnimationQueue> blendAnimationQueues = new ReferenceArrayList<>(64);
@@ -78,7 +80,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
         // 更新状态
         if (this.state == null) {
-            var initialState = this.data.states().get(this.data.initialState());
+            this.stateName = this.data.initialState();
+            var initialState = this.data.states().get(this.stateName);
             if (initialState == null) {
                 return;
             }
@@ -88,7 +91,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 if (!transition.getRight().evalAsBoolean(evaluator)) {
                     continue;
                 }
-                var newState = this.data.states().get(transition.getLeft());
+                this.stateName = transition.getLeft();
+                var newState = this.data.states().get(this.stateName);
                 if (newState == null) {
                     return;
                 }
@@ -107,6 +111,12 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     @Override
     public String getName() {
         return this.name;
+    }
+
+    @Nullable
+    @Override
+    public String getState() {
+        return stateName;
     }
 
     @Override

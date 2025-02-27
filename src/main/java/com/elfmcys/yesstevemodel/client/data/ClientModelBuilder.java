@@ -22,10 +22,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.BufferUtils;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -165,14 +167,39 @@ public class ClientModelBuilder {
         try {
             OggAudioStream oggStream = new OggAudioStream(new ByteArrayInputStream(byteArray));
             AudioFormat rawFormat = oggStream.getFormat();
+            ByteBuffer monoData = mergeStereoToMono(oggStream.readAll(), rawFormat);
             AudioFormat monoFormat = new AudioFormat(rawFormat.getEncoding(), rawFormat.getSampleRate(),
-                    rawFormat.getSampleSizeInBits(), 1, rawFormat.getFrameSize(),
+                    rawFormat.getSampleSizeInBits(), 1, 2,
                     rawFormat.getFrameRate(), rawFormat.isBigEndian(), rawFormat.properties());
-            return new SoundData(oggStream.readAll(), monoFormat);
+            return new SoundData(monoData, monoFormat);
         } catch (IOException e) {
             e.fillInStackTrace();
         }
         return null;
+    }
+
+    public static ByteBuffer mergeStereoToMono(ByteBuffer stereoData, AudioFormat audioFormat) {
+        // 如果是单声道，那么原样返回即可
+        if (audioFormat.getChannels() == 1) {
+            return stereoData;
+        }
+
+        int frameSize = audioFormat.getFrameSize();
+        int frames = stereoData.remaining() / frameSize;
+        int monoFrameSize = audioFormat.getSampleSizeInBits() / 8;
+        ByteBuffer monoData = BufferUtils.createByteBuffer(frames * monoFrameSize);
+
+        // 重置游标，以防万一
+        stereoData.rewind();
+        for (int i = 0; i < frames; i++) {
+            short leftSample = stereoData.getShort();
+            short rightSample = stereoData.getShort();
+            // 平均左、右声道的值
+            short monoSample = (short) ((leftSample + rightSample) / 2);
+            monoData.putShort(monoSample);
+        }
+        monoData.flip();
+        return monoData;
     }
 
     public static Map<String, ResourceLocation> buildAuthorAvatarMap(ClientModelData data) {

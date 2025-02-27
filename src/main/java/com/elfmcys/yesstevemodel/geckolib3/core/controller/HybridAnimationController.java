@@ -36,6 +36,11 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     }
 
     @Override
+    public String getState() {
+        return this.activeController.getState();
+    }
+
+    @Override
     public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
         var animationControllerData = animatableEntity.getAnimationControllerData(this.name);
         if (animationControllerData != null) {
