@@ -26,7 +26,11 @@ public class GeoModelState {
     @NotNull
     private final List<IBone> leftHandBones;
     @NotNull
+    private final List<List<IBone>> extraLeftHandBones = new ReferenceArrayList<>();
+    @NotNull
     private final List<IBone> rightHandBones;
+    @NotNull
+    private final List<List<IBone>> extraRightHandBones = new ReferenceArrayList<>();
     @NotNull
     private final List<IBone> elytraBones;
     @NotNull
@@ -90,6 +94,9 @@ public class GeoModelState {
         backpackBones = findBones(model.backpackBones);
         firstPersonHead = boneMap.get("AllHead");
         firstPersonViewLocator = boneMap.get("ViewLocator");
+
+        model.extraLeftHandBones.forEach(list -> extraLeftHandBones.add(findBones(list)));
+        model.extraRightHandBones.forEach(list -> extraRightHandBones.add(findBones(list)));
     }
 
     @NotNull
@@ -122,9 +129,17 @@ public class GeoModelState {
         return leftHandBones;
     }
 
+    public @NotNull List<List<IBone>> extraLeftHandBones() {
+        return extraLeftHandBones;
+    }
+
     @NotNull
     public List<IBone> rightHandBones() {
         return rightHandBones;
+    }
+
+    public @NotNull List<List<IBone>> extraRightHandBones() {
+        return extraRightHandBones;
     }
 
     @NotNull

@@ -24,8 +24,15 @@ public final class RenderUtils {
         }
     }
 
-    public static void scaleMatrixForBone(PoseStack poseStack, IBone bone) {
-        poseStack.scale(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
+    /**
+     * 如果缩放全为 0，则返回 true
+     */
+    public static boolean scaleMatrixForBone(PoseStack poseStack, IBone bone) {
+        float scaleX = bone.getScaleX();
+        float scaleY = bone.getScaleY();
+        float scaleZ = bone.getScaleZ();
+        poseStack.scale(scaleX, scaleY, scaleZ);
+        return scaleX == 0 && scaleY == 0 && scaleZ == 0;
     }
 
     public static void translateToPivotPoint(PoseStack poseStack, IBone bone) {
@@ -41,23 +48,32 @@ public final class RenderUtils {
         rotateMatrixAroundBone(poseStack, bone);
     }
 
-    public static void prepMatrixForBone(PoseStack poseStack, IBone bone) {
+    /**
+     * 如果缩放为 0，则返回 true
+     */
+    public static boolean prepMatrixForBone(PoseStack poseStack, IBone bone) {
         translateMatrixToBone(poseStack, bone);
         translateToPivotPoint(poseStack, bone);
         rotateMatrixAroundBone(poseStack, bone);
-        scaleMatrixForBone(poseStack, bone);
+        boolean scaleAllIsZero = scaleMatrixForBone(poseStack, bone);
         translateAwayFromPivotPoint(poseStack, bone);
+        return scaleAllIsZero;
     }
 
-    public static void prepMatrixForLocator(PoseStack poseStack, List<IBone> locatorHierarchy) {
+    public static boolean prepMatrixForLocator(PoseStack poseStack, List<IBone> locatorHierarchy) {
+        boolean scaleCheck = false;
         for (int i = 0; i < locatorHierarchy.size() - 1; i++) {
-            RenderUtils.prepMatrixForBone(poseStack, locatorHierarchy.get(i));
+            boolean result = RenderUtils.prepMatrixForBone(poseStack, locatorHierarchy.get(i));
+            if (result) {
+                scaleCheck = true;
+            }
         }
         IBone lastBone = locatorHierarchy.get(locatorHierarchy.size() - 1);
         RenderUtils.translateMatrixToBone(poseStack, lastBone);
         RenderUtils.translateToPivotPoint(poseStack, lastBone);
         RenderUtils.rotateMatrixAroundBone(poseStack, lastBone);
         RenderUtils.scaleMatrixForBone(poseStack, lastBone);
+        return scaleCheck;
     }
 
     public static Matrix4f invertAndMultiplyMatrices(Matrix4f baseMatrix, Matrix4f inputMatrix) {

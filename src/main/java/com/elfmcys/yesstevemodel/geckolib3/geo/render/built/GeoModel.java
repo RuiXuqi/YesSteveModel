@@ -18,7 +18,11 @@ public class GeoModel {
     @NotNull
     public final List<String> leftHandBones;
     @NotNull
+    public final List<List<String>> extraLeftHandBones = new ObjectArrayList<>();
+    @NotNull
     public final List<String> rightHandBones;
+    @NotNull
+    public final List<List<String>> extraRightHandBones = new ObjectArrayList<>();
     @NotNull
     public final List<String> elytraBones;
     @NotNull
@@ -77,6 +81,21 @@ public class GeoModel {
         // 头部和背包，主要是兼容女仆的
         this.headBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[11]));
         this.backpackBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[12]));
+
+        // 13-19 是额外副手物品
+        for (int i = 13; i <= 19; i++) {
+            String[] extraLocators = locatorHierarchy[i];
+            if (extraLocators.length > 0) {
+                extraLeftHandBones.add(ObjectLists.unmodifiable(ObjectArrayList.wrap(extraLocators)));
+            }
+        }
+        // 20-26 是额外主手物品
+        for (int i = 20; i <= 26; i++) {
+            String[] extraLocators = locatorHierarchy[i];
+            if (extraLocators.length > 0) {
+                extraRightHandBones.add(ObjectLists.unmodifiable(ObjectArrayList.wrap(extraLocators)));
+            }
+        }
 
         hasFirstPersonLeftArm = hasRendererFeature[0];
         hasFirstPersonRightArm = hasRendererFeature[1];
