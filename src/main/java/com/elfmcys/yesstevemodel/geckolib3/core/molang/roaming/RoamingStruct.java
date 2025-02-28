@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 public class RoamingStruct implements Struct {
-    private final static int MAX_SIZE = 16;
-    private final static int MAX_NAME_LENGTH = 16;
+    private final static int MAX_SIZE = 64;
+    private final static int MAX_NAME_LENGTH = 32;
 
     private final Int2FloatOpenHashMap values = new Int2FloatOpenHashMap();
     private final ObjectOpenHashSet<String> names = new ObjectOpenHashSet<>();
