@@ -30,7 +30,7 @@ public class ParticleSpawner {
     private static final Cache<String, ParticleOptions> PARTICLE_OPTIONS_CACHE = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build();
     private static final RandomSource RANDOM = RandomSource.createThreadSafe();
 
-    public static boolean evalSpawnParticle(ExecutionContext<IContext<Entity>> context, Function.ArgumentCollection arguments)
+    public static boolean evalSpawnParticle(ExecutionContext<IContext<Entity>> context, Function.ArgumentCollection arguments, boolean absPos)
             throws ExecutionException, CommandSyntaxException {
         String id = arguments.getAsString(context, 0);
         if (StringUtils.isBlank(id)) {
@@ -71,13 +71,13 @@ public class ParticleSpawner {
         if (size > 9) {
             particleLifeTime = Math.max(arguments.getAsInt(context, 9), 1);
         }
-        spawnParticle(context.entity().entity(), id, pos, delta, particleSpeed, count, particleLifeTime);
+        spawnParticle(context.entity().entity(), id, pos, delta, particleSpeed, count, particleLifeTime, absPos);
         return true;
     }
 
     @SuppressWarnings("all")
     private static void spawnParticle(Entity entity, String id, Vector3d pos, Vector3d delta,
-                                      double particleSpeed, int count, int particleLifeTime)
+                                      double particleSpeed, int count, int particleLifeTime, boolean absPos)
             throws CommandSyntaxException, ExecutionException {
         ParticleOptions particleOptions = PARTICLE_OPTIONS_CACHE.get(id, () ->
                 ParticleArgument.readParticle(new StringReader(id), BuiltInRegistries.PARTICLE_TYPE.asLookup()));
@@ -87,7 +87,10 @@ public class ParticleSpawner {
         ParticleEngine particleEngine = Minecraft.getInstance().particleEngine;
         if (count == 0) {
             // 单个粒子准确在指定位置生成
-            Vec3 offset = new Vec3(pos.x(), pos.y(), pos.z()).yRot(-entity.getYRot() * Mth.DEG_TO_RAD);
+            Vec3 offset = new Vec3(pos.x(), pos.y(), pos.z());
+            if (!absPos) {
+                offset = offset.yRot(-entity.getYRot() * Mth.DEG_TO_RAD);
+            }
 
             double xPos = entity.getX() + offset.x();
             double yPos = entity.getY() + offset.y();
@@ -104,14 +107,13 @@ public class ParticleSpawner {
         } else {
             // 多个粒子就需要加点随机了
             for (int i = 0; i < count; ++i) {
-                createParticle(entity, pos, delta, particleSpeed, particleLifeTime, particleEngine, particleOptions);
+                createParticle(entity, pos, delta, particleSpeed, particleLifeTime, particleEngine, particleOptions, absPos);
             }
         }
     }
 
-    private static void createParticle(Entity entity, Vector3d pos,
-                                       Vector3d delta, double particleSpeed, int particleLifeTime,
-                                       ParticleEngine particleEngine, ParticleOptions particleOptions) {
+    private static void createParticle(Entity entity, Vector3d pos, Vector3d delta, double particleSpeed, int particleLifeTime,
+                                       ParticleEngine particleEngine, ParticleOptions particleOptions, boolean absPos) {
         double offsetX = RANDOM.nextGaussian() * delta.x();
         double offsetY = RANDOM.nextGaussian() * delta.y();
         double offsetZ = RANDOM.nextGaussian() * delta.z();
@@ -120,7 +122,10 @@ public class ParticleSpawner {
         double ySpeed = RANDOM.nextGaussian() * particleSpeed;
         double zSpeed = RANDOM.nextGaussian() * particleSpeed;
 
-        Vec3 offset = new Vec3(pos.x() + offsetX, pos.y() + offsetY, pos.z() + offsetZ).yRot(-entity.getYRot() * Mth.DEG_TO_RAD);
+        Vec3 offset = new Vec3(pos.x() + offsetX, pos.y() + offsetY, pos.z() + offsetZ);
+        if (!absPos) {
+            offset = offset.yRot(-entity.getYRot() * Mth.DEG_TO_RAD);
+        }
 
         double posX = entity.getX() + offset.x();
         double posY = entity.getY() + offset.y();

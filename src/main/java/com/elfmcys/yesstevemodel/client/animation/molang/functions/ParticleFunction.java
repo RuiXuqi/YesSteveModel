@@ -10,10 +10,16 @@ import net.minecraft.world.entity.Entity;
 import java.util.concurrent.ExecutionException;
 
 public class ParticleFunction extends EntityFunction {
+    private final boolean absPos;
+
+    public ParticleFunction(boolean absPos) {
+        this.absPos = absPos;
+    }
+
     @Override
     protected Object eval(ExecutionContext<IContext<Entity>> context, ArgumentCollection arguments) {
         try {
-            return ParticleSpawner.evalSpawnParticle(context, arguments);
+            return ParticleSpawner.evalSpawnParticle(context, arguments, this.absPos);
         } catch (ExecutionException | CommandSyntaxException e) {
             throw new RuntimeException(e);
         }
