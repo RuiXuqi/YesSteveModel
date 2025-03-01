@@ -301,6 +301,7 @@ public class AnimationPlayer {
     public void stop() {
         this.animationState = AnimationState.STOPPED;
         this.justStopped = true;
+        this.stopSoundKeyFrames();
     }
 
     private void processCurrentAnimation(AnimationContext context, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, double tick, double actualTick, boolean scheduledUpdate, boolean dryRun) {
