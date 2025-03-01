@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.geckolib3.model.GeoBoneState;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.core.processor.ILocationBone;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -90,8 +91,22 @@ public class TlmConverterHelper {
             }
 
             @Override
+            public List<List<? extends ILocationBone>> extraLeftHandBones() {
+                List<List<? extends ILocationBone>> output = new ReferenceArrayList<>();
+                geoModelState.extraLeftHandBones().forEach(list -> output.add(convertToTlmAnimatedGeoBones(list)));
+                return output;
+            }
+
+            @Override
             public List<ILocationBone> rightHandBones() {
                 return convertToTlmAnimatedGeoBones(geoModelState.rightHandBones());
+            }
+
+            @Override
+            public List<List<? extends ILocationBone>> extraRightHandBones() {
+                List<List<? extends ILocationBone>> output = new ReferenceArrayList<>();
+                geoModelState.extraRightHandBones().forEach(list -> output.add(convertToTlmAnimatedGeoBones(list)));
+                return output;
             }
 
             @Override

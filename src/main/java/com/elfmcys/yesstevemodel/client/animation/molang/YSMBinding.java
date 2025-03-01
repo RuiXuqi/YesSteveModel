@@ -137,6 +137,7 @@ public class YSMBinding extends ContextBinding {
         function("second_order", new SecondOrderFunction());
         function("particle", new ParticleFunction(false));
         function("abs_particle", new ParticleFunction(true));
+        function("perlin_noise", new PerlinNoiseFunction());
 
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());

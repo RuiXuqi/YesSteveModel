@@ -85,7 +85,8 @@
         "main": "animations/main.animation.json",
         "extra": "animations/extra.animation.json",
         "tac": "animations/tac.animation.json",
-        "carryon": "animations/carryon.animation.json"
+        "carryon": "animations/carryon.animation.json",
+        "tlm": "animations/tlm.animation.json"
       },
       "texture": [
         "textures/skin.png"

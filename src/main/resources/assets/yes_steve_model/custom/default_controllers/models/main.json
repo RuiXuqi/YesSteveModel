@@ -1452,9 +1452,9 @@
 							"size": [2, 8, 1],
 							"uv": {
 								"north": {"uv": [72, 5], "uv_size": [2, 8]},
-								"east": {"uv": [51, 39], "uv_size": [1, 8]},
-								"south": {"uv": [45, 44], "uv_size": [2, 8]},
-								"west": {"uv": [46, 44], "uv_size": [1, 8]},
+								"east": {"uv": [56, 97], "uv_size": [1, 8]},
+								"south": {"uv": [72, 14], "uv_size": [2, 8]},
+								"west": {"uv": [58, 97], "uv_size": [1, 8]},
 								"up": {"uv": [129, 67], "uv_size": [2, 1]},
 								"down": {"uv": [129, 70], "uv_size": [2, -1]}
 							}
@@ -2933,7 +2933,7 @@
 					"pivot": [0, 32.69562, -3.7475]
 				},
 				{
-					"name": "RightEyeBrow",
+					"name": "RightEyebrow",
 					"parent": "Eyebrows",
 					"pivot": [-2.875, 32.85, -3.425],
 					"cubes": [
@@ -2969,7 +2969,7 @@
 				},
 				{
 					"name": "EyeBrow_Right4",
-					"parent": "RightEyeBrow",
+					"parent": "RightEyebrow",
 					"pivot": [-3.825, 32.85, -3.425],
 					"cubes": [
 						{
@@ -2987,7 +2987,7 @@
 					]
 				},
 				{
-					"name": "LeftEyeBrow",
+					"name": "LeftEyebrow",
 					"parent": "Eyebrows",
 					"pivot": [2.875, 32.85, -3.425],
 					"cubes": [
@@ -3023,7 +3023,7 @@
 				},
 				{
 					"name": "EyeBrow_Left4",
-					"parent": "LeftEyeBrow",
+					"parent": "LeftEyebrow",
 					"pivot": [3.825, 32.85, -3.425],
 					"cubes": [
 						{
@@ -3052,7 +3052,7 @@
 					"cubes": [
 						{
 							"origin": [1.375, 31.2, -3.525],
-							"size": [2, 2, 0],
+							"size": [2, 2, 0.025],
 							"uv": {
 								"north": {"uv": [77, 25], "uv_size": [2, 2]},
 								"east": {"uv": [15, 39], "uv_size": [0, 2]},
@@ -3116,7 +3116,7 @@
 					]
 				},
 				{
-					"name": "LeftEylight",
+					"name": "LeftEyelight",
 					"parent": "LeftPupil",
 					"pivot": [2.375, 32.3, -3.15],
 					"cubes": [
@@ -3141,7 +3141,7 @@
 					"cubes": [
 						{
 							"origin": [-3.375, 31.2, -3.525],
-							"size": [2, 2, 0],
+							"size": [2, 2, 0.025],
 							"uv": {
 								"north": {"uv": [53, 89], "uv_size": [2, 2]},
 								"east": {"uv": [15, 45], "uv_size": [0, 2]},

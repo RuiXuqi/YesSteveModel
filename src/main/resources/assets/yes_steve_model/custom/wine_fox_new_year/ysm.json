@@ -1,12 +1,22 @@
 {
   "spec": 2,
   "metadata": {
-    "name": "Wine Fox（酒狐）",
-    "tips": "一只爱喝葡萄酒的狐娘。\nA fox girl who loves to drink wine.\n乱舞参考自 VRChat 的永雏塔菲动画。\n音乐为改编的 Zufolo Impazzito。",
+    "name": "New Year Wine Fox（新春酒狐）",
+    "tips": "A fox girl who loves to drink wine.\n一只爱喝葡萄酒的狐娘。",
     "license": {
       "type": "CC BY-NC-SA 4.0"
     },
     "authors": [
+      {
+        "name": "就叫纸板",
+        "role": "模型作者和上色",
+        "avatar": "avatar/zb.png",
+        "contact": {
+          "donate": "https://afdian.com/a/lucia2048",
+          "Bilibili": "https://space.bilibili.com/29208164"
+        },
+        "comment": "杂鱼~杂鱼~"
+      },
       {
         "name": "哥斯拉",
         "role": "模型",
@@ -44,15 +54,6 @@
         "contact": {
           "Bilibili": "https://space.bilibili.com/164557734"
         }
-      },
-      {
-        "name": "羊毛",
-        "role": "音效/动画",
-        "avatar": "avatar/wool.png",
-        "comment": "喵喵喵喵",
-        "contact": {
-          "Bilibili": "https://space.bilibili.com/85335217"
-        }
       }
     ],
     "link": {
@@ -65,8 +66,8 @@
       "extra0": "变身",
       "extra1": "打招呼",
       "extra2": "鼓掌",
-      "extra3": "Get Down",
-      "extra4": "乱舞",
+      "extra3": "是的",
+      "extra4": "不行",
       "extra5": "卖萌",
       "extra6": "御笔摇",
       "extra7": "舞蹈"
@@ -84,12 +85,10 @@
         "main": "animations/main.animation.json",
         "extra": "animations/extra.animation.json",
         "tac": "animations/tac.animation.json",
-        "carryon": "animations/carryon.animation.json",
-        "tlm": "animations/tlm.animation.json"
+        "carryon": "animations/carryon.animation.json"
       },
       "texture": [
-        "textures/skin.png",
-        "textures/skin_white.png"
+        "textures/skin.png"
       ]
     },
     "arrow": {

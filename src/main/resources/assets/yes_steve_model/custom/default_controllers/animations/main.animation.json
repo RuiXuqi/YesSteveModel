@@ -567,7 +567,7 @@
 			"loop": true,
 			"animation_length": 4,
 			"bones": {
-				"LeftEyeBrow": {
+				"LeftEyebrow": {
 					"position": {
 						"0.0": {
 							"post": [0, 0, 0],
@@ -587,7 +587,7 @@
 						}
 					}
 				},
-				"RightEyeBrow": {
+				"RightEyebrow": {
 					"position": {
 						"0.0": {
 							"post": [0, 0, 0],
@@ -627,7 +627,7 @@
 						}
 					}
 				},
-				"LeftEylight": {
+				"LeftEyelight": {
 					"rotation": {
 						"0.0": [0, 0, 0],
 						"0.25": [0, 0, 0],

@@ -375,5 +375,6 @@
   "key.yes_steve_model.extra_animation.6.desc": "Play Extra Animation 6",
   "key.yes_steve_model.extra_animation.7.desc": "Play Extra Animation 7",
   "key.yes_steve_model.debug_animation.desc": "Open Animation Debug",
-  "key.yes_steve_model.open_extra_player_render.desc": "Extra Player Render Config"
+  "key.yes_steve_model.open_extra_player_render.desc": "Extra Player Render Config",
+  "subtitle.yes_steve_model.custom": "YSM Custom Sound"
 }
