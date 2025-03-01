@@ -22,7 +22,7 @@ public class UsePredicate implements IAnimationPredicate<AnimatableEntity<? exte
         }
         if (entity.isUsingItem() && !entity.isSleeping()) {
             if (entity.getTicksUsingItem() == 1) {
-                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                event.getCodedController().markNeedsReload();
             }
             if (entity.getUsedItemHand() == InteractionHand.MAIN_HAND) {
                 String id = event.getAnimatableEntity().getModelId();

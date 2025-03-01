@@ -26,8 +26,8 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
         if (!entity.isSleeping() && SlashBladeCompat.isSlashBladeItem(entity.getItemInHand(InteractionHand.MAIN_HAND))) {
             // 起手阻止后续原挥剑动画
             if (event.getCodedController().isAnimFinished()) {
-                // 空动画用于重置 PLAY_ONCE 动画
-                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                // 重置动画
+                event.getCodedController().markNeedsReload();
             }
             String animationName = SlashBladeCompat.getAnimationName(event);
             if (StringUtils.isNoneBlank(animationName)) {
@@ -44,8 +44,8 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
         // 其他情况
         if (entity.swinging && !entity.isSleeping()) {
             if (entity.swingTime == 0) {
-                // 空动画用于重置 PLAY_ONCE 动画
-                playAnimation(event, "empty", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                // 重置动画
+                event.getCodedController().markNeedsReload();
             }
             String id = event.getAnimatableEntity().getModelId();
             ConditionalSwing conditionalSwing = ClientModelManager.getModel(id).map(model -> (entity.swingingArm == InteractionHand.MAIN_HAND) ? model.conditionManager().getSwingMainhand() : model.conditionManager().getSwingOffhand()).orElse(null);
