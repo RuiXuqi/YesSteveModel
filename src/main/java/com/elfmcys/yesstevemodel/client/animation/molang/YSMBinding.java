@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.variable.FirstPersonMod
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.LadderFacingVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.MoveInputVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.TextureNameVariable;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
@@ -19,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -26,6 +28,9 @@ import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.SpectralArrow;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.common.ForgeMod;
@@ -100,6 +105,10 @@ public class YSMBinding extends ContextBinding {
         // 为了兼容其他模组，只有玩家能返回这个值，其他都是满值（20）
         livingEntityVar("food_level", YSMBinding::getFoodLevel);
 
+        livingEntityVar("mainhand_charged_crossbow", ctx -> isChargedCrossbow(ctx, InteractionHand.MAIN_HAND));
+        livingEntityVar("offhand_charged_crossbow", ctx -> isChargedCrossbow(ctx, InteractionHand.OFF_HAND));
+        livingEntityVar("is_fishing", YSMBinding::isFishing);
+
         playerVar("texture_name", new TextureNameVariable());
         playerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
         playerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
@@ -135,6 +144,19 @@ public class YSMBinding extends ContextBinding {
         abstractArrowVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
         abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
         abstractArrowVar("shoot_item_id", ctx -> ((IArrowExtraInfo) ctx.entity()).getShootItemId());
+    }
+
+    private static boolean isFishing(IContext<LivingEntity> ctx) {
+        LivingEntity entity = ctx.entity();
+        if (entity instanceof Player player) {
+            return player.fishing != null;
+        }
+        return TlmCompat.isMaidFishing(entity);
+    }
+
+    private static boolean isChargedCrossbow(IContext<LivingEntity> ctx, InteractionHand hand) {
+        ItemStack itemInHand = ctx.entity().getItemInHand(hand);
+        return itemInHand.is(Items.CROSSBOW) && CrossbowItem.isCharged(itemInHand);
     }
 
     private static String getEntityType(IContext<LivingEntity> ctx) {

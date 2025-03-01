@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidMiscPredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidRoulettePredicate;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidStatuePredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
@@ -79,12 +80,26 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         }
 
         addAnimationController(new HybridAnimationController(this, VEHICLE_CONTROLLER, 0.1f, new VehiclePredicate()));
+
+        addAnimationController(new HybridAnimationController(this, PRE_MAIN_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 0.1f, new YsmMaidMainPredicate()));
+        addAnimationController(new HybridAnimationController(this, POST_MAIN_CONTROLLER, 0, new EmptyPredicate()));
+
+        addAnimationController(new HybridAnimationController(this, PRE_HOLD_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0, new OffhandPredicate()));
         addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0, new MainhandPredicate()));
+        addAnimationController(new HybridAnimationController(this, POST_HOLD_CONTROLLER, 0, new EmptyPredicate()));
+
         TACZCompat.addTaczPredicate(this);
+
+        addAnimationController(new HybridAnimationController(this, PRE_SWING_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
+        addAnimationController(new HybridAnimationController(this, POST_SWING_CONTROLLER, 0, new EmptyPredicate()));
+
+        addAnimationController(new HybridAnimationController(this, PRE_USE_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 0.1f, new UsePredicate()));
+        addAnimationController(new HybridAnimationController(this, POST_USE_CONTROLLER, 0, new EmptyPredicate()));
+
         addAnimationController(new HybridAnimationController(this, MAID_MISC, 0.1f, new MaidMiscPredicate()));
         addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 0.1f, new PassengerPredicate()));
 
@@ -93,6 +108,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
             addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0.1f, new MaidRoulettePredicate()));
         }
 
+        // 高并行动画
         for (int i = 0; i < 8; i++) {
             String controllerName = PARALLEL_CONTROLLER + i;
             String animationName = String.format("parallel%d", i);
@@ -100,12 +116,16 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
                     new ParallelPredicate(animationName), true));
         }
 
+        // 护甲动画
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() == EquipmentSlot.Type.ARMOR) {
                 String controllerName = ARMOR_CONTROLLER + slot.getName();
                 addAnimationController(new HybridAnimationController(this, controllerName, 0, new ArmorPredicate(slot)));
             }
         }
+
+        // 雕像动画控制器优先级最高，可以拿来禁用前面所有的动画，避免雕像或者手办还在运动
+        addAnimationController(new HybridAnimationController(this, MAID_STATUE, 0, new MaidStatuePredicate()));
     }
 
     @Override

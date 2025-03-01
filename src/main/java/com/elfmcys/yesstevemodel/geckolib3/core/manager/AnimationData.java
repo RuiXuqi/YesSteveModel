@@ -12,7 +12,7 @@ import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public class AnimationData {
-    private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(32);
+    private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(41);
     public double tick;
     public boolean isFirstTick = true;
     public double startTick = -1;

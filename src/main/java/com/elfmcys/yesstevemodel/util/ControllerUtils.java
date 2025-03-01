@@ -9,6 +9,15 @@ public final class ControllerUtils {
     public static final String PASSENGER_CONTROLLER = "player.passenger";
     public static final String SWING_CONTROLLER = "player.swing";
 
+    public static final String PRE_MAIN_CONTROLLER = "player.pre_main";
+    public static final String POST_MAIN_CONTROLLER = "player.post_main";
+    public static final String PRE_HOLD_CONTROLLER = "player.pre_hold";
+    public static final String POST_HOLD_CONTROLLER = "player.post_hold";
+    public static final String PRE_USE_CONTROLLER = "player.pre_use";
+    public static final String POST_USE_CONTROLLER = "player.post_use";
+    public static final String PRE_SWING_CONTROLLER = "player.pre_swing";
+    public static final String POST_SWING_CONTROLLER = "player.post_swing";
+
     public static final String CARRY_ON_CONTROLLER = "player.carry_on";
     public static final String TACZ_FIRE_CONTROLLER = "player.fire";
     public static final String PARCOOL_CONTROLLER = "player.parcool";
@@ -25,4 +34,5 @@ public final class ControllerUtils {
     public static final String ARROW_PARALLEL_CONTROLLER = "arrow.parallel_";
 
     public static final String MAID_MISC = "maid.misc";
+    public static final String MAID_STATUE = "maid.statue";
 }

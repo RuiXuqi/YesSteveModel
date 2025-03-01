@@ -18,7 +18,6 @@ import net.minecraft.world.entity.Entity;
 import java.util.Objects;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
-import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playLoopAnimation;
 
 public class YsmMaidMainPredicate implements IAnimationPredicate<CustomYsmMaidEntity> {
     @SuppressWarnings("unchecked")
@@ -41,12 +40,9 @@ public class YsmMaidMainPredicate implements IAnimationPredicate<CustomYsmMaidEn
             return PlayState.STOP;
         }
 
-        // 先检查女仆是否是雕像或者手办状态，如果是，那么播放对应动画
-        if (maid.renderState == MaidRenderState.STATUE) {
-            return playLoopAnimation(event, "statue");
-        }
-        if (maid.renderState == MaidRenderState.GARAGE_KIT) {
-            return playLoopAnimation(event, "garage_kit");
+        // 雕像或者手办状态不播放主动画
+        if (maid.renderState != MaidRenderState.ENTITY) {
+            return PlayState.STOP;
         }
 
         // 跑酷模组只作用于玩家，故禁用
