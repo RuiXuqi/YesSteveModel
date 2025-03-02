@@ -2448,7 +2448,7 @@
 				"LeftEyelid": {
 					"scale": 1
 				},
-				"LeftEylight": {
+				"LeftEyelight": {
 					"rotation": [0, 0, 0]
 				},
 				"RightEyelid": {
@@ -2513,10 +2513,10 @@
 				"Longhair": {
 					"rotation": [0, 0, -7.5]
 				},
-				"RightEyeBrow": {
+				"RightEyebrow": {
 					"position": [0, 0, 0]
 				},
-				"LeftEyeBrow": {
+				"LeftEyebrow": {
 					"position": [0, -1.2, 0]
 				},
 				"LeftEyelid": {
