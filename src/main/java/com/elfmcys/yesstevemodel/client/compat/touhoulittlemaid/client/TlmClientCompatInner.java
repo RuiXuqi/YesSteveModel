@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
+package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
-public class TlmCompatInner {
+public class TlmClientCompatInner {
     static void registerEvent() {
         MinecraftForge.EVENT_BUS.register(new YsmMaidScreenEvent());
         MinecraftForge.EVENT_BUS.register(new SyncCapability());

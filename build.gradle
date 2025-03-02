@@ -131,11 +131,11 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     compileOnly 'org.jetbrains:annotations:26.0.1'
 
-    modImplementation 'libs:firstperson-forge:2.2.3-mc1.20'
-    modImplementation 'libs:notenoughanimations-forge:1.6.4-mc1.20'
+    modCompileOnly 'libs:firstperson-forge:2.2.3-mc1.20'
+    modCompileOnly 'libs:notenoughanimations-forge:1.6.4-mc1.20'
     modCompileOnly 'libs:oculus_legacy:mc1.20.1-1.6.13'
-    modImplementation 'libs:oculus:mc1.20.1-1.7.0'
-    modImplementation "curse.maven:embeddium-908741:${embeddium_id}"
+    modCompileOnly 'libs:oculus:mc1.20.1-1.7.0'
+    modCompileOnly "curse.maven:embeddium-908741:${embeddium_id}"
 
     // 需要这样写，才能通过编译，并优先运行重锋
     modCompileOnly "maven.modrinth:slashblade-resharped:1.1.6-1.20.1"

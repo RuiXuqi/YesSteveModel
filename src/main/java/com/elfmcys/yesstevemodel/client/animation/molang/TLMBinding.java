@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 
 /**
@@ -10,6 +10,6 @@ public class TLMBinding extends ContextBinding {
     public static final TLMBinding INSTANCE = new TLMBinding();
 
     public TLMBinding() {
-        TlmCompat.addBinding(this);
+        TlmClientCompat.addBinding(this);
     }
 }

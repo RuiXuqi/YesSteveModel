@@ -18,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 这个类是客户端和服务端都可能用到的类
  */
-public class TlmNetworkInner {
+public class TlmCommonCompatInner {
     static boolean isMaid(Entity entity) {
         return entity instanceof EntityMaid;
     }

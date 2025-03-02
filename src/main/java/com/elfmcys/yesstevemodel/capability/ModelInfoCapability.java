@@ -101,7 +101,6 @@ public class ModelInfoCapability {
         this.instanceId = instanceId;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public Object2FloatOpenHashMap<String> getVariables() {
         return variables;
     }

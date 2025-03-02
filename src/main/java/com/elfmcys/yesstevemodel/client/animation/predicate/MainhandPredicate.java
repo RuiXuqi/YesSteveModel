@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.api.IPlayerExtraInfo;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalHold;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -37,7 +37,7 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
                 return playAnimation(event, "hold_mainhand:charged_crossbow", ILoopType.EDefaultLoopTypes.LOOP);
             }
             boolean playerIsFishing = entity instanceof Player player && player.fishing != null;
-            boolean maidIsFishing = TlmCompat.isMaidFishing(entity);
+            boolean maidIsFishing = TlmClientCompat.isMaidFishing(entity);
             if (playerIsFishing || maidIsFishing) {
                 return playAnimation(event, "hold_mainhand:fishing", ILoopType.EDefaultLoopTypes.LOOP);
             }

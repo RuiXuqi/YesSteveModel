@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.tacz;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.tacz.guns.api.event.common.GunFireEvent;
 import com.tacz.guns.api.event.common.GunMeleeEvent;
 import com.tacz.guns.api.event.common.GunReloadEvent;
@@ -15,7 +15,7 @@ public class TacEvent {
         shooter.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setTacGunAnimationNeedReload(true);
         });
-        TlmCompat.markTacGunAnimationNeedReload(shooter);
+        TlmClientCompat.markTacGunAnimationNeedReload(shooter);
     }
 
     @SubscribeEvent
@@ -24,7 +24,7 @@ public class TacEvent {
         shooter.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setTacGunAnimationNeedReload(true);
         });
-        TlmCompat.markTacGunAnimationNeedReload(shooter);
+        TlmClientCompat.markTacGunAnimationNeedReload(shooter);
     }
 
     @SubscribeEvent
@@ -33,6 +33,6 @@ public class TacEvent {
         shooter.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setTacGunAnimationNeedReload(true);
         });
-        TlmCompat.markTacGunAnimationNeedReload(shooter);
+        TlmClientCompat.markTacGunAnimationNeedReload(shooter);
     }
 }

@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.sound;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.mojang.blaze3d.audio.SoundBuffer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
@@ -20,8 +20,8 @@ public class CustomSoundInstance extends MinecraftSoundInstance {
 
     @Nullable
     public SoundBuffer getSoundBuffer() {
-        if (TlmCompat.isMaid(entity)) {
-            return TlmCompat.getSoundBuffer(entity, soundPath);
+        if (TlmClientCompat.isMaid(entity)) {
+            return TlmClientCompat.getSoundBuffer(entity, soundPath);
         }
         return entity.getCapability(PlayerGeoCapabilityProvider.CAP)
                 .map(cap -> ClientModelManager.getModel(cap.getModelId())

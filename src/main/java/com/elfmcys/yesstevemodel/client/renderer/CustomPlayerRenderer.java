@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.renderer;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
@@ -118,7 +118,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
         super.setupRotations(player, poseStack, pAgeInTicks, pRotationYaw, pPartialTicks);
         // 如果是坐在女仆的实体上，则需要偏移回去（哎，屎山代码+1006）
         Entity vehicle = player.getVehicle();
-        if (TlmCompat.isChair(vehicle) || TlmCompat.isSit(vehicle)) {
+        if (TlmClientCompat.isChair(vehicle) || TlmClientCompat.isSit(vehicle)) {
             poseStack.translate(0, 0.5, 0);
         }
     }

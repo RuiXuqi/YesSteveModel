@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
+package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.TLMBinding;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.GeoMaidAnimatedRegister;
@@ -23,7 +23,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
-public class TlmCompat {
+public class TlmClientCompat {
     private static final String MOD_ID = "touhou_little_maid";
     private static final VersionRange VERSION_RANGE;
     private static boolean INSTALLED = false;
@@ -46,9 +46,9 @@ public class TlmCompat {
                 INSTALLED = !FMLEnvironment.production;
             }
             if (INSTALLED) {
-                TlmCompatInner.registerEvent();
+                TlmClientCompatInner.registerEvent();
                 // 使用事件
-                TlmCompatInner.registerYsmEntityMaidRenderer();
+                TlmClientCompatInner.registerYsmEntityMaidRenderer();
                 // 注册主动画
                 GeoMaidAnimatedRegister.registerAnimationState();
             }
@@ -60,27 +60,27 @@ public class TlmCompat {
     }
 
     public static boolean isMaid(Entity entity) {
-        return isInstalled() && TlmCompatInner.isMaid(entity);
+        return isInstalled() && TlmClientCompatInner.isMaid(entity);
     }
 
     public static boolean isChair(Entity entity) {
-        return isInstalled() && TlmCompatInner.isChair(entity);
+        return isInstalled() && TlmClientCompatInner.isChair(entity);
     }
 
     public static boolean isSit(Entity entity) {
-        return isInstalled() && TlmCompatInner.isSit(entity);
+        return isInstalled() && TlmClientCompatInner.isSit(entity);
     }
 
     public static boolean isGohei(Item item) {
-        return isInstalled() && TlmCompatInner.isGohei(item);
+        return isInstalled() && TlmClientCompatInner.isGohei(item);
     }
 
     public static String getChairId(Entity entity) {
-        return isInstalled() ? TlmCompatInner.getChairId(entity) : StringUtils.EMPTY;
+        return isInstalled() ? TlmClientCompatInner.getChairId(entity) : StringUtils.EMPTY;
     }
 
     public static boolean isMaidFishing(LivingEntity entity) {
-        return isInstalled() && TlmCompatInner.maidIsFishing(entity);
+        return isInstalled() && TlmClientCompatInner.maidIsFishing(entity);
     }
 
     public static void addBinding(TLMBinding binding) {
@@ -123,13 +123,13 @@ public class TlmCompat {
 
     public static void markTacGunAnimationNeedReload(LivingEntity entity) {
         if (isInstalled()) {
-            TlmCompatInner.markTacGunAnimationNeedReload(entity);
+            TlmClientCompatInner.markTacGunAnimationNeedReload(entity);
         }
     }
 
     public static SoundBuffer getSoundBuffer(Entity maid, String soundPath) {
         if (isInstalled()) {
-            return TlmCompatInner.getSoundBuffer(maid, soundPath);
+            return TlmClientCompatInner.getSoundBuffer(maid, soundPath);
         }
         return null;
     }

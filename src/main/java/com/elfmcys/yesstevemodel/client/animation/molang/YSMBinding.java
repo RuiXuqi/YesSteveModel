@@ -6,7 +6,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.variable.FirstPersonMod
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.LadderFacingVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.MoveInputVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.TextureNameVariable;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
@@ -152,7 +152,7 @@ public class YSMBinding extends ContextBinding {
         if (entity instanceof Player player) {
             return player.fishing != null;
         }
-        return TlmCompat.isMaidFishing(entity);
+        return TlmClientCompat.isMaidFishing(entity);
     }
 
     private static boolean isChargedCrossbow(IContext<LivingEntity> ctx, InteractionHand hand) {

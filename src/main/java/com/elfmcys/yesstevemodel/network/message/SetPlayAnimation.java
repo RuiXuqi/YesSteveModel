@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmNetwork;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
@@ -66,8 +66,8 @@ public class SetPlayAnimation {
     private static void handleCapability(SetPlayAnimation message, ServerPlayer sender) {
         if (message.entityId != -1) {
             Entity entity = sender.serverLevel().getEntity(message.entityId);
-            if (TlmNetwork.isMaid(entity)) {
-                TlmNetwork.setRouletteAnim(entity, message.classifyId, message.extraAnimationIndex);
+            if (TlmCommonCompat.isMaid(entity)) {
+                TlmCommonCompat.setRouletteAnim(entity, message.classifyId, message.extraAnimationIndex);
             }
             return;
         }

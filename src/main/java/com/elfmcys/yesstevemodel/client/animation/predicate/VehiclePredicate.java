@@ -5,7 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalChair;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalVehicle;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
@@ -53,7 +53,7 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
         Optional<ClientModel> clientModel = ClientModelManager.getModel(id);
 
         // 优先判断 chair
-        if (TlmCompat.isInstalled()) {
+        if (TlmClientCompat.isInstalled()) {
             ConditionalChair conditionalChair = clientModel.map(model -> model.conditionManager().getChair()).orElse(null);
             if (conditionalChair != null) {
                 String name = conditionalChair.doTest(entity);
@@ -85,13 +85,13 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
 
         // carry on 兼容
         boolean playerIsOnPrincess = entity instanceof Player player && CarryOnCompat.isCarryOnPrincess(player);
-        boolean maidIsOnPrincess = TlmCompat.isMaid(entity) && entity.getVehicle() instanceof Player;
+        boolean maidIsOnPrincess = TlmClientCompat.isMaid(entity) && entity.getVehicle() instanceof Player;
         if (playerIsOnPrincess || maidIsOnPrincess) {
             return playAnimation(event, "carryon:princess", ILoopType.EDefaultLoopTypes.LOOP);
         }
 
         // 安装女仆模组后，那么需要兼容几个女仆的内容
-        PlayState playState = TlmCompat.getMaidVehicleAnimation(event, entity, vehicle);
+        PlayState playState = TlmClientCompat.getMaidVehicleAnimation(event, entity, vehicle);
         if (playState != null) {
             return playState;
         }

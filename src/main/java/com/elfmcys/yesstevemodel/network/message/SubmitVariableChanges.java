@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmNetwork;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ReferenceFloatPair;
 import net.minecraft.network.FriendlyByteBuf;
@@ -68,8 +68,8 @@ public class SubmitVariableChanges {
         }
         if (message.entityId != -1) {
             Entity entity = sender.serverLevel().getEntity(message.entityId);
-            if (TlmNetwork.isMaid(entity)) {
-                TlmNetwork.handleVariableChanges(entity, message);
+            if (TlmCommonCompat.isMaid(entity)) {
+                TlmCommonCompat.handleVariableChanges(entity, message);
             }
             return;
         }

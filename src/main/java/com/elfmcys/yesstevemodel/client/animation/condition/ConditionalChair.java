@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +27,7 @@ public class ConditionalChair {
 
     public String doTest(Entity entity) {
         Entity vehicle = entity.getVehicle();
-        if (TlmCompat.isChair(vehicle)) {
+        if (TlmClientCompat.isChair(vehicle)) {
             return doIdTest(vehicle);
         }
         return EMPTY;
@@ -37,7 +37,7 @@ public class ConditionalChair {
         if (idTest.isEmpty()) {
             return EMPTY;
         }
-        String modelId = TlmCompat.getChairId(entity);
+        String modelId = TlmClientCompat.getChairId(entity);
         if (idTest.contains(modelId)) {
             return idPre + modelId;
         }

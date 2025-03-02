@@ -11,7 +11,7 @@ import net.minecraftforge.fml.ModList;
 /**
  * 这个类是客户端和服务端都可能用到的类
  */
-public class TlmNetwork {
+public class TlmCommonCompat {
     private static final String MOD_ID = "touhou_little_maid";
 
     public static boolean isInstalled() {
@@ -26,27 +26,27 @@ public class TlmNetwork {
 
     public static boolean isMaid(Entity entity) {
         if (isInstalled()) {
-            return TlmNetworkInner.isMaid(entity);
+            return TlmCommonCompatInner.isMaid(entity);
         }
         return false;
     }
 
     public static void setRouletteAnim(Entity entity, String classifyId, int extraAnimIndex) {
         if (isInstalled()) {
-            TlmNetworkInner.setRouletteAnima(entity, classifyId, extraAnimIndex);
+            TlmCommonCompatInner.setRouletteAnima(entity, classifyId, extraAnimIndex);
         }
     }
 
     public static void handleVariableChanges(Entity entity, SubmitVariableChanges message) {
         if (isInstalled()) {
-            TlmNetworkInner.handleVariableChanges(entity, message);
+            TlmCommonCompatInner.handleVariableChanges(entity, message);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     public static void handleExecuteMolang(Entity entity, String molangExpression) {
         if (isInstalled()) {
-            TlmNetworkInner.handleExecuteMolang(entity, molangExpression);
+            TlmCommonCompatInner.handleExecuteMolang(entity, molangExpression);
         }
     }
 }
