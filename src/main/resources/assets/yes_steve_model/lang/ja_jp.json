@@ -8,7 +8,7 @@
   "gui.yes_steve_model.star_models": "お気に入りモデル",
   "gui.yes_steve_model.config": "設定GUIを開く",
   "gui.yes_steve_model.download": "ダウンロードGUIを開く",
-  "gui.yes_steve_model.roulette.path": "Path: root%s",
+  "gui.yes_steve_model.roulette.path": "パス: ルート%s",
   "gui.yes_steve_model.roulette.too_long": "ルーレットの経路が長すぎます",
   "gui.yes_steve_model.roulette.lock_on": "ロック: ON",
   "gui.yes_steve_model.roulette.lock_off": "ロック: OFF",
