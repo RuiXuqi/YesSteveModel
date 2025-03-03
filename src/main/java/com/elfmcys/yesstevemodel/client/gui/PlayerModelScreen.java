@@ -77,6 +77,10 @@ public class PlayerModelScreen extends Screen {
         return new PlayerTextureScreen(parent, modelId, model);
     }
 
+    protected ModelInfoScreen getModelInfoScreen(PlayerModelScreen parent, ClientModel model) {
+        return new ModelInfoScreen(parent, model);
+    }
+
     private void calculateModelList() {
         models = Maps.newHashMap();
         if (this.category == Category.ALL) {
@@ -159,7 +163,7 @@ public class PlayerModelScreen extends Screen {
                 player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                     ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
                         if (model.modelInfo().metadata() != null) {
-                            Minecraft.getInstance().setScreen(new ModelInfoScreen(this, model));
+                            Minecraft.getInstance().setScreen(getModelInfoScreen(this, model));
                         }
                     });
                 });

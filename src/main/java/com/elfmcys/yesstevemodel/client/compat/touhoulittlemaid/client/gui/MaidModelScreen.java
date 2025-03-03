@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
+import com.elfmcys.yesstevemodel.client.gui.ModelInfoScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerTextureScreen;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
@@ -38,6 +39,14 @@ public class MaidModelScreen extends PlayerModelScreen {
                 ClientModelManager.getModel(cap.getModelId()).get()).orElse(null);
         model = Objects.requireNonNullElse(maidModel, model);
         return new MaidTextureScreen(parent, modelId, model, maid);
+    }
+
+    @Override
+    protected ModelInfoScreen getModelInfoScreen(PlayerModelScreen parent, ClientModel model) {
+        ClientModel maidModel = this.maid.getCapability(YsmMaidCapabilityProvider.CAP).map(cap ->
+                ClientModelManager.getModel(cap.getModelId()).get()).orElse(null);
+        model = Objects.requireNonNullElse(maidModel, model);
+        return new ModelInfoScreen(parent, model);
     }
 
     @Override
