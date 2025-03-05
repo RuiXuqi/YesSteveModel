@@ -16,6 +16,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -89,7 +90,11 @@ public class ParticleSpawner {
             // 单个粒子准确在指定位置生成
             Vec3 offset = new Vec3(pos.x(), pos.y(), pos.z());
             if (!absPos) {
-                offset = offset.yRot(-entity.getYRot() * Mth.DEG_TO_RAD);
+                if (entity instanceof Player player) {
+                    offset = offset.yRot(-player.yBodyRot * Mth.DEG_TO_RAD);
+                } else {
+                    offset = offset.yRot(-entity.getYRot() * Mth.DEG_TO_RAD);
+                }
             }
 
             double xPos = entity.getX() + offset.x();
