@@ -39,7 +39,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private String stateName;
 
     private final ReferenceArrayList<AnimationPlayerHolder> animationPlayers = new ReferenceArrayList<>(8);
-    private final ReferenceArrayList<BlendBoneAnimationQueue> blendAnimationQueues = new ReferenceArrayList<>(64);
+    private ReferenceArrayList<BlendBoneAnimationQueue> blendAnimationQueues = new ReferenceArrayList<>(64);
     private int activeAnimationPlayerSize = 0;
 
     /**
@@ -144,7 +144,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.data = null;
         this.state = null;
         this.activeAnimationPlayerSize = 0;
-        this.blendAnimationQueues.clear();
+        // new 对象比 clear 更加高效
+        this.blendAnimationQueues = new ReferenceArrayList<>();
         for (var holder : this.animationPlayers) {
             holder.markAsDirty();
         }

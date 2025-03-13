@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.animation.molang;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.ArmorCheck;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.HandItemCheck;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.RideCheck;
+import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
@@ -57,6 +58,7 @@ public class CtrlBinding extends ContextBinding {
         SwemCompat.addBinding(this);
         ParCoolCompat.addBinding(this);
         SlashBladeCompat.addBinding(this);
+        SophisticatedCompat.addBinding(this);
     }
 
     private static boolean isMoving(LivingEntity entity) {

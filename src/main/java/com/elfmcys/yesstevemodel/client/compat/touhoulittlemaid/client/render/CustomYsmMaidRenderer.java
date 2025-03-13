@@ -29,7 +29,7 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
     }
 
     public CustomYsmMaidEntity getAnimatableEntity(EntityMaid maid) {
-        return maid.getCapability(YsmMaidCapabilityProvider.CAP).map(e -> e).orElse(new CustomYsmMaidEntity(maid, true));
+        return maid.getCapability(YsmMaidCapabilityProvider.CAP).map(e -> e).orElseGet(() -> new CustomYsmMaidEntity(maid, true));
     }
 
     @Override

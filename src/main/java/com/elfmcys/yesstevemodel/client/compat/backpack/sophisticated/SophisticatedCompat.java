@@ -1,5 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
+import com.elfmcys.yesstevemodel.client.compat.swem.SwemCtrlBinding;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import net.minecraftforge.fml.loading.LoadingModList;
 
@@ -16,5 +18,20 @@ public class SophisticatedCompat {
 
     public static boolean isInstalled() {
         return INSTALLED;
+    }
+
+    public static void addBinding(CtrlBinding binding) {
+        if (isInstalled()) {
+            SophisticatedCtrlBinding.addInnerBinding(binding);
+        } else {
+            addEmptyBinding(binding);
+        }
+    }
+
+    /**
+     * 没有安装此模组时，这些 molang 应该存在，否则会报错
+     */
+    private static void addEmptyBinding(CtrlBinding binding) {
+        binding.livingEntityVar("has_sophisticated_backpack", ctx -> false);
     }
 }
