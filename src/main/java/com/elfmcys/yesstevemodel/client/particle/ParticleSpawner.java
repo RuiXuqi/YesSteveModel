@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 @OnlyIn(Dist.CLIENT)
 public class ParticleSpawner {
     private static final Cache<String, ParticleOptions> PARTICLE_OPTIONS_CACHE = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.SECONDS).build();
-    private static final RandomSource RANDOM = RandomSource.createThreadSafe();
 
     public static boolean evalSpawnParticle(ExecutionContext<IContext<Entity>> context, Function.ArgumentCollection arguments, boolean absPos)
             throws ExecutionException, CommandSyntaxException {
@@ -72,13 +71,13 @@ public class ParticleSpawner {
         if (size > 9) {
             particleLifeTime = Math.max(arguments.getAsInt(context, 9), 1);
         }
-        spawnParticle(context.entity().entity(), id, pos, delta, particleSpeed, count, particleLifeTime, absPos);
+        spawnParticle(context.entity().entity(), id, pos, delta, particleSpeed, count, particleLifeTime, absPos, context.entity().random());
         return true;
     }
 
     @SuppressWarnings("all")
     private static void spawnParticle(Entity entity, String id, Vector3d pos, Vector3d delta,
-                                      double particleSpeed, int count, int particleLifeTime, boolean absPos)
+                                      double particleSpeed, int count, int particleLifeTime, boolean absPos, RandomSource random)
             throws CommandSyntaxException, ExecutionException {
         ParticleOptions particleOptions = PARTICLE_OPTIONS_CACHE.get(id, () ->
                 ParticleArgument.readParticle(new StringReader(id), BuiltInRegistries.PARTICLE_TYPE.asLookup()));
@@ -114,20 +113,20 @@ public class ParticleSpawner {
         } else {
             // 多个粒子就需要加点随机了
             for (int i = 0; i < count; ++i) {
-                createParticle(entity, pos, delta, particleSpeed, particleLifeTime, particleEngine, particleOptions, absPos);
+                createParticle(entity, pos, delta, particleSpeed, particleLifeTime, particleEngine, particleOptions, absPos, random);
             }
         }
     }
 
     private static void createParticle(Entity entity, Vector3d pos, Vector3d delta, double particleSpeed, int particleLifeTime,
-                                       ParticleEngine particleEngine, ParticleOptions particleOptions, boolean absPos) {
-        double offsetX = RANDOM.nextGaussian() * delta.x();
-        double offsetY = RANDOM.nextGaussian() * delta.y();
-        double offsetZ = RANDOM.nextGaussian() * delta.z();
+                                       ParticleEngine particleEngine, ParticleOptions particleOptions, boolean absPos, RandomSource random) {
+        double offsetX = random.nextGaussian() * delta.x();
+        double offsetY = random.nextGaussian() * delta.y();
+        double offsetZ = random.nextGaussian() * delta.z();
 
-        double xSpeed = RANDOM.nextGaussian() * particleSpeed;
-        double ySpeed = RANDOM.nextGaussian() * particleSpeed;
-        double zSpeed = RANDOM.nextGaussian() * particleSpeed;
+        double xSpeed = random.nextGaussian() * particleSpeed;
+        double ySpeed = random.nextGaussian() * particleSpeed;
+        double zSpeed = random.nextGaussian() * particleSpeed;
 
         Vec3 offset = new Vec3(pos.x() + offsetX, pos.y() + offsetY, pos.z() + offsetZ);
         if (!absPos) {
