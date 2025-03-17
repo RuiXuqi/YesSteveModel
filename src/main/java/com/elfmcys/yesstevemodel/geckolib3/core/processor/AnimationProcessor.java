@@ -22,11 +22,13 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.RandomSupport;
+import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -38,7 +40,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelRendererList = new ReferenceArrayList<>();
     private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelRendererMap = new Object2ReferenceOpenHashMap<>();
     private final VariableStorage animationStorage = new VariableStorage();
-    private final Random random = new Random();
+    private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
     private final DebugInfo debugInfo = new DebugInfo();
     private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
     private final ConcurrentMap<String, IPhysics> physicsValues = new ConcurrentHashMap<>();

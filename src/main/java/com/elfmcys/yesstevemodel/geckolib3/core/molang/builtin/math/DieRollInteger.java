@@ -4,8 +4,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.ContextFunction;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 
-import java.util.Random;
-
 public class DieRollInteger extends ContextFunction<Object> {
     @Override
     public boolean validateArgumentSize(int size) {
@@ -25,7 +23,7 @@ public class DieRollInteger extends ContextFunction<Object> {
             range -= min;
         }
         int total = 0;
-        Random rnd = context.entity().random();
+        var rnd = context.entity().random();
         while (i-- > 0) {
             total += min + rnd.nextInt(range);
         }

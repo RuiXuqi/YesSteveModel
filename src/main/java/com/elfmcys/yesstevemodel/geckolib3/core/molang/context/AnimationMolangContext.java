@@ -12,11 +12,10 @@ import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-
-import java.util.Random;
 
 public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     protected final TEntity entity;
@@ -25,7 +24,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     protected final EntityModelData data;
 
     protected AnimationContext animationContext;
-    protected Random random;
+    protected RandomSource random;
     protected VariableStorage storage;
     protected IForeignVariableStorage foreignStorage;
     private DebugSource debugSource;
@@ -37,7 +36,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
         this.data = data;
     }
 
-    private AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, Random random, VariableStorage storage) {
+    private AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, RandomSource random, VariableStorage storage) {
         this.entity = entity;
         this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
@@ -77,7 +76,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     }
 
     @Override
-    public Random random() {
+    public RandomSource random() {
         return random;
     }
 
@@ -142,7 +141,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
         this.foreignStorage = storage;
     }
 
-    public void setRandom(Random random) {
+    public void setRandom(RandomSource random) {
         this.random = random;
     }
 

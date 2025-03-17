@@ -9,9 +9,9 @@ import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.RandomSource;
 
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public interface IContext<TEntity> {
     TEntity entity();
@@ -30,7 +30,7 @@ public interface IContext<TEntity> {
     @Nullable
     AnimationContext animationContext();
 
-    Random random();
+    RandomSource random();
 
     <TChild> IContext<TChild> createChild(TChild child);
 
