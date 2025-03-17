@@ -105,10 +105,12 @@ public class ParticleSpawner {
             double ySpeed = particleSpeed * delta.y();
             double zSpeed = particleSpeed * delta.z();
 
-            Particle result = particleEngine.createParticle(particleOptions, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
-            if (result != null) {
-                result.setLifetime(particleLifeTime);
-            }
+            Minecraft.getInstance().execute(() -> {
+                Particle result = particleEngine.createParticle(particleOptions, xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
+                if (result != null) {
+                    result.setLifetime(particleLifeTime);
+                }
+            });
         } else {
             // 多个粒子就需要加点随机了
             for (int i = 0; i < count; ++i) {
@@ -136,9 +138,11 @@ public class ParticleSpawner {
         double posY = entity.getY() + offset.y();
         double posZ = entity.getZ() + offset.z();
 
-        Particle result = particleEngine.createParticle(particleOptions, posX, posY, posZ, xSpeed, ySpeed, zSpeed);
-        if (result != null) {
-            result.setLifetime(particleLifeTime);
-        }
+        Minecraft.getInstance().execute(() -> {
+            Particle result = particleEngine.createParticle(particleOptions, posX, posY, posZ, xSpeed, ySpeed, zSpeed);
+            if (result != null) {
+                result.setLifetime(particleLifeTime);
+            }
+        });
     }
 }
