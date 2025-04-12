@@ -42,5 +42,10 @@ public interface IContext<TEntity> {
 
     boolean isDebugEnabled();
 
+    /**
+     * 是否允许生成行为（粒子、音效、骨骼变色、骨骼发光、相机变换等）
+     */
+    boolean allowEmitting();
+
     void debugPrint(String message, Object... args);
 }

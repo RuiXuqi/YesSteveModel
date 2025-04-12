@@ -168,8 +168,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return animationProcessor.getDebugInfo();
     }
 
-    public void executeMolangExp(IValue value, @Nullable Consumer<String> resultConsumer) {
-        animationProcessor.execute(value, resultConsumer);
+    public void executeMolangExp(IValue value, boolean allowEmitting, @Nullable Consumer<String> resultConsumer) {
+        animationProcessor.execute(value, allowEmitting, resultConsumer);
     }
 
     public IForeignVariableStorage getPublicVariableStorage() {

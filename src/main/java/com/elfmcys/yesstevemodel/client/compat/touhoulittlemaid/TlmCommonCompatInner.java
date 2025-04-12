@@ -34,7 +34,7 @@ public class TlmCommonCompatInner {
         maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
             try {
                 IValue value = CustomMolangParser.parseSingleExpressionUnsafe(molangExpression);
-                cap.executeMolangExp(value, null);
+                cap.executeMolangExp(value, true, null);
             } catch (ParseException e) {
                 YesSteveModel.LOGGER.error("Failed to execute molang " + molangExpression, e);
             }

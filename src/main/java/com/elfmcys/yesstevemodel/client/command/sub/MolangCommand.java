@@ -135,7 +135,7 @@ public class MolangCommand {
         }
 
         Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.executeMolangExp(value, result -> {
+            cap.executeMolangExp(value, true, result -> {
                 Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.result", result));
             });
         });

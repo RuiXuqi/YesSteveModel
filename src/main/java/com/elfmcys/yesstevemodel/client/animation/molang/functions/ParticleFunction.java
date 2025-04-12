@@ -18,6 +18,9 @@ public class ParticleFunction extends EntityFunction {
 
     @Override
     protected Object eval(ExecutionContext<IContext<Entity>> context, ArgumentCollection arguments) {
+        if (!context.entity().allowEmitting()) {
+            return null;
+        }
         try {
             return ParticleSpawner.evalSpawnParticle(context, arguments, this.absPos);
         } catch (ExecutionException | CommandSyntaxException e) {

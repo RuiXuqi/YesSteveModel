@@ -368,7 +368,7 @@ public class AnimationPlayer {
 
         // 计划外更新不执行指令关键帧
         if (instructionKeyFrameExecutor != null && scheduledUpdate) {
-            instructionKeyFrameExecutor.executeTo(evaluator, tick);
+            instructionKeyFrameExecutor.executeTo(evaluator, tick, dryRun);
         }
 
         if (this.transition.length() == 0 && shouldResetTick && this.animationState == AnimationState.TRANSITIONING) {

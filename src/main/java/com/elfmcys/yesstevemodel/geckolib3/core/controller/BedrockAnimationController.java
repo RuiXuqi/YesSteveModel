@@ -153,6 +153,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
     private void updateState(GeoAnimationControllerState state, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
         assert this.modelRendererList != null;
+
+        evaluator.entity().setAllowEmitting(true);
         if (this.state != null) {
             for (var exp : this.state.onExit()) {
                 exp.evalAsDouble(evaluator);
@@ -161,6 +163,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         for (var exp : state.onEntry()) {
             exp.evalAsDouble(evaluator);
         }
+        evaluator.entity().setAllowEmitting(false);
         this.state = state;
 
         // 扩容动画播放器列表

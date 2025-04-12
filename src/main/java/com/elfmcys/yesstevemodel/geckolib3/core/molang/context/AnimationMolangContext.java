@@ -28,6 +28,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     protected VariableStorage storage;
     protected IForeignVariableStorage foreignStorage;
     private DebugSource debugSource;
+    private boolean allowEmitting;
 
     public AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data) {
         this.entity = entity;
@@ -123,6 +124,15 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     @Override
     public boolean isDebugEnabled() {
         return debugSource != null;
+    }
+
+    @Override
+    public boolean allowEmitting() {
+        return allowEmitting;
+    }
+
+    public void setAllowEmitting(boolean value) {
+        allowEmitting = value;
     }
 
     @Override

@@ -16,7 +16,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
-import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.Util;
@@ -42,7 +41,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private final VariableStorage animationStorage = new VariableStorage();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
     private final DebugInfo debugInfo = new DebugInfo();
-    private final ConcurrentLinkedQueue<Pair<IValue, Consumer<String>>> pendingValues = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<MolangExecutionTask> pendingValues = new ConcurrentLinkedQueue<>();
     private final ConcurrentMap<String, IPhysics> physicsValues = new ConcurrentHashMap<>();
     private final RateLimiter rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
     private final T animatable;
@@ -244,10 +243,11 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
 
         debugInfo.evaluatePost(evaluator);
         while (!pendingValues.isEmpty()) {
-            Pair<IValue, Consumer<String>> pair = pendingValues.poll();
+            var pair = pendingValues.poll();
             String result;
             try {
-                var ret = pair.getFirst().evalUnsafe(evaluator);
+                evaluator.entity().setAllowEmitting(pair.allowEmitting());
+                var ret = pair.exp().evalUnsafe(evaluator);
                 if (ret == null) {
                     result = "null";
                 } else if (ret instanceof String) {
@@ -257,9 +257,11 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
                 }
             } catch (Exception e) {
                 result = "Error: " + e.getMessage();
+            } finally {
+                evaluator.entity().setAllowEmitting(false);
             }
-            if (pair.getSecond() != null) {
-                pair.getSecond().accept(result);
+            if (pair.resultCallback() != null) {
+                pair.resultCallback().accept(result);
             }
         }
     }
@@ -268,11 +270,13 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         return debugInfo;
     }
 
-    public void execute(IValue value, @Nullable Consumer<String> resultConsumer) {
-        pendingValues.add(Pair.of(value, resultConsumer));
+    public void execute(IValue value, boolean allowEmitting, @Nullable Consumer<String> resultConsumer) {
+        pendingValues.add(new MolangExecutionTask(value, allowEmitting, resultConsumer));
     }
 
     public IForeignVariableStorage getPublicVariableStorage() {
         return this.animationStorage;
     }
+
+    private record MolangExecutionTask(IValue exp, boolean allowEmitting, Consumer<String> resultCallback) {}
 }

@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.event;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.EventKeyFrame;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 
@@ -20,15 +21,17 @@ public class InstructionKeyFrameExecutor {
         }
     }
 
-    public void executeTo(ExpressionEvaluator<?> evaluator, double currentTick) {
+    public void executeTo(ExpressionEvaluator<AnimationMolangContext<?>> evaluator, double currentTick, boolean dryRun) {
+        evaluator.entity().setAllowEmitting(!dryRun);
         while (!reachEnd()) {
             EventKeyFrame<IValue[]> keyFrame = list.get(nextIndex);
             if (keyFrame.getStartTick() > currentTick) {
-                return;
+                break;
             }
             evalValues(evaluator, keyFrame.getEventData());
             nextIndex++;
         }
+        evaluator.entity().setAllowEmitting(false);
     }
 
     public void executeRemaining(ExpressionEvaluator<?> evaluator) {
