@@ -249,6 +249,25 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
+    public Object visitArray(ArrayAccessExpression expression) {
+        Object value = expression.array().visit(this);
+        Object indexObj = expression.index().visit(this);
+        if (indexObj instanceof Number) {
+            int index = ((Number) indexObj).intValue();
+            if (value instanceof Array) {
+                return ((Array) value).getElement(this, index);
+            }
+            if (value instanceof List<?>) {
+                List<?> list = (List<?>) value;
+                if (list.size() > index) {
+                    return list.get(index);
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Object visitBinary(@NotNull BinaryExpression expression) {
         return BINARY_EVALUATORS[expression.op().index()].eval(
                 this,

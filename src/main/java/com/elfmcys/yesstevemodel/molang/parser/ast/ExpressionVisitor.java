@@ -171,4 +171,7 @@ public interface ExpressionVisitor<R> {
         return visit(expression);
     }
 
+    default R visitArray(ArrayAccessExpression expression) {
+        return visit(expression);
+    }
 }

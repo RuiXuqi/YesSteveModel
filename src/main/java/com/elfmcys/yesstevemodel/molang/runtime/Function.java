@@ -30,6 +30,7 @@ import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ValueConversions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -61,7 +62,7 @@ public interface Function {
 
     ArgumentCollection EMPTY_ARGUMENT = new ArgumentCollection(new ArrayList<>());
 
-    class ArgumentCollection {
+    class ArgumentCollection implements Array {
         private final List<Expression> arguments;
 
         public ArgumentCollection(List<Expression> arguments) {
@@ -98,6 +99,36 @@ public interface Function {
 
         public Expression getExpression(final int index) {
             return arguments.get(index);
+        }
+
+        @Override
+        public @Nullable Object getElement(@NotNull ExecutionContext<?> context, int index) {
+            return getValue(context, index);
+        }
+
+        @Override
+        public Iterator<Object> iterator(@NotNull ExecutionContext<?> context) {
+            return new ArgumentIterator(context);
+        }
+
+        private class ArgumentIterator implements Iterator<Object> {
+            private final ExecutionContext<?> ctx;
+            private int index;
+
+            private ArgumentIterator(ExecutionContext<?> context) {
+                ctx = context;
+                index = 0;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return index < arguments.size();
+            }
+
+            @Override
+            public Object next() {
+                return ctx.eval(arguments.get(index++));
+            }
         }
     }
 }

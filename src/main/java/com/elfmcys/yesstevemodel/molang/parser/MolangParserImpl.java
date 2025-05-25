@@ -267,6 +267,16 @@ final class MolangParserImpl implements MolangParser {
             }
         }
 
+        if (current.kind() == TokenKind.LBRACKET) {
+            current = lexer.next();
+            Expression index = parseCompoundExpression(lexer, 0);
+            if (current.kind() == TokenKind.RBRACKET) {
+                lexer.next();
+                return new ArrayAccessExpression(left, index);
+            }
+            throw new ParseException("Expect a ']' after array index", lexer.cursor());
+        }
+
         // check for binary expressions
         final BinaryExpression.Op op;
 

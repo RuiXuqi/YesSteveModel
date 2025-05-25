@@ -27,8 +27,9 @@ package com.elfmcys.yesstevemodel.molang.runtime.binding;
 import com.elfmcys.yesstevemodel.molang.parser.ast.*;
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
+import com.elfmcys.yesstevemodel.molang.runtime.ScopedIterable;
 
-import java.util.Arrays;
+import java.util.Iterator;
 
 /**
  * Class holding some default bindings and
@@ -87,13 +88,12 @@ public final class StandardBindings {
         final AssignableVariable variableAccess = ((AssignableVariableExpression) variableExpr).target();
 
         final Object array = args.getValue(ctx, 1);
-        final Iterable<?> arrayIterable;
-        if (array instanceof Object[]) {
-            arrayIterable = Arrays.asList((Object[]) array);
+        final Iterator<?> arrayIterator;
+        if (array instanceof ScopedIterable) {
+            arrayIterator = ((ScopedIterable) array).iterator(ctx);
         } else if (array instanceof Iterable<?>) {
-            arrayIterable = (Iterable<?>) array;
+            arrayIterator = ((Iterable<?>) array).iterator();
         } else {
-            // second argument must be an array or iterable
             return null;
         }
 
@@ -102,7 +102,8 @@ public final class StandardBindings {
         if (expr instanceof ExecutionScopeExpression) {
             Function callable = ((ExecutionScopeExpression) expr).buildFunction((ExpressionVisitor<?>) ctx);
             if (callable != null) {
-                for (final Object val : arrayIterable) {
+                while (arrayIterator.hasNext()) {
+                    Object val = arrayIterator.next();
                     // set 'val' as current value
                     // eval (objectExpr.propertyName = val)
                     variableAccess.assign(ctx, val);
