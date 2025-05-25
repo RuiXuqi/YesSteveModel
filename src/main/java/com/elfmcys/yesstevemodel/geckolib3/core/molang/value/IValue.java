@@ -16,7 +16,7 @@ public interface IValue {
                 return value;
             }
         } catch (Exception e) {
-            YesSteveModel.LOGGER.error("Failed to evaluate molang value.", e);
+            YesSteveModel.LOGGER.debug("Failed to evaluate molang expression.", e);
         }
         return 0;
     }
@@ -29,7 +29,7 @@ public interface IValue {
             Object result = evalUnsafe(evaluator);
             return ValueConversions.asBoolean(result);
         } catch (Exception e) {
-            YesSteveModel.LOGGER.error("Failed to evaluate molang value.", e);
+            YesSteveModel.LOGGER.debug("Failed to evaluate molang expression.", e);
         }
         return false;
     }
