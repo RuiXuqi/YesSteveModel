@@ -69,6 +69,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
 
     private boolean fireInitEvent = false;
     private IValue updateWrappedHandler = null;
+    private List<IValue> syncHandler = null;
 
     /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
@@ -404,6 +405,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         if (updateHandlers != null) {
             updateWrappedHandler = MolangEventWrapper.wrap(updateHandlers);
         }
+        syncHandler = getEventHandler(MolangEventWrapper.SYNC);
     }
 
     @Override
@@ -418,6 +420,12 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         }
         if (updateWrappedHandler != null) {
             executeMolangExp(updateWrappedHandler, true, true, null);
+        }
+    }
+
+    public void molangSync(float[] args) {
+        if (syncHandler != null) {
+            executeMolangExp(MolangEventWrapper.wrap(syncHandler, args), true, false, null);
         }
     }
 
