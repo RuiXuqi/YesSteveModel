@@ -14,6 +14,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
@@ -35,6 +37,8 @@ import java.util.function.Consumer;
 public abstract class AnimatableEntity<TEntity extends Entity> {
     private final AnimationData manager = new AnimationData();
     private final AnimationProcessor animationProcessor;
+    private final RateLimiter rateLimiter;
+
     protected TEntity entity;
     private GeoModelState currentModel;
 
@@ -48,6 +52,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected AnimatableEntity(TEntity entity, boolean asyncUpdate) {
         this.entity = entity;
         this.animationProcessor = new AnimationProcessor(this);
+        this.rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
         if (asyncUpdate) {
             AnimationParallelTicker.register(this);
         }
@@ -84,6 +89,16 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     @Nullable
     public abstract Animation getAnimation(String name);
+
+    @Nullable
+    public IValue getUserFunction(int name) {
+        return null;
+    }
+
+    @Nullable
+    public List<IValue> getEventHandler(int name) {
+        return null;
+    }
 
     @Nullable
     public GeoAnimationController getAnimationControllerData(String animationControllerName) {
@@ -128,9 +143,13 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         }
 
         animationEvent.animationTick = this.seekTime;
-        preAnimationSetup(this.seekTime);
         if (!getAnimationProcessor().isModelRendererEmpty()) {
-            return getAnimationProcessor().tickAnimation(this.seekTime, forceUpdate, animationEvent, ctx);
+            var shouldUpdate = rateLimiter.request((float) (seekTime / 20));
+            if (forceUpdate || shouldUpdate) {
+                preAnimationSetup(this.seekTime);
+                getAnimationProcessor().tickAnimation(this.seekTime, shouldUpdate, animationEvent, ctx);
+                return true;
+            }
         }
         return false;
     }
@@ -148,12 +167,16 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         if (this.currentModel == null || model != this.currentModel.model()) {
             this.currentModel = new GeoModelState(model);
             this.animationProcessor.registerModelRenderer(currentModel.boneMap());
+            setupModel(this.currentModel);
         }
         return true;
     }
 
     public GeoModelState getCurrentModel() {
         return currentModel;
+    }
+
+    protected void setupModel(GeoModelState model) {
     }
 
     public double getCurrentTick() {
@@ -168,8 +191,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return animationProcessor.getDebugInfo();
     }
 
-    public void executeMolangExp(IValue value, boolean allowEmitting, @Nullable Consumer<String> resultConsumer) {
-        animationProcessor.execute(value, allowEmitting, resultConsumer);
+    public void executeMolangExp(IValue value, boolean allowEmitting, boolean pre, @Nullable Consumer<String> resultConsumer) {
+        animationProcessor.enqueueMolangTask(value, allowEmitting, pre, resultConsumer);
     }
 
     public IForeignVariableStorage getPublicVariableStorage() {

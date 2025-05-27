@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.info.type.ProjectileType;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.ARROW_MAIN_CONTROLLER;
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.ARROW_PARALLEL_CONTROLLER;
@@ -64,6 +66,11 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
     public Animation getAnimation(String name) {
         return ClientModelManager.getProjectileModel(modelId, ProjectileType.ARROW).map(model -> model.animations().get(name))
                 .orElse(null);
+    }
+
+    @Override
+    public @Nullable IValue getUserFunction(int name) {
+        return ClientModelManager.getUserFunction(modelId, name);
     }
 
     @Override

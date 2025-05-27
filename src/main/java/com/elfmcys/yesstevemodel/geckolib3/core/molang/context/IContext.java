@@ -5,13 +5,16 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.ITempVariableStorage;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.yesstevemodel.molang.runtime.Array;
+import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.RandomSource;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface IContext<TEntity> {
     TEntity entity();
@@ -39,6 +42,13 @@ public interface IContext<TEntity> {
     IScopedVariableStorage scopedStorage();
 
     IForeignVariableStorage foreignStorage();
+
+    @Nullable
+    IValue getUserFunction(int name);
+
+    Object callUserFunction(ExecutionContext<?> context, IValue value, Array args);
+
+    Array userFunctionArgs();
 
     boolean isDebugEnabled();
 

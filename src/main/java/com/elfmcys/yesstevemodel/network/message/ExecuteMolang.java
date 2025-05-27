@@ -61,7 +61,7 @@ public class ExecuteMolang {
                 player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                     try {
                         IValue value = CustomMolangParser.parseSingleExpressionUnsafe(message.molangExpression);
-                        cap.executeMolangExp(value, true, null);
+                        cap.executeMolangExp(value, true, false, null);
                     } catch (ParseException e) {
                         YesSteveModel.LOGGER.error("Failed to execute molang " + message.molangExpression, e);
                     }

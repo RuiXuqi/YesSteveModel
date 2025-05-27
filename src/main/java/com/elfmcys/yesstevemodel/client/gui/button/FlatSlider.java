@@ -34,7 +34,7 @@ public class FlatSlider extends ForgeSlider {
         try {
             String molangExpress = molang + "=" + getValue();
             IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molangExpress);
-            this.animatableEntity.executeMolangExp(parsed, true, null);
+            this.animatableEntity.executeMolangExp(parsed, true, false, null);
             // 同步到周围的玩家
             NetworkHandler.sendToServer(new SubmitRouletteConfig(molangExpress, this.animatableEntity.getEntity().getId()));
         } catch (ParseException exception) {

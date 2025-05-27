@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ScopedObject;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -10,7 +11,7 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ForeignVariableBinding implements ObjectBinding {
+public class ForeignVariableBinding implements ObjectBinding, ScopedObject {
     private final Int2ReferenceOpenHashMap<ForeignVariable> variableMap = new Int2ReferenceOpenHashMap<>();
 
     @Override
@@ -18,7 +19,7 @@ public class ForeignVariableBinding implements ObjectBinding {
         return variableMap.computeIfAbsent(StringPool.computeIfAbsent(name), ForeignVariable::new);
     }
 
-    public void reset() {
+    public void resetScoped() {
         variableMap.clear();
     }
 

@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.MathBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.QueryBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
-import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import com.google.common.collect.Maps;
 
 import java.util.HashMap;
@@ -15,7 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 // Native Access
 public class CustomMolangParser {
     private static final ConcurrentLinkedQueue<MolangParser> PARSER_POOL = new ConcurrentLinkedQueue<>();
-    private static final Map<String, ObjectBinding> EXTRA_BINDING = new HashMap<>();
+    private static final Map<String, Object> EXTRA_BINDING = new HashMap<>();
 
     // Native Access
     public static MolangParser rentInstance() {
@@ -36,24 +35,29 @@ public class CustomMolangParser {
     public static IValue parseSingleExpressionUnsafe(String expression) throws ParseException {
         MolangParser parser = rentInstance();
         try {
-            return parser.parseExpressionUnsafe(expression);
+            return parser.parseExpressionUnsafe(expression, false);
         } finally {
             returnInstance(parser);
         }
     }
 
     private static MolangParser createMolangParser() {
-        EXTRA_BINDING.put("ysm", YSMBinding.INSTANCE);
-        EXTRA_BINDING.put("ctrl", CtrlBinding.INSTANCE);
-        EXTRA_BINDING.put("tlm", TLMBinding.INSTANCE);
-        return new MolangParser(EXTRA_BINDING);
+        if (EXTRA_BINDING.isEmpty()) {
+            EXTRA_BINDING.put("ysm", YSMBinding.INSTANCE);
+            EXTRA_BINDING.put("ctrl", CtrlBinding.INSTANCE);
+            EXTRA_BINDING.put("tlm", TLMBinding.INSTANCE);
+            EXTRA_BINDING.put("args", UserFunctionArgument.INSTANCE);
+        }
+        var binding = new HashMap<>(EXTRA_BINDING);
+        binding.put("fn", new UserFunctionBinding());     // Scoped 对象不能单例
+        return new MolangParser(binding);
     }
 
     /**
      * 给客户端指令补全用的
      */
-    public static Map<String, ObjectBinding> getAllBinding() {
-        Map<String, ObjectBinding> output = Maps.newHashMap(EXTRA_BINDING);
+    public static Map<String, Object> getAllBinding() {
+        Map<String, Object> output = Maps.newHashMap(EXTRA_BINDING);
         output.put("math", MathBinding.INSTANCE);
         output.put("q", QueryBinding.INSTANCE);
         return output;

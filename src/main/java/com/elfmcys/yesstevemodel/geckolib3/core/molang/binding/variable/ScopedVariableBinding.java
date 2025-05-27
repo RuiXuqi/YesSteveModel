@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ScopedObject;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
@@ -9,7 +10,7 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
 import org.jetbrains.annotations.NotNull;
 
-public class ScopedVariableBinding implements ObjectBinding {
+public class ScopedVariableBinding implements ObjectBinding, ScopedObject {
     private final Int2ReferenceOpenHashMap<ScopedVariable> variableMap = new Int2ReferenceOpenHashMap<>();
 
     @Override
@@ -17,7 +18,7 @@ public class ScopedVariableBinding implements ObjectBinding {
         return variableMap.computeIfAbsent(StringPool.computeIfAbsent(name), ScopedVariable::new);
     }
 
-    public void reset() {
+    public void resetScoped() {
         variableMap.clear();
     }
 

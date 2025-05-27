@@ -1,36 +1,20 @@
 package com.elfmcys.yesstevemodel.client.command.sub;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
-import com.elfmcys.yesstevemodel.molang.runtime.Struct;
-import com.google.common.collect.Sets;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.elfmcys.yesstevemodel.client.command.ClientRootCommand.ALL_VARS;
@@ -135,7 +119,7 @@ public class MolangCommand {
         }
 
         Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.executeMolangExp(value, true, result -> {
+            cap.executeMolangExp(value, true, false, result -> {
                 Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.result", result));
             });
         });

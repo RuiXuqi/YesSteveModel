@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
@@ -19,6 +20,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangCo
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -64,6 +66,9 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
 
     private final Vector2f headRot = new Vector2f();
     private volatile boolean renderedWithTempChanges = false;
+
+    private boolean fireInitEvent = false;
+    private IValue updateWrappedHandler = null;
 
     /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
@@ -241,6 +246,16 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
                 .orElse(null);
     }
 
+    @Override
+    public @Nullable IValue getUserFunction(int name) {
+        return ClientModelManager.getUserFunction(modelId, name);
+    }
+
+    @Override
+    public @Nullable List<IValue> getEventHandler(int name) {
+        return ClientModelManager.getMolangEventHandler(modelId, name);
+    }
+
     @Nullable
     @Override
     public GeoAnimationController getAnimationControllerData(String animationControllerName) {
@@ -383,8 +398,27 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     }
 
     @Override
+    protected void setupModel(GeoModelState model) {
+        fireInitEvent = true;
+        var updateHandlers = getEventHandler(MolangEventWrapper.PLAYER_UPDATE);
+        if (updateHandlers != null) {
+            updateWrappedHandler = MolangEventWrapper.wrap(updateHandlers);
+        }
+    }
+
+    @Override
     protected void preAnimationSetup(double seekTime) {
         getAnimationProcessor().putRemoteStruct(getRemoteStruct());
+        if (fireInitEvent) {
+            fireInitEvent = false;
+            var initEvent = getEventHandler(MolangEventWrapper.PLAYER_INIT);
+            if (initEvent != null) {
+                executeMolangExp(MolangEventWrapper.wrap(initEvent), true, true, null);
+            }
+        }
+        if (updateWrappedHandler != null) {
+            executeMolangExp(updateWrappedHandler, true, true, null);
+        }
     }
 
     @Override

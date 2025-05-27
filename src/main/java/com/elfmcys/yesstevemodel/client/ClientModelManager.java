@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncResult;
 import com.elfmcys.yesstevemodel.client.data.ProjectileModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToServer;
@@ -14,8 +15,10 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -45,6 +48,14 @@ public class ClientModelManager {
             return Optional.empty();
         }
         return Optional.ofNullable(model.animations().get(animationName));
+    }
+
+    public static @Nullable IValue getUserFunction(String modelId, int functionName) {
+        return getModel(modelId).map(m -> m.functions().get(functionName)).orElse(null);
+    }
+
+    public static @Nullable List<IValue> getMolangEventHandler(String modelId, int eventName) {
+        return getModel(modelId).map(m -> m.eventHandlers().get(eventName)).orElse(null);
     }
 
     public static Optional<ProjectileModel> getProjectileModel(String modelId, ProjectileType type) {

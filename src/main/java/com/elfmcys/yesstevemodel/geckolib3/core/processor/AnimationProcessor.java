@@ -6,27 +6,24 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.VariableStorage;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.MolangMemory;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
-import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -38,16 +35,12 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
 
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelRendererList = new ReferenceArrayList<>();
     private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelRendererMap = new Object2ReferenceOpenHashMap<>();
-    private final VariableStorage animationStorage = new VariableStorage();
+    private final MolangMemory molangMemory = new MolangMemory();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
     private final DebugInfo debugInfo = new DebugInfo();
-    private final ConcurrentLinkedQueue<MolangExecutionTask> pendingValues = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<MolangExecutionTask> pendingMolangTask = new ConcurrentLinkedQueue<>();
     private final ConcurrentMap<String, IPhysics> physicsValues = new ConcurrentHashMap<>();
-    private final RateLimiter rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
     private final T animatable;
-
-    private List<IValue> initializationValues;
-    private List<IValue> preAnimationValues;
 
     private boolean rendererDirty = false;
     private long cachePhysicsTimeStamp = -1L;
@@ -57,13 +50,8 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     @SuppressWarnings("unchecked")
-    public boolean tickAnimation(double seekTime, boolean forceUpdate, AnimationEvent<T> event, AnimationMolangContext<?> ctx) {
-        var shouldUpdate = rateLimiter.request((float) (seekTime / 20));
-        if (!forceUpdate && !shouldUpdate) {
-            return false;
-        }
-
-        ctx.setStorage(this.animationStorage);
+    public void tickAnimation(double seekTime, boolean shouldUpdate, AnimationEvent<T> event, AnimationMolangContext<?> ctx) {
+        ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
         ExpressionEvaluator<AnimationMolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
         preProcess(evaluator);
@@ -172,7 +160,6 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         manager.isFirstTick = false;
 
         postProcess(evaluator);
-        return true;
     }
 
     @Nullable
@@ -190,7 +177,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             this.modelRendererMap.put(entry.getKey(), renderer);
             this.modelRendererList.add(renderer);
         }
-        this.animationStorage.initialize(null);
+        this.molangMemory.initialize(null);
         this.physicsValues.clear();
         this.cachePhysicsTimeStamp = -1L;
         this.rendererDirty = true;
@@ -198,7 +185,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
 
     public void putRemoteStruct(@Nullable Struct remoteStruct) {
         if (remoteStruct != null) {
-            animationStorage.setScoped(ROAMING_STRUCT_NAME, remoteStruct);
+            molangMemory.setScoped(ROAMING_STRUCT_NAME, remoteStruct);
         }
     }
 
@@ -216,15 +203,11 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     private void preProcess(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-        if (rendererDirty && initializationValues != null) {
-            for (IValue value : initializationValues) {
-                value.evalAsDouble(evaluator);
-            }
-            initializationValues = null;
-        }
-        if (preAnimationValues != null) {
-            for (IValue value : preAnimationValues) {
-                value.evalAsDouble(evaluator);
+        for (var iter = pendingMolangTask.iterator(); iter.hasNext(); ) {
+            var task = iter.next();
+            if (task.pre) {
+                executeMolangTask(task, evaluator);
+                iter.remove();
             }
         }
         debugInfo.evaluatePre(evaluator);
@@ -242,41 +225,49 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         physicsValues.forEach((key, value) -> value.update(interval));
 
         debugInfo.evaluatePost(evaluator);
-        while (!pendingValues.isEmpty()) {
-            var pair = pendingValues.poll();
-            String result;
-            try {
-                evaluator.entity().setAllowEmitting(pair.allowEmitting());
-                var ret = pair.exp().evalUnsafe(evaluator);
-                if (ret == null) {
-                    result = "null";
-                } else if (ret instanceof String) {
-                    result = "'" + ret + "'";
-                } else {
-                    result = ret.toString();
-                }
-            } catch (Exception e) {
-                result = "Error: " + e.getMessage();
-            } finally {
-                evaluator.entity().setAllowEmitting(false);
-            }
-            if (pair.resultCallback() != null) {
-                pair.resultCallback().accept(result);
+        for (var iter = pendingMolangTask.iterator(); iter.hasNext(); ) {
+            var task = iter.next();
+            if (!task.pre) {
+                executeMolangTask(task, evaluator);
+                iter.remove();
             }
         }
+    }
+
+    private void executeMolangTask(MolangExecutionTask task, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+        String result;
+        try {
+            evaluator.entity().setAllowEmitting(task.allowEmitting());
+            var ret = task.exp().evalUnsafe(evaluator);
+            if (task.resultCallback() == null) {
+                return;
+            }
+            if (ret == null) {
+                result = "null";
+            } else if (ret instanceof String) {
+                result = "'" + ret + "'";
+            } else {
+                result = ret.toString();
+            }
+        } catch (Exception e) {
+            result = "Error: " + e.getMessage();
+        } finally {
+            evaluator.entity().setAllowEmitting(false);
+        }
+        task.resultCallback().accept(result);
     }
 
     public DebugInfo getDebugInfo() {
         return debugInfo;
     }
 
-    public void execute(IValue value, boolean allowEmitting, @Nullable Consumer<String> resultConsumer) {
-        pendingValues.add(new MolangExecutionTask(value, allowEmitting, resultConsumer));
+    public void enqueueMolangTask(IValue value, boolean allowEmitting, boolean pre, @Nullable Consumer<String> resultConsumer) {
+        pendingMolangTask.add(new MolangExecutionTask(value, allowEmitting, pre, resultConsumer));
     }
 
     public IForeignVariableStorage getPublicVariableStorage() {
-        return this.animationStorage;
+        return this.molangMemory;
     }
 
-    private record MolangExecutionTask(IValue exp, boolean allowEmitting, Consumer<String> resultCallback) {}
+    private record MolangExecutionTask(IValue exp, boolean allowEmitting, boolean pre, Consumer<String> resultCallback) {}
 }

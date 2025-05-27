@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.TransientObject;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
@@ -9,7 +10,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 
 import org.jetbrains.annotations.NotNull;
 
-public class TempVariableBinding implements ObjectBinding {
+public class TempVariableBinding implements ObjectBinding, TransientObject {
     private final Object2ReferenceMap<String, TempVariable> variableMap = new Object2ReferenceOpenHashMap<>();
     private int topPointer = 0;
 
@@ -18,7 +19,7 @@ public class TempVariableBinding implements ObjectBinding {
         return variableMap.computeIfAbsent(name, k -> new TempVariable(topPointer++));
     }
 
-    public void reset() {
+    public void resetTransient() {
         variableMap.clear();
         topPointer = 0;
     }

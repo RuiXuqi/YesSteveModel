@@ -2,41 +2,40 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.storage;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.PooledStringHashMap;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.PooledStringHashSet;
+import com.elfmcys.yesstevemodel.molang.runtime.Array;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-
-public class VariableStorage implements ITempVariableStorage, IScopedVariableStorage, IForeignVariableStorage {
+public class MolangMemory implements ITempVariableStorage, IScopedVariableStorage, IForeignVariableStorage {
     private static final int TEMP_INIT_CAPACITY = 16;
     private static final int SCOPED_INIT_CAPACITY = 16;
+    private static final int MAX_STACK_DEPTH = 16;
 
-    private Object[] stackFrame = new Object[TEMP_INIT_CAPACITY];
+    private final ReferenceArrayList<Object> tempStackFrame = new ReferenceArrayList<>(TEMP_INIT_CAPACITY);
+    private final IntArrayList stackFrameSize = new IntArrayList();
+    private final ReferenceArrayList<Array> userFunctionArgs = new ReferenceArrayList<>(4);
+
     private final PooledStringHashMap<VariableValueHolder> scopedMap = new PooledStringHashMap<>(SCOPED_INIT_CAPACITY);
     private PooledStringHashMap<VariableValueHolder> publicMap = new PooledStringHashMap<>();
 
-    public VariableStorage() {
-    }
-
-    private void ensureStackFrameSize(int size) {
-        if(stackFrame.length >= size) {
-            return;
-        }
-        if(size < stackFrame.length * 2) {
-            size = stackFrame.length * 2;
-        }
-        stackFrame = Arrays.copyOf(stackFrame, size);
+    public MolangMemory() {
+        stackFrameSize.add(0);
     }
 
     @Override
     public Object getTemp(int index) {
-        ensureStackFrameSize(index + 1);
-        return stackFrame[index];
+        var addr = stackFrameSize.getInt(stackFrameSize.size() - 1) + index;
+        tempStackFrame.size(addr + 1);
+        return tempStackFrame.elements()[addr];
     }
 
     @Override
     public void setTemp(int index, Object value) {
-        ensureStackFrameSize(index + 1);
-        stackFrame[index] = value;
+        var addr = stackFrameSize.getInt(stackFrameSize.size() - 1) + index;
+        tempStackFrame.size(addr + 1);
+        tempStackFrame.elements()[addr] = value;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class VariableStorage implements ITempVariableStorage, IScopedVariableSto
 
     // 注意 this.publicMap 线程安全
     public void initialize(@Nullable PooledStringHashSet publicVariableNames) {
-        Arrays.fill(stackFrame, null);
+        tempStackFrame.size(0);
         scopedMap.clear();
 
         PooledStringHashMap<VariableValueHolder> newPublicMap = new PooledStringHashMap<>();
@@ -76,6 +75,32 @@ public class VariableStorage implements ITempVariableStorage, IScopedVariableSto
         }
         newPublicMap.trim();
         this.publicMap = newPublicMap;
+    }
+
+    public boolean pushUserFunctionStackFrame(Array args) {
+        if (stackFrameSize.size() < MAX_STACK_DEPTH) {
+            stackFrameSize.add(tempStackFrame.size());
+            userFunctionArgs.add(args);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void popUserFunctionStackFrame() {
+        if (!userFunctionArgs.isEmpty()) {
+            var lastFrameSize = stackFrameSize.removeInt(tempStackFrame.size() - 1);
+            tempStackFrame.size(lastFrameSize);
+            userFunctionArgs.remove(userFunctionArgs.size() - 1);
+        }
+    }
+
+    @Nullable
+    public Array getUserFunctionArgs() {
+        if (!userFunctionArgs.isEmpty()) {
+            return userFunctionArgs.get(userFunctionArgs.size() - 1);
+        }
+        return null;
     }
 
     private static class VariableValueHolder {

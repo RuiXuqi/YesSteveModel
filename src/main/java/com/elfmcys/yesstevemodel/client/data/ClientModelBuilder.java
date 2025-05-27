@@ -5,6 +5,8 @@ import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.info.ModelStats;
@@ -16,6 +18,7 @@ import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.SoundDecoderUtil;
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.CommonComponents;
@@ -25,9 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClientModelBuilder {
     private static final int MODEL_MAIN_INDEX = 0;
@@ -54,6 +55,9 @@ public class ClientModelBuilder {
 
         var projectileModels = buildProjectileModels(data, isDefault);
 
+        var userFunctions = buildUserFunctionMap(data);
+        var eventHandlers = buildEventHandlers(data);
+
         var displayInfo = buildDisplayInfo(data);
         ModelMetadata metadata = data.info().metadata();
         String name = metadata != null ? metadata.name() : StringUtils.EMPTY;
@@ -61,11 +65,39 @@ public class ClientModelBuilder {
 
         var conditionManager = buildConditionManager(animations);
 
-        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, sounds, projectileModels, data.info(), info, conditionManager);
+        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, sounds, projectileModels, userFunctions, eventHandlers, data.info(), info, conditionManager);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
         return model;
+    }
+
+    private static Int2ReferenceOpenHashMap<IValue> buildUserFunctionMap(ClientModelData data) {
+        var map = new Int2ReferenceOpenHashMap<IValue>(data.functions().size());
+        for (var entry : data.functions().entrySet()) {
+            var name = entry.getKey();
+            var splitterIndex = name.indexOf('@');
+            if (splitterIndex == 0) {
+                continue;
+            } else if (splitterIndex != -1) {
+                name = name.substring(0, splitterIndex);
+            }
+            map.put(StringPool.computeIfAbsent(name), entry.getValue());
+        }
+        return map;
+    }
+
+    private static Int2ReferenceOpenHashMap<List<IValue>> buildEventHandlers(ClientModelData data) {
+        var map = new Int2ReferenceOpenHashMap<List<IValue>>();
+        for (var entry : data.functions().entrySet()) {
+            var splitterIndex = entry.getKey().indexOf('@');
+            if (splitterIndex != -1 && splitterIndex + 1 < entry.getKey().length()) {
+                var eventTypeName = entry.getKey().substring(splitterIndex + 1);
+                var eventType = StringPool.computeIfAbsent(eventTypeName.toLowerCase());
+                map.computeIfAbsent(eventType, k -> new ReferenceArrayList<>()).add(entry.getValue());
+            }
+        }
+        return map;
     }
 
     private static Map<String, Animation> buildAnimationMap(ClientModelData data, boolean isDefaultModel) {

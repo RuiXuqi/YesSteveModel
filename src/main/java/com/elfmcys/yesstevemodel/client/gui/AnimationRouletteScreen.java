@@ -330,7 +330,7 @@ public class AnimationRouletteScreen extends Screen {
     private void executeMolang(String molang, @Nullable Consumer<String> resultConsumer) {
         try {
             IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molang);
-            this.animatableEntity.executeMolangExp(parsed, true, resultConsumer);
+            this.animatableEntity.executeMolangExp(parsed, true, false, resultConsumer);
         } catch (ParseException exception) {
             YesSteveModel.LOGGER.error(exception);
         }

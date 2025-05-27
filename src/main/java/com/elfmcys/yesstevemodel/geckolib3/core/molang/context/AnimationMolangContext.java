@@ -7,15 +7,20 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.ITempVariableStorage;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.VariableStorage;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.MolangMemory;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.yesstevemodel.molang.runtime.Array;
+import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import org.jetbrains.annotations.Nullable;
 
 public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     protected final TEntity entity;
@@ -25,7 +30,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
 
     protected AnimationContext animationContext;
     protected RandomSource random;
-    protected VariableStorage storage;
+    protected MolangMemory memory;
     protected IForeignVariableStorage foreignStorage;
     private DebugSource debugSource;
     private boolean allowEmitting;
@@ -37,14 +42,14 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
         this.data = data;
     }
 
-    private AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, RandomSource random, VariableStorage storage) {
+    private AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, RandomSource random, MolangMemory memory) {
         this.entity = entity;
         this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
         this.data = data;
         this.animationContext = animationContext;
         this.random = random;
-        this.storage = storage;
+        this.memory = memory;
         if (entity instanceof Player) {
             ((Entity) entity).getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 foreignStorage = cap.getPublicVariableStorage();
@@ -103,22 +108,42 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
 
     @Override
     public <TChild> IContext<TChild> createChild(TChild child) {
-        return new AnimationMolangContext<>(child, animatableEntity, animationEvent, data, animationContext, random, storage);
+        return new AnimationMolangContext<>(child, animatableEntity, animationEvent, data, animationContext, random, memory);
     }
 
     @Override
     public ITempVariableStorage tempStorage() {
-        return storage;
+        return memory;
     }
 
     @Override
     public IScopedVariableStorage scopedStorage() {
-        return storage;
+        return memory;
     }
 
     @Override
     public IForeignVariableStorage foreignStorage() {
         return foreignStorage;
+    }
+
+    @Override
+    public @Nullable IValue getUserFunction(int name) {
+        return animatableEntity.getUserFunction(name);
+    }
+
+    @Override
+    public Object callUserFunction(ExecutionContext<?> ctx, IValue value, Array args) {
+        if (this.memory.pushUserFunctionStackFrame(args)) {
+            var ret = value.eval((ExpressionEvaluator<?>) ctx);
+            this.memory.popUserFunctionStackFrame();
+            return ret;
+        }
+        return null;
+    }
+
+    @Override
+    public Array userFunctionArgs() {
+        return memory.getUserFunctionArgs();
     }
 
     @Override
@@ -146,8 +171,8 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
         this.animationContext = animationContext;
     }
 
-    public void setStorage(VariableStorage storage) {
-        this.storage = storage;
+    public void setMemory(MolangMemory storage) {
+        this.memory = storage;
         this.foreignStorage = storage;
     }
 

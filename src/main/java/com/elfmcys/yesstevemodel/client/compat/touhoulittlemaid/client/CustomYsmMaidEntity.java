@@ -18,6 +18,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -155,6 +156,11 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     @Override
     public Animation getAnimation(String name) {
         return ClientModelManager.getPlayerAnimation(modelId, name).orElse(null);
+    }
+
+    @Override
+    public @Nullable IValue getUserFunction(int name) {
+        return ClientModelManager.getUserFunction(modelId, name);
     }
 
     @Nullable
