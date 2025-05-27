@@ -21,7 +21,7 @@ public class Sync extends PlayerEntityFunction {
                 // 确认服务端已安装本模组
                 if (context.entity().entity() instanceof LocalPlayer) {
                     // 确认为 LocalPlayer 实体，向服务器发起同步
-                    NetworkHandler.sendToServer(new EmitMolangSync(packarguments(context, arguments)));
+                    NetworkHandler.sendToServer(new EmitMolangSync(packArguments(context, arguments)));
                     return null;
                 } else {
                     // 确认为 RemotePlayer 实体，不执行而是等待服务端下发
@@ -36,7 +36,7 @@ public class Sync extends PlayerEntityFunction {
 
         if (context.entity().animatableEntity() instanceof CustomPlayerEntity animatableEntity) {
             // 触发同步事件
-            animatableEntity.molangSync(packarguments(context, arguments));
+            animatableEntity.molangSync(packArguments(context, arguments));
         } else {
             // 应该没有这种情况
         }
@@ -44,7 +44,7 @@ public class Sync extends PlayerEntityFunction {
         return null;
     }
 
-    private static float[] packarguments(ExecutionContext<IContext<AbstractClientPlayer>> context, ArgumentCollection arguments) {
+    private static float[] packArguments(ExecutionContext<IContext<AbstractClientPlayer>> context, ArgumentCollection arguments) {
         var args = new float[arguments.size()];
         for (int i = 0; i < args.length; i++) {
             args[0] = arguments.getAsFloat(context, i);

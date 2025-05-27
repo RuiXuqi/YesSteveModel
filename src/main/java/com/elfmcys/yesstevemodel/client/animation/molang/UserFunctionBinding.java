@@ -39,7 +39,7 @@ public class UserFunctionBinding implements ObjectBinding, ScopedObject {
                     }
                     cache = ctx.getUserFunction(name);
                     if (cache == null) {
-                        ctx.debugPrint("User function not found: %s", name);
+                        ctx.debugPrint("User function not found: %s", StringPool.getString(name));
                         name = Integer.MIN_VALUE;
                         return null;
                     }
