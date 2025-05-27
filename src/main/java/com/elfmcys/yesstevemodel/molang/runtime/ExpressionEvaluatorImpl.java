@@ -254,6 +254,9 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
         Object indexObj = expression.index().visit(this);
         if (indexObj instanceof Number) {
             int index = ((Number) indexObj).intValue();
+            if (index < 0) {
+                index = 0;  // molang 文档是这么要求的
+            }
             if (value instanceof Array) {
                 return ((Array) value).getElement(this, index);
             }

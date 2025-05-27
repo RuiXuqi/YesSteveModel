@@ -27,7 +27,7 @@ package com.elfmcys.yesstevemodel.molang.runtime.binding;
 import com.elfmcys.yesstevemodel.molang.parser.ast.*;
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
-import com.elfmcys.yesstevemodel.molang.runtime.ScopedIterable;
+import com.elfmcys.yesstevemodel.molang.runtime.ContextualIterable;
 
 import java.util.Iterator;
 
@@ -89,8 +89,8 @@ public final class StandardBindings {
 
         final Object array = args.getValue(ctx, 1);
         final Iterator<?> arrayIterator;
-        if (array instanceof ScopedIterable) {
-            arrayIterator = ((ScopedIterable) array).iterator(ctx);
+        if (array instanceof ContextualIterable) {
+            arrayIterator = ((ContextualIterable) array).iterator(ctx);
         } else if (array instanceof Iterable<?>) {
             arrayIterator = ((Iterable<?>) array).iterator();
         } else {
