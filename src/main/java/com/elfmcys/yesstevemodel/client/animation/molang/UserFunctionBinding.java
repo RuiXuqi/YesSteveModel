@@ -24,7 +24,7 @@ public class UserFunctionBinding implements ObjectBinding, ScopedObject {
         funcCache.clear();
     }
 
-    private static class UserFunction implements Function, Variable {
+    private static class UserFunction implements Function {
         private int name;
         private IValue cache;
 
@@ -58,11 +58,6 @@ public class UserFunctionBinding implements ObjectBinding, ScopedObject {
                 }
             }
             return null;
-        }
-
-        @Override
-        public @Nullable Object evaluate(@NotNull ExecutionContext<?> context) {
-            return evaluate(context, EMPTY_ARGUMENT);
         }
     }
 }
