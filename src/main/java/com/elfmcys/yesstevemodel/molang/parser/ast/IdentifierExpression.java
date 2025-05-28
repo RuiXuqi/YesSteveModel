@@ -61,13 +61,12 @@ public final class IdentifierExpression implements Expression {
         } else if(target instanceof String) {
             return new StringExpression((String) target);
         }
-        // TODO: 无参用户函数允许像变量一样访问
-        if (!(target instanceof Function)) {
-            if(target instanceof AssignableVariable) {
-                return new AssignableVariableExpression((AssignableVariable) target);
-            } else if(target instanceof Variable) {
-                return new VariableExpression((Variable) target);
-            }
+        if (target instanceof Function) {
+            return new CallExpression((Function) target);
+        } else if(target instanceof AssignableVariable) {
+            return new AssignableVariableExpression((AssignableVariable) target);
+        } else if(target instanceof Variable) {
+            return new VariableExpression((Variable) target);
         }
         return new IdentifierExpression(name, target);
     }

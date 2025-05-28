@@ -24,6 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.jetbrains.annotations.NotNull;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 
@@ -39,9 +40,16 @@ import static java.util.Objects.requireNonNull;
  * @since 3.0.0
  */
 public final class CallExpression implements Expression {
+    public static final Function.ArgumentCollection PLACE_HOLDER = new Function.ArgumentCollection(ObjectLists.emptyList());
 
     private final Function function;
     private final Function.ArgumentCollection arguments;
+
+    public CallExpression(
+            final @NotNull Function function
+    ) {
+        this(function, PLACE_HOLDER);
+    }
 
     public CallExpression(
             final @NotNull Function function,
