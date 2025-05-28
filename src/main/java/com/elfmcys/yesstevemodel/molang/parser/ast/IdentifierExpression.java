@@ -24,6 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
+import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import org.jetbrains.annotations.NotNull;
 
 import com.elfmcys.yesstevemodel.molang.runtime.AssignableVariable;
@@ -59,10 +60,14 @@ public final class IdentifierExpression implements Expression {
             return new DoubleExpression(((Number) target).doubleValue());
         } else if(target instanceof String) {
             return new StringExpression((String) target);
-        } else if(target instanceof AssignableVariable) {
-            return new AssignableVariableExpression((AssignableVariable) target);
-        } else if(target instanceof Variable) {
-            return new VariableExpression((Variable) target);
+        }
+        // TODO: 无参用户函数允许像变量一样访问
+        if (!(target instanceof Function)) {
+            if(target instanceof AssignableVariable) {
+                return new AssignableVariableExpression((AssignableVariable) target);
+            } else if(target instanceof Variable) {
+                return new VariableExpression((Variable) target);
+            }
         }
         return new IdentifierExpression(name, target);
     }

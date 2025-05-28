@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.runtime.*;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,7 @@ public class UserFunctionBinding implements ObjectBinding, ScopedObject {
 
         @Override
         public @Nullable Object evaluate(@NotNull ExecutionContext<?> context, @NotNull ArgumentCollection arguments) {
-            if (context instanceof IContext<?> ctx) {
+            if (context.entity() instanceof IContext<?> ctx) {
                 if (cache == null) {
                     if (name == Integer.MIN_VALUE) {
                         return null;
@@ -45,7 +46,11 @@ public class UserFunctionBinding implements ObjectBinding, ScopedObject {
                     }
                 }
 
-                return ctx.callUserFunction(context, cache, arguments);
+                var args = new ReferenceArrayList<>(arguments.size());
+                for (int i = 0; i < arguments.size(); i++) {
+                    args.add(arguments.getValue(context, i));
+                }
+                return ctx.callUserFunction(context, cache, args);
             }
             return null;
         }

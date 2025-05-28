@@ -51,7 +51,7 @@ public class ClientModelManager {
     }
 
     public static @Nullable IValue getUserFunction(String modelId, int functionName) {
-        return getModel(modelId).map(m -> m.functions().get(functionName)).orElse(null);
+        return getModel(modelId).map(m -> m.userFunctions().get(functionName)).orElse(null);
     }
 
     public static @Nullable List<IValue> getMolangEventHandler(String modelId, int eventName) {

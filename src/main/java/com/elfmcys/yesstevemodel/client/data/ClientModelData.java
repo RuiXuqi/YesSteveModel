@@ -24,19 +24,19 @@ public final class ClientModelData {
     private final FifoHashMap<String, NativeTexture> textures;
     private final Map<String, byte[]> sounds;
     private final Map<String, NativeTexture> authorAvatars;
-    private final Map<String, IValue> functions;
+    private final Map<String, IValue> userFunctions;
     @NotNull
     private final ModelInfo info;
 
     // Native Access
-    public ClientModelData(GeoModel[] geoModels, AnimationFile[] animationFiles, AnimationControllerFile[] animationControllerFiles, FifoHashMap<String, NativeTexture> textures, Map<String, byte[]> sounds, Map<String, NativeTexture> authorAvatars, Map<String, IValue> functions, @NotNull ModelInfo info) {
+    public ClientModelData(GeoModel[] geoModels, AnimationFile[] animationFiles, AnimationControllerFile[] animationControllerFiles, FifoHashMap<String, NativeTexture> textures, Map<String, byte[]> sounds, Map<String, NativeTexture> authorAvatars, Map<String, IValue> userFunctions, @NotNull ModelInfo info) {
         this.geoModels = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(geoModels));
         this.animationFiles = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(animationFiles));
         this.animationControllerFiles = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(animationControllerFiles));
         this.textures = textures;
         this.sounds = Object2ObjectMaps.unmodifiable(new Object2ObjectOpenHashMap<>(sounds));
         this.authorAvatars = Object2ObjectMaps.unmodifiable(new Object2ObjectOpenHashMap<>(authorAvatars));
-        this.functions = functions;
+        this.userFunctions = userFunctions;
         this.info = info;
     }
 
@@ -64,8 +64,8 @@ public final class ClientModelData {
         return sounds;
     }
 
-    public Map<String, IValue> functions() {
-        return functions;
+    public Map<String, IValue> userFunctions() {
+        return userFunctions;
     }
 
     @NotNull

@@ -73,8 +73,8 @@ public class ClientModelBuilder {
     }
 
     private static Int2ReferenceOpenHashMap<IValue> buildUserFunctionMap(ClientModelData data) {
-        var map = new Int2ReferenceOpenHashMap<IValue>(data.functions().size());
-        for (var entry : data.functions().entrySet()) {
+        var map = new Int2ReferenceOpenHashMap<IValue>(data.userFunctions().size());
+        for (var entry : data.userFunctions().entrySet()) {
             var name = entry.getKey();
             var splitterIndex = name.indexOf('@');
             if (splitterIndex == 0) {
@@ -89,7 +89,7 @@ public class ClientModelBuilder {
 
     private static Int2ReferenceOpenHashMap<List<IValue>> buildEventHandlers(ClientModelData data) {
         var map = new Int2ReferenceOpenHashMap<List<IValue>>();
-        for (var entry : data.functions().entrySet()) {
+        for (var entry : data.userFunctions().entrySet()) {
             var splitterIndex = entry.getKey().indexOf('@');
             if (splitterIndex != -1 && splitterIndex + 1 < entry.getKey().length()) {
                 var eventTypeName = entry.getKey().substring(splitterIndex + 1);

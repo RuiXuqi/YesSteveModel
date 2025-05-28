@@ -257,9 +257,6 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
             if (index < 0) {
                 index = 0;  // molang 文档是这么要求的
             }
-            if (value instanceof Array) {
-                return ((Array) value).getElement(this, index);
-            }
             if (value instanceof List<?>) {
                 List<?> list = (List<?>) value;
                 if (list.size() > index) {

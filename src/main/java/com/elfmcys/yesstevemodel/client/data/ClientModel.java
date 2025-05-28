@@ -30,7 +30,7 @@ public class ClientModel {
 
     private final Map<String, SoundData> sounds;
 
-    private final Int2ReferenceOpenHashMap<IValue> functions;
+    private final Int2ReferenceOpenHashMap<IValue> userFunctions;
 
     private final Int2ReferenceOpenHashMap<List<IValue>> eventHandlers;
 
@@ -40,7 +40,7 @@ public class ClientModel {
 
     private final ConditionManager conditionManager;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, GeoAnimationController> animationControllers, FifoHashMap<String, ResourceLocation> textures, Map<String, SoundData> sounds, Map<ProjectileType, ProjectileModel> projectileModels, Int2ReferenceOpenHashMap<IValue> functions, Int2ReferenceOpenHashMap<List<IValue>> eventHandlers, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
+    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, GeoAnimationController> animationControllers, FifoHashMap<String, ResourceLocation> textures, Map<String, SoundData> sounds, Map<ProjectileType, ProjectileModel> projectileModels, Int2ReferenceOpenHashMap<IValue> userFunctions, Int2ReferenceOpenHashMap<List<IValue>> eventHandlers, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
@@ -48,7 +48,7 @@ public class ClientModel {
         this.textures = textures;
         this.sounds = sounds;
         this.projectileModels = projectileModels;
-        this.functions = functions;
+        this.userFunctions = userFunctions;
         this.eventHandlers = eventHandlers;
         this.modelInfo = modelInfo;
         this.clientModelInfo = clientModelInfo;
@@ -79,8 +79,8 @@ public class ClientModel {
         return sounds;
     }
 
-    public Int2ReferenceOpenHashMap<IValue> functions() {
-        return functions;
+    public Int2ReferenceOpenHashMap<IValue> userFunctions() {
+        return userFunctions;
     }
 
     public Int2ReferenceOpenHashMap<List<IValue>> eventHandlers() {

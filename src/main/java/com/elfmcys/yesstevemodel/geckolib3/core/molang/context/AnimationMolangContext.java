@@ -11,7 +11,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.MolangMemory;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import com.elfmcys.yesstevemodel.molang.runtime.Array;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.client.Minecraft;
@@ -21,6 +20,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     protected final TEntity entity;
@@ -132,17 +133,19 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     }
 
     @Override
-    public Object callUserFunction(ExecutionContext<?> ctx, IValue value, Array args) {
+    public Object callUserFunction(ExecutionContext<?> ctx, IValue value, List<?> args) {
         if (this.memory.pushUserFunctionStackFrame(args)) {
-            var ret = value.eval((ExpressionEvaluator<?>) ctx);
-            this.memory.popUserFunctionStackFrame();
-            return ret;
+            try {
+                return value.eval((ExpressionEvaluator<?>) ctx);
+            } finally {
+                this.memory.popUserFunctionStackFrame();
+            }
         }
         return null;
     }
 
     @Override
-    public Array userFunctionArgs() {
+    public List<?> userFunctionArgs() {
         return memory.getUserFunctionArgs();
     }
 

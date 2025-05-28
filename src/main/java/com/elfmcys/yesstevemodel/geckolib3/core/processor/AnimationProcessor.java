@@ -249,7 +249,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             } else {
                 result = ret.toString();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             result = "Error: " + e.getMessage();
         } finally {
             evaluator.entity().setAllowEmitting(false);

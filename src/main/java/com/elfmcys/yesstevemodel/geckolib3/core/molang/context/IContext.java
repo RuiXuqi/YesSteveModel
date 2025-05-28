@@ -8,13 +8,14 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.ITempVariableStor
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import com.elfmcys.yesstevemodel.molang.runtime.Array;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.RandomSource;
 
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public interface IContext<TEntity> {
     TEntity entity();
@@ -46,9 +47,9 @@ public interface IContext<TEntity> {
     @Nullable
     IValue getUserFunction(int name);
 
-    Object callUserFunction(ExecutionContext<?> context, IValue value, Array args);
+    Object callUserFunction(ExecutionContext<?> context, IValue value, List<?> args);
 
-    Array userFunctionArgs();
+    List<?> userFunctionArgs();
 
     boolean isDebugEnabled();
 

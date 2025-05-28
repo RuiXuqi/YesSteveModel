@@ -84,7 +84,7 @@ public class DebugInfo {
                 } else {
                     result = ret.toString();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 result = "Error: " + e.getMessage();
             }
         }

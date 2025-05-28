@@ -268,9 +268,9 @@ final class MolangParserImpl implements MolangParser {
         }
 
         if (current.kind() == TokenKind.LBRACKET) {
-            current = lexer.next();
+            lexer.next();
             Expression index = parseCompoundExpression(lexer, 0);
-            if (current.kind() == TokenKind.RBRACKET) {
+            if (lexer.current().kind() == TokenKind.RBRACKET) {
                 lexer.next();
                 return new ArrayAccessExpression(left, index);
             }

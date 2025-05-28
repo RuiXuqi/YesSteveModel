@@ -40,7 +40,7 @@ public interface IValue {
     default Object eval(ExpressionEvaluator<?> evaluator) {
         try {
             return evalUnsafe(evaluator);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             YesSteveModel.LOGGER.debug("Failed to evaluate molang expression.", e);
         }
         return null;
