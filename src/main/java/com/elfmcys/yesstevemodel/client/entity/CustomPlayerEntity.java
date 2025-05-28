@@ -30,6 +30,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.HashMapStruct;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -423,7 +424,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         }
     }
 
-    public void molangSync(float[] args) {
+    public void molangSync(FloatArrayList args) {
         if (syncHandler != null) {
             executeMolangExp(MolangEventWrapper.wrap(syncHandler, args), true, false, null);
         }

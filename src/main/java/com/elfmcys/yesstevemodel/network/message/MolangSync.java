@@ -1,24 +1,26 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class MolangSync {
     private final int entityId;
-    private final float[] args;
+    private final FloatArrayList args;
 
-    public MolangSync(int entityId, float[] args) {
+    public MolangSync(int entityId, FloatArrayList args) {
         this.entityId = entityId;
         this.args = args;
     }
 
     public static void encode(MolangSync message, FriendlyByteBuf buf) {
         buf.writeVarInt(message.entityId);
-        buf.writeByte(message.args.length);
+        buf.writeByte(message.args.size());
         for (float arg : message.args) {
             buf.writeFloat(arg);
         }
@@ -27,9 +29,9 @@ public class MolangSync {
     public static MolangSync decode(FriendlyByteBuf buf) {
         var entityId = buf.readVarInt();
         var len = buf.readByte();
-        var args = new float[len];
+        var args = new FloatArrayList(len);
         for (int i = 0; i < len; i++) {
-            args[i] = buf.readFloat();
+            args.add(buf.readFloat());
         }
         return new MolangSync(entityId, args);
     }

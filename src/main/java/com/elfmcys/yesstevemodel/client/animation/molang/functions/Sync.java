@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.PlayerEnt
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.EmitMolangSync;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 
@@ -15,6 +16,10 @@ public class Sync extends PlayerEntityFunction {
 
     @Override
     protected Object eval(ExecutionContext<IContext<AbstractClientPlayer>> context, ArgumentCollection arguments) {
+        if (!context.entity().allowEmitting()) {
+            return null;
+        }
+
         if (context.entity().animatableEntity() instanceof PlayerGeoCapability) {
             // 确认不是 GUI 渲染用
             if (NetworkHandler.isRemoteChannelPresent()) {
@@ -44,10 +49,10 @@ public class Sync extends PlayerEntityFunction {
         return null;
     }
 
-    private static float[] packArguments(ExecutionContext<IContext<AbstractClientPlayer>> context, ArgumentCollection arguments) {
-        var args = new float[arguments.size()];
-        for (int i = 0; i < args.length; i++) {
-            args[0] = arguments.getAsFloat(context, i);
+    private static FloatArrayList packArguments(ExecutionContext<IContext<AbstractClientPlayer>> context, ArgumentCollection arguments) {
+        var args = new FloatArrayList(arguments.size());
+        for (int i = 0; i < arguments.size(); i++) {
+            args.add(arguments.getAsFloat(context, i));
         }
         return args;
     }
