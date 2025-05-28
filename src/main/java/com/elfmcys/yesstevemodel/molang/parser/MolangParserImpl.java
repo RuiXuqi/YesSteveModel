@@ -88,9 +88,13 @@ final class MolangParserImpl implements MolangParser {
                 lexer.next();
                 return expression;
             case LBRACE:
-                lexer.next();
+                token = lexer.next();
                 List<Expression> expressions = new ArrayList<>();
                 while (true) {
+                    if (token.kind() == TokenKind.RBRACE) {
+                        lexer.next();
+                        break;
+                    }
                     expressions.add(parseCompoundExpression(lexer, 0));
                     token = lexer.current();
                     if (token.kind() == TokenKind.RBRACE) {
@@ -108,7 +112,7 @@ final class MolangParserImpl implements MolangParser {
                         if (token.kind() != TokenKind.SEMICOLON) {
                             throw new ParseException("Missing semicolon", lexer.cursor());
                         }
-                        lexer.next();
+                        token = lexer.next();
                     }
                 }
                 return new ExecutionScopeExpression(expressions);
@@ -198,7 +202,12 @@ final class MolangParserImpl implements MolangParser {
             case EOF:
                 return left;
             case LPAREN: { // CALL EXPRESSION: "left("
-                if (left instanceof IdentifierExpression) {
+                if (left instanceof CallExpression) {
+                    CallExpression call = (CallExpression) left;
+                    if (call.arguments() != CallExpression.PLACE_HOLDER) {
+                        throw new ParseException("Multiple '()' after function name", lexer.cursor());
+                    }
+
                     lexer.next();
                     final List<Expression> arguments = new ArrayList<>();
 
@@ -220,16 +229,7 @@ final class MolangParserImpl implements MolangParser {
                         }
                     }
 
-                    Object target = ((IdentifierExpression) left).target();
-                    String name = ((IdentifierExpression) left).name();
-                    if (target instanceof Function) {
-                        Function func = (Function) target;
-                        if (!func.validateArgumentSize(arguments.size())) {
-                            throw new ParseException("Function call to \"" + name + "\" has illegal parameter size", null);
-                        }
-                        return new CallExpression(func, new Function.ArgumentCollection(arguments));
-                    }
-                    throw new ParseException("\"" + name + "\" is not a function", null);
+                    return new CallExpression(call.function(), new Function.ArgumentCollection(arguments));
                 } else {
                     if (lastPrecedence >= BinaryExpression.Op.MUL.precedence()) {
                         return left;
