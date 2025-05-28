@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatLists;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class MolangEventWrapper {
         return evaluator -> {
             if (evaluator.entity() instanceof IContext<?> ctx) {
                 for (var handler : handlers) {
-                    return ctx.callUserFunction(evaluator, handler, array);
+                    ctx.callUserFunction(evaluator, handler, array);
                 }
             }
             return null;

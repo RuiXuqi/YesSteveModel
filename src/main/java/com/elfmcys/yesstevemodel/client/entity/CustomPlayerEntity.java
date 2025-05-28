@@ -405,6 +405,8 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         var updateHandlers = getEventHandler(MolangEventWrapper.PLAYER_UPDATE);
         if (updateHandlers != null) {
             updateWrappedHandler = MolangEventWrapper.wrap(updateHandlers);
+        } else {
+            updateWrappedHandler = null;
         }
         syncHandler = getEventHandler(MolangEventWrapper.SYNC);
     }
