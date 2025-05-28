@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.command;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.command.sub.MolangCommand;
 import com.elfmcys.yesstevemodel.client.command.sub.SimpleWatchCommand;
@@ -39,6 +40,7 @@ public class ClientRootCommand {
         dispatcher.register(root);
     }
 
+    @SuppressWarnings("unchecked")
     public static final SuggestionProvider<CommandSourceStack> ALL_VARS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "vars"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider && FMLEnvironment.dist == Dist.CLIENT) {
             LocalPlayer player = Minecraft.getInstance().player;
@@ -48,12 +50,8 @@ public class ClientRootCommand {
             Set<String> vars = Sets.newHashSet();
             player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
                 // v 变量
-                IForeignVariableStorage variableStorage = cap.getPublicVariableStorage();
-                StringPool.getAllName().forEach(s -> {
-                    Object object = variableStorage.getPublic(StringPool.getName(s));
-                    if (object != null) {
-                        vars.add(String.format("v.%s", s));
-                    }
+                cap.getAnimationProcessor().visitScopedVariableNames(name -> {
+                    vars.add(String.format("v.%s", name));
                 });
 
                 // v.roaming 变量
@@ -71,6 +69,13 @@ public class ClientRootCommand {
                 CustomMolangParser.getAllBinding().forEach((key, value) -> {
                     if (value instanceof ContextBinding ctx) {
                         ctx.getAllName().forEach(s -> vars.add(String.format("%s.%s", key, s)));
+                    }
+                });
+
+                // 自定义函数
+                ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                    for (var name : model.userFunctions().keySet()) {
+                        vars.add(String.format("fn.%s", StringPool.getString(name)));
                     }
                 });
             });

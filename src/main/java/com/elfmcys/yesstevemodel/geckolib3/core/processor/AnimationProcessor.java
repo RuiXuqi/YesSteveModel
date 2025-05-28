@@ -265,8 +265,13 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         pendingMolangTask.add(new MolangExecutionTask(value, allowEmitting, pre, resultConsumer));
     }
 
+    // 获取公共变量存储（暂未实现）
     public IForeignVariableStorage getPublicVariableStorage() {
         return this.molangMemory;
+    }
+
+    public void visitScopedVariableNames(Consumer<String> visitor) {
+        this.molangMemory.visitScopedVariableNames(visitor);
     }
 
     private record MolangExecutionTask(IValue exp, boolean allowEmitting, boolean pre, Consumer<String> resultCallback) {}

@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.MathBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.QueryBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
-import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class CustomMolangParser {
     private static final ConcurrentLinkedQueue<MolangParser> PARSER_POOL = new ConcurrentLinkedQueue<>();
     private static final Map<String, Object> EXTRA_BINDING = new HashMap<>();
+    private static final Map<String, Object> COMMAND_HINT = new HashMap<>();
 
     // Native Access
     public static MolangParser rentInstance() {
@@ -57,9 +57,11 @@ public class CustomMolangParser {
      * 给客户端指令补全用的
      */
     public static Map<String, Object> getAllBinding() {
-        Map<String, Object> output = Maps.newHashMap(EXTRA_BINDING);
-        output.put("math", MathBinding.INSTANCE);
-        output.put("q", QueryBinding.INSTANCE);
-        return output;
+        if (COMMAND_HINT.isEmpty()) {
+            COMMAND_HINT.putAll(EXTRA_BINDING);
+            COMMAND_HINT.put("math", MathBinding.INSTANCE);
+            COMMAND_HINT.put("q", QueryBinding.INSTANCE);
+        }
+        return COMMAND_HINT;
     }
 }

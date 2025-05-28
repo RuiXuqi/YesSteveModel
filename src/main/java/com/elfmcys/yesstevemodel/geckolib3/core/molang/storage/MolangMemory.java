@@ -2,12 +2,14 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.storage;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.PooledStringHashMap;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.PooledStringHashSet;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MolangMemory implements ITempVariableStorage, IScopedVariableStorage, IForeignVariableStorage {
     private static final int TEMP_INIT_CAPACITY = 16;
@@ -109,6 +111,12 @@ public class MolangMemory implements ITempVariableStorage, IScopedVariableStorag
             return userFunctionArgs.get(userFunctionArgs.size() - 1);
         }
         return null;
+    }
+
+    public void visitScopedVariableNames(Consumer<String> visitor) {
+        for (var name : scopedMap.keySet()) {
+            visitor.accept(StringPool.getString(name));
+        }
     }
 
     private static class VariableValueHolder {
