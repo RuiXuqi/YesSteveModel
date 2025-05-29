@@ -1,14 +1,21 @@
 package com.elfmcys.yesstevemodel.geckolib3.util;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
+import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import com.elfmcys.yesstevemodel.molang.runtime.Function;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Locale;
 
 public class MolangUtils {
     private static final HashMap<String, EquipmentSlot> SLOT_MAP;
+    private static final int MAX_RELATIVE_BLOCK_POS = 8;
 
     static {
         SLOT_MAP = new HashMap<>();
@@ -31,6 +38,26 @@ public class MolangUtils {
             return null;
         }
         return id;
+    }
+
+    @Nullable
+    public static BlockState getRelativeBlock(ExecutionContext<IContext<Entity>> ctx, Function.ArgumentCollection args) {
+        return getRelativeBlock(ctx, args, 0);
+    }
+
+    @Nullable
+    public static BlockState getRelativeBlock(ExecutionContext<IContext<Entity>> ctx, Function.ArgumentCollection args, int argsOffset) {
+        double offsetX = args.getAsDouble(ctx, argsOffset);
+        double offsetY = args.getAsDouble(ctx, argsOffset + 1);
+        double offsetZ = args.getAsDouble(ctx, argsOffset + 2);
+        if (Math.abs(offsetX) > MAX_RELATIVE_BLOCK_POS || Math.abs(offsetY) > MAX_RELATIVE_BLOCK_POS || Math.abs(offsetZ) > MAX_RELATIVE_BLOCK_POS) {
+            return null;
+        }
+        var entity = ctx.entity().entity();
+        BlockPos pos = new BlockPos((int) Math.rint(entity.getX() + offsetX - 0.5d),
+                (int) Math.rint(entity.getY() + offsetY - 0.5d),
+                (int) Math.rint(entity.getZ() + offsetZ - 0.5d));
+        return entity.level().getBlockState(pos);
     }
 
     public static EquipmentSlot parseSlotType(IContext<?> context, String value) {
