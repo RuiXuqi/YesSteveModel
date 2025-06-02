@@ -50,12 +50,12 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
             return;
         }
 
-        renderGeoInstance(cap, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        renderAnimatableEntity(cap, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    public void renderModelInGui(CustomGuiPlayerEntity instance, float entityYaw, float partialTick, PoseStack poseStack,
+    public void renderModelInGui(CustomGuiPlayerEntity entity, float entityYaw, float partialTick, PoseStack poseStack,
                                  MultiBufferSource bufferSource, int packedLight) {
-        renderGeoInstance(instance, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        renderAnimatableEntity(entity, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override

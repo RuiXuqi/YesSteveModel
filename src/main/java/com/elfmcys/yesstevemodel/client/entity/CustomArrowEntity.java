@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.ArrowMainPredicate;
 import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
-import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
+import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;

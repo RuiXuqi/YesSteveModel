@@ -28,9 +28,9 @@ public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerEn
     }
 
     @Override
-    public void render(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        AbstractClientPlayer player = instance.getEntity();
-        GeoModelState geoModel = instance.getCurrentModel();
+    public void render(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        AbstractClientPlayer player = animatableEntity.getEntity();
+        GeoModelState geoModel = animatableEntity.getCurrentModel();
         if (geoModel == null) {
             return;
         }

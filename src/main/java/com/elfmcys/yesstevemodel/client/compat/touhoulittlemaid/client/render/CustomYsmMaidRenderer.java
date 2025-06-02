@@ -46,7 +46,7 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
     @Override
     public void geoRender(EntityMaid entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         entity.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(customGeoMaidEntity -> {
-            renderGeoInstance(customGeoMaidEntity, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+            renderAnimatableEntity(customGeoMaidEntity, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         });
     }
 
@@ -57,9 +57,9 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
     }
 
     @Override
-    protected void renderLayer(CustomYsmMaidEntity instance, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AnimationEvent<?> event, EntityModelData data) {
+    protected void renderLayer(CustomYsmMaidEntity animatableEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AnimationEvent<?> event, EntityModelData data) {
         for (GeoLayerRenderer<EntityMaid, CustomYsmMaidRenderer> maidLayer : maidLayers) {
-            maidLayer.render(poseStack, bufferSource, packedLight, instance.getEntity(), event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
+            maidLayer.render(poseStack, bufferSource, packedLight, animatableEntity.getEntity(), event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
                     data.lerpedAge, data.netHeadYaw, data.headPitch);
         }
     }

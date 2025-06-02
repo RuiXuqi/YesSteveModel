@@ -15,6 +15,6 @@ public abstract class GeoLayerRenderer<T extends AnimatableEntity<?>> {
     }
 
     public abstract void render(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn,
-                                T instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks,
+                                T animatableEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks,
                                 float netHeadYaw, float headPitch);
 }

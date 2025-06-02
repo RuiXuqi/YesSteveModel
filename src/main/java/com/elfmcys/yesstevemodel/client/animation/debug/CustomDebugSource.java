@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.instance;
+package com.elfmcys.yesstevemodel.client.animation.debug;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import net.minecraft.client.Minecraft;

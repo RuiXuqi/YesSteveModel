@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.util;
 
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
@@ -43,10 +42,9 @@ public final class RenderUtil {
         return renderingEntitiesInPaperDoll;
     }
 
-    public static void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, CustomGuiPlayerEntity instance, boolean showGround) {
+    public static void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, CustomGuiPlayerEntity entity, boolean showGround) {
         CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
-        CustomPlayerEntity entity = instance;
-        AbstractClientPlayer player = instance.getEntity();
+        AbstractClientPlayer player = entity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
@@ -63,7 +61,7 @@ public final class RenderUtil {
         zp.mul(xp);
         poseStack.mulPose(zp);
 
-        instance.waitForCapabilityUpdate();
+        entity.waitForCapabilityUpdate();
 
         float yBodyRot = player.yBodyRot;
         float yRot = player.getYRot();
@@ -109,7 +107,7 @@ public final class RenderUtil {
                 poseStack.translate(0, -0.45, 0);
             }
             try {
-                renderExtraEntity(yaw, instance, poseStack, dispatcher, bufferSource);
+                renderExtraEntity(yaw, entity, poseStack, dispatcher, bufferSource);
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
@@ -120,7 +118,7 @@ public final class RenderUtil {
                 renderGround(pScale, pitch, yaw, bufferSource);
                 bufferSource.endBatch();
             }
-            renderer.renderModelInGui(instance, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
+            renderer.renderModelInGui(entity, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
         dispatcher.setRenderShadow(true);
@@ -177,21 +175,20 @@ public final class RenderUtil {
         Minecraft.getInstance().getBlockRenderer().renderSingleBlock(Blocks.RED_TULIP.defaultBlockState(), poseStack, bufferSource, 0xf000f0, OverlayTexture.NO_OVERLAY);
     }
 
-    private static void renderExtraEntity(float yaw, CustomGuiPlayerEntity instance, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource) throws ExecutionException {
-        CustomPlayerEntity playerEntity = instance;
-        AbstractClientPlayer player = instance.getEntity();
+    private static void renderExtraEntity(float yaw, CustomGuiPlayerEntity animatableEntity, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource) throws ExecutionException {
+        AbstractClientPlayer player = animatableEntity.getEntity();
 
-        if (playerEntity.hasPreviewAnimation("ride")) {
+        if (animatableEntity.hasPreviewAnimation("ride")) {
             Entity entity = AnimatableCacheUtil.ENTITIES_CACHE.get(EntityType.getKey(EntityType.HORSE), () -> EntityType.HORSE.create(player.level()));
             renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity);
             return;
         }
-        if (playerEntity.hasPreviewAnimation("ride_pig")) {
+        if (animatableEntity.hasPreviewAnimation("ride_pig")) {
             Entity entity = AnimatableCacheUtil.ENTITIES_CACHE.get(EntityType.getKey(EntityType.PIG), () -> EntityType.PIG.create(player.level()));
             renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity);
             return;
         }
-        if (playerEntity.hasPreviewAnimation("boat")) {
+        if (animatableEntity.hasPreviewAnimation("boat")) {
             Entity entity = AnimatableCacheUtil.ENTITIES_CACHE.get(EntityType.getKey(EntityType.BOAT), () -> EntityType.BOAT.create(player.level()));
             renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity);
             return;
@@ -205,13 +202,13 @@ public final class RenderUtil {
         poseStack.popPose();
     }
 
-    public static void renderModelInInventory(int pPosX, int pPosY, int pScale, CustomGuiPlayerEntity instance, boolean disablePreviewRotation) {
+    public static void renderModelInInventory(int pPosX, int pPosY, int pScale, CustomGuiPlayerEntity animatableEntity, boolean disablePreviewRotation) {
         CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
-        renderModel((double) pPosX, (double) pPosY, (float) pScale, instance, renderer, disablePreviewRotation);
+        renderModel((double) pPosX, (double) pPosY, (float) pScale, animatableEntity, renderer, disablePreviewRotation);
     }
 
-    private static void renderModel(double pPosX, double pPosY, float pScale, CustomGuiPlayerEntity instance, CustomPlayerRenderer renderer, boolean disablePreviewRotation) {
-        AbstractClientPlayer player = instance.getEntity();
+    private static void renderModel(double pPosX, double pPosY, float pScale, CustomGuiPlayerEntity animatableEntity, CustomPlayerRenderer renderer, boolean disablePreviewRotation) {
+        AbstractClientPlayer player = animatableEntity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
@@ -227,7 +224,7 @@ public final class RenderUtil {
         zp.mul(xp);
         poseStack.mulPose(zp);
 
-        instance.waitForCapabilityUpdate();
+        animatableEntity.waitForCapabilityUpdate();
 
         float yBodyRot = player.yBodyRot;
         float yRot = player.getYRot();
@@ -271,7 +268,7 @@ public final class RenderUtil {
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            renderer.renderModelInGui(instance, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
+            renderer.renderModelInGui(animatableEntity, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
         dispatcher.setRenderShadow(true);

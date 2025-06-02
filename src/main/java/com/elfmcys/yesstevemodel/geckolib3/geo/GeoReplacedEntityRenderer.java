@@ -61,21 +61,21 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
     }
 
     @Override
-    public void renderEarly(T instance, PoseStack poseStack, float partialTick,
+    public void renderEarly(T animatableEntity, PoseStack poseStack, float partialTick,
                             MultiBufferSource bufferSource, VertexConsumer buffer, int packedLight, int packedOverlayIn,
                             float red, float green, float blue, float alpha) {
         this.renderEarlyMat = new Matrix4f(poseStack.last().pose());
-        IGeoRenderer.super.renderEarly(instance, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
+        IGeoRenderer.super.renderEarly(animatableEntity, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
     }
 
     @SuppressWarnings("unchecked")
-    protected void renderGeoInstance(T instance, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
-                                     MultiBufferSource bufferSource, int packedLight) {
-        AnimationEvent<?> event = isAsyncScope() ? instance.waitOrUpdate(partialTick) : instance.syncUpdate(partialTick);
+    protected void renderAnimatableEntity(T animatableEntity, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
+                                          MultiBufferSource bufferSource, int packedLight) {
+        AnimationEvent<?> event = isAsyncScope() ? animatableEntity.waitOrUpdate(partialTick) : animatableEntity.syncUpdate(partialTick);
 
-        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(instance.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
+        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(animatableEntity.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
-        final TEntity entity = (TEntity) instance.getEntity();
+        final TEntity entity = (TEntity) animatableEntity.getEntity();
         if (event != null) {
             final EntityModelData data = (EntityModelData) event.getExtraData().get(0);
             this.dispatchedMat = new Matrix4f(poseStack.last().pose());
@@ -95,26 +95,26 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
             preRenderCallback(entity, poseStack, partialTick);
             poseStack.translate(0, 0.01f, 0);
 
-            Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
-            var renderType = getRenderType(textureLocationOverride != null ? textureLocationOverride : instance.getTextureLocation());
-            var textureIndex = textureLocationOverride == null ? instance.getTextureIndex() : 0;
+            Color renderColor = getRenderColor(animatableEntity, partialTick, poseStack, bufferSource, null, packedLight);
+            var renderType = getRenderType(textureLocationOverride != null ? textureLocationOverride : animatableEntity.getTextureLocation());
+            var textureIndex = textureLocationOverride == null ? animatableEntity.getTextureIndex() : 0;
 
-            GeoModelState model = instance.getCurrentModel();
-            boolean renderLayersFirst = ClientModelManager.getModel(instance.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
+            GeoModelState model = animatableEntity.getCurrentModel();
+            boolean renderLayersFirst = ClientModelManager.getModel(animatableEntity.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
             if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
-                preRender(model, instance, partialTick, renderType, poseStack, bufferSource, null,
+                preRender(model, animatableEntity, partialTick, renderType, poseStack, bufferSource, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
                 if (renderLayersFirst && !entity.isSpectator()) {
-                    renderLayer(instance, partialTick, poseStack, bufferSource, packedLight, event, data);
+                    renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
                 }
-                render(model, instance, partialTick, renderType, poseStack, bufferSource, textureIndex, null,
+                render(model, animatableEntity, partialTick, renderType, poseStack, bufferSource, textureIndex, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
                 if (!renderLayersFirst && !entity.isSpectator()) {
-                    renderLayer(instance, partialTick, poseStack, bufferSource, packedLight, event, data);
+                    renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
                 }
             }
             poseStack.popPose();
@@ -123,9 +123,9 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Post<>(entity, this, partialTick, poseStack, bufferSource, packedLight));
     }
 
-    protected void renderLayer(T instance, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AnimationEvent<?> event, EntityModelData data) {
+    protected void renderLayer(T animatableEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AnimationEvent<?> event, EntityModelData data) {
         for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
-            layerRenderer.render(poseStack, bufferSource, packedLight, instance, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
+            layerRenderer.render(poseStack, bufferSource, packedLight, animatableEntity, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
                     data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
         }
     }

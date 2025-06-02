@@ -9,7 +9,7 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
-import com.elfmcys.yesstevemodel.client.instance.CustomDebugSource;
+import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;

@@ -29,9 +29,9 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity instance, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        LivingEntity entityLivingBaseIn = instance.getEntity();
-        GeoModelState geoModel = instance.getCurrentModel();
+    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        LivingEntity entityLivingBaseIn = animatableEntity.getEntity();
+        GeoModelState geoModel = animatableEntity.getCurrentModel();
         if (geoModel == null) {
             return;
         }
@@ -39,7 +39,7 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
         ItemStack mainHandItem = entityLivingBaseIn.getMainHandItem();
         if (!offhandItem.isEmpty() || !mainHandItem.isEmpty()) {
             poseStack.pushPose();
-            boolean renderLayersFirst = ClientModelManager.getModel(instance.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
+            boolean renderLayersFirst = ClientModelManager.getModel(animatableEntity.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
             if (!geoModel.rightHandBones().isEmpty()) {
                 if (SlashBladeCompat.isSlashBladeItem(mainHandItem)) {
                     SlashBladeRender.renderMainhandSlashBlade(entityLivingBaseIn, geoModel, poseStack, bufferIn, packedLightIn, mainHandItem, partialTicks);

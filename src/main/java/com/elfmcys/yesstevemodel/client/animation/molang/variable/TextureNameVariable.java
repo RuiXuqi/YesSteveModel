@@ -8,8 +8,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 public class TextureNameVariable implements IValueEvaluator<String, IContext<AbstractClientPlayer>> {
     @Override
     public String eval(IContext<AbstractClientPlayer> ctx) {
-        if (ctx.animatableEntity() instanceof CustomPlayerEntity instance) {
-            return instance.getTextureName();
+        if (ctx.animatableEntity() instanceof CustomPlayerEntity animatableEntity) {
+            return animatableEntity.getTextureName();
         } else {
             return null;
         }

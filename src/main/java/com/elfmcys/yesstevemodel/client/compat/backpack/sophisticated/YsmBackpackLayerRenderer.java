@@ -43,13 +43,13 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity instance,
+    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity,
                        float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        GeoModelState geoModel = instance.getCurrentModel();
+        GeoModelState geoModel = animatableEntity.getCurrentModel();
         if (geoModel == null || geoModel.backpackBones().isEmpty()) {
             return;
         }
-        AbstractClientPlayer player = instance.getEntity();
+        AbstractClientPlayer player = animatableEntity.getEntity();
         final ItemStack[] backpack = new ItemStack[1];
         // 先尝试获取 curios 的背包
         if (CuriosCompat.isInstalled()) {
