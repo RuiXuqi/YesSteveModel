@@ -27,7 +27,7 @@ public class ClientLoggedEvent {
         }
         new Thread(() -> {
             try {
-                Thread.sleep(3000);
+                Thread.sleep(60000);
             } catch (InterruptedException ignored) {
             }
             Minecraft.getInstance().execute(() -> {
