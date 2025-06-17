@@ -280,7 +280,7 @@ tasks.register('reobfProguardJar', RemapJar) {
     outputs.upToDateWhen { false }
 
     input = tasks.proguardJar.outJarFileCollection.singleFile
-    destinationDirectory = tasks.tempJar.destinationDirectory
+    destinationDirectory = tasks.jar.destinationDirectory
     archiveBaseName = tasks.reobfJar.archiveBaseName
     archiveVersion = tasks.reobfJar.archiveVersion
     archiveClassifier = ""
