@@ -211,22 +211,26 @@ final class MolangParserImpl implements MolangParser {
                     lexer.next();
                     final List<Expression> arguments = new ArrayList<>();
 
-                    // start reading the arguments
-                    while (true) {
-                        arguments.add(parseCompoundExpression(lexer, 0));
-                        // update current character
-                        current = lexer.current();
-                        if (current.kind() == TokenKind.EOF) {
-                            throw new ParseException("Found EOF before closing RPAREN", null);
-                        } else if (current.kind() == TokenKind.RPAREN) {
-                            lexer.next();
-                            break;
-                        } else {
-                            if (current.kind() != TokenKind.COMMA) {
-                                throw new ParseException("Expected a comma", lexer.cursor());
+                    if (lexer.current().kind() != TokenKind.RPAREN) {
+                        // start reading the arguments
+                        while (true) {
+                            arguments.add(parseCompoundExpression(lexer, 0));
+                            // update current character
+                            current = lexer.current();
+                            if (current.kind() == TokenKind.EOF) {
+                                throw new ParseException("Found EOF before closing RPAREN", null);
+                            } else if (current.kind() == TokenKind.RPAREN) {
+                                lexer.next();
+                                break;
+                            } else {
+                                if (current.kind() != TokenKind.COMMA) {
+                                    throw new ParseException("Expected a comma", lexer.cursor());
+                                }
+                                lexer.next();
                             }
-                            lexer.next();
                         }
+                    } else {
+                        lexer.next();
                     }
 
                     return new CallExpression(call.function(), new Function.ArgumentCollection(arguments));
