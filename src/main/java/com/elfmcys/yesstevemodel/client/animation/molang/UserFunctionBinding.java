@@ -7,8 +7,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.runtime.*;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceLists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,15 +45,7 @@ public class UserFunctionBinding implements ObjectBinding, ScopedObject {
                     }
                 }
 
-                if (arguments.size() > 0) {
-                    var args = new ReferenceArrayList<>(arguments.size());
-                    for (int i = 0; i < arguments.size(); i++) {
-                        args.add(arguments.getValue(context, i));
-                    }
-                    return ctx.callUserFunction(context, cache, args);
-                } else {
-                    return ctx.callUserFunction(context, cache, ReferenceLists.emptyList());
-                }
+                return ctx.callUserFunction(context, cache, arguments);
             }
             return null;
         }

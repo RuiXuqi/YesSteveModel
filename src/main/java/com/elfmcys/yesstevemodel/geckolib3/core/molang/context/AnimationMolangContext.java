@@ -13,6 +13,7 @@ import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
+import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.RandomSource;
@@ -114,7 +115,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
 
     @Override
     public ITempVariableStorage tempStorage() {
-        return memory;
+        return memory.getStackMemory();
     }
 
     @Override
@@ -134,11 +135,23 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
 
     @Override
     public Object callUserFunction(ExecutionContext<?> ctx, IValue value, List<?> args) {
-        if (this.memory.pushUserFunctionStackFrame(args)) {
+        if (this.memory.getStackMemory().push(args)) {
             try {
                 return value.eval((ExpressionEvaluator<?>) ctx);
             } finally {
-                this.memory.popUserFunctionStackFrame();
+                this.memory.getStackMemory().pop();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Object callUserFunction(ExecutionContext<?> ctx, IValue value, Function.ArgumentCollection args) {
+        if (this.memory.getStackMemory().push(ctx, args)) {
+            try {
+                return value.eval((ExpressionEvaluator<?>) ctx);
+            } finally {
+                this.memory.getStackMemory().pop();
             }
         }
         return null;
@@ -146,7 +159,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
 
     @Override
     public List<?> userFunctionArgs() {
-        return memory.getUserFunctionArgs();
+        return memory.getStackMemory().argsAccessor();
     }
 
     @Override

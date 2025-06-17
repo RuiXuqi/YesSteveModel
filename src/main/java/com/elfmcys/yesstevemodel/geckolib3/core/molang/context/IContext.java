@@ -9,6 +9,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.RandomSource;
@@ -48,6 +49,8 @@ public interface IContext<TEntity> {
     IValue getUserFunction(int name);
 
     Object callUserFunction(ExecutionContext<?> context, IValue value, List<?> args);
+
+    Object callUserFunction(ExecutionContext<?> ctx, IValue value, Function.ArgumentCollection args);
 
     List<?> userFunctionArgs();
 
