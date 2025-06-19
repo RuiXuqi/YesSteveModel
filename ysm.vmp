@@ -9,6 +9,7 @@
         <Folders />
         <Procedures>
             <Procedure MapAddress="JNI_OnLoad" Options="0" Complexity="25" />
+            <Procedure MapAddress="JNI_OnUnload" Options="0" Complexity="25" />
         </Procedures>
         <Objects />
     </Protection>
