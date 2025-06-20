@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
 import net.minecraft.client.Minecraft;
@@ -22,7 +22,7 @@ public class PlayerMoveEvent {
     public static void onKeyboardInput(InputEvent.Key event) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (isMoveKey() && player != null) {
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 if (!LOCK_EXTRA_ANIMATION && cap.isPlayingAnimation()) {
                     if (NetworkHandler.isRemoteChannelPresent()) {
                         NetworkHandler.sendToServer(SetPlayAnimation.stop());

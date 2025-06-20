@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.client.Minecraft;
@@ -36,6 +36,6 @@ public class CustomGuiPlayerEntity extends CustomPlayerEntity {
         if (player == null) {
             return;
         }
-        player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(PlayerGeoCapability::waitForAsyncUpdate);
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::waitForAsyncUpdate);
     }
 }

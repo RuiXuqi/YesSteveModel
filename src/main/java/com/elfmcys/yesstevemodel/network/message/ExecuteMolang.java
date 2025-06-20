@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -58,7 +58,7 @@ public class ExecuteMolang {
         for (int entityId : message.entityIds) {
             Entity entity = mc.level.getEntity(entityId);
             if (entity instanceof AbstractClientPlayer player) {
-                player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     try {
                         IValue value = CustomMolangParser.parseSingleExpressionUnsafe(message.molangExpression);
                         cap.executeMolangExp(value, true, false, null);

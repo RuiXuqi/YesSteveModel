@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
@@ -30,7 +30,7 @@ public class ModelButton extends Button {
     protected final boolean needAuth;
     private final int color;
     protected final ClientModel model;
-    protected final CustomGuiPlayerEntity instance;
+    protected final CustomGuiPlayerEntity animatedEntity;
     private final String hoverAnimationName;
     private final String hoverFadeoutAnimationName;
     private final String focusAnimationName;
@@ -39,13 +39,13 @@ public class ModelButton extends Button {
 
     private long hoverTime = -1L;
 
-    public ModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity instance, ClientModel model) {
-        super(pX, pY, 52, 90, Component.literal(instance.getModelId()), (b) -> {
+    public ModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
+        super(pX, pY, 52, 90, Component.literal(animatedEntity.getModelId()), (b) -> {
         }, DEFAULT_NARRATION);
         this.needAuth = needAuth;
         this.color = needAuth ? 0x7F_000000 : 0xFF_434242;
         this.model = model;
-        this.instance = instance;
+        this.animatedEntity = animatedEntity;
         this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
 
         var animations = model.animations();
@@ -79,14 +79,14 @@ public class ModelButton extends Button {
         }
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 var oldModelId = cap.getModelId();
-                cap.setModelAndTexture(instance.getModelId(), instance.getTextureName());
+                cap.setModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName());
                 if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
-                    if (!oldModelId.equals(instance.getModelId())) {
+                    if (!oldModelId.equals(animatedEntity.getModelId())) {
                         roamingStruct.reset(roamingStruct.getInstanceId() + 1, null);
                     }
-                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureName(), roamingStruct.getInstanceId()));
+                    NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName(), roamingStruct.getInstanceId()));
                 }
             });
         }
@@ -96,18 +96,18 @@ public class ModelButton extends Button {
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         if (isHovered()) {
             hoverTime = Util.getMillis();
-            instance.setHoverAnimation(hoverAnimationName);
+            animatedEntity.setHoverAnimation(hoverAnimationName);
         } else {
             if (Util.getMillis() - hoverTime < fadeoutTime) {
-                instance.setHoverAnimation(this.hoverFadeoutAnimationName);
+                animatedEntity.setHoverAnimation(this.hoverFadeoutAnimationName);
             } else {
-                instance.setHoverAnimation(AnimationRegister.EMPTY);
+                animatedEntity.setHoverAnimation(AnimationRegister.EMPTY);
             }
         }
         if (isFocused()) {
-            instance.setFocusAnimation(focusAnimationName);
+            animatedEntity.setFocusAnimation(focusAnimationName);
         } else {
-            instance.setFocusAnimation(AnimationRegister.EMPTY);
+            animatedEntity.setFocusAnimation(AnimationRegister.EMPTY);
         }
 
         Minecraft minecraft = Minecraft.getInstance();
@@ -121,7 +121,7 @@ public class ModelButton extends Button {
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 20, 30, instance, disablePreviewRotation);
+        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 20, 30, animatedEntity, disablePreviewRotation);
         RenderSystem.disableScissor();
 
         Component message = this.getMessage();
@@ -141,7 +141,7 @@ public class ModelButton extends Button {
 
         if (minecraft.player != null) {
             minecraft.player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
-                if (cap.containModel(instance.getModelId())) {
+                if (cap.containModel(animatedEntity.getModelId())) {
                     graphics.blit(ICON, this.getX() + this.width - 14, this.getY(), 16, 16, 16, 0, 16, 16, 256, 256);
                 }
             });

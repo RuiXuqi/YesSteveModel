@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapability;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.client.Minecraft;
@@ -74,7 +74,7 @@ public class SyncModelInfo {
 
     @OnlyIn(Dist.CLIENT)
     private static void handleCapability(Entity entity, ModelInfoCapability newCap) {
-        entity.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+        entity.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setModelAndTexture(newCap.getModelId(), newCap.getSelectTexture());
             cap.setRemoteVariables(newCap.getInstanceId(), newCap.getVariables());
             if (newCap.isPlayAnimation()) {

@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.molang.functions;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.PlayerEntityFunction;
@@ -20,7 +20,7 @@ public class Sync extends PlayerEntityFunction {
             return null;
         }
 
-        if (context.entity().animatableEntity() instanceof PlayerGeoCapability) {
+        if (context.entity().animatableEntity() instanceof PlayerAnimatableCapability) {
             // 确认不是 GUI 渲染用
             if (NetworkHandler.isRemoteChannelPresent()) {
                 // 确认服务端已安装本模组

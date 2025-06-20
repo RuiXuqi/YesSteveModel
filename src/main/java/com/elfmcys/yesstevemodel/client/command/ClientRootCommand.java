@@ -1,14 +1,13 @@
 package com.elfmcys.yesstevemodel.client.command;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.command.sub.MolangCommand;
 import com.elfmcys.yesstevemodel.client.command.sub.SimpleWatchCommand;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.CommandUtil;
@@ -48,7 +47,7 @@ public class ClientRootCommand {
                 return Suggestions.empty();
             }
             Set<String> vars = Sets.newHashSet();
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 // v 变量
                 cap.getAnimationProcessor().visitScopedVariableNames(name -> {
                     vars.add(String.format("v.%s", name));
@@ -91,7 +90,7 @@ public class ClientRootCommand {
                 return Suggestions.empty();
             }
             Set<String> vars = Sets.newHashSet();
-            player.getCapability(PlayerGeoCapabilityProvider.CAP)
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
                     .ifPresent(cap -> cap.getAnimationData()
                             .getAnimationControllers()
                             .forEach(c -> vars.add(c.getName())));

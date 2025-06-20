@@ -9,8 +9,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class PlayerGeoCapability extends CustomPlayerEntity {
-    public PlayerGeoCapability(AbstractClientPlayer player) {
+public class PlayerAnimatableCapability extends CustomPlayerEntity {
+    public PlayerAnimatableCapability(AbstractClientPlayer player) {
         super(player, player instanceof LocalPlayer, true);
     }
 

@@ -1,12 +1,11 @@
 package com.elfmcys.yesstevemodel.network.message;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 public class MolangSync {
@@ -42,7 +41,7 @@ public class MolangSync {
         if (context.getDirection().getReceptionSide().isClient()) {
             context.enqueueWork(() -> {
                 var entity = Minecraft.getInstance().level.getEntity(message.entityId);
-                entity.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                entity.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     cap.molangSync(message.args);
                 });
             });

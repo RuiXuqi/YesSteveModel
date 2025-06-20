@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
@@ -47,7 +47,7 @@ public class ExtraAnimationKey {
     public static void onKeyboardInput(InputEvent.Key event) {
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
             if (key.isDown() && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
                     int index = EXTRA_ANIMATION_KEYS.indexOf(key);
                     ModelProperties properties = model.modelInfo().properties();
                     var animationMap = properties.extraAnimationOrderMap();

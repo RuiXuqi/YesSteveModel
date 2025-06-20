@@ -29,8 +29,8 @@ public class MaidModelScreen extends PlayerModelScreen {
     }
 
     @Override
-    protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity instance, ClientModel model) {
-        return new MaidModelButton(xStart, yStart, needAuth, instance, model, maid);
+    protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
+        return new MaidModelButton(xStart, yStart, needAuth, animatedEntity, model, maid);
     }
 
     @Override

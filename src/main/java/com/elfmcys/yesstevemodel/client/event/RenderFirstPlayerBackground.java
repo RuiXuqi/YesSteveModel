@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
@@ -52,7 +52,7 @@ public class RenderFirstPlayerBackground {
             return;
         }
         ALREADY_RENDERED = true;
-        player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             String modelId = cap.getModelId();
             ClientModel model = ClientModelManager.getModel(modelId).orElse(null);
             if (model == null || !model.armModel().hasFirstPersonBackground) {

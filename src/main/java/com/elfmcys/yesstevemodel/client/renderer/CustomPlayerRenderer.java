@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.renderer;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapability;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
@@ -40,7 +40,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
     @Override
     @SuppressWarnings("all")
     public void render(AbstractClientPlayer player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        PlayerGeoCapability cap = player.getCapability(PlayerGeoCapabilityProvider.CAP).orElse(null);
+        PlayerAnimatableCapability cap = player.getCapability(PlayerAnimatableCapabilityProvider.CAP).orElse(null);
         if (cap == null) {
             return;
         }
@@ -92,7 +92,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
     @Override
     @NotNull
     public ResourceLocation getTextureLocation(AbstractClientPlayer pEntity) {
-        return pEntity.getCapability(PlayerGeoCapabilityProvider.CAP).map(CustomPlayerEntity::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
+        return pEntity.getCapability(PlayerAnimatableCapabilityProvider.CAP).map(CustomPlayerEntity::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
     }
 
     @Override

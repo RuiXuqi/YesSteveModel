@@ -14,8 +14,8 @@ import net.minecraft.network.chat.Component;
 public class MaidModelButton extends ModelButton {
     private final EntityMaid maid;
 
-    public MaidModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity instance, ClientModel model, EntityMaid maid) {
-        super(pX, pY, needAuth, instance, model);
+    public MaidModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model, EntityMaid maid) {
+        super(pX, pY, needAuth, animatedEntity, model);
         this.maid = maid;
     }
 
@@ -24,15 +24,15 @@ public class MaidModelButton extends ModelButton {
         if (needAuth) {
             return;
         }
-        Component name = NameUtil.getModeName(model, instance.getModelId());
+        Component name = NameUtil.getModeName(model, animatedEntity.getModelId());
         this.maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
             var oldModelId = cap.getModelId();
-            cap.setYsmModel(instance.getModelId(), instance.getTextureName());
+            cap.setYsmModel(animatedEntity.getModelId(), animatedEntity.getTextureName());
             RoamingStruct remoteStruct = cap.getRemoteStruct();
-            if (!oldModelId.equals(instance.getModelId())) {
+            if (!oldModelId.equals(animatedEntity.getModelId())) {
                 remoteStruct.reset(remoteStruct.getInstanceId() + 1, null);
             }
-            NetworkHandler.CHANNEL.sendToServer(new YsmMaidModelMessage(this.maid.getId(), instance.getModelId(), instance.getTextureName(), name));
+            NetworkHandler.CHANNEL.sendToServer(new YsmMaidModelMessage(this.maid.getId(), animatedEntity.getModelId(), animatedEntity.getTextureName(), name));
         });
     }
 }

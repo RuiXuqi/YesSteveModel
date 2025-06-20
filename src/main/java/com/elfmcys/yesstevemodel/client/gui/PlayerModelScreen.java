@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
@@ -39,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 public class PlayerModelScreen extends Screen {
-    private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_INSTANCE = new CustomGuiPlayerEntity[10];
+    private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_ENTITY = new CustomGuiPlayerEntity[10];
 
     private static int page = 0;
 
@@ -53,24 +53,24 @@ public class PlayerModelScreen extends Screen {
     protected int y;
 
     static {
-        for (int i = 0; i < MODEL_PREVIEW_INSTANCE.length; i++) {
-            CustomGuiPlayerEntity instance = new CustomGuiPlayerEntity();
-            instance.setPreviewAnimation(AnimationRegister.IDLE);
-            MODEL_PREVIEW_INSTANCE[i] = instance;
+        for (int i = 0; i < MODEL_PREVIEW_ENTITY.length; i++) {
+            CustomGuiPlayerEntity animatedEntity = new CustomGuiPlayerEntity();
+            animatedEntity.setPreviewAnimation(AnimationRegister.IDLE);
+            MODEL_PREVIEW_ENTITY[i] = animatedEntity;
         }
     }
 
     public PlayerModelScreen() {
         super(Component.literal("YSM Player Model GUI"));
         this.category = Category.ALL;
-        for (CustomGuiPlayerEntity instance : MODEL_PREVIEW_INSTANCE) {
-            instance.setPlayer(Minecraft.getInstance().player);
+        for (CustomGuiPlayerEntity animatedEntity : MODEL_PREVIEW_ENTITY) {
+            animatedEntity.setPlayer(Minecraft.getInstance().player);
         }
         clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
     }
 
-    protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity instance, ClientModel model) {
-        return new ModelButton(xStart, yStart, needAuth, instance, model);
+    protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
+        return new ModelButton(xStart, yStart, needAuth, animatedEntity, model);
     }
 
     protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
@@ -160,7 +160,7 @@ public class PlayerModelScreen extends Screen {
         addRenderableWidget(new FlatIconButton(x + 5, y + 5, 20, 20, 80, 16, b -> {
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;
-                player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
                         if (model.modelInfo().metadata() != null) {
                             Minecraft.getInstance().setScreen(getModelInfoScreen(this, model));
@@ -172,7 +172,7 @@ public class PlayerModelScreen extends Screen {
         addRenderableWidget(new FlatIconButton(x + 28, y + 5, 79, 20, 32, 16, (b) -> {
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;
-                player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
                         Minecraft.getInstance().setScreen(getTextureScreen(this, cap.getModelId(), model));
                     });
@@ -239,12 +239,12 @@ public class PlayerModelScreen extends Screen {
             int xStart = x + 143 + 55 * (i % 5);
             int yStart = y + 28 + 93 * (i / 5);
             if (minecraft != null && minecraft.player != null) {
-                final CustomGuiPlayerEntity instance = MODEL_PREVIEW_INSTANCE[i];
+                final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                     var model = models.get(id);
-                    instance.setModelAndTexture(id, model.defaultTextureName());
-                    instance.setPreviewAnimation(model.modelInfo().properties().previewAnimation());
-                    addRenderableWidget(getModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), instance, model));
+                    animatedEntity.setModelAndTexture(id, model.defaultTextureName());
+                    animatedEntity.setPreviewAnimation(model.modelInfo().properties().previewAnimation());
+                    addRenderableWidget(getModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), animatedEntity, model));
                 });
             }
         }
@@ -292,7 +292,7 @@ public class PlayerModelScreen extends Screen {
             InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x + 67, y + 190, 70, x + 67 - mouseX, y + 180 - 95 - mouseY, player);
             RenderSystem.disableScissor();
 
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 String modelId = cap.getModelId();
                 List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelId), 125);
                 int lineY = y + 205;

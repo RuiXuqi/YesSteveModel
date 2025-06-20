@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
@@ -33,8 +33,8 @@ public class PlayerTextureScreen extends Screen {
     private static final float SCALE_MIN = 18f;
     private static final float PITCH_MAX = 90f;
     private static final float PITCH_MIN = -90f;
-    private static final CustomGuiPlayerEntity PREVIEW_INSTANCE = new CustomGuiPlayerEntity();
-    private static final CustomGuiPlayerEntity[] TEXTURE_BUTTON_INSTANCE = new CustomGuiPlayerEntity[4];
+    private static final CustomGuiPlayerEntity PREVIEW_ENTITY = new CustomGuiPlayerEntity();
+    private static final CustomGuiPlayerEntity[] TEXTURE_BUTTON_ENTITY = new CustomGuiPlayerEntity[4];
 
     private static final int LEFT_MOUSE_BUTTON = 0;
     private static final int RIGHT_MOUSE_BUTTON = 1;
@@ -60,10 +60,10 @@ public class PlayerTextureScreen extends Screen {
     private boolean showGround = true;
 
     static {
-        for (int i = 0; i < TEXTURE_BUTTON_INSTANCE.length; i++) {
-            CustomGuiPlayerEntity instance = new CustomGuiPlayerEntity();
-            instance.setPreviewAnimation(AnimationRegister.IDLE);
-            TEXTURE_BUTTON_INSTANCE[i] = instance;
+        for (int i = 0; i < TEXTURE_BUTTON_ENTITY.length; i++) {
+            CustomGuiPlayerEntity animatedEntity = new CustomGuiPlayerEntity();
+            animatedEntity.setPreviewAnimation(AnimationRegister.IDLE);
+            TEXTURE_BUTTON_ENTITY[i] = animatedEntity;
         }
     }
 
@@ -76,14 +76,14 @@ public class PlayerTextureScreen extends Screen {
         this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
         this.animations.sort(String::compareTo);
         this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
-        PREVIEW_INSTANCE.setPlayer(Minecraft.getInstance().player);
-        for (CustomGuiPlayerEntity instance : TEXTURE_BUTTON_INSTANCE) {
-            instance.setPlayer(Minecraft.getInstance().player);
+        PREVIEW_ENTITY.setPlayer(Minecraft.getInstance().player);
+        for (CustomGuiPlayerEntity animatedEntity : TEXTURE_BUTTON_ENTITY) {
+            animatedEntity.setPlayer(Minecraft.getInstance().player);
         }
     }
 
-    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity instance, boolean disablePreviewRotation, int modelIndex) {
-        return new TextureButton(pX, pY, instance, disablePreviewRotation);
+    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, boolean disablePreviewRotation, int modelIndex) {
+        return new TextureButton(pX, pY, animatedEntity, disablePreviewRotation);
     }
 
     @Override
@@ -174,9 +174,9 @@ public class PlayerTextureScreen extends Screen {
             }
             int xStart = x + 306 + 56 * (i % 2);
             int yStart = y + 5 + 104 * (i / 2);
-            CustomGuiPlayerEntity instance = TEXTURE_BUTTON_INSTANCE[i];
-            instance.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
-            addRenderableWidget(getTextureButton(xStart, yStart, instance, this.disablePreviewRotation, modelIndex));
+            CustomGuiPlayerEntity animatedEntity = TEXTURE_BUTTON_ENTITY[i];
+            animatedEntity.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
+            addRenderableWidget(getTextureButton(xStart, yStart, animatedEntity, this.disablePreviewRotation, modelIndex));
         }
     }
 
@@ -199,8 +199,8 @@ public class PlayerTextureScreen extends Screen {
         int scissorW = (int) (206 * guiScale);
         int scissorH = (int) (235 * guiScale);
 
-        if (!PREVIEW_INSTANCE.hasPreviewAnimation(animation)) {
-            PREVIEW_INSTANCE.setPreviewAnimation(animation);
+        if (!PREVIEW_ENTITY.hasPreviewAnimation(animation)) {
+            PREVIEW_ENTITY.setPreviewAnimation(animation);
         }
         renderReferenceEntity(graphics, scissorX, scissorY, scissorW, scissorH);
 
@@ -217,9 +217,9 @@ public class PlayerTextureScreen extends Screen {
 
     protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY, int scissorW, int scissorH) {
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        PREVIEW_INSTANCE.getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-            PREVIEW_INSTANCE.setModelAndTexture(modelId, cap.getTextureName());
-            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_INSTANCE, showGround);
+        PREVIEW_ENTITY.getEntity().getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            PREVIEW_ENTITY.setModelAndTexture(modelId, cap.getTextureName());
+            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_ENTITY, showGround);
         });
         RenderSystem.disableScissor();
     }

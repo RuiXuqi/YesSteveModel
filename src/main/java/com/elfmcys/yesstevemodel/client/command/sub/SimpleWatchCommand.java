@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.command.sub;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
@@ -69,7 +69,7 @@ public class SimpleWatchCommand {
             ctx.getSource().sendFailure(Component.translatable("message.yes_steve_model.model.debug_animation.parser_error", e.getMessage()));
             return Command.SINGLE_SUCCESS;
         }
-        mc.execute(() -> mc.player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+        mc.execute(() -> mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             cap.getDebugInfo().add(DebugInfo.Phase.POST_ANIMATION, exp, value);
             // 强制打开调试界面
             DebugAnimationKey.TYPE = DebugAnimationKey.DebugType.CUSTOM;
@@ -85,7 +85,7 @@ public class SimpleWatchCommand {
             return Command.SINGLE_SUCCESS;
         }
         Minecraft mc = Minecraft.getInstance();
-        mc.execute(() -> mc.player.getCapability(PlayerGeoCapabilityProvider.CAP)
+        mc.execute(() -> mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
                 .ifPresent(cap -> cap.getDebugInfo().clear()));
         DebugAnimationScreen.clearDebugControllerIndex();
         return Command.SINGLE_SUCCESS;
@@ -98,7 +98,7 @@ public class SimpleWatchCommand {
         }
         Minecraft mc = Minecraft.getInstance();
         String controllerName = StringArgumentType.getString(ctx, CONTROLLER_NAME);
-        mc.execute(() -> mc.player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+        mc.execute(() -> mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             List<IAnimationController> controllers = cap.getAnimationData().getAnimationControllers();
             for (int index = 0; index < controllers.size(); index++) {
                 IAnimationController controller = controllers.get(index);

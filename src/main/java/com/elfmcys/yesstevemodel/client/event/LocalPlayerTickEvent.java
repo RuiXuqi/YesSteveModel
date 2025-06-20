@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.mixin.client.MinecraftAccessor;
 import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
@@ -50,7 +50,7 @@ public class LocalPlayerTickEvent {
     }
 
     private static void submitRoamingVariableChanges(LocalPlayer player) {
-        player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
                 if(!roamingStruct.isDirty()) {
                     return;

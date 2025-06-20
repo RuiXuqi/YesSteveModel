@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -40,7 +40,7 @@ public class DebugAnimationKey {
                 return;
             }
 
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 if (TYPE == DebugType.NONE) {
                     cap.getDebugInfo().setEnabled(false);
                 } else {

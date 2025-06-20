@@ -27,7 +27,7 @@ public final class CommonEvent {
         event.register(AuthModelsCapability.class);
         event.register(StarModelsCapability.class);
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            event.register(PlayerGeoCapability.class);
+            event.register(PlayerAnimatableCapability.class);
             event.register(ArrowGeoCapability.class);
         }
     }

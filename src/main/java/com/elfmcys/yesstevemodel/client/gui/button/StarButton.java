@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetStarModel;
@@ -26,7 +26,7 @@ public class StarButton extends FlatColorButton {
         int startY = (this.height - 16) / 2;
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
                 String modelId = modelInfoCap.getModelId();
                 if (starModelsCap.containModel(modelId)) {
                     graphics.blit(ICON, this.getX() + startX, this.getY() + startY, 16, 16, 16, 0, 16, 16, 256, 256);
@@ -41,7 +41,7 @@ public class StarButton extends FlatColorButton {
     public void onPress() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
                 String modelId = modelInfoCap.getModelId();
                 if (starModelsCap.containModel(modelId)) {
                     starModelsCap.removeModel(modelId);

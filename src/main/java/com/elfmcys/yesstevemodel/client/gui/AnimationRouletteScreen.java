@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatCheckbox;
@@ -418,7 +418,7 @@ public class AnimationRouletteScreen extends Screen {
                 NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId, entity.getId()));
             }
         } else if (player != null) {
-            player.getCapability(PlayerGeoCapabilityProvider.CAP)
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
                     .ifPresent(cap -> cap.playAnimation(selectKey));
         }
         if (player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {

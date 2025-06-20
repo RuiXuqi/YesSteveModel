@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -19,13 +19,13 @@ import net.minecraft.util.FormattedCharSequence;
 import java.util.List;
 
 public class TextureButton extends Button {
-    protected final CustomGuiPlayerEntity instance;
+    protected final CustomGuiPlayerEntity animatedEntity;
     protected final boolean disablePreviewRotation;
 
-    public TextureButton(int pX, int pY, CustomGuiPlayerEntity instance, boolean disablePreviewRotation) {
+    public TextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, boolean disablePreviewRotation) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
         }, DEFAULT_NARRATION);
-        this.instance = instance;
+        this.animatedEntity = animatedEntity;
         this.disablePreviewRotation = disablePreviewRotation;
     }
 
@@ -33,10 +33,10 @@ public class TextureButton extends Button {
     public void onPress() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.setTextureName(instance.getTextureName());
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+                cap.setTextureName(animatedEntity.getTextureName());
                 if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
-                    NetworkHandler.sendToServer(new SetModelAndTexture(instance.getModelId(), instance.getTextureName(), roamingStruct.getInstanceId()));
+                    NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName(), roamingStruct.getInstanceId()));
                 }
             });
         }
@@ -50,7 +50,7 @@ public class TextureButton extends Button {
         graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF_434242, 0xFF_434242);
         renderReferenceEntity(graphics);
 
-        Component message = Component.literal(instance.getTextureName());
+        Component message = Component.literal(animatedEntity.getTextureName());
         List<FormattedCharSequence> split = font.split(message, 50);
         if (split.size() > 1) {
             graphics.drawCenteredString(font, split.get(0), this.getX() + this.width / 2, this.getY() + this.height - 19, 0xF3EFE0);
@@ -74,7 +74,7 @@ public class TextureButton extends Button {
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, instance, this.disablePreviewRotation);
+        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, animatedEntity, this.disablePreviewRotation);
         RenderSystem.disableScissor();
     }
 }

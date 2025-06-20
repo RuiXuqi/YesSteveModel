@@ -40,8 +40,8 @@ public final class CapabilityEvent {
             if (!player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).isPresent() && !event.getCapabilities().containsKey(STAR_MODELS_CAP)) {
                 event.addCapability(STAR_MODELS_CAP, new StarModelsCapabilityProvider());
             }
-            if (entity.level().isClientSide() && event.getObject() instanceof AbstractClientPlayer clientPlayer && !clientPlayer.getCapability(PlayerGeoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ANIMATABLE_CAP)) {
-                event.addCapability(ANIMATABLE_CAP, new PlayerGeoCapabilityProvider(clientPlayer));
+            if (entity.level().isClientSide() && event.getObject() instanceof AbstractClientPlayer clientPlayer && !clientPlayer.getCapability(PlayerAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ANIMATABLE_CAP)) {
+                event.addCapability(ANIMATABLE_CAP, new PlayerAnimatableCapabilityProvider(clientPlayer));
             }
         } else if (entity instanceof AbstractArrow) {
             if (entity.level().isClientSide() && !entity.getCapability(ArrowGeoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ARROW_MODEL_INFO_CAP)) {

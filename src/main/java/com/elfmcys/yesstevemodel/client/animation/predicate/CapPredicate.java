@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -17,7 +17,7 @@ public class CapPredicate implements IAnimationPredicate<CustomPlayerEntity> {
             return playLoopAnimation(event, animatable.getPreviewAnimation());
         }
 
-        return animatable.getEntity().getCapability(PlayerGeoCapabilityProvider.CAP).map(cap -> {
+        return animatable.getEntity().getCapability(PlayerAnimatableCapabilityProvider.CAP).map(cap -> {
             if (cap.isPlayingAnimation()) {
                 if (cap.isAnimationDirty()) {
                     cap.clearAnimationDirty();

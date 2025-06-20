@@ -19,8 +19,8 @@ public class MaidTextureScreen extends PlayerTextureScreen {
     }
 
     @Override
-    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity instance, boolean disablePreviewRotation, int modelIndex) {
-        return new MaidTextureButton(pX, pY, instance, disablePreviewRotation, maid, modelIndex);
+    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, boolean disablePreviewRotation, int modelIndex) {
+        return new MaidTextureButton(pX, pY, animatedEntity, disablePreviewRotation, maid, modelIndex);
     }
 
     @Override

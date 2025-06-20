@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
-import com.elfmcys.yesstevemodel.capability.PlayerGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
@@ -40,7 +40,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
         if (player == null) {
             return;
         }
-        player.getCapability(PlayerGeoCapabilityProvider.CAP).ifPresent(cap -> {
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             int[] y = {5};
 
             DebugInfo debugInfo = cap.getDebugInfo();

@@ -14,13 +14,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
-public class PlayerGeoCapabilityProvider implements ICapabilityProvider {
-    public static Capability<PlayerGeoCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
+public class PlayerAnimatableCapabilityProvider implements ICapabilityProvider {
+    public static Capability<PlayerAnimatableCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
     });
-    private PlayerGeoCapability instance;
+    private PlayerAnimatableCapability instance;
     private AbstractClientPlayer player;
 
-    public PlayerGeoCapabilityProvider(AbstractClientPlayer player) {
+    public PlayerAnimatableCapabilityProvider(AbstractClientPlayer player) {
         this.player = player;
     }
 
@@ -37,9 +37,9 @@ public class PlayerGeoCapabilityProvider implements ICapabilityProvider {
     }
 
     @NotNull
-    private PlayerGeoCapability createCapability() {
+    private PlayerAnimatableCapability createCapability() {
         if (instance == null) {
-            this.instance = new PlayerGeoCapability(player);
+            this.instance = new PlayerAnimatableCapability(player);
             player = null;
         }
         return instance;

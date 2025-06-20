@@ -23,8 +23,8 @@ public class MaidTextureButton extends TextureButton {
     private String textureName;
     private Component name;
 
-    public MaidTextureButton(int pX, int pY, CustomGuiPlayerEntity instance, boolean disablePreviewRotation, EntityMaid rawMaid, int modelIndex) {
-        super(pX, pY, instance, disablePreviewRotation);
+    public MaidTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, boolean disablePreviewRotation, EntityMaid rawMaid, int modelIndex) {
+        super(pX, pY, animatedEntity, disablePreviewRotation);
         this.renderMaid = new EntityMaid(rawMaid.level());
         this.renderMaid.setIsYsmModel(true);
         this.renderMaid.setOnGround(true);
