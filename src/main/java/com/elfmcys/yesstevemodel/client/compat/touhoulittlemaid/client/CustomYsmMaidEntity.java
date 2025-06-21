@@ -17,12 +17,12 @@ import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationContro
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.github.tartaricacid.touhoulittlemaid.api.entity.IMaid;
@@ -52,8 +52,6 @@ import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements IGeoEntity {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
-    private int roamingVarsUpdateFlag = -1;
-    private final RoamingStruct remoteStruct = new RoamingStruct();
     private final Vector2f headRot = new Vector2f();
     private volatile boolean renderedWithTempChanges = false;
 
@@ -211,20 +209,17 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     }
 
     public void setRemoteStruct(Object2FloatOpenHashMap<String> roamingVars) {
-        int instanceId = this.remoteStruct.getInstanceId();
-        this.remoteStruct.reset(instanceId, roamingVars);
+        // TODO
     }
 
     @Override
     public void updateRoamingVars(Object2FloatOpenHashMap<String> roamingVars) {
-        if (this.roamingVarsUpdateFlag != this.entity.roamingVarsUpdateFlag) {
-            this.remoteStruct.reset(this.remoteStruct.getInstanceId() + 1, roamingVars);
-            this.roamingVarsUpdateFlag = this.entity.roamingVarsUpdateFlag;
-        }
+        // TODO
     }
 
-    public RoamingStruct getRemoteStruct() {
-        return remoteStruct;
+    public Struct getRemoteStruct() {
+        // TODO
+        return null;
     }
 
     @Override

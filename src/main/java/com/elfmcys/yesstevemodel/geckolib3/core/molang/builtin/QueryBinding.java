@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin;
 
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.event.LocalPlayerTickEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
@@ -93,12 +94,20 @@ public class QueryBinding extends ContextBinding {
         playerVar("has_cape", ctx -> hasCape(ctx.entity()));
         playerVar("cape_flap_amount", QueryBinding::getCapeFlapAmount);
         playerVar("player_level", ctx -> ctx.entity().experienceLevel);
-        playerVar("is_jumping", ctx -> !ctx.entity().getAbilities().flying && !ctx.entity().isPassenger() && !ctx.entity().onGround() && !ctx.entity().isInWater());
+        playerVar("is_jumping", ctx -> !isFlying(ctx) && !ctx.entity().isPassenger() && !ctx.entity().onGround() && !ctx.entity().isInWater());
     }
 
     private static Optional<AnimationContext> getAnimationContext(IContext<?> ctx) {
         AnimationContext animationContext = ctx.animationContext();
         return Optional.ofNullable(animationContext);
+    }
+
+    private static boolean isFlying(IContext<AbstractClientPlayer> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.isFlying();
+        } else {
+            return ctx.entity().getAbilities().flying;
+        }
     }
 
     private static boolean hasCape(AbstractClientPlayer player) {

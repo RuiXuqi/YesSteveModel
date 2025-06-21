@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 
-public class CustomGuiPlayerEntity extends CustomPlayerEntity {
+public final class CustomGuiPlayerEntity extends CustomPlayerEntity {
     public CustomGuiPlayerEntity() {
         super(Minecraft.getInstance().player, false, false);
     }

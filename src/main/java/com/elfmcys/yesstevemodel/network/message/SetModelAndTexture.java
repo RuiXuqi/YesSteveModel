@@ -13,25 +13,21 @@ import java.util.function.Supplier;
 public class SetModelAndTexture {
     private final String modelId;
     private final String selectTexture;
-    private final int instanceId;
 
-    public SetModelAndTexture(String modelId, String selectTexture, int instanceId) {
+    public SetModelAndTexture(String modelId, String selectTexture) {
         this.modelId = modelId;
         this.selectTexture = selectTexture;
-        this.instanceId = instanceId;
     }
 
     public static void encode(SetModelAndTexture message, FriendlyByteBuf buf) {
         buf.writeUtf(message.modelId);
         buf.writeUtf(message.selectTexture);
-        buf.writeVarInt(message.instanceId);
     }
 
     public static SetModelAndTexture decode(FriendlyByteBuf buf) {
         var modelId = buf.readUtf();
         var selectTexture = buf.readUtf();
-        var instanceId = buf.readVarInt();
-        return new SetModelAndTexture(modelId, selectTexture, instanceId);
+        return new SetModelAndTexture(modelId, selectTexture);
     }
 
     public static void handle(SetModelAndTexture message, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -58,7 +54,6 @@ public class SetModelAndTexture {
                     || !ServerModelManager.getModels().get(modelId).textures().contains(message.selectTexture)) {
                 modelIdCap.setDefault();
             } else {
-                modelIdCap.resetVariables(message.instanceId);
                 modelIdCap.setModelAndTexture(message.modelId, message.selectTexture);
             }
             modelIdCap.stopAnimation();

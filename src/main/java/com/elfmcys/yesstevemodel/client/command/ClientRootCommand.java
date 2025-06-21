@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.command.sub.MolangCommand;
 import com.elfmcys.yesstevemodel.client.command.sub.SimpleWatchCommand;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
+import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.CommandUtil;
@@ -54,9 +54,9 @@ public class ClientRootCommand {
                 });
 
                 // v.roaming 变量
-                Struct remoteStruct = cap.getRemoteStruct();
-                if (remoteStruct instanceof RoamingStruct struct) {
-                    struct.getAllName().forEach(s -> {
+                Struct remoteStruct = cap.getRoamingStruct();
+                if (remoteStruct instanceof LocalRoamingStruct struct) {
+                    struct.visitNames(s -> {
                         Object object = struct.getProperty(StringPool.getName(s));
                         if (object != null) {
                             vars.add(String.format("v.roaming.%s", s));

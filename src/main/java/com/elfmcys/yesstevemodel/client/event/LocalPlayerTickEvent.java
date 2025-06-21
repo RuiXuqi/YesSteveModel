@@ -1,13 +1,9 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.mixin.client.MinecraftAccessor;
 import com.elfmcys.yesstevemodel.mixin.client.TimerAccessor;
-import com.elfmcys.yesstevemodel.network.NetworkHandler;
-import com.elfmcys.yesstevemodel.network.message.SubmitVariableChanges;
-import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.objects.ReferenceFloatPair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,8 +11,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.List;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class LocalPlayerTickEvent {
@@ -31,7 +25,7 @@ public class LocalPlayerTickEvent {
         }
 
         updateYawSpeed(player);
-        submitRoamingVariableChanges(player);
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::handlePlayerStateChanges);
     }
 
     private static void updateYawSpeed(LocalPlayer player) {
@@ -47,24 +41,6 @@ public class LocalPlayerTickEvent {
 
         LAST_TIME = time;
         LAST_YAW = yaw;
-    }
-
-    private static void submitRoamingVariableChanges(LocalPlayer player) {
-        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
-                if(!roamingStruct.isDirty()) {
-                    return;
-                }
-
-                var changes = roamingStruct.popChanges();
-                List<ReferenceFloatPair<String>> variables = Lists.newArrayListWithCapacity(changes.variables.size());
-                for (var entry : changes.variables.entrySet()) {
-                    variables.add(ReferenceFloatPair.of(entry.getKey(), entry.getValue()));
-                }
-
-                NetworkHandler.sendToServer(new SubmitVariableChanges(changes.instanceId, variables));
-            }
-        });
     }
 
     public static float getYawSpeed() {

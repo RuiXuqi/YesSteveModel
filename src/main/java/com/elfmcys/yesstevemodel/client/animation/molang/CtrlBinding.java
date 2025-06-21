@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.ArmorCheck;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.HandItemCheck;
@@ -26,7 +27,6 @@ public class CtrlBinding extends ContextBinding {
     private static ReferenceArrayList<Condition>[] DATA;
     private static final double MIN_SPEED = 0.05;
 
-    @SuppressWarnings("resource")
     private CtrlBinding() {
         // 主动画的
         register("death", Priority.HIGHEST, LivingEntity::isDeadOrDying);
@@ -70,9 +70,8 @@ public class CtrlBinding extends ContextBinding {
         SophisticatedCompat.addBinding(this);
     }
 
-
     @SuppressWarnings("unchecked")
-    private void register(String name, int priority, Predicate<LivingEntity> predicate) {
+    private void register(String name, int priority, Predicate<IContext<LivingEntity>> predicate) {
         if (DATA == null) {
             DATA = new ReferenceArrayList[Priority.LOWEST + 1];
             for (int i = 0; i < DATA.length; i++) {
@@ -82,6 +81,10 @@ public class CtrlBinding extends ContextBinding {
         Condition condition = new Condition(name, priority, predicate);
         DATA[priority].add(condition);
         livingEntityVar(name, ctx -> testCondition(name, ctx));
+    }
+
+    private void register(String name, int priority, LivingEntityPredicate predicate) {
+        register(name, priority, (Predicate<IContext<LivingEntity>>) predicate);
     }
 
     private static boolean testCondition(String name, IContext<LivingEntity> context) {
@@ -103,7 +106,7 @@ public class CtrlBinding extends ContextBinding {
 
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {
             for (Condition condition : DATA[i]) {
-                if (condition.predicate().test(entity)) {
+                if (condition.predicate().test(context)) {
                     return condition.name().equals(name);
                 }
             }
@@ -121,13 +124,23 @@ public class CtrlBinding extends ContextBinding {
         return 20 * (float) (entity.position().y - entity.yo);
     }
 
-    private static boolean isFlying(LivingEntity entity) {
-        if (entity instanceof Player player) {
+    private static boolean isFlying(IContext<LivingEntity> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.isFlying();
+        } else if (ctx.entity() instanceof Player player) {
             return player.getAbilities().flying;
         }
         return false;
     }
 
-    private record Condition(String name, int priority, Predicate<LivingEntity> predicate) {
+    private record Condition(String name, int priority, Predicate<IContext<LivingEntity>> predicate) {
+    }
+
+    private interface LivingEntityPredicate extends Predicate<IContext<LivingEntity>> {
+        boolean testLivingEntity(LivingEntity entity);
+
+        default boolean test(IContext<LivingEntity> context) {
+            return testLivingEntity(context.entity());
+        }
     }
 }

@@ -9,12 +9,14 @@ import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Pattern;
 
 // Native Access
 public class CustomMolangParser {
     private static final ConcurrentLinkedQueue<MolangParser> PARSER_POOL = new ConcurrentLinkedQueue<>();
     private static final Map<String, Object> EXTRA_BINDING = new HashMap<>();
     private static final Map<String, Object> COMMAND_HINT = new HashMap<>();
+    private static final Pattern ROAMING_ASSIGNMENT_PATTERN = Pattern.compile("^([;\\s]*(v|variable)\\.roaming\\.[A-Za-z0-9_]+\\s*=[^;]+[;\\s]*)+$", Pattern.CASE_INSENSITIVE);
 
     // Native Access
     public static MolangParser rentInstance() {
@@ -63,5 +65,12 @@ public class CustomMolangParser {
             COMMAND_HINT.put("q", QueryBinding.INSTANCE);
         }
         return COMMAND_HINT;
+    }
+
+    /**
+     * 是否仅包含 v.roaming 赋值
+     */
+    public static boolean hasOnlyRoamingAssignment(String expression) {
+        return ROAMING_ASSIGNMENT_PATTERN.matcher(expression).find();
     }
 }

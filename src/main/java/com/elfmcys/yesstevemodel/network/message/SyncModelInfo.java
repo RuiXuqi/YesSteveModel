@@ -1,44 +1,74 @@
 package com.elfmcys.yesstevemodel.network.message;
 
-import com.elfmcys.yesstevemodel.capability.ModelInfoCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class SyncModelInfo {
-    private static final Cache<Integer, ModelInfoCapability> PACKET_CACHE = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
-
     private final int entityId;
-    private final ModelInfoCapability capability;
+    private final String modelId;
+    private final int modelHashShort;
+    private final String selectTexture;
+    private final String animation;
+    private final boolean playAnimation;
+    private final Object2FloatOpenHashMap<String> molangVarsServerBound;
+    private final Int2FloatOpenHashMap molangVarsClientBound;
 
-    public SyncModelInfo(int entityId, ModelInfoCapability capability) {
+    private final DispatchServerDrivenProperty properties;
+
+    public SyncModelInfo(int entityId, String modelId, int modelHashShort, String selectTexture, String animation, boolean playAnimation, Object2FloatOpenHashMap<String> molangVarsServerBound, Int2FloatOpenHashMap molangVarsClientBound, DispatchServerDrivenProperty properties) {
         this.entityId = entityId;
-        this.capability = capability;
+        this.modelId = modelId;
+        this.modelHashShort = modelHashShort;
+        this.selectTexture = selectTexture;
+        this.animation = animation;
+        this.playAnimation = playAnimation;
+        this.molangVarsServerBound = molangVarsServerBound;
+        this.molangVarsClientBound = molangVarsClientBound;
+        this.properties = properties;
     }
 
-    public static void encode(SyncModelInfo message, FriendlyByteBuf buf) {
-        buf.writeVarInt(message.entityId);
-        buf.writeNbt(message.capability.serializeNBT());
+    public static void encode(SyncModelInfo msg, FriendlyByteBuf buf) {
+        buf.writeVarInt(msg.entityId);
+        buf.writeUtf(msg.modelId);
+        buf.writeInt(msg.modelHashShort);
+        buf.writeUtf(msg.selectTexture);
+        buf.writeUtf(msg.animation);
+        buf.writeBoolean(msg.playAnimation);
+        buf.writeVarInt(msg.molangVarsServerBound.size());
+        for (var entry : msg.molangVarsServerBound.object2FloatEntrySet()) {
+            buf.writeUtf(entry.getKey());
+            buf.writeFloat(entry.getFloatValue());
+        }
+        DispatchServerDrivenProperty.encode(msg.properties, buf);
     }
 
     public static SyncModelInfo decode(FriendlyByteBuf buf) {
         int entityId = buf.readVarInt();
-        CompoundTag compoundTag = buf.readNbt();
-        ModelInfoCapability cap = new ModelInfoCapability();
-        if (compoundTag != null) {
-            cap.deserializeNBT(compoundTag);
+        String modelId = buf.readUtf();
+        int modelHashShort = buf.readInt();
+        String selectTexture = buf.readUtf();
+        String animation = buf.readUtf();
+        boolean playAnimation = buf.readBoolean();
+        int size = buf.readVarInt();
+        Int2FloatOpenHashMap molangVars = new Int2FloatOpenHashMap();
+        for (int i = 0; i < size; i++) {
+            int key = StringPool.computeIfAbsent(buf.readUtf());
+            float value = buf.readFloat();
+            molangVars.put(key, value);
         }
-        return new SyncModelInfo(entityId, cap);
+        var properties = DispatchServerDrivenProperty.decode(buf);
+        return new SyncModelInfo(entityId, modelId, modelHashShort, selectTexture, animation, playAnimation, null, molangVars, properties);
     }
 
     public static void handle(SyncModelInfo message, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -55,30 +85,21 @@ public class SyncModelInfo {
         if (mc.level != null) {
             Entity entity = mc.level.getEntity(message.entityId);
             if (entity == null) {
-                PACKET_CACHE.put(message.entityId, message.capability);
+                EntityLoadEvent.addRecoveryHandler(message.entityId, e -> handleCapability(e, message));
             } else {
-                handleCapability(entity, message.capability);
+                handleCapability(entity, message);
             }
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void recoverFromCache(Entity entity) {
-        var newCap = PACKET_CACHE.getIfPresent(entity.getId());
-        if (newCap == null) {
-            return;
-        }
-        PACKET_CACHE.invalidate(entity.getId());
-        handleCapability(entity, newCap);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static void handleCapability(Entity entity, ModelInfoCapability newCap) {
+    private static void handleCapability(Entity entity, SyncModelInfo msg) {
         entity.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.setModelAndTexture(newCap.getModelId(), newCap.getSelectTexture());
-            cap.setRemoteVariables(newCap.getInstanceId(), newCap.getVariables());
-            if (newCap.isPlayAnimation()) {
-                cap.playAnimation(newCap.getAnimation());
+            cap.setModelAndTexture(msg.modelId, msg.selectTexture);
+            cap.resetRoamingVars(msg.modelHashShort, msg.molangVarsClientBound);
+            DispatchServerDrivenProperty.handle(entity, msg.properties);
+            if (msg.playAnimation) {
+                cap.playAnimation(msg.animation);
             } else {
                 cap.stopAnimation();
             }

@@ -18,20 +18,16 @@ import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationContro
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import com.elfmcys.yesstevemodel.molang.runtime.HashMapStruct;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -56,10 +52,6 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     private String hoverAnimation = "";
     private String focusAnimation = "";
 
-    private Struct remoteStruct;
-    private int roamingStructInstanceIdOverride;
-    private Object2FloatOpenHashMap<String> initialVariables;
-
     private final boolean localPlayer;
     protected boolean isPlayingAnimation = false;
     protected String animationName = "idle";
@@ -69,7 +61,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     private volatile boolean renderedWithTempChanges = false;
 
     private boolean fireInitEvent = false;
-    private IValue updateWrappedHandler = null;
+    private IValue wrappedUpdateHandler = null;
     private List<IValue> syncHandler = null;
 
     /**
@@ -83,11 +75,6 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
         if (player instanceof LocalPlayer) {
             setInitialized();
-        }
-        if (localPlayer) {
-            remoteStruct = new RoamingStruct();
-        } else {
-            remoteStruct = new HashMapStruct();
         }
         registerControllers();
     }
@@ -212,24 +199,8 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     }
 
     @Nullable
-    public Struct getRemoteStruct() {
-        if (initialVariables != null) {
-            if (remoteStruct instanceof RoamingStruct roamingStruct) {
-                roamingStruct.reset(roamingStructInstanceIdOverride, initialVariables);
-            } else {
-                remoteStruct = new HashMapStruct();
-                for (var entry : initialVariables.object2FloatEntrySet()) {
-                    this.remoteStruct.putProperty(StringPool.computeIfAbsent(entry.getKey()), entry.getFloatValue());
-                }
-            }
-            initialVariables = null;
-        }
-        return remoteStruct;
-    }
-
-    public void setRemoteVariables(int instanceId, Object2FloatOpenHashMap<String> initialVariables) {
-        this.roamingStructInstanceIdOverride = instanceId;
-        this.initialVariables = initialVariables;
+    public Struct getRoamingStruct() {
+        return null;
     }
 
     public boolean isLocalPlayer() {
@@ -404,16 +375,16 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         fireInitEvent = true;
         var updateHandlers = getEventHandler(MolangEventWrapper.PLAYER_UPDATE);
         if (updateHandlers != null) {
-            updateWrappedHandler = MolangEventWrapper.wrap(updateHandlers);
+            wrappedUpdateHandler = MolangEventWrapper.wrap(updateHandlers);
         } else {
-            updateWrappedHandler = null;
+            wrappedUpdateHandler = null;
         }
         syncHandler = getEventHandler(MolangEventWrapper.SYNC);
     }
 
     @Override
     protected void preAnimationSetup(double seekTime) {
-        getAnimationProcessor().putRemoteStruct(getRemoteStruct());
+        getAnimationProcessor().putRemoteStruct(getRoamingStruct());
         if (fireInitEvent) {
             fireInitEvent = false;
             var initEvent = getEventHandler(MolangEventWrapper.PLAYER_INIT);
@@ -421,8 +392,8 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
                 executeMolangExp(MolangEventWrapper.wrap(initEvent), true, true, null);
             }
         }
-        if (updateWrappedHandler != null) {
-            executeMolangExp(updateWrappedHandler, true, true, null);
+        if (wrappedUpdateHandler != null) {
+            executeMolangExp(wrappedUpdateHandler, true, true, null);
         }
     }
 

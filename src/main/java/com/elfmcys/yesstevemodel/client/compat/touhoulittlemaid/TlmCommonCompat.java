@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.event.CopyYsmModelEvent;
-import com.elfmcys.yesstevemodel.network.message.SubmitVariableChanges;
+import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -37,9 +37,9 @@ public class TlmCommonCompat {
         }
     }
 
-    public static void handleVariableChanges(Entity entity, SubmitVariableChanges message) {
+    public static void handleVariableChanges(Entity entity, RoamingVarsChanges changes) {
         if (isInstalled()) {
-            TlmCommonCompatInner.handleVariableChanges(entity, message);
+            TlmCommonCompatInner.handleVariableChanges(entity, changes);
         }
     }
 

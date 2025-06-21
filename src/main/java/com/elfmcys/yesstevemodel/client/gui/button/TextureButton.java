@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
@@ -35,9 +34,7 @@ public class TextureButton extends Button {
         if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 cap.setTextureName(animatedEntity.getTextureName());
-                if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
-                    NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName(), roamingStruct.getInstanceId()));
-                }
+                NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName()));
             });
         }
     }

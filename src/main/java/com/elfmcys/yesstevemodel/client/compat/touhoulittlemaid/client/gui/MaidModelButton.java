@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMa
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.util.NameUtil;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.network.NetworkHandler;
@@ -28,10 +27,7 @@ public class MaidModelButton extends ModelButton {
         this.maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
             var oldModelId = cap.getModelId();
             cap.setYsmModel(animatedEntity.getModelId(), animatedEntity.getTextureName());
-            RoamingStruct remoteStruct = cap.getRemoteStruct();
-            if (!oldModelId.equals(animatedEntity.getModelId())) {
-                remoteStruct.reset(remoteStruct.getInstanceId() + 1, null);
-            }
+            // TODO: 重置 roaming 变量
             NetworkHandler.CHANNEL.sendToServer(new YsmMaidModelMessage(this.maid.getId(), animatedEntity.getModelId(), animatedEntity.getTextureName(), name));
         });
     }

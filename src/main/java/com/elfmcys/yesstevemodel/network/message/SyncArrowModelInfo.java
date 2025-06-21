@@ -2,23 +2,18 @@ package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.ArrowGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ArrowModelInfoCapability;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class SyncArrowModelInfo {
-    private static final Cache<Integer, ArrowModelInfoCapability> PACKET_CACHE = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build();
-
     private final int entityId;
     private final ArrowModelInfoCapability capability;
 
@@ -56,25 +51,15 @@ public class SyncArrowModelInfo {
         if (mc.level != null) {
             Entity entity = mc.level.getEntity(message.entityId);
             if (entity == null) {
-                PACKET_CACHE.put(message.entityId, message.capability);
+                EntityLoadEvent.addRecoveryHandler(message.entityId, e -> handleCapability(e, message.capability));
             } else {
-                handleCapability((AbstractArrow) entity, message.capability);
+                handleCapability(entity, message.capability);
             }
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void recoverFromCache(AbstractArrow arrow) {
-        var newCap = PACKET_CACHE.getIfPresent(arrow.getId());
-        if (newCap == null) {
-            return;
-        }
-        PACKET_CACHE.invalidate(arrow.getId());
-        handleCapability(arrow, newCap);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static void handleCapability(AbstractArrow entity, ArrowModelInfoCapability newCap) {
+    private static void handleCapability(Entity entity, ArrowModelInfoCapability newCap) {
         entity.getCapability(ArrowGeoCapabilityProvider.CAP).ifPresent(cap -> {
             cap.init(newCap.getOwnerModelId());
         });

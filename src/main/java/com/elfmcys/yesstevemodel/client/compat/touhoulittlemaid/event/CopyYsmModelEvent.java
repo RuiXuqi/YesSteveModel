@@ -71,14 +71,13 @@ public class CopyYsmModelEvent {
         player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
             String modelId = cap.getModelId();
             String texture = cap.getSelectTexture();
-            var roamingVars = cap.getVariables();
 
             compound.putBoolean(EntityMaid.IS_YSM_MODEL_TAG, true);
             compound.putString(EntityMaid.YSM_MODEL_ID_TAG, modelId);
             compound.putString(EntityMaid.YSM_MODEL_TEXTURE_TAG, texture);
             compound.putInt(EntityMaid.YSM_ROAMING_UPDATE_FLAG_TAG, compound.getInt(EntityMaid.YSM_ROAMING_UPDATE_FLAG_TAG) + 1);
             CompoundTag roamingVarsTag = new CompoundTag();
-            roamingVars.forEach(roamingVarsTag::putFloat);
+            // TODO: 复制 roaming 变量
             compound.put(EntityMaid.YSM_ROAMING_VARS_TAG, roamingVarsTag);
         });
     }

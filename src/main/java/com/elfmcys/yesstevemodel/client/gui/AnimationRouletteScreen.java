@@ -242,8 +242,10 @@ public class AnimationRouletteScreen extends Screen {
             FlatCheckbox checkbox = new FlatCheckbox(xOffset, this.y + tempYOffset, perWidth,
                     labelName, data -> {
                 executeMolang(labelValue, null);
-                // 同步到周围的玩家
-                NetworkHandler.sendToServer(new SubmitRouletteConfig(labelValue, this.animatableEntity.getEntity().getId()));
+                if (!CustomMolangParser.hasOnlyRoamingAssignment(labelValue)) {
+                    // 同步到周围的玩家
+                    NetworkHandler.sendToServer(new SubmitRouletteConfig(labelValue, this.animatableEntity.getEntity().getId()));
+                }
                 this.init();
             });
             checkbox.setStateTriggered(isSelected);
@@ -285,8 +287,10 @@ public class AnimationRouletteScreen extends Screen {
             String value = data ? "1" : "0";
             String molang = checkboxForms.value() + "=" + value;
             executeMolang(molang, null);
-            // 同步到周围的玩家
-            NetworkHandler.sendToServer(new SubmitRouletteConfig(molang, this.animatableEntity.getEntity().getId()));
+            if (!CustomMolangParser.hasOnlyRoamingAssignment(molang)) {
+                // 同步到周围的玩家
+                NetworkHandler.sendToServer(new SubmitRouletteConfig(molang, this.animatableEntity.getEntity().getId()));
+            }
         }) {
             // 给单选框加上背景
             @Override

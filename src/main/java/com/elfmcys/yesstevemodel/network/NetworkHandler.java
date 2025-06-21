@@ -68,7 +68,7 @@ public final class NetworkHandler {
         // CHANNEL.registerMessage(12, CompleteFeedback.class, CompleteFeedback::encode, CompleteFeedback::decode, CompleteFeedback::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         // CHANNEL.registerMessage(13, RefreshModelManage.class, RefreshModelManage::encode, RefreshModelManage::decode, RefreshModelManage::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         // CHANNEL.registerMessage(14, HandleFile.class, HandleFile::encode, HandleFile::decode, HandleFile::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
-        CHANNEL.registerMessage(15, SubmitVariableChanges.class, SubmitVariableChanges::encode, SubmitVariableChanges::decode, SubmitVariableChanges::handle,
+        CHANNEL.registerMessage(15, SubmitRoamingVarsChanges.class, SubmitRoamingVarsChanges::encode, SubmitRoamingVarsChanges::decode, SubmitRoamingVarsChanges::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(16, SyncArrowModelInfo.class, SyncArrowModelInfo::encode, SyncArrowModelInfo::decode, SyncArrowModelInfo::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
@@ -77,6 +77,10 @@ public final class NetworkHandler {
         CHANNEL.registerMessage(18, EmitMolangSync.class, EmitMolangSync::encode, EmitMolangSync::decode, EmitMolangSync::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(19, MolangSync.class, MolangSync::encode, MolangSync::decode, MolangSync::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(20, DispatchRoamingVarsChanges.class, DispatchRoamingVarsChanges::encode, DispatchRoamingVarsChanges::decode, DispatchRoamingVarsChanges::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(21, DispatchServerDrivenProperty.class, DispatchServerDrivenProperty::encode, DispatchServerDrivenProperty::decode, DispatchServerDrivenProperty::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
         CHANNEL.registerMessage(51, ServerInfo.class, ServerInfo::encode, ServerInfo::decode, ServerInfo::handleOnClient,

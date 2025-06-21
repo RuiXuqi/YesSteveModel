@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.animation.predicate.PlayerMainPredicate;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
@@ -31,7 +32,12 @@ public class AnimationRegister {
         register("ladder_stillness", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) == 0);
         register("ladder_down", Priority.HIGHEST, (player, event) -> player.onClimbable() && getVerticalSpeed(player) < 0);
 
-        register("fly", Priority.HIGH, (player, event) -> player.getAbilities().flying);
+        register("fly", Priority.HIGH, (player, event) -> {
+            if (event.getAnimatableEntity() instanceof PlayerAnimatableCapability cap) {
+                return cap.isFlying();
+            }
+            return player.getAbilities().flying;
+        });
         register("elytra_fly", Priority.HIGH, (player, event) -> player.getPose() == Pose.FALL_FLYING && player.isFallFlying());
 
         register("swim_stand", Priority.NORMAL, (player, event) -> player.isInWater() && !player.onGround());

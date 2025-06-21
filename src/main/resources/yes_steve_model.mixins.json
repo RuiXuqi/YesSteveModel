@@ -21,7 +21,8 @@
     "client.WorldRendererMixin"
   ],
   "mixins": [
-    "AbstractArrowEntityMixin"
+    "AbstractArrowEntityMixin",
+    "ServerGamePacketListenerImplMixin"
   ]
 }
   

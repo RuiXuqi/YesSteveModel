@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
-import com.elfmcys.yesstevemodel.network.message.SubmitVariableChanges;
+import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import net.minecraft.world.entity.Entity;
@@ -70,15 +70,13 @@ public class TlmCommonCompatInner {
         });
     }
 
-    static void handleVariableChanges(Entity entity, SubmitVariableChanges message) {
+    static void handleVariableChanges(Entity entity, RoamingVarsChanges changes) {
         if (!(entity instanceof EntityMaid maid)) {
             return;
         }
         if (!maid.isYsmModel()) {
             return;
         }
-        for (var entry : message.variables) {
-            maid.roamingVars.put(entry.key(), entry.valueFloat());
-        }
+        // TODO: 女仆 roaming 变量更新
     }
 }

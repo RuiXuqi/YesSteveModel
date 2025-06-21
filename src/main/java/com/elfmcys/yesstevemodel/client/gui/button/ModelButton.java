@@ -6,7 +6,6 @@ import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.roaming.RoamingStruct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
@@ -80,14 +79,8 @@ public class ModelButton extends Button {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                var oldModelId = cap.getModelId();
                 cap.setModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName());
-                if (cap.getRemoteStruct() instanceof RoamingStruct roamingStruct) {
-                    if (!oldModelId.equals(animatedEntity.getModelId())) {
-                        roamingStruct.reset(roamingStruct.getInstanceId() + 1, null);
-                    }
-                    NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName(), roamingStruct.getInstanceId()));
-                }
+                NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName()));
             });
         }
     }

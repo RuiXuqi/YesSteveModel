@@ -22,4 +22,8 @@ public final class ModelIdUtil {
         }
         return id;
     }
+
+    public static int getModelHashShort(String modelHash) {
+        return Integer.parseUnsignedInt(modelHash.substring(0, 8), 16);
+    }
 }

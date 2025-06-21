@@ -1,21 +1,40 @@
 package com.elfmcys.yesstevemodel.client.event;
 
-import com.elfmcys.yesstevemodel.network.message.SyncArrowModelInfo;
-import com.elfmcys.yesstevemodel.network.message.SyncModelInfo;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class EntityLoadEvent {
+    private static final Cache<Integer, List<Consumer<Entity>>> CACHE = CacheBuilder.newBuilder().expireAfterAccess(30,TimeUnit.SECONDS).build();
+
     @SubscribeEvent
-    public static void onEntityLoadToWorld(final net.minecraftforge.event.entity.EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof AbstractClientPlayer) {
-            SyncModelInfo.recoverFromCache(event.getEntity());
-        } else if (event.getEntity() instanceof AbstractArrow) {
-            SyncArrowModelInfo.recoverFromCache((AbstractArrow) event.getEntity());
+    public static void onEntityLoadToWorld(final EntityJoinLevelEvent event) {
+        var list = CACHE.getIfPresent(event.getEntity().getId());
+        if (list != null) {
+            for (var consumer : list) {
+                consumer.accept(event.getEntity());
+            }
         }
+        CACHE.invalidate(event.getEntity().getId());
+    }
+
+    // 非线程安全
+    public static void addRecoveryHandler(int entityId, Consumer<Entity> consumer) {
+        var list = CACHE.getIfPresent(entityId);
+        if (list == null) {
+            list = new ArrayList<>();
+            CACHE.put(entityId, list);
+        }
+        list.add(consumer);
     }
 }

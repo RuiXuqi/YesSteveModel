@@ -77,8 +77,9 @@ public final class CapabilityEvent {
                 if (!NetworkHandler.isPlayerChannelPresent(trackPlayer) && !cap.isMandatory()) {
                     return;
                 }
-                SyncModelInfo syncMsg = new SyncModelInfo(trackPlayer.getId(), cap);
-                NetworkHandler.sendToClientPlayer(syncMsg, player);
+                cap.buildPacketForDispatch(trackPlayer).ifPresentOrElse(packet -> {
+                    NetworkHandler.sendToClientPlayer(packet, player);
+                }, cap::markDirty);
             });
         } else if (event.getTarget() instanceof AbstractArrow arrow) {
             arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
@@ -94,10 +95,13 @@ public final class CapabilityEvent {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             getModelInfoCap(serverPlayer).ifPresent(modelInfoCap -> {
                 if (!NetworkHandler.isPlayerChannelPresent(serverPlayer) && !modelInfoCap.isMandatory()) {
+                    modelInfoCap.markDirty();
                     return;
                 }
                 modelInfoCap.stopAnimation();
-                NetworkHandler.sendToClientPlayer(new SyncModelInfo(serverPlayer.getId(), modelInfoCap), serverPlayer);
+                modelInfoCap.buildPacketForDispatch(serverPlayer).ifPresentOrElse(packet -> {
+                    NetworkHandler.sendToClientPlayer(packet, serverPlayer);
+                }, modelInfoCap::markDirty);
             });
 
             getAuthModelsCap(serverPlayer).ifPresent(authModelsCap -> {
@@ -125,12 +129,12 @@ public final class CapabilityEvent {
                     return;
                 }
                 if (cap.isDirty()) {
-                    SyncModelInfo syncMsg = new SyncModelInfo(player.getId(), cap);
-                    if (player.getServer() == null) {
-                        return;
+                    if (player.getServer() != null) {
+                        cap.buildPacketForDispatch(player).ifPresent(packet -> {
+                            cap.clearDirty();
+                            NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
+                        });
                     }
-                    NetworkHandler.broadcastToVisiblePlayersAndSelf(syncMsg, player);
-                    cap.setDirty(false);
                 }
             });
         }
