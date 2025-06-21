@@ -87,6 +87,7 @@ public class ModelInfoCapability {
         return animation;
     }
 
+    // 必须在主线程上调用
     public Optional<SyncModelInfo> buildPacketForDispatch(Entity entity) {
         return ServerModelManager.getModel(modelId).map(model ->
             new SyncModelInfo(
@@ -98,7 +99,7 @@ public class ModelInfoCapability {
                     playAnimation,
                     molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>()),
                     null,
-                    new DispatchServerDrivenProperty(entity))
+                    DispatchServerDrivenProperty.full(entity))
         );
     }
 

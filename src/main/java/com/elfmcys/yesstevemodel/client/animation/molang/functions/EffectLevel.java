@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.molang.functions;
 
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.ContextFunction;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
@@ -38,6 +39,8 @@ public class EffectLevel extends ContextFunction<Entity> {
                     return instance.getAmplifier() + 1;
                 }
             }
+        } else if (context.entity().animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getEffectLevel(effect);
         } else if (context.entity().entity() instanceof LivingEntity) {
             MobEffectInstance instance = ((LivingEntity) context.entity().entity()).getEffect(effect);
             if (instance != null) {

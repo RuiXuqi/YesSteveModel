@@ -18,6 +18,6 @@ public class ServerGamePacketListenerImplMixin {
 
     @Inject(method = "handlePlayerAbilities(Lnet/minecraft/network/protocol/game/ServerboundPlayerAbilitiesPacket;)V", at=@At("TAIL"))
     private void afterUpdatePlayerAbility(ServerboundPlayerAbilitiesPacket packet, CallbackInfo ci) {
-        NetworkHandler.broadcastToVisiblePlayersAndSelf(new DispatchServerDrivenProperty(player.getId(), packet.isFlying() ? (byte) 1 : (byte) 0), player);
+        NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.flying(player.getId(), packet.isFlying()), player);
     }
 }

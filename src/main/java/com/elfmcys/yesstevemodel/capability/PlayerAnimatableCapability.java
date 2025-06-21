@@ -19,6 +19,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -33,9 +34,11 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     private volatile int currentHashShort;
     private volatile Struct roamingStruct;
     private volatile boolean remoteFlying;
+    private final ConcurrentHashMap<MobEffect, Byte> effects;
 
     public PlayerAnimatableCapability(AbstractClientPlayer player) {
         super(player, player instanceof LocalPlayer, true);
+        effects = new ConcurrentHashMap<>(8);
     }
 
     private boolean isFirstPersonModActive() {
@@ -119,6 +122,20 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         if (msg.flying >= 0) {
             remoteFlying = msg.flying != 0;
         }
+        if (msg.effects.size() == 1) {
+            // 增量同步
+            for (var entry : msg.effects.object2ByteEntrySet()) {
+                if (entry.getByteValue() >= 0) {
+                    effects.put(entry.getKey(), (byte) (entry.getByteValue() + 1));
+                } else {
+                    effects.remove(entry.getKey());
+                }
+            }
+        } else {
+            // 全量同步
+            effects.clear();
+            effects.putAll(msg.effects);
+        }
     }
 
     public boolean isFlying() {
@@ -126,6 +143,15 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             return entity.getAbilities().flying;
         }
         return remoteFlying;
+    }
+
+    public byte getEffectLevel(MobEffect effect) {
+        if (isLocalPlayer()) {
+            var instance = entity.getEffect(effect);
+            return instance != null ? (byte) (instance.getAmplifier() + 1) : 0;
+        } else {
+            return effects.getOrDefault(effect, (byte) 0);
+        }
     }
 
     private static class RemoteStorage {
