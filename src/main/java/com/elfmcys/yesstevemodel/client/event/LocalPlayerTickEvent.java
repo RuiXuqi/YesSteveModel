@@ -25,7 +25,7 @@ public class LocalPlayerTickEvent {
         }
 
         updateYawSpeed(player);
-        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::handlePlayerStateChanges);
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::handleRoamingVarsChanges);
     }
 
     private static void updateYawSpeed(LocalPlayer player) {

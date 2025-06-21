@@ -103,7 +103,7 @@ public class ModelInfoCapability {
         );
     }
 
-    public void updatePlayerState(RoamingVarsChanges changes) {
+    public void updateRoamingVars(RoamingVarsChanges changes) {
         var vars = molangStorage.computeIfAbsent(changes.modelHashShort, hash -> new Object2FloatOpenHashMap<>());
         vars.putAll(changes.variablesServerBound);
         // 无需 markDirty

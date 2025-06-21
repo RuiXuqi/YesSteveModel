@@ -43,7 +43,7 @@ public class SubmitRoamingVarsChanges {
             TlmCommonCompat.handleVariableChanges(entity, message.changes);
         } else if (entity instanceof ServerPlayer player) {
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-                cap.updatePlayerState(message.changes);
+                cap.updateRoamingVars(message.changes);
             });
         }
     }

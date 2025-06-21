@@ -99,7 +99,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         return roamingStruct;
     }
 
-    public void handlePlayerStateChanges() {
+    public void handleRoamingVarsChanges() {
         if (isLocalPlayer() && this.currentHashShort != 0) {
             if (this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct && localRoamingStruct.isDirty()) {
                 var vars = localRoamingStruct.popChanges();
