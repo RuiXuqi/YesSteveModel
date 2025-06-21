@@ -20,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -30,11 +31,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @OnlyIn(Dist.CLIENT)
 public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     private final ConcurrentHashMap<Integer, RemoteStorage> storage = new ConcurrentHashMap<>();
-
     private volatile int currentHashShort;
+
     private volatile Struct roamingStruct;
     private volatile boolean remoteFlying;
     private final ConcurrentHashMap<MobEffect, Byte> effects;
+
+    private static float YAW_SPEED;
+    private static float LAST_YAW;
 
     public PlayerAnimatableCapability(AbstractClientPlayer player) {
         super(player, player instanceof LocalPlayer, true);
@@ -67,6 +71,26 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
                 roamingStruct = new RemoteRoamingStruct(remoteStorage.vars);
             }
         }
+    }
+
+    @Override
+    protected void updateFrameData(float currentFrameTime, float lastFrameTime, float partialTicks) {
+        if (isLocalPlayer()) {
+            updateLocalPlayerYawSpeed(entity, currentFrameTime, lastFrameTime);
+        }
+        super.updateFrameData(currentFrameTime, lastFrameTime, partialTicks);
+    }
+
+    private static void updateLocalPlayerYawSpeed(Entity entity, float currentFrameTime, float lastFrameTime) {
+        float yaw = entity.getYRot();
+        if (lastFrameTime > 0) {
+            YAW_SPEED = (yaw - LAST_YAW) * 1000 / (currentFrameTime - lastFrameTime);
+        }
+        LAST_YAW = yaw;
+    }
+
+    public static float getLocalPlayerYawSpeed() {
+        return YAW_SPEED;
     }
 
     public void resetRoamingVars(int modelHashShort, Int2FloatOpenHashMap vars) {

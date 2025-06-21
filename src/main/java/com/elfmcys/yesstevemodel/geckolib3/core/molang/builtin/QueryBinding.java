@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
-import com.elfmcys.yesstevemodel.client.event.LocalPlayerTickEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
@@ -56,7 +55,7 @@ public class QueryBinding extends ContextBinding {
         var("time_of_day", ctx -> MolangUtils.normalizeTime(ctx.level().getDayTime()));
         var("time_stamp", ctx -> ctx.level().getDayTime());
 
-        entityVar("yaw_speed", ctx -> getYawSpeed(ctx.entity()));
+        entityVar("yaw_speed", ctx -> getYawSpeed(ctx));
         entityVar("cardinal_facing_2d", ctx -> ctx.entity().getDirection().get3DDataValue());
         entityVar("distance_from_camera", ctx -> ctx.mc().gameRenderer.getMainCamera().getPosition().distanceTo(ctx.entity().position()));
         entityVar("eye_target_x_rotation", ctx -> ctx.entity().getViewXRot(ctx.animationEvent().getPartialTick()));
@@ -137,11 +136,11 @@ public class QueryBinding extends ContextBinding {
         }
     }
 
-    private static float getYawSpeed(Entity entity) {
-        if (entity instanceof LocalPlayer) {
-            return LocalPlayerTickEvent.getYawSpeed();
+    private static float getYawSpeed(IContext<Entity> ctx) {
+        if (ctx.entity() instanceof LocalPlayer) {
+            return PlayerAnimatableCapability.getLocalPlayerYawSpeed();
         } else {
-            return 20 * (entity.getYRot() - entity.yRotO);
+            return 20 * (ctx.entity().getYRot() - ctx.entity().yRotO);
         }
     }
 

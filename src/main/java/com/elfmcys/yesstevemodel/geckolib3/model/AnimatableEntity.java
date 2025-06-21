@@ -25,6 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +46,13 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     private double seekTime;
     private double lastGameTickTime;
     private boolean initialize = false;
+
+    private Vec3 lastPosition;
+    private Vec3 positionDelta = Vec3.ZERO;
+    /**
+     * ms
+     */
+    protected float lastFrameTime;
 
     @Nullable
     private Future<AnimationEvent<?>> task;
@@ -146,12 +154,37 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         if (!getAnimationProcessor().isModelRendererEmpty()) {
             var shouldUpdate = rateLimiter.request((float) (seekTime / 20));
             if (forceUpdate || shouldUpdate) {
+                float currentFrameTime = (float) getCurrentTick() * 50;
+                if (currentFrameTime > lastFrameTime && lastFrameTime != 0) {
+                    updateFrameData(currentFrameTime, lastFrameTime, animationEvent.getPartialTick());
+                }
+
                 preAnimationSetup(this.seekTime);
                 getAnimationProcessor().tickAnimation(this.seekTime, shouldUpdate, animationEvent, ctx);
+
+                lastFrameTime = currentFrameTime;
                 return true;
             }
         }
         return false;
+    }
+
+    protected void updateFrameData(float currentFrameTime, float lastFrameTime, float partialTicks) {
+        updatePositionDelta(partialTicks);
+    }
+
+    private void updatePositionDelta(float partialTicks) {
+        var cur = new Vec3(Mth.lerp(partialTicks, entity.xo, entity.getX()),
+                Mth.lerp(partialTicks, entity.yo, entity.getY()),
+                Mth.lerp(partialTicks, entity.zo, entity.getZ()));
+        if (lastPosition != null) {
+            positionDelta = cur.subtract(lastPosition);
+        }
+        lastPosition = cur;
+    }
+
+    public Vec3 getPositionDelta() {
+        return positionDelta;
     }
 
     public AnimationProcessor getAnimationProcessor() {
