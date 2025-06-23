@@ -15,6 +15,7 @@ import com.elfmcys.yesstevemodel.network.message.SubmitRoamingVarsChanges;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ByteMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -146,19 +147,12 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         if (msg.flying >= 0) {
             remoteFlying = msg.flying != 0;
         }
-        if (msg.effects.size() == 1) {
-            // 增量同步
-            for (var entry : msg.effects.object2ByteEntrySet()) {
-                if (entry.getByteValue() >= 0) {
-                    effects.put(entry.getKey(), (byte) (entry.getByteValue() + 1));
-                } else {
-                    effects.remove(entry.getKey());
-                }
+        if (!msg.effects.isEmpty()) {
+            if (msg.effects.size() > 1) {
+                // 全量同步
+                effects.clear();
             }
-        } else {
-            // 全量同步
-            effects.clear();
-            effects.putAll(msg.effects);
+            Object2ByteMaps.fastForEach(msg.effects, entry -> effects.put(entry.getKey(), entry.getByteValue()));
         }
     }
 

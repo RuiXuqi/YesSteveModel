@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.network.message.data;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class RoamingVarsChanges {
@@ -12,23 +11,14 @@ public class RoamingVarsChanges {
      * 如果为 -1，则表示发送者自己
      */
     public final int entityId;
-    public final Object2FloatMap<String> variablesServerBound;
+    public final Object2FloatArrayMap<String> variablesServerBound;
     public final Int2FloatArrayMap variablesClientBound;
 
-    public RoamingVarsChanges(int modelHashShort, Object2FloatMap<String> variablesServerBound, Int2FloatArrayMap variablesClientBound, int entityId) {
+    public RoamingVarsChanges(int modelHashShort, Object2FloatArrayMap<String> variablesServerBound, Int2FloatArrayMap variablesClientBound, int entityId) {
         this.modelHashShort = modelHashShort;
         this.variablesServerBound = variablesServerBound;
         this.variablesClientBound = variablesClientBound;
         this.entityId = entityId;
-    }
-
-    public void mergeFrom(RoamingVarsChanges other) {
-        if (variablesServerBound != null) {
-            variablesServerBound.putAll(other.variablesServerBound);
-        }
-        if (variablesClientBound != null) {
-            variablesClientBound.putAll(other.variablesClientBound);
-        }
     }
 
     public static void encode(RoamingVarsChanges message, FriendlyByteBuf buf) {
@@ -36,10 +26,10 @@ public class RoamingVarsChanges {
         buf.writeVarInt(message.entityId);
 
         buf.writeByte(message.variablesServerBound.size());
-        for (var entry : message.variablesServerBound.object2FloatEntrySet()) {
+        message.variablesServerBound.object2FloatEntrySet().fastForEach(entry -> {
             buf.writeUtf(entry.getKey());
             buf.writeFloat(entry.getFloatValue());
-        }
+        });
     }
 
     public static RoamingVarsChanges decode(FriendlyByteBuf buf, boolean clientBound) {
@@ -47,10 +37,11 @@ public class RoamingVarsChanges {
         var entityId = buf.readVarInt();
 
         var variableSize = buf.readByte();
-        Object2FloatArrayMap<String> variablesServerBound = null;
-        Int2FloatArrayMap variablesClientBound = null;
+        Object2FloatArrayMap<String> variablesServerBound;
+        Int2FloatArrayMap variablesClientBound;
         if (clientBound) {
             variablesClientBound = new Int2FloatArrayMap(variableSize);
+            variablesServerBound = null;
             for (var i = 0; i < variableSize; i++) {
                 var key = StringPool.computeIfAbsent(buf.readUtf());
                 var value = buf.readFloat();
@@ -58,6 +49,7 @@ public class RoamingVarsChanges {
             }
         } else {
             variablesServerBound = new Object2FloatArrayMap<>(variableSize);
+            variablesClientBound = null;
             for (var i = 0; i < variableSize; i++) {
                 var key = buf.readUtf();
                 var value = buf.readFloat();

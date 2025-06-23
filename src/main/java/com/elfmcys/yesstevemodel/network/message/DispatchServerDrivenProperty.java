@@ -36,7 +36,7 @@ public class DispatchServerDrivenProperty {
     }
 
     public static DispatchServerDrivenProperty removeEffect(int entityId, MobEffect effect) {
-        return new DispatchServerDrivenProperty(entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) -1));
+        return new DispatchServerDrivenProperty(entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) 0));
     }
 
     /**
@@ -56,7 +56,7 @@ public class DispatchServerDrivenProperty {
             var effectInstances = living.getActiveEffects();
             effects = new Object2ByteArrayMap<>(effectInstances.size());
             for (var effectInstance : effectInstances) {
-                effects.put(effectInstance.getEffect(), (byte) effectInstance.getAmplifier());
+                effects.put(effectInstance.getEffect(), (byte) (effectInstance.getAmplifier() + 1));
             }
         }
 
@@ -66,7 +66,11 @@ public class DispatchServerDrivenProperty {
     public static void encode(DispatchServerDrivenProperty message, FriendlyByteBuf buf) {
         buf.writeVarInt(message.entityId);
         buf.writeByte(message.flying);
-        buf.writeMap(message.effects, (b, e) -> b.writeId(BuiltInRegistries.MOB_EFFECT, e), (b, level) -> b.writeByte(level));
+        buf.writeVarInt(message.effects.size());
+        Object2ByteMaps.fastForEach(message.effects, entry -> {
+            buf.writeId(BuiltInRegistries.MOB_EFFECT, entry.getKey());
+            buf.writeByte(entry.getByteValue());
+        });
     }
 
     public static DispatchServerDrivenProperty decode(FriendlyByteBuf buf) {

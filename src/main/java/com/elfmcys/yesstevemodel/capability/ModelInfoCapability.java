@@ -105,7 +105,7 @@ public class ModelInfoCapability {
 
     public void updateRoamingVars(RoamingVarsChanges changes) {
         var vars = molangStorage.computeIfAbsent(changes.modelHashShort, hash -> new Object2FloatOpenHashMap<>());
-        vars.putAll(changes.variablesServerBound);
+        changes.variablesServerBound.object2FloatEntrySet().fastForEach(entry -> vars.put(entry.getKey(), entry.getFloatValue()));
         // 无需 markDirty
     }
 

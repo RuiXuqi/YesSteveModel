@@ -227,12 +227,12 @@ public class YSMBinding extends ContextBinding {
         if (context.entity() instanceof Arrow) {
             for (MobEffectInstance instance : ((ArrowEntityAccessor) context.entity()).getEffects()) {
                 ResourceLocation id = ForgeRegistries.MOB_EFFECTS.getKey(instance.getEffect());
-                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier());
+                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier() + 1);
             }
         } else if (context.entity() instanceof LivingEntity) {
             for (MobEffectInstance instance : ((LivingEntity) context.entity()).getActiveEffects()) {
                 ResourceLocation id = ForgeRegistries.MOB_EFFECTS.getKey(instance.getEffect());
-                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier());
+                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier() + 1);
             }
         }
 

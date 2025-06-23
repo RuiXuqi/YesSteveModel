@@ -13,7 +13,7 @@ public class MobEffectSyncEvent {
     public static void onAdded(MobEffectEvent.Added event) {
         if (event.getEntity() instanceof Player player) {
             var effectInstance = event.getEffectInstance();
-            NetworkHandler.broadcastToVisiblePlayers(DispatchServerDrivenProperty.addEffect(player.getId(), effectInstance.getEffect(), (byte) effectInstance.getAmplifier()), player);
+            NetworkHandler.broadcastToVisiblePlayers(DispatchServerDrivenProperty.addEffect(player.getId(), effectInstance.getEffect(), effectInstance.getAmplifier() + 1), player);
         }
     }
 
