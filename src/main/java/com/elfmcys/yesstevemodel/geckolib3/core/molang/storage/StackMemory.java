@@ -2,127 +2,136 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.storage;
 
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * | ---- arg0 arg1 arg2 var0 var1 var2 ---| --- ... --- |
+ *        ↑              ↑
+ *        argOffset      varOffset
+ */
 public class StackMemory implements ITempVariableStorage {
     private static final int MAX_STACK_DEPTH = 32;
 
     private Object[] mem = new Object[16];
-    private int stackTopPointer = 0;
+    private int varOffset;
+    private int varSize;
+    private int argOffset;
+    private int argSize;
 
-    private final IntArrayList stackFrameSize = new IntArrayList(4);
-    private final IntArrayList argSize = new IntArrayList(4);
+    // 高位存储 argSize，低位存储 argOffset
+    private final LongArrayList stackFrameList = new LongArrayList(4);
     private final ArgsAccessor argsAccessor = new ArgsAccessor();
 
-    public StackMemory() {
-        stackFrameSize.add(0);
-        argSize.add(0);
-    }
-
     private void ensureCapacity(int cap) {
+        var mem = this.mem;
         if (mem.length < cap) {
             var newCap = mem.length * 2;
             while (newCap < cap) {
                 newCap *= 2;
             }
-            mem = Arrays.copyOf(mem, newCap);
+            this.mem = Arrays.copyOf(mem, newCap);
         }
-    }
-
-    private int getRealAddr(int addr) {
-        var top = addr + 1;
-        var offset = getVariableOffset();
-        if (stackTopPointer < top) {
-            stackTopPointer = top;
-            ensureCapacity(offset + top);
-        }
-        return offset + addr;
     }
 
     public Object getTemp(int addr) {
-        return mem[getRealAddr(addr)];
+        if (addr < varSize) {
+            return mem[varOffset + addr];
+        } else {
+            return null;
+        }
     }
 
     public void setTemp(int addr, Object value) {
-        mem[getRealAddr(addr)] = value;
+        var top = addr + 1;
+        if (varSize < top) {
+            varSize = top;
+            ensureCapacity(varOffset + top);
+        }
+        mem[varOffset + top] = value;
     }
 
     public boolean push(List<?> args) {
-        if (stackFrameSize.size() < MAX_STACK_DEPTH) {
-            stackFrameSize.add(stackTopPointer + getVariableOffset());
-            argSize.add(args.size());
-            stackTopPointer = 0;
+        if (stackFrameList.size() < MAX_STACK_DEPTH) {
+            var newArgOffset = varOffset + varSize;
+            var newArgSize = args.size();
+            var newVarOffset = newArgOffset + newArgSize;
+            ensureCapacity(newVarOffset);
 
-            var offset = getArgsOffset();
-            ensureCapacity(offset + args.size());
-            for (int i = 0; i < args.size(); i++) {
-                mem[offset + i] = args.get(i);
+            var mem = this.mem;
+            for (int i = 0; i < newArgSize; i++) {
+                mem[newArgOffset + i] = args.get(i);
             }
+
+            stackFrameList.add(((long) argSize << 32) | (long) (argOffset));
+            argOffset = newArgOffset;
+            argSize = newArgSize;
+            varOffset = newVarOffset;
+            varSize = 0;
 
             return true;
         }
-
         return false;
     }
 
     public boolean push(ExecutionContext<?> ctx, Function.ArgumentCollection args) {
-        if (stackFrameSize.size() < MAX_STACK_DEPTH) {
+        if (stackFrameList.size() < MAX_STACK_DEPTH) {
+            var newArgOffset = varOffset + varSize;
+            var newArgSize = args.size();
+            var newVarOffset = newArgOffset + newArgSize;
+            ensureCapacity(newVarOffset);
 
-            var offset = getVariableOffset() + stackTopPointer;
-            ensureCapacity(offset + args.size());
-            for (int i = 0; i < args.size(); i++) {
-                mem[offset + i] = args.getValue(ctx, i);
+            var mem = this.mem;
+            for (int i = 0; i < newArgSize; i++) {
+                mem[newArgOffset + i] = args.getValue(ctx, i);
             }
 
-            stackFrameSize.add(offset);
-            argSize.add(args.size());
-            stackTopPointer = 0;
+            stackFrameList.add(((long) argSize << 32) | (long) argOffset);
+            argOffset = newArgOffset;
+            argSize = newArgSize;
+            varOffset = newVarOffset;
+            varSize = 0;
 
             return true;
         }
-
         return false;
     }
 
     public void pop() {
-        if (stackFrameSize.size() > 1) {
-            var topPointer = stackFrameSize.removeInt(stackFrameSize.size() - 1);
-            argSize.removeInt(argSize.size() - 1);
-            stackTopPointer = topPointer;
+        var stackFrameList = this.stackFrameList;
+        if (!stackFrameList.isEmpty()) {
+            var frame = stackFrameList.removeLong(stackFrameList.size() - 1);
+            var oldArgOffset = argOffset;
+            var newArgOffset = (int) (frame & 0x00000000FFFFFFFFL);
+            var newArgSize = (int) (frame >> 32);
+            var newVarOffset = newArgOffset + newArgSize;
+
+            argOffset = newArgOffset;
+            argSize = newArgSize;
+            varOffset = newVarOffset;
+            varSize = oldArgOffset - newVarOffset;
         }
     }
 
-    public List<?> argsAccessor() {
+    public List<Object> argsAccessor() {
         return argsAccessor;
     }
 
-    public int getVariableOffset() {
-        return getArgsOffset() + getArgsSize();
-    }
-
-    private int getArgsOffset() {
-        return stackFrameSize.getInt(stackFrameSize.size() - 1);
-    }
-
-    private int getArgsSize() {
-        return argSize.getInt(argSize.size() - 1);
-    }
-
     class ArgsIterator implements Iterator<Object> {
-        private int index = 0;
+        private int ptr = argOffset;
+        private final int end = varOffset;
 
         @Override
         public boolean hasNext() {
-            return index < getArgsSize();
+            return ptr < end;
         }
 
         @Override
         public Object next() {
-            if (index < getArgsSize()) {
-                return mem[getArgsOffset() + index++];
+            if (ptr < end) {
+                return mem[ptr++];
             }
             return null;
         }
@@ -131,18 +140,18 @@ public class StackMemory implements ITempVariableStorage {
     class ArgsAccessor implements List<Object> {
         @Override
         public int size() {
-            return getArgsSize();
+            return argSize;
         }
 
         @Override
         public boolean isEmpty() {
-            return getArgsSize() == 0;
+            return argSize == 0;
         }
 
         @Override
         public Object get(int index) {
-            if (index >= 0 && index < getArgsSize()) {
-                return mem[getArgsOffset() + index];
+            if (index >= 0 && index < argSize) {
+                return mem[argOffset + index];
             }
             return null;
         }
