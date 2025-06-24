@@ -19,7 +19,6 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
-import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -43,8 +42,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected TEntity entity;
     private GeoModelState currentModel;
 
-    private double seekTime;
-    private double lastGameTickTime;
+    private float seekTime;
+    private float lastGameTickTime;
     private boolean initialize = false;
 
     private Vec3 lastPosition;
@@ -66,7 +65,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         }
     }
 
-    public double getSeekTime() {
+    public float getSeekTime() {
         return seekTime;
     }
 
@@ -121,7 +120,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return 0.15f;
     }
 
-    protected void preAnimationSetup(double seekTime) {
+    protected void preAnimationSetup(float seekTime) {
     }
 
     public final TEntity getEntity() {
@@ -137,14 +136,14 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         Minecraft mc = Minecraft.getInstance();
 
         boolean forceUpdate = this.shouldForceUpdate();
-        double currentTick = forceUpdate ? (Blaze3D.getTime() * 20) : getCurrentTick();
+        float currentTick = getCurrentTick();
 
         if (manager.startTick == -1) {
             manager.startTick = currentTick;
         } else {
             manager.tick = currentTick - manager.startTick;
             if (!mc.isPaused() || manager.shouldPlayWhilePaused) {
-                double deltaTicks = manager.tick - this.lastGameTickTime;
+                float deltaTicks = manager.tick - this.lastGameTickTime;
                 this.seekTime += deltaTicks;
             }
             this.lastGameTickTime = manager.tick;
@@ -212,7 +211,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected void setupModel(GeoModelState model) {
     }
 
-    public double getCurrentTick() {
+    public float getCurrentTick() {
         return RenderUtils.getRenderTickTime();
     }
 

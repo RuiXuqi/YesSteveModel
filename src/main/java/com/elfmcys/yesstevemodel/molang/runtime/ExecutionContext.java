@@ -24,6 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
@@ -31,5 +32,14 @@ import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
 public interface ExecutionContext<TEntity> {
     TEntity entity();
 
-    @Nullable Object eval(final @NotNull Expression expression);
+    @Nullable Object evalUnsafe(final @NotNull Expression expression);
+
+    default @Nullable Object eval(final @NotNull Expression expression) {
+        try {
+            return evalUnsafe(expression);
+        } catch (Exception e) {
+            YesSteveModel.LOGGER.debug("Failed to evaluate molang expression.", e);
+            return null;
+        }
+    }
 }

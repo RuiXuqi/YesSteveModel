@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Pose;
 import java.util.function.BiPredicate;
 
 public class GeoMaidAnimatedRegister {
-    private static final double MIN_SPEED = 0.05;
+    private static final float MIN_SPEED = 0.05f;
 
     public static void registerAnimationState() {
         register("death", ILoopType.EDefaultLoopTypes.PLAY_ONCE, Priority.HIGHEST, (maid, event) -> maid.isDeadOrDying());

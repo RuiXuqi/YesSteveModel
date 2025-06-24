@@ -11,11 +11,11 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.entity.Entity;
 
 public class AnimationUtils {
-    public static double convertTicksToSeconds(double ticks) {
+    public static float convertTicksToSeconds(float ticks) {
         return ticks / 20;
     }
 
-    public static double convertSecondsToTicks(double seconds) {
+    public static float convertSecondsToTicks(float seconds) {
         return seconds * 20;
     }
 

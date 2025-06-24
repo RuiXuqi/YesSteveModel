@@ -47,7 +47,7 @@ public final class StandardBindings {
             return null;
         }
 
-        int n = Math.min((int) Math.round(args.getAsDouble(ctx, 0)), MAX_LOOP_ROUND);
+        int n = Math.min(Math.round(args.getAsFloat(ctx, 0)), MAX_LOOP_ROUND);
         Object expr = args.getExpression(1);
 
         if (expr instanceof ExecutionScopeExpression) {

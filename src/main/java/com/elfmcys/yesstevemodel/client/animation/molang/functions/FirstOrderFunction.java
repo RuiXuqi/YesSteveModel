@@ -31,7 +31,7 @@ public class FirstOrderFunction extends EntityFunction {
             processor.putPhysicsValue(key, firstOrder);
             return input;
         }
-        physicsValue.setArgs(input, response);
+        physicsValue.setArgs(input, response, 0, 0);
         return physicsValue.getValue();
     }
 

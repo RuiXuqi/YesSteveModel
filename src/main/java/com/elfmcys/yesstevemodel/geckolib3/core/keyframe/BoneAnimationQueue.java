@@ -88,8 +88,8 @@ public class BoneAnimationQueue {
         return blendWeight;
     }
 
-    public void setBlendWeight(double blendWeight) {
-        this.blendWeight = (float) blendWeight;
+    public void setBlendWeight(float blendWeight) {
+        this.blendWeight = blendWeight;
     }
 
     // 此处链表一般只含一个元素

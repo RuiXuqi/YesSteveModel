@@ -223,7 +223,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     }
 
     @Override
-    protected void preAnimationSetup(double seekTime) {
+    protected void preAnimationSetup(float seekTime) {
         getAnimationProcessor().putRemoteStruct(getRemoteStruct());
     }
 

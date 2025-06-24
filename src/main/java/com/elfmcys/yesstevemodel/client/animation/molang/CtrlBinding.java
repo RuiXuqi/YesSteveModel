@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 public class CtrlBinding extends ContextBinding {
     public static final CtrlBinding INSTANCE = new CtrlBinding();
     private static ReferenceArrayList<Condition>[] DATA;
-    private static final double MIN_SPEED = 0.05;
+    private static final float MIN_SPEED = 0.05f;
 
     private CtrlBinding() {
         // 主动画的

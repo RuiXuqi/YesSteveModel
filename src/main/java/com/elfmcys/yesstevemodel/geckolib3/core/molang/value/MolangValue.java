@@ -13,11 +13,11 @@ public class MolangValue implements IValue {
     }
 
     @Override
-    public Object evalUnsafe(ExpressionEvaluator<?> evaluator) throws Exception {
+    public Object evalUnsafe(ExpressionEvaluator<?> evaluator) {
         Object lastResult = 0d;
 
         for (Expression expression : expressions) {
-            lastResult = evaluator.eval(expression);
+            lastResult = evaluator.evalUnsafe(expression);
             Object returnValue = evaluator.popReturnValue();
             if (returnValue != null) {
                 lastResult = returnValue;

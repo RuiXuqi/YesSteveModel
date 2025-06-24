@@ -35,9 +35,8 @@ public final class ValueConversions {
             return (Boolean) obj;
         }
         if (obj instanceof Number) {
-            // '0' is considered false here, anything else
-            // is considered true.
-            return ((Number) obj).floatValue() != 0;
+            var v = ((Number) obj).floatValue();
+            return !Float.isNaN(v) && v != 0;
         }
         return true;
     }
@@ -47,7 +46,11 @@ public final class ValueConversions {
             return 0;
         }
         if ((obj instanceof Number)) {
-            return ((Number) obj).floatValue();
+            var ret = ((Number) obj).floatValue();
+            if (!Float.isNaN(ret)) {
+                return ret;
+            }
+            return 0;
         }
         if (obj instanceof Boolean) {
             return ((Boolean) obj) ? 1 : 0;
@@ -73,7 +76,11 @@ public final class ValueConversions {
             return 0;
         }
         if (obj instanceof Number) {
-            return ((Number) obj).doubleValue();
+            var ret = ((Number) obj).doubleValue();
+            if (!Double.isNaN(ret)) {
+                return ret;
+            }
+            return 0;
         }
         if (obj instanceof Boolean) {
             return ((Boolean) obj) ? 1 : 0;

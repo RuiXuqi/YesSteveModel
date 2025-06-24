@@ -1,9 +1,9 @@
 package com.elfmcys.yesstevemodel.client.animation.molang.functions.physics;
 
 public interface IPhysics {
-    void update(double timeStep);
+    void update(float timeStep);
 
-    void setArgs(float... args);
+    void setArgs(float arg0, float arg1, float arg2, float arg3);
 
-    double getValue();
+    float getValue();
 }

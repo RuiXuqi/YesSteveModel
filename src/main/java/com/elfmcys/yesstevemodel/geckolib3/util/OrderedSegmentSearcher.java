@@ -1,33 +1,32 @@
 package com.elfmcys.yesstevemodel.geckolib3.util;
 
 import java.util.List;
-import java.util.function.ToDoubleFunction;
 
 public class OrderedSegmentSearcher<T> {
     private final List<T> segments;
-    private final double leftBound;
-    private final double rightBound;
-    private final ToDoubleFunction<T> rightBoundGetter;
+    private final float leftBound;
+    private final float rightBound;
+    private final ToFloatFunction<T> rightBoundGetter;
 
     private int currentIndex;
-    private double currentLeft;
-    private double currentRight;
+    private float currentLeft;
+    private float currentRight;
 
-    public OrderedSegmentSearcher(List<T> segments, double leftBound, ToDoubleFunction<T> rightBoundGetter) {
+    public OrderedSegmentSearcher(List<T> segments, float leftBound, ToFloatFunction<T> rightBoundGetter) {
         this.segments = segments;
         this.leftBound = leftBound;
-        this.rightBound = rightBoundGetter.applyAsDouble(segments.get(segments.size() - 1));
+        this.rightBound = rightBoundGetter.apply(segments.get(segments.size() - 1));
         this.rightBoundGetter = rightBoundGetter;
 
         this.currentIndex = 0;
         this.currentLeft = leftBound;
-        this.currentRight = this.rightBoundGetter.applyAsDouble(segments.get(0));
+        this.currentRight = this.rightBoundGetter.apply(segments.get(0));
         if (leftBound > this.currentRight || leftBound > this.rightBound || this.currentRight > this.rightBound) {
             throw new IllegalArgumentException();
         }
     }
 
-    public T search(final double point) {
+    public T search(final float point) {
         if (segments.size() == 1) {
             return segments.get(0);
         }
@@ -40,7 +39,7 @@ public class OrderedSegmentSearcher<T> {
 
             currentIndex = 0;
             currentLeft = leftBound;
-            currentRight = rightBoundGetter.applyAsDouble(firstSegment);
+            currentRight = rightBoundGetter.apply(firstSegment);
             if (point >= currentRight) {
                 return search(point);
             } else {
@@ -54,8 +53,8 @@ public class OrderedSegmentSearcher<T> {
 
         if (point >= rightBound) {
             var lastSegment = segments.get(segments.size() - 1);
-            var left = rightBoundGetter.applyAsDouble(segments.get(segments.size() - 2));
-            var right = rightBoundGetter.applyAsDouble(lastSegment);
+            var left = rightBoundGetter.apply(segments.get(segments.size() - 2));
+            var right = rightBoundGetter.apply(lastSegment);
             if (left > right) {
                 throw new IllegalArgumentException();
             }
@@ -65,10 +64,10 @@ public class OrderedSegmentSearcher<T> {
             return lastSegment;
         }
 
-        double left = currentRight;
+        float left = currentRight;
         for (int index = currentIndex + 1; ; ++index) {
             var segment = segments.get(index);
-            var right = rightBoundGetter.applyAsDouble(segment);
+            var right = rightBoundGetter.apply(segment);
             if (left > right) {
                 throw new IllegalArgumentException();
             }
@@ -82,11 +81,16 @@ public class OrderedSegmentSearcher<T> {
         }
     }
 
-    public double leftBound() {
+    public float leftBound() {
         return leftBound;
     }
 
-    public double rightBound() {
+    public float rightBound() {
         return rightBound;
+    }
+
+    @FunctionalInterface
+    public interface ToFloatFunction<T> {
+        float apply(T t);
     }
 }

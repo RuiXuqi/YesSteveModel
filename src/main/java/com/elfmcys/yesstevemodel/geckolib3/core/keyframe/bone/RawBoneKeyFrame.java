@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.DoubleValue;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.FloatValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.RotationValue;
 
@@ -37,9 +37,9 @@ public class RawBoneKeyFrame {
     private IValue getValue(IValue value, double primitive, boolean isRotation, boolean flip) {
         if (value == null) {
             if (isRotation) {
-                return new DoubleValue(RotationValue.processValue(primitive, flip));
+                return new FloatValue(RotationValue.processValue((float) primitive, flip));
             } else {
-                return new DoubleValue(primitive);
+                return new FloatValue((float) primitive);
             }
         }
         if (isRotation) {
@@ -68,8 +68,8 @@ public class RawBoneKeyFrame {
         }
     }
 
-    public double startTick() {
-        return startTick;
+    public float startTick() {
+        return (float) startTick;
     }
 
     public EasingType easingType() {

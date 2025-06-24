@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.molang.functions.physics;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import net.minecraft.util.Mth;
 
 /**
@@ -8,52 +9,59 @@ import net.minecraft.util.Mth;
  * <a href="https://www.youtube.com/watch?v=KPoeNZZ6H4s">Giving Personality to Procedural Animations using Math</a>
  */
 public class SecondOrder implements IPhysics {
-    private double inputFunction = 0;
-    private double lastSimulation = 0;
-    private double lastSimulationDot = 0;
-    private float[] args = new float[4];
+    private float inputFunction = 0;
+    private float lastSimulation = 0;
+    private float lastSimulationDot = 0;
+    private float arg0;
+    private float arg1;
+    private float arg2;
+    private float arg3;
 
     public SecondOrder(float input, float frequency, float coefficient, float response) {
-        this.args[0] = input;
-        this.args[1] = Mth.clamp(frequency, 0, 5);
-        this.args[2] = Mth.clamp(coefficient, 0, 1);
-        this.args[3] = response;
+        this.arg0 = input;
+        this.arg1 = Mth.clamp(frequency, 0, 5);
+        this.arg2 = Mth.clamp(coefficient, 0, 1);
+        this.arg3 = response;
     }
 
     @Override
-    public void update(double timeStep) {
-        float input = args[0];
-        float frequency = Mth.clamp(args[1], 0, 5);
-        float coefficient = Mth.clamp(args[2], 0, 1);
-        float response = args[3];
+    public void update(float timeStep) {
+        float input = arg0;
+        float frequency = Mth.clamp(arg1, 0, 5);
+        float coefficient = Mth.clamp(arg2, 0, 1);
+        float response = arg3;
 
-        double k1 = coefficient / Math.PI / frequency;
-        double k2 = 1 / (2 * Math.PI * frequency) / (2 * Math.PI * frequency);
-        double k3 = response * coefficient / 2 / Math.PI / frequency;
+        float k1 = coefficient / MathUtil.PI / frequency;
+        float k2 = 1 / (2 * MathUtil.PI * frequency) / (2 * MathUtil.PI * frequency);
+        float k3 = response * coefficient / 2 / MathUtil.PI / frequency;
 
-        double inputFunctionDot = (input - inputFunction) / timeStep;
-        inputFunction = input;
+        float inputFunctionDot = (input - this.inputFunction) / timeStep;
+        this.inputFunction = input;
 
-        double maxTimeStep = Math.sqrt(4 * k2 + k1 * k1) - k1;
+        float maxTimeStep = (float) Math.sqrt(4 * k2 + k1 * k1) - k1;
         int cycleTime = (int) Math.ceil(timeStep / maxTimeStep);
         timeStep = timeStep / cycleTime;
 
+        var lastSimulationDot = this.lastSimulationDot;
+        var lastSimulation = this.lastSimulation;
         for (; cycleTime > 0; cycleTime--) {
-            double tmpLastSimulation = lastSimulation + timeStep * lastSimulationDot;
-            double tmpLastSimulationDot = lastSimulationDot + timeStep * (k3 * inputFunctionDot + inputFunction - tmpLastSimulation - k1 * lastSimulationDot) / k2;
-
-            lastSimulation = tmpLastSimulation;
-            lastSimulationDot = tmpLastSimulationDot;
+            lastSimulation = lastSimulation + timeStep * lastSimulationDot;
+            lastSimulationDot = lastSimulationDot + timeStep * (k3 * inputFunctionDot + input - lastSimulation - k1 * lastSimulationDot) / k2;
         }
+        this.lastSimulation = lastSimulation;
+        this.lastSimulationDot = lastSimulationDot;
     }
 
     @Override
-    public void setArgs(float... args) {
-        this.args = args;
+    public void setArgs(float arg0, float arg1, float arg2, float arg3) {
+        this.arg0 = arg0;
+        this.arg1 = arg1;
+        this.arg2 = arg2;
+        this.arg3 = arg3;
     }
 
     @Override
-    public double getValue() {
+    public float getValue() {
         return lastSimulation;
     }
 }

@@ -196,7 +196,7 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
     }
 
     @Override
-    public Object visitDouble(@NotNull DoubleExpression expression) {
+    public Object visitFloat(@NotNull FloatExpression expression) {
         return expression.value();
     }
 

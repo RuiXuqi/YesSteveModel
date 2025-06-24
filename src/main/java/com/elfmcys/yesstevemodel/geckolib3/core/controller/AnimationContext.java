@@ -1,11 +1,11 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
 public class AnimationContext {
-    private double animTime;
+    private float animTime;
     private boolean allAnimationsFinished;
     private boolean anyAnimationFinished;
 
-    public void setAnimTime(double animTime) {
+    public void setAnimTime(float animTime) {
         this.animTime = animTime;
     }
 
@@ -17,7 +17,7 @@ public class AnimationContext {
         this.anyAnimationFinished = anyAnimationFinished;
     }
 
-    public double animTime() {
+    public float animTime() {
         return animTime;
     }
 

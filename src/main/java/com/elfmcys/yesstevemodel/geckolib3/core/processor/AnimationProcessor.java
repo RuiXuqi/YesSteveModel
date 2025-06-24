@@ -50,7 +50,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     @SuppressWarnings("unchecked")
-    public void tickAnimation(double seekTime, boolean shouldUpdate, AnimationEvent<T> event, AnimationMolangContext<?> ctx) {
+    public void tickAnimation(float seekTime, boolean shouldUpdate, AnimationEvent<T> event, AnimationMolangContext<?> ctx) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
         ExpressionEvaluator<AnimationMolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
@@ -108,12 +108,12 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         this.rendererDirty = false;
 
         // 追踪哪些骨骼应用了动画，并最终将没有动画的骨骼设置为默认值
-        final double resetTickLength = manager.getResetSpeed();
+        final float resetTickLength = manager.getResetSpeed();
         for (BoneTopLevelSnapshot topLevelSnapshot : modelRendererList) {
             BoneSnapshot initialSnapshot = topLevelSnapshot.bone.getInitialSnapshot();
 
             if (!topLevelSnapshot.isCurrentlyRunningRotationAnimation) {
-                double percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetRotationTick) / resetTickLength, 1);
+                float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetRotationTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
                     topLevelSnapshot.rotationValueX = MathUtil.lerpValues(percentageReset, topLevelSnapshot.rotationValueX,
                             initialSnapshot.rotationValueX);
@@ -129,7 +129,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             }
 
             if (!topLevelSnapshot.isCurrentlyRunningPositionAnimation) {
-                double percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetPositionTick) / resetTickLength, 1);
+                float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetPositionTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
                     topLevelSnapshot.positionOffsetX = MathUtil.lerpValues(percentageReset, topLevelSnapshot.positionOffsetX,
                             initialSnapshot.positionOffsetX);
@@ -139,19 +139,19 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
                             initialSnapshot.positionOffsetZ);
                 }
             } else {
-                topLevelSnapshot.mostRecentResetPositionTick = (float) seekTime;
+                topLevelSnapshot.mostRecentResetPositionTick = seekTime;
                 topLevelSnapshot.isCurrentlyRunningPositionAnimation = false;
             }
 
             if (!topLevelSnapshot.isCurrentlyRunningScaleAnimation) {
-                double percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetScaleTick) / resetTickLength, 1);
+                float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetScaleTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
                     topLevelSnapshot.scaleValueX = MathUtil.lerpValues(percentageReset, topLevelSnapshot.scaleValueX, initialSnapshot.scaleValueX);
                     topLevelSnapshot.scaleValueY = MathUtil.lerpValues(percentageReset, topLevelSnapshot.scaleValueY, initialSnapshot.scaleValueY);
                     topLevelSnapshot.scaleValueZ = MathUtil.lerpValues(percentageReset, topLevelSnapshot.scaleValueZ, initialSnapshot.scaleValueZ);
                 }
             } else {
-                topLevelSnapshot.mostRecentResetScaleTick = (float) seekTime;
+                topLevelSnapshot.mostRecentResetScaleTick = seekTime;
                 topLevelSnapshot.isCurrentlyRunningScaleAnimation = false;
             }
 
@@ -214,12 +214,12 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     private void postProcess(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
-        double interval;
+        float interval;
         long currentTime = Util.getNanos();
         if (cachePhysicsTimeStamp <= 0) {
-            interval = 1 / 60d;
+            interval = 1 / 60f;
         } else {
-            interval = Mth.clamp((currentTime - cachePhysicsTimeStamp) / 1000_000_000d, 0d, 1);
+            interval = Mth.clamp((currentTime - cachePhysicsTimeStamp) / 1000_000_000f, 0f, 1);
         }
         cachePhysicsTimeStamp = currentTime;
         physicsValues.forEach((key, value) -> value.update(interval));
@@ -238,7 +238,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         String result;
         try {
             evaluator.entity().setAllowEmitting(task.allowEmitting());
-            var ret = task.exp().evalUnsafe(evaluator);
+            var ret = task.exp().eval(evaluator);
             if (task.resultCallback() == null) {
                 return;
             }

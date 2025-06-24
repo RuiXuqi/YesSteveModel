@@ -13,7 +13,7 @@ public class TransitionPoint extends AnimationPoint {
     private final BoneKeyFrame dstKeyframe;
     private final boolean rotation;
 
-    public TransitionPoint(double currentTick, IBlendTransition transition, Vector3f offsetPoint, BoneKeyFrame dstKeyframe, boolean rotation, AnimationContext context) {
+    public TransitionPoint(float currentTick, IBlendTransition transition, Vector3f offsetPoint, BoneKeyFrame dstKeyframe, boolean rotation, AnimationContext context) {
         super(currentTick, transition.length(), context);
         this.transition = transition;
         this.offsetPoint = offsetPoint;

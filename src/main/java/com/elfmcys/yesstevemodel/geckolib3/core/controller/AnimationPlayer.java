@@ -57,8 +57,8 @@ public class AnimationPlayer {
      */
     public IBlendTransition transition;
     public boolean isJustStarting = false;
-    public double tickOffset;
-    public double animationSpeed = 1D;
+    public float tickOffset;
+    public float animationSpeed = 1f;
     /**
      * 默认情况下，动画将使用关键帧的 EasingType <br>
      * 复写此数值将用于全局
@@ -93,7 +93,7 @@ public class AnimationPlayer {
     public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
         this.animatableEntity = animatableEntity;
         this.transition = new LinearBlendTransition(transitionLengthTicks);
-        this.tickOffset = 0.0d;
+        this.tickOffset = 0.0f;
     }
 
     /**
@@ -107,7 +107,7 @@ public class AnimationPlayer {
         this.animatableEntity = animatableEntity;
         this.transition = new LinearBlendTransition(transitionLengthTicks);
         this.easingType = easingtype;
-        this.tickOffset = 0.0d;
+        this.tickOffset = 0.0f;
     }
 
     /**
@@ -179,7 +179,7 @@ public class AnimationPlayer {
      *
      * @param tick 当前 tick + 插值 tick
      */
-    public void process(final double tick, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate, boolean dryRun) {
+    public void process(final float tick, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate, boolean dryRun) {
         if (this.currentAnimation != null) {
             Animation animation = animatableEntity.getAnimation(currentAnimation.animationName);
             if (animation != null && this.currentAnimation != animation) {
@@ -197,7 +197,7 @@ public class AnimationPlayer {
             }
         }
 
-        double adjustedTick = adjustTick(tick);
+        float adjustedTick = adjustTick(tick);
         // 过渡结束，重置 tick 并将动画设置为运行
         if (animationQueue.isEmpty() && animationState == AnimationState.TRANSITIONING && adjustedTick >= this.transition.length()) {
             this.shouldResetTick = true;
@@ -252,7 +252,7 @@ public class AnimationPlayer {
                 animIsFinished = false;
                 resetQueues();
 
-                var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsDouble(evaluator) : 1;
+                var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsFloat(evaluator) : 1;
                 for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
                     boneAnimationQueue.setBlendWeight(blendWeight);
 
@@ -304,7 +304,7 @@ public class AnimationPlayer {
         this.stopSoundKeyFrames();
     }
 
-    private void processCurrentAnimation(AnimationContext context, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, double tick, double actualTick, boolean scheduledUpdate, boolean dryRun) {
+    private void processCurrentAnimation(AnimationContext context, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, float tick, float actualTick, boolean scheduledUpdate, boolean dryRun) {
         assert currentAnimation != null;
         evaluator.entity().setAnimationContext(context);
 
@@ -344,7 +344,7 @@ public class AnimationPlayer {
         context.setAnimTime(tick / 20.0f);
 
         // 循环遍历当前动画中的每个骨骼动画并处理值
-        var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsDouble(evaluator) : 1;
+        var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsFloat(evaluator) : 1;
         for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
             boneAnimationQueue.setBlendWeight(blendWeight);
 
@@ -422,7 +422,7 @@ public class AnimationPlayer {
     }
 
     // 在新动画开始、过渡开始或者其他情况下重置 tick
-    public double adjustTick(double tick) {
+    public float adjustTick(float tick) {
         if (this.shouldResetTick) {
             if (getAnimationState() == AnimationState.TRANSITIONING) {
                 this.tickOffset = tick;
@@ -432,14 +432,14 @@ public class AnimationPlayer {
             this.shouldResetTick = false;
             return 0;
         } else {
-            return this.animationSpeed * Math.max(tick - this.tickOffset, 0.0D);
+            return this.animationSpeed * Math.max(tick - this.tickOffset, 0.0f);
         }
     }
 
     /**
      * 返回当前关键帧播放进度
      **/
-    private AnimationPoint getKeyFramePointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, double tick, AnimationContext context) {
+    private AnimationPoint getKeyFramePointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, float tick, AnimationContext context) {
         var frame = frames.search(tick);
         return new KeyFramePoint(tick - frame.getStartTick(), frame, context);
     }
@@ -447,7 +447,7 @@ public class AnimationPlayer {
     /**
      * 返回过渡进度
      **/
-    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, boolean rotation, double tick, Vector3f offsetPoint, AnimationContext context) {
+    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, boolean rotation, float tick, Vector3f offsetPoint, AnimationContext context) {
         BoneKeyFrame dstFrame = frames.search(0);
         return new TransitionPoint(tick, this.transition, offsetPoint, dstFrame, rotation, context);
     }
@@ -487,11 +487,11 @@ public class AnimationPlayer {
         this.currentAnimationBuilder = new AnimationBuilder();
     }
 
-    public double getAnimationSpeed() {
+    public float getAnimationSpeed() {
         return this.animationSpeed;
     }
 
-    public void setAnimationSpeed(double animationSpeed) {
+    public void setAnimationSpeed(float animationSpeed) {
         this.animationSpeed = animationSpeed;
     }
 }

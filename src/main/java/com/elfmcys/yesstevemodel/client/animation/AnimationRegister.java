@@ -18,7 +18,7 @@ public class AnimationRegister {
     public static final String FOCUS = "focus";
     public static final String EMPTY = "empty";
 
-    private static final double MIN_SPEED = 0.05;
+    private static final float MIN_SPEED = 0.05f;
 
     public static void registerAnimationState() {
         register("death", ILoopType.EDefaultLoopTypes.PLAY_ONCE, Priority.HIGHEST, (player, event) -> player.isDeadOrDying());

@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.elfmcys.yesstevemodel.util.PersonView;
@@ -44,7 +45,7 @@ public class QueryBinding extends ContextBinding {
         function("remaining_durability", new ItemRemainingDurability());
 
         var("actor_count", ctx -> ctx.level().getEntityCount());
-        var("anim_time", ctx -> getAnimationContext(ctx).map(AnimationContext::animTime).orElse(0d));
+        var("anim_time", ctx -> getAnimationContext(ctx).map(AnimationContext::animTime).orElse(0f));
         // 目前控制器只能同时播放单一动画，所以两个 molang 都是一样的结果
         var("all_animations_finished", ctx -> getAnimationContext(ctx).map(AnimationContext::isAllAnimationsFinished).orElse(false));
         var("any_animation_finished", ctx -> getAnimationContext(ctx).map(AnimationContext::isAnyAnimationFinished).orElse(false));
@@ -55,7 +56,7 @@ public class QueryBinding extends ContextBinding {
         var("time_of_day", ctx -> MolangUtils.normalizeTime(ctx.level().getDayTime()));
         var("time_stamp", ctx -> ctx.level().getDayTime());
 
-        entityVar("yaw_speed", ctx -> getYawSpeed(ctx));
+        entityVar("yaw_speed", QueryBinding::getYawSpeed);
         entityVar("cardinal_facing_2d", ctx -> ctx.entity().getDirection().get3DDataValue());
         entityVar("distance_from_camera", ctx -> ctx.mc().gameRenderer.getMainCamera().getPosition().distanceTo(ctx.entity().position()));
         entityVar("eye_target_x_rotation", ctx -> ctx.entity().getViewXRot(ctx.animationEvent().getPartialTick()));
@@ -127,10 +128,10 @@ public class QueryBinding extends ContextBinding {
         return count;
     }
 
-    private static double getMaxUseDuration(LivingEntity player) {
+    private static int getMaxUseDuration(LivingEntity player) {
         ItemStack useItem = player.getUseItem();
         if (useItem.isEmpty()) {
-            return 0.0;
+            return 0;
         } else {
             return useItem.getUseDuration();
         }
@@ -157,15 +158,15 @@ public class QueryBinding extends ContextBinding {
         float pPartialTicks = ctx.animationEvent().getPartialTick();
         AbstractClientPlayer pLivingEntity = ctx.entity();
 
-        double d0 = Mth.lerp(pPartialTicks, pLivingEntity.xCloakO, pLivingEntity.xCloak) - Mth.lerp(pPartialTicks, pLivingEntity.xo, pLivingEntity.getX());
-        double d1 = Mth.lerp(pPartialTicks, pLivingEntity.yCloakO, pLivingEntity.yCloak) - Mth.lerp(pPartialTicks, pLivingEntity.yo, pLivingEntity.getY());
-        double d2 = Mth.lerp(pPartialTicks, pLivingEntity.zCloakO, pLivingEntity.zCloak) - Mth.lerp(pPartialTicks, pLivingEntity.zo, pLivingEntity.getZ());
+        float d0 = (float) (Mth.lerp(pPartialTicks, pLivingEntity.xCloakO, pLivingEntity.xCloak) - Mth.lerp(pPartialTicks, pLivingEntity.xo, pLivingEntity.getX()));
+        float d1 = (float) (Mth.lerp(pPartialTicks, pLivingEntity.yCloakO, pLivingEntity.yCloak) - Mth.lerp(pPartialTicks, pLivingEntity.yo, pLivingEntity.getY()));
+        float d2 = (float) (Mth.lerp(pPartialTicks, pLivingEntity.zCloakO, pLivingEntity.zCloak) - Mth.lerp(pPartialTicks, pLivingEntity.zo, pLivingEntity.getZ()));
         float f = pLivingEntity.yBodyRotO + (pLivingEntity.yBodyRot - pLivingEntity.yBodyRotO);
-        double d3 = Mth.sin(f * ((float) Math.PI / 180F));
-        double d4 = (-Mth.cos(f * ((float) Math.PI / 180F)));
-        float f1 = (float) d1 * 10.0F;
+        float d3 = Mth.sin(f * (MathUtil.PI / 180F));
+        float d4 = (-Mth.cos(f * (MathUtil.PI / 180F)));
+        float f1 = d1 * 10.0F;
         f1 = Mth.clamp(f1, -6.0F, 32.0F);
-        float f2 = (float) (d0 * d3 + d2 * d4) * 100.0F;
+        float f2 = (d0 * d3 + d2 * d4) * 100.0F;
         f2 = Mth.clamp(f2, 0.0F, 150.0F);
         if (f2 < 0.0F) {
             f2 = 0.0F;

@@ -17,11 +17,11 @@ public class InstructionKeyFrameExecutor {
 
     private void evalValues(ExpressionEvaluator<?> evaluator, IValue[] values) {
         for (IValue value : values) {
-            value.evalAsDouble(evaluator);
+            value.eval(evaluator);
         }
     }
 
-    public void executeTo(ExpressionEvaluator<AnimationMolangContext<?>> evaluator, double currentTick, boolean dryRun) {
+    public void executeTo(ExpressionEvaluator<AnimationMolangContext<?>> evaluator, float currentTick, boolean dryRun) {
         evaluator.entity().setAllowEmitting(!dryRun);
         while (!reachEnd()) {
             EventKeyFrame<IValue[]> keyFrame = list.get(nextIndex);

@@ -9,7 +9,7 @@ import org.joml.Vector3f;
 public class KeyFramePoint extends AnimationPoint {
     public final BoneKeyFrame keyframe;
 
-    public KeyFramePoint(double currentTick, BoneKeyFrame keyframe, AnimationContext context) {
+    public KeyFramePoint(float currentTick, BoneKeyFrame keyframe, AnimationContext context) {
         super(currentTick, keyframe.getTotalTick(), context);
         this.keyframe = keyframe;
     }

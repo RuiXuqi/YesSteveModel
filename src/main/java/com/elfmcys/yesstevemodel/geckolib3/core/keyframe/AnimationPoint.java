@@ -14,23 +14,23 @@ public abstract class AnimationPoint {
     /**
      * 当前关键帧播放进度
      */
-    public final double currentTick;
+    public final float currentTick;
     /**
      * 当前关键帧总长度
      */
-    public final double totalTick;
+    public final float totalTick;
     /**
      * 与动画相关的 molang 上下文
      */
     private final AnimationContext context;
 
-    public AnimationPoint(double currentTick, double totalTick, AnimationContext context) {
+    public AnimationPoint(float currentTick, float totalTick, AnimationContext context) {
         this.currentTick = currentTick;
         this.totalTick = totalTick;
         this.context = context;
     }
 
-    protected double getPercentCompleted() {
+    protected float getPercentCompleted() {
         return totalTick == 0 ? 1 : (currentTick / totalTick);
     }
 

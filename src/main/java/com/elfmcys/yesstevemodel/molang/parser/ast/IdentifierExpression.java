@@ -57,7 +57,7 @@ public final class IdentifierExpression implements Expression {
 
     public static Expression get(String name, Object target) {
         if(target instanceof Number) {
-            return new DoubleExpression(((Number) target).doubleValue());
+            return new FloatExpression(((Number) target).floatValue());
         } else if(target instanceof String) {
             return new StringExpression((String) target);
         }

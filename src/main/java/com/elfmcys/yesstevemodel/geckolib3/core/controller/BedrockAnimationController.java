@@ -58,7 +58,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     @Override
-    public void process(final double tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
+    public void process(final float tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
         if (this.data == null) {
             return;
         }
@@ -157,11 +157,11 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         evaluator.entity().setAllowEmitting(true);
         if (this.state != null) {
             for (var exp : this.state.onExit()) {
-                exp.evalAsDouble(evaluator);
+                exp.eval(evaluator);
             }
         }
         for (var exp : state.onEntry()) {
-            exp.evalAsDouble(evaluator);
+            exp.eval(evaluator);
         }
         evaluator.entity().setAllowEmitting(false);
         this.state = state;

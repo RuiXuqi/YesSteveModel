@@ -49,7 +49,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     }
 
     @Override
-    public void process(final double tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
+    public void process(final float tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
         event.setCodedAnimationController(this);
         PlayState playState = this.animationPredicate.test(event, evaluator);
         if (playState == PlayState.CONTINUE) {

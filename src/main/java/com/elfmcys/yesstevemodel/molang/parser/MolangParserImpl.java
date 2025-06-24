@@ -67,16 +67,16 @@ final class MolangParserImpl implements MolangParser {
         switch (token.kind()) {
             case FLOAT:
                 lexer.next();
-                return new DoubleExpression(Double.parseDouble(token.value()));
+                return new FloatExpression(Float.parseFloat(token.value()));
             case STRING:
                 lexer.next();
                 return new StringExpression(token.value());
             case TRUE:
                 lexer.next();
-                return DoubleExpression.ONE;
+                return FloatExpression.ONE;
             case FALSE:
                 lexer.next();
-                return DoubleExpression.ZERO;
+                return FloatExpression.ZERO;
             case LPAREN:
                 lexer.next();
                 // wrapped expression: (expression)

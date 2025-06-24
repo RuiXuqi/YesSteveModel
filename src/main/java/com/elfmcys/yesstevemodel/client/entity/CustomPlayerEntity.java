@@ -383,7 +383,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     }
 
     @Override
-    protected void preAnimationSetup(double seekTime) {
+    protected void preAnimationSetup(float seekTime) {
         getAnimationProcessor().putRemoteStruct(getRoamingStruct());
         if (fireInitEvent) {
             fireInitEvent = false;

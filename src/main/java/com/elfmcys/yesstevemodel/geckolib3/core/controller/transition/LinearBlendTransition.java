@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller.transition;
 
 public class LinearBlendTransition implements IBlendTransition {
-    private final double ticks;
+    private final float ticks;
 
     // Native Access
     @SuppressWarnings("unused")
@@ -10,12 +10,12 @@ public class LinearBlendTransition implements IBlendTransition {
     }
 
     @Override
-    public double get(double tick) {
+    public float get(float tick) {
         return ticks != 0 ? tick / ticks : 1;
     }
 
     @Override
-    public double length() {
+    public float length() {
         return ticks;
     }
 }

@@ -1,12 +1,12 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller.transition;
 
 public interface IBlendTransition {
-    double get(double tick);
+    float get(float tick);
 
     /**
      * Tick
      */
-    double length();
+    float length();
 
     default IBlendTransition startNew() {
         return this;

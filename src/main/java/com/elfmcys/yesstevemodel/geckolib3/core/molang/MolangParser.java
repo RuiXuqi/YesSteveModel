@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.PrimaryBinding;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.DoubleValue;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.FloatValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.MolangValue;
 import com.elfmcys.yesstevemodel.molang.MolangEngine;
@@ -26,7 +26,7 @@ public class MolangParser {
             return parseExpressionUnsafe(molangExpression, allowComment);
         } catch (Exception e) {
             YesSteveModel.LOGGER.debug("Failed to parse molang expression \"{}\": {}", molangExpression, e.getMessage());
-            return DoubleValue.ZERO;
+            return FloatValue.ZERO;
         }
     }
 
@@ -94,7 +94,7 @@ public class MolangParser {
     // Native Access
     @SuppressWarnings("unused")
     public IValue getConstant(double value) {
-        return new DoubleValue(value);
+        return new FloatValue((float) value);
     }
 
     public void reset() {

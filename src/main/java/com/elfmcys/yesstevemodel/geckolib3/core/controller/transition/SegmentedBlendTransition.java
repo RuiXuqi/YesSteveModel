@@ -28,7 +28,7 @@ public class SegmentedBlendTransition implements IBlendTransition {
     }
 
     @Override
-    public double get(double tick) {
+    public float get(float tick) {
         var segment = segmentSearcher.search(tick);
         if (tick <= segment.startTick) {
             return segment.startPosition;
@@ -40,7 +40,7 @@ public class SegmentedBlendTransition implements IBlendTransition {
     }
 
     @Override
-    public double length() {
+    public float length() {
         return segmentSearcher.rightBound();
     }
 
@@ -50,13 +50,13 @@ public class SegmentedBlendTransition implements IBlendTransition {
     }
 
     private static class Segment {
-        public final double startTick;
-        public final double totalTick;
-        public final double endTick;
-        public final double startPosition;
-        public final double positionDelta;
+        public final float startTick;
+        public final float totalTick;
+        public final float endTick;
+        public final float startPosition;
+        public final float positionDelta;
 
-        public Segment(double startTick, double endTick, double startPosition, double endPosition) {
+        public Segment(float startTick, float endTick, float startPosition, float endPosition) {
             this.startTick = startTick;
             this.totalTick = endTick - startTick;
             this.endTick = endTick;

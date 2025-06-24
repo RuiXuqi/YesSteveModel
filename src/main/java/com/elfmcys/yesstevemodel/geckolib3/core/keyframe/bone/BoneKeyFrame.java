@@ -5,33 +5,33 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.joml.Vector3f;
 
 public abstract class BoneKeyFrame {
-    protected final double startTick;
-    protected final double totalTick;
-    protected final double endTick;
+    protected final float startTick;
+    protected final float totalTick;
+    protected final float endTick;
     protected final Vector3v beginPoint;
 
-    public BoneKeyFrame(double startTick, double totalTick, Vector3v beginPoint) {
+    public BoneKeyFrame(float startTick, float totalTick, Vector3v beginPoint) {
         this.startTick = startTick;
         this.totalTick = totalTick;
         this.endTick = startTick + totalTick;
         this.beginPoint = beginPoint;
     }
 
-    public double getStartTick() {
+    public float getStartTick() {
         return startTick;
     }
 
-    public double getTotalTick() {
+    public float getTotalTick() {
         return totalTick;
     }
 
-    public double getEndTick() {
+    public float getEndTick() {
         return endTick;
     }
 
-    public abstract Vector3f getLerpPoint(ExpressionEvaluator<?> evaluator, double percentCompleted);
+    public abstract Vector3f getLerpPoint(ExpressionEvaluator<?> evaluator, float percentCompleted);
 
-    public Vector3f getTransitionPoint(ExpressionEvaluator<?> evaluator, Vector3f offsetPoint, boolean rotation, double percentCompleted) {
+    public Vector3f getTransitionPoint(ExpressionEvaluator<?> evaluator, Vector3f offsetPoint, boolean rotation, float percentCompleted) {
         if (!rotation) {
             if (isBegin(percentCompleted)) {
                 return offsetPoint;
@@ -46,15 +46,15 @@ public abstract class BoneKeyFrame {
                 return this.beginPoint.eval(evaluator);
             }
 
-            return MathUtil.rotLerp((float) percentCompleted, offsetPoint, this.beginPoint.eval(evaluator));
+            return MathUtil.rotLerp(percentCompleted, offsetPoint, this.beginPoint.eval(evaluator));
         }
     }
 
-    protected static boolean isBegin(double percentCompleted) {
+    protected static boolean isBegin(float percentCompleted) {
         return percentCompleted < 0.00001;
     }
 
-    protected static boolean isEnd(double percentCompleted) {
-        return percentCompleted > 0.99999;
+    protected static boolean isEnd(float percentCompleted) {
+        return percentCompleted > 0.99999f;
     }
 }

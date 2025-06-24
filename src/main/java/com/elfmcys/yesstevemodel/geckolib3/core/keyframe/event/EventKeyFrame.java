@@ -8,11 +8,11 @@ package com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event;
 // Native Access
 public class EventKeyFrame<T> {
     private final T eventData;
-    private final double startTick;
+    private final float startTick;
 
     // Native Access
     public EventKeyFrame(double startTick, T eventData) {
-        this.startTick = startTick;
+        this.startTick = (float) startTick;
         this.eventData = eventData;
     }
 
@@ -20,7 +20,7 @@ public class EventKeyFrame<T> {
         return eventData;
     }
 
-    public double getStartTick() {
+    public float getStartTick() {
         return startTick;
     }
 }

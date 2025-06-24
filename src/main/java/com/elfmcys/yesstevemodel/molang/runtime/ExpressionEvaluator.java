@@ -33,7 +33,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 /**
  * An {@link ExpressionVisitor} implementation that evaluates
  * (interprets) the expressions it visits and returns a single
- * value, commonly, a double value.
+ * value, commonly, a float value.
  *
  * @since 3.0.0
  */
@@ -63,7 +63,7 @@ public /* sealed */ interface ExpressionEvaluator<TEntity> /* permits Expression
     }
 
     @Override
-    default @Nullable Object eval(final @NotNull Expression expression) {
+    default @Nullable Object evalUnsafe(final @NotNull Expression expression) {
         return expression.visit(this);
     }
 

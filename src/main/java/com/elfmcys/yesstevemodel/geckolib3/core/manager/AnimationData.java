@@ -13,11 +13,11 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 public class AnimationData {
     private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(41);
-    public double tick;
+    public float tick;
     public boolean isFirstTick = true;
-    public double startTick = -1;
+    public float startTick = -1;
     public boolean shouldPlayWhilePaused = false;
-    private double resetTickLength = 1;
+    private float resetTickLength = 1;
 
     public AnimationData() {
     }
@@ -26,7 +26,7 @@ public class AnimationData {
         animationControllers.add(value);
     }
 
-    public double getResetSpeed() {
+    public float getResetSpeed() {
         return resetTickLength;
     }
 
@@ -35,7 +35,7 @@ public class AnimationData {
      *
      * @param resetTickLength 重置时所需的 tick。不能为负数
      */
-    public void setResetSpeedInTicks(double resetTickLength) {
+    public void setResetSpeedInTicks(float resetTickLength) {
         this.resetTickLength = resetTickLength < 0 ? 0 : resetTickLength;
     }
 

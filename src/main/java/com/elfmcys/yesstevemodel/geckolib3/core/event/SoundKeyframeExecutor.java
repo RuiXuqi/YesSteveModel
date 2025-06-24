@@ -29,7 +29,7 @@ public class SoundKeyframeExecutor {
         this.cachePlaySounds = new LinkedList<>();
     }
 
-    public void executeTo(AnimatableEntity<?> animatable, double currentTick, boolean dryRun) {
+    public void executeTo(AnimatableEntity<?> animatable, float currentTick, boolean dryRun) {
         while (!reachEnd()) {
             EventKeyFrame<String> keyFrame = list.get(nextIndex);
             if (keyFrame.getStartTick() > currentTick) {

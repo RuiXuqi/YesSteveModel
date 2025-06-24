@@ -185,7 +185,7 @@ public class YSMBinding extends ContextBinding {
     }
 
     private static boolean getEyeCloseState(AnimationEvent<?> animationEvent, LivingEntity player) {
-        double remainder = (animationEvent.getAnimationTick() + Math.abs(player.getUUID().getLeastSignificantBits()) % 10) % 90;
+        float remainder = (animationEvent.getAnimationTick() + Math.abs(player.getUUID().getLeastSignificantBits()) % 10) % 90;
         boolean isBlinkTime = 85 < remainder && remainder < 90;
         return player.isSleeping() || isBlinkTime;
     }
