@@ -238,11 +238,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
     @Override
     @NotNull
     public ResourceLocation getTextureLocation() {
-        if (isModelPresent()) {
-            return ClientModelManager.getPlayerTextureLocation(modelId, textureName).orElse(MissingTextureAtlasSprite.getLocation());
-        } else {
-            return ModelIdUtil.DEFAULT_TEXTURE_LOCATION;
-        }
+        return ClientModelManager.getPlayerTextureLocation(modelId, textureName).orElse(MissingTextureAtlasSprite.getLocation());
     }
 
     @Override
@@ -363,11 +359,10 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
 
     @Override
     public int getTextureIndex() {
-        if (isModelPresent()) {
-            return ClientModelManager.getModel(modelId).map(model -> model.textures().keyList().indexOf(textureName)).filter(i -> i >= 0).orElse(0);
-        } else {
-            return 0;
-        }
+        return ClientModelManager.getModel(modelId)
+                .map(model -> model.textures().keyList().indexOf(textureName))
+                .filter(i -> i >= 0)
+                .orElse(0);
     }
 
     @Override

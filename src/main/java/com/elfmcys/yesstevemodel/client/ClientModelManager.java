@@ -10,6 +10,7 @@ import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToServer;
 import com.google.common.collect.Maps;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
@@ -45,7 +46,7 @@ public class ClientModelManager {
     public static Optional<Animation> getPlayerAnimation(String modelId, String animationName) {
         var model = MODELS.get(modelId);
         if (model == null) {
-            return Optional.empty();
+            return Optional.ofNullable(DEFAULT_MODEL.animations().get(animationName));
         }
         return Optional.ofNullable(model.animations().get(animationName));
     }
@@ -69,7 +70,7 @@ public class ClientModelManager {
     public static Optional<ResourceLocation> getPlayerTextureLocation(String modelId, String textureName) {
         var model = MODELS.get(modelId);
         if (model == null) {
-            return Optional.empty();
+            return Optional.of(ModelIdUtil.DEFAULT_TEXTURE_LOCATION);
         }
         return Optional.ofNullable(model.textures().get(textureName));
     }
