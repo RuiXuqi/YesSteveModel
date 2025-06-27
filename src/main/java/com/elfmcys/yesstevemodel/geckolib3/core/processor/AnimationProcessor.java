@@ -25,9 +25,7 @@ import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 public class AnimationProcessor<T extends AnimatableEntity<?>> {
@@ -38,8 +36,8 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private final MolangMemory molangMemory = new MolangMemory();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
     private final DebugInfo debugInfo = new DebugInfo();
-    private final ConcurrentLinkedQueue<MolangExecutionTask> pendingMolangTask = new ConcurrentLinkedQueue<>();
-    private final ConcurrentMap<String, IPhysics> physicsValues = new ConcurrentHashMap<>();
+    private final ConcurrentLinkedQueue<MolangExecutionTask> pendingMolangTask = new ConcurrentLinkedQueue<>();         // molang 执行任务的生产和消费可能在不同线程上
+    private final Object2ReferenceOpenHashMap<String, IPhysics> physicsValues = new Object2ReferenceOpenHashMap<>(16);
     private final T animatable;
 
     private boolean rendererDirty = false;
@@ -222,7 +220,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             interval = Mth.clamp((currentTime - cachePhysicsTimeStamp) / 1000_000_000f, 0f, 1);
         }
         cachePhysicsTimeStamp = currentTime;
-        physicsValues.forEach((key, value) -> value.update(interval));
+        physicsValues.object2ReferenceEntrySet().fastForEach(entry -> entry.getValue().update(interval));
 
         debugInfo.evaluatePost(evaluator);
         for (var iter = pendingMolangTask.iterator(); iter.hasNext(); ) {
