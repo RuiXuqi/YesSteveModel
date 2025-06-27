@@ -104,8 +104,14 @@ public class ModelInfoCapability {
     }
 
     public void updateRoamingVars(RoamingVarsChanges changes) {
-        var vars = molangStorage.computeIfAbsent(changes.modelHashShort, hash -> new Object2FloatOpenHashMap<>());
-        changes.variablesServerBound.object2FloatEntrySet().fastForEach(entry -> vars.put(entry.getKey(), entry.getFloatValue()));
+        molangStorage.compute(changes.modelHashShort, (hash, map) -> {
+            if (map != null) {
+                map.putAll(changes.variablesServerBound);
+                return map;
+            } else {
+                return new Object2FloatOpenHashMap<>(changes.variablesServerBound);
+            }
+        });
         // 无需 markDirty
     }
 
@@ -146,13 +152,13 @@ public class ModelInfoCapability {
         tag.putBoolean("mandatory", mandatory);
 
         CompoundTag storageTag = new CompoundTag();
-        for (var storageEntry : molangStorage.int2ReferenceEntrySet()) {
+        molangStorage.int2ReferenceEntrySet().fastForEach(storageEntry -> {
             CompoundTag varsTag = new CompoundTag();
-            for (var varsEntry : storageEntry.getValue().object2FloatEntrySet()) {
+            storageEntry.getValue().object2FloatEntrySet().fastForEach(varsEntry -> {
                 varsTag.putFloat(varsEntry.getKey(), varsEntry.getFloatValue());
-            }
+            });
             storageTag.put(String.valueOf(storageEntry.getIntKey()), varsTag);
-        }
+        });
         tag.put("molang_storage", storageTag);
 
         return tag;
@@ -173,9 +179,10 @@ public class ModelInfoCapability {
         for (var modelHashShortStr : storageTag.getAllKeys()) {
             var varsTag = storageTag.getCompound(modelHashShortStr);
             var modelHashShort = Integer.parseInt(modelHashShortStr);
-            var vars = this.molangStorage.computeIfAbsent(modelHashShort, hash -> new Object2FloatOpenHashMap<>());
-            for (var name : varsTag.getAllKeys()) {
-                var value =  varsTag.getFloat(name);
+            var varsTagKeys = varsTag.getAllKeys();
+            var vars = this.molangStorage.computeIfAbsent(modelHashShort, hash -> new Object2FloatOpenHashMap<>(varsTagKeys.size()));
+            for (var name : varsTagKeys) {
+                var value = varsTag.getFloat(name);
                 vars.put(name, value);
             }
         }

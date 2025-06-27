@@ -26,7 +26,7 @@ public class RemoteRoamingStruct implements Struct {
     }
 
     public void update(Int2FloatArrayMap changes) {
-        changes.int2FloatEntrySet().fastForEach(entry -> values.put(entry.getIntKey(), entry.getFloatValue()));
+        values.putAll(changes);
     }
 
     @Override

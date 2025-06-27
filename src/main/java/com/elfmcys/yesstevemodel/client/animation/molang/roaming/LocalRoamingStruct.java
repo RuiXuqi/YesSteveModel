@@ -21,7 +21,7 @@ public class LocalRoamingStruct implements Struct {
     private boolean dirty = false;
 
     public LocalRoamingStruct(int modelHashShort, Int2FloatOpenHashMap values) {
-        this.changes = new VariableChanges(modelHashShort);
+        this.changes = new VariableChanges(modelHashShort, 4);
         this.values = values;
         this.names = new IntOpenHashSet(values.keySet());
         this.modelHashShort = modelHashShort;
@@ -64,7 +64,7 @@ public class LocalRoamingStruct implements Struct {
 
     public VariableChanges popChanges() {
         var ret = changes;
-        changes = new VariableChanges(modelHashShort);
+        changes = new VariableChanges(modelHashShort, ret.variables.size());
         dirty = false;
         return ret;
     }

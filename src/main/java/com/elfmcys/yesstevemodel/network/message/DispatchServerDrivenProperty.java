@@ -51,13 +51,20 @@ public class DispatchServerDrivenProperty {
             flying = -1;
         }
 
-        Object2ByteMap<MobEffect> effects = Object2ByteMaps.emptyMap();
+        Object2ByteMap<MobEffect> effects;
         if (entity instanceof LivingEntity living) {
             var effectInstances = living.getActiveEffects();
-            effects = new Object2ByteArrayMap<>(effectInstances.size());
+            var effectArray = new MobEffect[effectInstances.size()];
+            var levelArray = new byte[effectInstances.size()];
+            var i = 0;
             for (var effectInstance : effectInstances) {
-                effects.put(effectInstance.getEffect(), (byte) (effectInstance.getAmplifier() + 1));
+                effectArray[i] = effectInstance.getEffect();
+                levelArray[i] = (byte) (effectInstance.getAmplifier() + 1);
+                ++i;
             }
+            effects = new Object2ByteArrayMap<>(effectArray, levelArray);
+        } else {
+            effects = Object2ByteMaps.emptyMap();
         }
 
         return new DispatchServerDrivenProperty(entity.getId(), flying, effects);

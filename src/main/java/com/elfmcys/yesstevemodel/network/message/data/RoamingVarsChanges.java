@@ -40,21 +40,25 @@ public class RoamingVarsChanges {
         Object2FloatArrayMap<String> variablesServerBound;
         Int2FloatArrayMap variablesClientBound;
         if (clientBound) {
-            variablesClientBound = new Int2FloatArrayMap(variableSize);
+            var nameArray = new int[variableSize];
+            var valueArray = new float[variableSize];
+
+            for (var i = 0; i < variableSize; i++) {
+                nameArray[i] = StringPool.computeIfAbsent(buf.readUtf());
+                valueArray[i] = buf.readFloat();
+            }
+            variablesClientBound = new Int2FloatArrayMap(nameArray, valueArray);
             variablesServerBound = null;
-            for (var i = 0; i < variableSize; i++) {
-                var key = StringPool.computeIfAbsent(buf.readUtf());
-                var value = buf.readFloat();
-                variablesClientBound.put(key, value);
-            }
         } else {
-            variablesServerBound = new Object2FloatArrayMap<>(variableSize);
-            variablesClientBound = null;
+            var nameArray = new String[variableSize];
+            var valueArray = new float[variableSize];
+
             for (var i = 0; i < variableSize; i++) {
-                var key = buf.readUtf();
-                var value = buf.readFloat();
-                variablesServerBound.put(key, value);
+                nameArray[i] = buf.readUtf();
+                valueArray[i] = buf.readFloat();
             }
+            variablesServerBound = new Object2FloatArrayMap<>(nameArray, valueArray);
+            variablesClientBound = null;
         }
 
         return new RoamingVarsChanges(modelHashShort, variablesServerBound, variablesClientBound, entityId);

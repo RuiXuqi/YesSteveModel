@@ -15,7 +15,6 @@ import com.elfmcys.yesstevemodel.network.message.SubmitRoamingVarsChanges;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ByteMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -64,14 +63,21 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         super.setupModel(model);
         var hashShort = ClientModelManager.getModel(getModelId()).map(ClientModel::modelInfo).orElseThrow().hashShort();
         currentHashShort = hashShort;
-        var remoteStorage = storage.get(hashShort);
-        if (remoteStorage != null && remoteStorage.vars != null) {
-            if (isLocalPlayer()) {
-                roamingStruct = new LocalRoamingStruct(hashShort, remoteStorage.vars);
-            } else {
-                roamingStruct = new RemoteRoamingStruct(remoteStorage.vars);
-            }
-        }
+        // 切换模型后在服务端 roaming 下发之前需要丢弃本地更改，即使有本地缓存
+        storage.compute(hashShort, (hash, storage) -> {
+           if (storage != null) {
+               if (storage.vars != null) {
+                   // 所以这里即使是 local 也要视作 remote
+                   roamingStruct = new RemoteRoamingStruct(storage.vars);
+               } else {
+                   roamingStruct = null;
+               }
+               return storage;
+           } else {
+                roamingStruct = null;
+                return new RemoteStorage();
+           }
+        });
     }
 
     @Override
@@ -98,46 +104,72 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         var struct = isLocalPlayer()
                 ? new LocalRoamingStruct(modelHashShort, vars)
                 : new RemoteRoamingStruct(vars);
-        this.storage.computeIfAbsent(currentHashShort, h -> new RemoteStorage()).vars = vars;
+        this.storage.compute(currentHashShort, (h, storage) -> {
+            if (storage != null) {
+                storage.vars = vars;
+                return storage;
+            } else {
+                var newStorage = new RemoteStorage();
+                newStorage.vars = vars;
+                return newStorage;
+            }
+        });
         this.roamingStruct = struct;
     }
 
     public void updateRemoteRoamingVars(int modelHashShort, Int2FloatArrayMap vars) {
         // 为了尝试兼容 replay 模组，服务端会额外向 LocalPlayer 发送更新包，非回放时要丢弃
         if (!isLocalPlayer() && !vars.isEmpty()) {
-            storage.computeIfAbsent(modelHashShort, h -> new RemoteStorage()).pendingChangedVars.add(vars);
+            storage.compute(modelHashShort, (h, storage) -> {
+                if (storage != null) {
+                    storage.pendingChangedVars.add(vars);
+                    return storage;
+                } else {
+                    var newStorage = new RemoteStorage();
+                    newStorage.pendingChangedVars.add(vars);
+                    return newStorage;
+                }
+            });
         }
     }
 
     @Override
     public @Nullable Struct getRoamingStruct() {
         if (roamingStruct instanceof RemoteRoamingStruct struct && currentHashShort != 0) {
-            var pendingVars = storage.computeIfAbsent(currentHashShort, h -> new RemoteStorage()).pendingChangedVars;
-            while (true) {
-                var changes = pendingVars.poll();
-                if (changes == null) {
-                    break;
+            storage.compute(currentHashShort, (h, storage) -> {
+                if (storage != null) {
+                    var vars = storage.pendingChangedVars;
+                    while (true) {
+                        var changes = vars.poll();
+                        if (changes == null) {
+                            break;
+                        }
+                        struct.update(changes);
+                    }
+                    return storage;
+                } else {
+                    return new RemoteStorage();
                 }
-                struct.update(changes);
-            }
+            });
         }
         return roamingStruct;
     }
 
     public void handleRoamingVarsChanges() {
+        // 此处在主线程上调用，并行范围被限定在实体渲染的循环内，应该是安全的
         if (isLocalPlayer() && this.currentHashShort != 0) {
             if (this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct && localRoamingStruct.isDirty()) {
-                var vars = localRoamingStruct.popChanges();
-                var variables = new Object2FloatArrayMap<String>();
-                for (var entry : vars.variables.entrySet()) {
-                    var nameStr = StringPool.getString(entry.getKey());
+                var changes = localRoamingStruct.popChanges();
+                var variables = new Object2FloatArrayMap<String>(changes.variables.size());
+                changes.variables.int2FloatEntrySet().fastForEach(entry -> {
+                    var nameStr = StringPool.getString(entry.getIntKey());
                     if (nameStr.length() <= LocalRoamingStruct.MAX_NAME_LENGTH) {
-                        variables.put(nameStr, entry.getValue().floatValue());
+                        variables.put(nameStr, entry.getFloatValue());
                     }
-                }
+                });
                 if (!variables.isEmpty()) {
-                    var changes = new RoamingVarsChanges(this.currentHashShort, variables, null, this.entity.getId());
-                    NetworkHandler.sendToServer(new SubmitRoamingVarsChanges(changes));
+                    var msg = new RoamingVarsChanges(this.currentHashShort, variables, null, this.entity.getId());
+                    NetworkHandler.sendToServer(new SubmitRoamingVarsChanges(msg));
                 }
             }
         }
@@ -152,7 +184,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
                 // 全量同步
                 effects.clear();
             }
-            Object2ByteMaps.fastForEach(msg.effects, entry -> effects.put(entry.getKey(), entry.getByteValue()));
+            effects.putAll(msg.effects);
         }
     }
 
