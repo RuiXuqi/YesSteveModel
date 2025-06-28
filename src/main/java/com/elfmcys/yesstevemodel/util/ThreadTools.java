@@ -23,4 +23,13 @@ public final class ThreadTools {
     public static <T> Future<T> submit(Callable<T> runnable) {
         return THREAD_POOL.submit(runnable);
     }
+
+    public static boolean safeSleep(int millis) {
+        try {
+            Thread.sleep(millis);
+            return true;
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
 }

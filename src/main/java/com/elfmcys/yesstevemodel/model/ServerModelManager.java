@@ -10,6 +10,9 @@ import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.minecraft.network.Connection;
+import net.minecraft.network.PacketSendListener;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.protocol.Packet;
@@ -22,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 // Native Access
@@ -126,10 +130,33 @@ public final class ServerModelManager {
 
     public static native void syncReceiveData(UUID playerId, ByteBuffer data);
 
+    private static Connection getPlayerConnection(UUID playerId) {
+        var server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
+            return null;
+        }
+
+        var player = server.getPlayerList().getPlayer(playerId);
+        if (player == null) {
+            return null;
+        }
+
+        var conn = player.connection;
+        if (!conn.isAcceptingMessages() || !conn.getClass().equals(ServerGamePacketListenerImpl.class)) {
+            return null;
+        }
+
+        return conn.connection;
+    }
+
     // Native Access: 在 worker 线程上调用
     @SuppressWarnings("unused")
-    private static boolean syncSendData(UUID playerId, ByteBuffer data) {
-        return syncSendEncodedPacket(playerId, NetworkHandler.CHANNEL.toVanillaPacket(new SyncDataToClient(data), NetworkDirection.PLAY_TO_CLIENT));
+    private static boolean syncSendData(UUID playerId, ByteBuffer data, TrafficContext ctx) {
+        var conn = getPlayerConnection(playerId);
+        if (conn != null) {
+            return syncSendEncodedPacket(conn, NetworkHandler.CHANNEL.toVanillaPacket(new SyncDataToClient(data), NetworkDirection.PLAY_TO_CLIENT), ctx);
+        }
+        return false;
     }
 
     // Native Access: 在 worker 线程上调用
@@ -140,25 +167,66 @@ public final class ServerModelManager {
 
     // Native Access: 在 worker 线程上调用
     @SuppressWarnings("unused")
-    private static boolean syncSendEncodedPacket(UUID playerId, Object packet) {
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server == null) {
-            return false;
+    private static boolean syncSendEncodedPacket(UUID playerId, Object packet, TrafficContext ctx) {
+        var conn = getPlayerConnection(playerId);
+        if (conn != null) {
+            return syncSendEncodedPacket(conn, packet, ctx);
+        }
+        return false;
+    }
+
+    private static boolean syncSendEncodedPacket(Connection conn, Object packet, TrafficContext ctx) {
+        if (!ctx.init) {
+            ctx.init = true;
+            ctx.highWaterMark = conn.channel().unsafe().outboundBuffer().totalPendingWriteBytes() + 64 * 1024;
         }
 
-        ServerPlayer player = server.getPlayerList().getPlayer(playerId);
-        if (player == null) {
-            return false;
+        final AtomicInteger status = new AtomicInteger(0);
+        while (conn.isConnected()) {
+            if (conn.channel().unsafe().outboundBuffer().size() > ctx.highWaterMark) {
+                if (!ThreadTools.safeSleep(10)) {
+                    return false;
+                }
+                continue;
+            }
+
+            // 尝试发送
+            try {
+                conn.send((Packet<?>) packet, new PacketSendListener() {
+                    @Override
+                    public void onSuccess() {
+                        status.set(1);
+                        PacketSendListener.super.onSuccess();
+                    }
+
+                    @Override
+                    public @Nullable Packet<?> onFailure() {
+                        status.set(-1);
+                        return null;
+                    }
+                });
+            } catch (Throwable ignored) {
+                ignored.printStackTrace();
+                return false;
+            }
+            // 等待发送结束
+            while (status.get() == 0) {
+                if (!ThreadTools.safeSleep(5)) {
+                    return false;
+                }
+            }
+            // 发送成功返回
+            if (status.get() == 1) {
+                return true;
+            }
+            // 发送失败重试
+            if (!ThreadTools.safeSleep(100)) {
+                return false;
+            }
+            status.set(0);
         }
 
-        // 不在主线程上，最好 try 一下
-        try {
-            player.connection.send((Packet<?>) packet);
-        } catch (Exception ignored) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public static Pair<String, String> getDefaultModelAndTexture() {
@@ -178,7 +246,7 @@ public final class ServerModelManager {
         }
 
         if (!model.textures().contains(textureName)) {
-            if(model.textures().contains(model.info().properties().defaultTexture())) {
+            if (model.textures().contains(model.info().properties().defaultTexture())) {
                 textureName = model.info().properties().defaultTexture();
             } else {
                 textureName = model.textures().get(0);
@@ -192,7 +260,7 @@ public final class ServerModelManager {
     @SuppressWarnings("unused,unchecked")
     private static void syncTaskComplete(final SyncModelResult result, final @Nullable Object state) {
         final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        final Consumer<SyncModelResult> completeCallback  = (Consumer<SyncModelResult>) state;
+        final Consumer<SyncModelResult> completeCallback = (Consumer<SyncModelResult>) state;
         if (server == null) {
             if (completeCallback != null) {
                 completeCallback.accept(result);
@@ -224,5 +292,15 @@ public final class ServerModelManager {
                 }
             }
         });
+    }
+
+    // Native Access
+    private static class TrafficContext {
+        public long highWaterMark;
+        public boolean init = false;
+
+        // Native Access
+        private TrafficContext() {
+        }
     }
 }
