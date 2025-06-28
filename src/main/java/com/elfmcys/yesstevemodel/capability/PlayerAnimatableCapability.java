@@ -63,20 +63,23 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         super.setupModel(model);
         var hashShort = ClientModelManager.getModel(getModelId()).map(ClientModel::modelInfo).orElseThrow().hashShort();
         currentHashShort = hashShort;
-        // 切换模型后在服务端 roaming 下发之前需要丢弃本地更改，即使有本地缓存
+        // 切换模型后如果没有本地缓存，在服务端 roaming 下发之前需要丢弃本地更改
         storage.compute(hashShort, (hash, storage) -> {
-           if (storage != null) {
-               if (storage.vars != null) {
-                   // 所以这里即使是 local 也要视作 remote
-                   roamingStruct = new RemoteRoamingStruct(storage.vars);
-               } else {
-                   roamingStruct = null;
-               }
-               return storage;
-           } else {
+            if (storage != null) {
+                if (storage.vars != null) {
+                    if (isLocalPlayer()) {
+                        roamingStruct = new LocalRoamingStruct(hashShort, storage.vars);
+                    } else {
+                        roamingStruct = new RemoteRoamingStruct(storage.vars);
+                    }
+                } else {
+                    roamingStruct = null;
+                }
+                return storage;
+            } else {
                 roamingStruct = null;
                 return new RemoteStorage();
-           }
+            }
         });
     }
 
@@ -101,12 +104,11 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     public void resetRoamingVars(int modelHashShort, Int2FloatOpenHashMap vars) {
-        var struct = isLocalPlayer()
-                ? new LocalRoamingStruct(modelHashShort, vars)
-                : new RemoteRoamingStruct(vars);
         this.storage.compute(currentHashShort, (h, storage) -> {
             if (storage != null) {
-                storage.vars = vars;
+                if (storage.vars == null) {
+                    storage.vars = vars;
+                }
                 return storage;
             } else {
                 var newStorage = new RemoteStorage();
@@ -114,7 +116,20 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
                 return newStorage;
             }
         });
-        this.roamingStruct = struct;
+        // 检查当前模型是否匹配
+        if (modelHashShort == currentHashShort) {
+            if (isLocalPlayer()) {
+                // 如果 local roaming 已成功初始化，丢弃服务端同步
+                if (this.roamingStruct instanceof LocalRoamingStruct) {
+                    return;
+                }
+                // 如果成功初始化，强制重新加载模型
+                roamingStruct = new LocalRoamingStruct(modelHashShort, vars);
+                updateCurrentModel(true);
+            } else {
+                roamingStruct = new RemoteRoamingStruct(vars);
+            }
+        }
     }
 
     public void updateRemoteRoamingVars(int modelHashShort, Int2FloatArrayMap vars) {

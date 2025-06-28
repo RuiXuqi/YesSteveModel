@@ -190,13 +190,13 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return this.animationProcessor;
     }
 
-    public boolean updateCurrentModel() {
+    public boolean updateCurrentModel(boolean force) {
         GeoModel model = getModel();
         if (model == null) {
             this.currentModel = null;
             return false;
         }
-        if (this.currentModel == null || model != this.currentModel.model()) {
+        if (force || this.currentModel == null || model != this.currentModel.model()) {
             this.currentModel = new GeoModelState(model);
             this.animationProcessor.registerModelRenderer(currentModel.boneMap());
             setupModel(this.currentModel);
@@ -266,7 +266,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     @Nullable
     protected AnimationEvent<?> performUpdate(float partialTicks) {
-        if (!this.updateCurrentModel()) {
+        if (!this.updateCurrentModel(false)) {
             return null;
         }
         final Entity entity = this.entity;
