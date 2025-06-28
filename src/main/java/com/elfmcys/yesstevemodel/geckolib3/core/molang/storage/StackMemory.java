@@ -50,7 +50,7 @@ public class StackMemory implements ITempVariableStorage {
             varSize = top;
             ensureCapacity(varOffset + top);
         }
-        mem[varOffset + top] = value;
+        mem[varOffset + addr] = value;
     }
 
     public boolean push(List<?> args) {
