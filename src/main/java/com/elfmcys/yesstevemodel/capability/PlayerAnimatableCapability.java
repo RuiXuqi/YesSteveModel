@@ -14,8 +14,11 @@ import com.elfmcys.yesstevemodel.network.message.DispatchServerDrivenProperty;
 import com.elfmcys.yesstevemodel.network.message.SubmitRoamingVarsChanges;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2FloatMaps;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -26,15 +29,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @OnlyIn(Dist.CLIENT)
 public final class PlayerAnimatableCapability extends CustomPlayerEntity {
-    private final ConcurrentHashMap<Integer, RemoteStorage> storage = new ConcurrentHashMap<>();
-    private volatile int currentHashShort;
+    private final Int2ReferenceOpenHashMap<RemoteStorage> storageMap = new Int2ReferenceOpenHashMap<>(8);
+    private int currentHashShort;
 
-    private volatile Struct roamingStruct;
-    private volatile boolean remoteFlying;
+    private Struct roamingStruct;
+    private boolean remoteFlying;
     private final ConcurrentHashMap<MobEffect, Byte> effects;
 
     private static float YAW_SPEED;
@@ -58,29 +60,31 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         return !isFirstPersonModActive();
     }
 
+    public static float getLocalPlayerYawSpeed() {
+        return YAW_SPEED;
+    }
+
+    @Override
+    public @Nullable Struct getRoamingStruct() {
+        return roamingStruct;
+    }
+
     @Override
     public void setupModel(GeoModelState model) {
         super.setupModel(model);
         var hashShort = ClientModelManager.getModel(getModelId()).map(ClientModel::modelInfo).orElseThrow().hashShort();
         currentHashShort = hashShort;
         // 切换模型后如果没有本地缓存，在服务端 roaming 下发之前需要丢弃本地更改
-        storage.compute(hashShort, (hash, storage) -> {
-            if (storage != null) {
-                if (storage.vars != null) {
-                    if (isLocalPlayer()) {
-                        roamingStruct = new LocalRoamingStruct(hashShort, storage.vars);
-                    } else {
-                        roamingStruct = new RemoteRoamingStruct(storage.vars);
-                    }
-                } else {
-                    roamingStruct = null;
-                }
-                return storage;
+        var storage = storageMap.get(hashShort);
+        if (storage != null && storage.vars != null) {
+            if (isLocalPlayer()) {
+                roamingStruct = new LocalRoamingStruct(hashShort, storage.vars);
             } else {
-                roamingStruct = null;
-                return new RemoteStorage();
+                roamingStruct = new RemoteRoamingStruct(storage.vars);
             }
-        });
+        } else {
+            roamingStruct = null;
+        }
     }
 
     @Override
@@ -99,34 +103,25 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         LAST_YAW = yaw;
     }
 
-    public static float getLocalPlayerYawSpeed() {
-        return YAW_SPEED;
-    }
-
     public void resetRoamingVars(int modelHashShort, Int2FloatOpenHashMap vars) {
-        this.storage.compute(currentHashShort, (h, storage) -> {
-            if (storage != null) {
-                if (storage.vars == null) {
-                    storage.vars = vars;
+        waitForAsyncUpdate();
+        var storage = this.storageMap.computeIfAbsent(modelHashShort, h -> new RemoteStorage());
+        if (isLocalPlayer()) {
+            // 对于已成功初始化的 local roaming 丢弃服务端同步
+            if (storage.vars == null) {
+                storage.vars = vars;
+                storage.mergePendingChanges();
+                if (modelHashShort == currentHashShort) {
+                    // 如果成功初始化，强制重新加载模型
+                    roamingStruct = new LocalRoamingStruct(modelHashShort, vars);
+                    updateCurrentModel(true);
                 }
-                return storage;
-            } else {
-                var newStorage = new RemoteStorage();
-                newStorage.vars = vars;
-                return newStorage;
             }
-        });
-        // 检查当前模型是否匹配
-        if (modelHashShort == currentHashShort) {
-            if (isLocalPlayer()) {
-                // 如果 local roaming 已成功初始化，丢弃服务端同步
-                if (this.roamingStruct instanceof LocalRoamingStruct) {
-                    return;
-                }
-                // 如果成功初始化，强制重新加载模型
-                roamingStruct = new LocalRoamingStruct(modelHashShort, vars);
-                updateCurrentModel(true);
-            } else {
+        } else {
+            // 如果是 remote roaming 则无条件同步
+            storage.vars = vars;
+            storage.mergePendingChanges();
+            if (modelHashShort == currentHashShort) {
                 roamingStruct = new RemoteRoamingStruct(vars);
             }
         }
@@ -134,59 +129,39 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     public void updateRemoteRoamingVars(int modelHashShort, Int2FloatArrayMap vars) {
         // 为了尝试兼容 replay 模组，服务端会额外向 LocalPlayer 发送更新包，非回放时要丢弃
+        waitForAsyncUpdate();
         if (!isLocalPlayer() && !vars.isEmpty()) {
-            storage.compute(modelHashShort, (h, storage) -> {
-                if (storage != null) {
-                    storage.pendingChangedVars.add(vars);
-                    return storage;
-                } else {
-                    var newStorage = new RemoteStorage();
-                    newStorage.pendingChangedVars.add(vars);
-                    return newStorage;
-                }
-            });
+            var storage = storageMap.computeIfAbsent(modelHashShort, h -> new RemoteStorage());
+            if (storage.vars != null) {
+                storage.vars.putAll(vars);
+            } else {
+                storage.pendingChanges.enqueue(vars);
+            }
         }
-    }
-
-    @Override
-    public @Nullable Struct getRoamingStruct() {
-        if (roamingStruct instanceof RemoteRoamingStruct struct && currentHashShort != 0) {
-            storage.compute(currentHashShort, (h, storage) -> {
-                if (storage != null) {
-                    var vars = storage.pendingChangedVars;
-                    while (true) {
-                        var changes = vars.poll();
-                        if (changes == null) {
-                            break;
-                        }
-                        struct.update(changes);
-                    }
-                    return storage;
-                } else {
-                    return new RemoteStorage();
-                }
-            });
-        }
-        return roamingStruct;
     }
 
     public void handleRoamingVarsChanges() {
-        // 此处在主线程上调用，并行范围被限定在实体渲染的循环内，应该是安全的
-        if (isLocalPlayer() && this.currentHashShort != 0) {
-            if (this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct && localRoamingStruct.isDirty()) {
-                var changes = localRoamingStruct.popChanges();
-                var variables = new Object2FloatArrayMap<String>(changes.variables.size());
-                changes.variables.int2FloatEntrySet().fastForEach(entry -> {
-                    var nameStr = StringPool.getString(entry.getIntKey());
-                    if (nameStr.length() <= LocalRoamingStruct.MAX_NAME_LENGTH) {
-                        variables.put(nameStr, entry.getFloatValue());
-                    }
-                });
-                if (!variables.isEmpty()) {
-                    var msg = new RoamingVarsChanges(this.currentHashShort, variables, null, this.entity.getId());
-                    NetworkHandler.sendToServer(new SubmitRoamingVarsChanges(msg));
+        waitForAsyncUpdate();
+        if (isLocalPlayer() && this.currentHashShort != 0
+                && this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct
+                && localRoamingStruct.isDirty()) {
+            var changes = localRoamingStruct.popChanges();
+            var nameArray = new String[changes.variables.size()];
+            var valueArray = new float[changes.variables.size()];
+            int i = 0;
+            for (var entry : Int2FloatMaps.fastIterable(changes.variables)) {
+                var nameStr = StringPool.getString(entry.getIntKey());
+                if (nameStr.length() <= LocalRoamingStruct.MAX_NAME_LENGTH) {
+                    nameArray[i] = nameStr;
+                    valueArray[i] = entry.getFloatValue();
+                } else {
+                    nameArray[i] = "";
+                    valueArray[i] = 0f;
                 }
+                ++i;
             }
+            var msg = new RoamingVarsChanges(this.currentHashShort, new Object2FloatArrayMap<>(nameArray, valueArray), null, this.entity.getId());
+            NetworkHandler.sendToServer(new SubmitRoamingVarsChanges(msg));
         }
     }
 
@@ -221,6 +196,13 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     private static class RemoteStorage {
         public volatile Int2FloatOpenHashMap vars;
-        public final ConcurrentLinkedQueue<Int2FloatArrayMap> pendingChangedVars = new ConcurrentLinkedQueue<>();
+        public final ObjectArrayFIFOQueue<Int2FloatArrayMap> pendingChanges = new ObjectArrayFIFOQueue<>(4);
+
+        public void mergePendingChanges() {
+            while (!pendingChanges.isEmpty()) {
+                var pendingVars = pendingChanges.dequeue();
+                vars.putAll(pendingVars);
+            }
+        }
     }
 }
