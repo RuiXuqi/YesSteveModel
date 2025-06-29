@@ -170,8 +170,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             remoteFlying = msg.flying != 0;
         }
         if (!msg.effects.isEmpty()) {
-            if (msg.effects.size() > 1) {
-                // 全量同步
+            if (msg.full) {
                 effects.clear();
             }
             effects.putAll(msg.effects);

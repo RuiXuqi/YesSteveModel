@@ -18,25 +18,27 @@ import java.util.function.Supplier;
 
 public class DispatchServerDrivenProperty {
     private final int entityId;
+    public final boolean full;
     public final byte flying;
     public final Object2ByteMap<MobEffect> effects;
 
-    private DispatchServerDrivenProperty(int entityId, byte flying, Object2ByteMap<MobEffect> effects) {
+    private DispatchServerDrivenProperty(boolean full, int entityId, byte flying, Object2ByteMap<MobEffect> effects) {
+        this.full = full;
         this.entityId = entityId;
         this.flying = flying;
         this.effects = effects;
     }
 
     public static DispatchServerDrivenProperty flying(int entityId, boolean flying) {
-        return new DispatchServerDrivenProperty(entityId, flying ? (byte) 1 : (byte) 0, Object2ByteMaps.emptyMap());
+        return new DispatchServerDrivenProperty(false, entityId, flying ? (byte) 1 : (byte) 0, Object2ByteMaps.emptyMap());
     }
 
     public static DispatchServerDrivenProperty addEffect(int entityId, MobEffect effect, int level) {
-        return new DispatchServerDrivenProperty(entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) level));
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) level));
     }
 
     public static DispatchServerDrivenProperty removeEffect(int entityId, MobEffect effect) {
-        return new DispatchServerDrivenProperty(entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) 0));
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) 0));
     }
 
     /**
@@ -54,23 +56,31 @@ public class DispatchServerDrivenProperty {
         Object2ByteMap<MobEffect> effects;
         if (entity instanceof LivingEntity living) {
             var effectInstances = living.getActiveEffects();
-            var effectArray = new MobEffect[effectInstances.size()];
-            var levelArray = new byte[effectInstances.size()];
-            var i = 0;
-            for (var effectInstance : effectInstances) {
-                effectArray[i] = effectInstance.getEffect();
-                levelArray[i] = (byte) (effectInstance.getAmplifier() + 1);
-                ++i;
+            if (effectInstances.isEmpty()) {
+                effects = Object2ByteMaps.emptyMap();
+            } else if (effectInstances.size() == 1) {
+                var effectInstance = effectInstances.iterator().next();
+                effects = Object2ByteMaps.singleton(effectInstance.getEffect(), (byte) (effectInstance.getAmplifier() + 1));
+            } else {
+                var effectArray = new MobEffect[effectInstances.size()];
+                var levelArray = new byte[effectInstances.size()];
+                var i = 0;
+                for (var effectInstance : effectInstances) {
+                    effectArray[i] = effectInstance.getEffect();
+                    levelArray[i] = (byte) (effectInstance.getAmplifier() + 1);
+                    ++i;
+                }
+                effects = new Object2ByteArrayMap<>(effectArray, levelArray);
             }
-            effects = new Object2ByteArrayMap<>(effectArray, levelArray);
         } else {
             effects = Object2ByteMaps.emptyMap();
         }
 
-        return new DispatchServerDrivenProperty(entity.getId(), flying, effects);
+        return new DispatchServerDrivenProperty(true, entity.getId(), flying, effects);
     }
 
     public static void encode(DispatchServerDrivenProperty message, FriendlyByteBuf buf) {
+        buf.writeBoolean(message.full);
         buf.writeVarInt(message.entityId);
         buf.writeByte(message.flying);
         buf.writeVarInt(message.effects.size());
@@ -81,6 +91,7 @@ public class DispatchServerDrivenProperty {
     }
 
     public static DispatchServerDrivenProperty decode(FriendlyByteBuf buf) {
+        var full = buf.readBoolean();
         var entityId = buf.readVarInt();
         var flying = buf.readByte();
         var effectSize = buf.readVarInt();
@@ -100,7 +111,7 @@ public class DispatchServerDrivenProperty {
             }
         }
 
-        return new DispatchServerDrivenProperty(entityId, flying, effects);
+        return new DispatchServerDrivenProperty(full, entityId, flying, effects);
     }
 
     public static void handle(final DispatchServerDrivenProperty msg, Supplier<NetworkEvent.Context> contextSupplier) {
