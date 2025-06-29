@@ -25,7 +25,7 @@ public class ClientLoggedEvent {
         if (Minecraft.getInstance().isLocalServer()) {
             return;
         }
-        new Thread(() -> {
+        var notifyThread = new Thread(() -> {
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException ignored) {
@@ -36,7 +36,9 @@ public class ClientLoggedEvent {
                     player.sendSystemMessage(Component.translatable("message.yes_steve_model.client.server_not_found"));
                 }
             });
-        }).start();
+        });
+        notifyThread.setDaemon(true);
+        notifyThread.start();
     }
 
     @SubscribeEvent
