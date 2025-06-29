@@ -242,7 +242,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             try {
                 result = task.get();
             } catch (InterruptedException ignored) {
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 YesSteveModel.LOGGER.error("Error updating animation.", e);
             }
             task = null;
