@@ -17,7 +17,7 @@ public class ClientLoggedEvent {
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(EntityJoinLevelEvent event) {
-        if (LOGGED_IN || !(event.getEntity() instanceof LocalPlayer player)) {
+        if (LOGGED_IN || !(event.getEntity() instanceof LocalPlayer)) {
             return;
         }
         LOGGED_IN = true;
@@ -29,10 +29,11 @@ public class ClientLoggedEvent {
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException ignored) {
+                return;
             }
             Minecraft.getInstance().execute(() -> {
-                var connection = player.connection.getConnection();
-                if (connection.isConnected() && !NetworkHandler.isChannelPresent(connection)) {
+                var player = Minecraft.getInstance().player;
+                if (player != null && player.connection.isAcceptingMessages() && !NetworkHandler.isChannelPresent(player.connection.getConnection())) {
                     player.sendSystemMessage(Component.translatable("message.yes_steve_model.client.server_not_found"));
                 }
             });
