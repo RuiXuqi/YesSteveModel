@@ -10,30 +10,30 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class RegisterEntityRenderersEvent {
     private static CustomPlayerRenderer CUSTOM_PLAYER_RENDERER;
     private static CustomArrowRenderer CUSTOM_ARROW_RENDERER;
 
     @SubscribeEvent
-    public static void clientSetup(EntityRenderersEvent.RegisterRenderers event) {
-        EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
-        ItemInHandRenderer itemInHandRenderer = dispatcher.getItemInHandRenderer();
-        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        EntityModelSet entityModels = Minecraft.getInstance().getEntityModels();
-        Font font = Minecraft.getInstance().font;
-        EntityRendererProvider.Context context = new EntityRendererProvider.Context(dispatcher, itemRenderer, blockRenderer, itemInHandRenderer, resourceManager, entityModels, font);
-        context.getModelSet().onResourceManagerReload(resourceManager);
-        CUSTOM_PLAYER_RENDERER = new CustomPlayerRenderer(context);
-        CUSTOM_ARROW_RENDERER = new CustomArrowRenderer(context);
+    public static void clientSetup(AddReloadListenerEvent event) {
+        event.addListener((ResourceManagerReloadListener) resourceManager -> {
+            EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+            ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+            BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+            ItemInHandRenderer itemInHandRenderer = dispatcher.getItemInHandRenderer();
+            EntityModelSet entityModels = Minecraft.getInstance().getEntityModels();
+            Font font = Minecraft.getInstance().font;
+            EntityRendererProvider.Context context = new EntityRendererProvider.Context(dispatcher, itemRenderer, blockRenderer, itemInHandRenderer, resourceManager, entityModels, font);
+            CUSTOM_PLAYER_RENDERER = new CustomPlayerRenderer(context);
+            CUSTOM_ARROW_RENDERER = new CustomArrowRenderer(context);
+        });
     }
 
     public static CustomPlayerRenderer getPlayerRenderer() {
