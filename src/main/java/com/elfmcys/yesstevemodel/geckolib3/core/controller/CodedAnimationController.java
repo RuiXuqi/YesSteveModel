@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
 import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
+import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -112,7 +113,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     @Override
     @Deprecated
     public boolean blendRotation() {
-        return blendRotation;
+        return blendRotation && animationPlayer.animationState != AnimationState.TRANSITIONING;
     }
 
     private static class SingleBoneAnimationQueue implements IBoneAnimationQueue {
