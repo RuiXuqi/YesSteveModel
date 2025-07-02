@@ -26,6 +26,8 @@ public class ClientModel {
 
     private final FifoHashMap<String, ResourceLocation> textures;
 
+    private final List<ResourceLocation> registeredTextureIds;
+
     private final Map<ProjectileType, ProjectileModel> projectileModels;
 
     private final Map<String, SoundData> sounds;
@@ -40,12 +42,13 @@ public class ClientModel {
 
     private final ConditionManager conditionManager;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, GeoAnimationController> animationControllers, FifoHashMap<String, ResourceLocation> textures, Map<String, SoundData> sounds, Map<ProjectileType, ProjectileModel> projectileModels, Int2ReferenceOpenHashMap<IValue> userFunctions, Int2ReferenceOpenHashMap<List<IValue>> eventHandlers, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
+    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, GeoAnimationController> animationControllers, FifoHashMap<String, ResourceLocation> textures, List<ResourceLocation> registeredTextureIds, Map<String, SoundData> sounds, Map<ProjectileType, ProjectileModel> projectileModels, Int2ReferenceOpenHashMap<IValue> userFunctions, Int2ReferenceOpenHashMap<List<IValue>> eventHandlers, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
         this.animationControllers = animationControllers;
         this.textures = textures;
+        this.registeredTextureIds = registeredTextureIds;
         this.sounds = sounds;
         this.projectileModels = projectileModels;
         this.userFunctions = userFunctions;
@@ -73,6 +76,10 @@ public class ClientModel {
 
     public FifoHashMap<String, ResourceLocation> textures() {
         return textures;
+    }
+
+    public List<ResourceLocation> registeredTextureIds() {
+        return registeredTextureIds;
     }
 
     public Map<String, SoundData> sounds() {

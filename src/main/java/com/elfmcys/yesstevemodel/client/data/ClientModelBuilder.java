@@ -21,10 +21,12 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -44,7 +46,7 @@ public class ClientModelBuilder {
 
     private static ClientModel DEFAULT_MODEL;
 
-    public static ClientModel build(ClientModelData data, boolean isDefault, boolean isNeedAuth) {
+    public static ClientModel build(ClientModelData data, boolean isDefault, boolean isNeedAuth, ObjectArrayFIFOQueue<Pair<ResourceLocation, AbstractTexture>> textureQueue) {
         GeoModel mainModel = data.geoModels().get(MODEL_MAIN_INDEX);
         GeoModel armModel = data.geoModels().get(MODEL_ARM_INDEX);
         var animations = buildAnimationMap(data, isDefault);
@@ -65,7 +67,38 @@ public class ClientModelBuilder {
 
         var conditionManager = buildConditionManager(animations);
 
-        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, sounds, projectileModels, userFunctions, eventHandlers, data.info(), info, conditionManager);
+        var textureIds = new ArrayList<ResourceLocation>(4);
+        for (final var entry : textures.entrySet()) {
+            var uvTexture = data.textures().get(entry.getKey());
+            textureQueue.enqueue(Pair.of(entry.getValue(), uvTexture));
+            textureIds.add(entry.getValue());
+
+            for (var pbrEntry : uvTexture.getPBRTextures().entrySet()) {
+                var pbrId = pbrEntry.getKey().getId(entry.getValue());
+                textureQueue.enqueue(Pair.of(pbrId, pbrEntry.getValue()));
+                textureIds.add(pbrId);
+            }
+        }
+        for (final var entry : info.authorAvatars().entrySet()) {
+            var texture = data.authorAvatars().get(entry.getKey());
+            textureQueue.enqueue(Pair.of(entry.getValue(), texture));
+            textureIds.add(entry.getValue());
+        }
+        for (final var entry : projectileModels.entrySet()) {
+            if (entry.getKey() == ProjectileType.ARROW) {
+                var uvTexture = data.textures().get(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER);
+                textureQueue.enqueue(Pair.of(entry.getValue().texture(), uvTexture));
+                textureIds.add(entry.getValue().texture());
+
+                for (var pbrEntry : uvTexture.getPBRTextures().entrySet()) {
+                    var pbrId = pbrEntry.getKey().getId(entry.getValue().texture());
+                    textureQueue.enqueue(Pair.of(pbrId, pbrEntry.getValue()));
+                    textureIds.add(pbrId);
+                }
+            }
+        }
+
+        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, textureIds, sounds, projectileModels, userFunctions, eventHandlers, data.info(), info, conditionManager);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }

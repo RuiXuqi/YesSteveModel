@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.network.message;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.config.DisableSwitch;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -34,8 +35,12 @@ public class ServerInfo {
 
     public static void handleOnClient(ServerInfo serverInfo, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
-        NetworkHandler.setChannelVersion(context.getNetworkManager(), serverInfo.channelVersion);
-        context.enqueueWork(() -> DisableSwitch.CAN_SWITCH = serverInfo.canSwitchModel);
+        if (NetworkHandler.setChannelVersion(context.getNetworkManager(), serverInfo.channelVersion)) {
+            context.enqueueWork(() -> {
+                DisableSwitch.CAN_SWITCH = serverInfo.canSwitchModel;
+                ClientModelManager.receiveServerInfo();
+            });
+        }
         NetworkHandler.CHANNEL.reply(new ClientInfo(), context);
         context.setPacketHandled(true);
     }
