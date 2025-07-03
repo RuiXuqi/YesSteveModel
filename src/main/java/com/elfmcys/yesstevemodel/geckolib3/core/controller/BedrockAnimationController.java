@@ -9,6 +9,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
+import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import it.unimi.dsi.fastutil.Pair;
@@ -360,7 +361,12 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 }
                 active = true;
                 var pointValue = point.getLerpPoint(evaluator);
-                target.mul(pointValue.mul(pair.right().getBlendWeight()));
+                var weight = pair.right().getBlendWeight();
+                if (weight == 1f) {
+                    target.mul(pointValue);
+                } else {
+                    target.mul(MathUtil.computeWeightedScale(pointValue, pair.right().getBlendWeight()));
+                }
             }
 
             if (active) {

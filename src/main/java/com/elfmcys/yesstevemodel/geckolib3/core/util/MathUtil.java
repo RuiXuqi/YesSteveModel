@@ -62,4 +62,12 @@ public class MathUtil {
 
         return f;
     }
+
+    public static Vector3f computeWeightedScale(Vector3f value, float weight) {
+        return new Vector3f(computeWeightedScale(value.x, weight), computeWeightedScale(value.y, weight), computeWeightedScale(value.z, weight));
+    }
+
+    public static float computeWeightedScale(float value, float weight) {
+        return 1f + (value - 1f) * weight;
+    }
 }
