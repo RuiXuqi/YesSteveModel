@@ -76,8 +76,13 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
     @Override
     public String getState() {
-        // 硬编码控制器没有状态，返回自己名称
-        return "Coded Controller";
+        // 硬编码控制器没有状态，返回自己名称+正在播放的动画
+        var animation = animationPlayer.getCurrentAnimation();
+        if (animation == null || animationPlayer.animationState == AnimationState.STOPPED) {
+            return "Coded";
+        } else {
+            return "Coded -> " + animation.animationName;
+        }
     }
 
     public void setAnimation(AnimationBuilder builder) {
