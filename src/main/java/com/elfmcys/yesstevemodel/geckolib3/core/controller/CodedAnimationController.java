@@ -118,6 +118,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     @Override
     @Deprecated
     public boolean blendRotation() {
+        // TODO: 仅临时缓解，未完全修复过渡动画混合问题
         return blendRotation && animationPlayer.animationState != AnimationState.TRANSITIONING;
     }
 

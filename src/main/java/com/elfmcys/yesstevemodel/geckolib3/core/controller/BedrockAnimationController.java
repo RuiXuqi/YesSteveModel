@@ -317,6 +317,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             var target = new Vector3f();
             var active = false;
 
+            // TODO: 过渡动画的混合有严重问题
             for (var pair : this.underlyingQueues) {
                 var queue = pair.right();
                 if (!queue.isActive()) {

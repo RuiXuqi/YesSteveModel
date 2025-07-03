@@ -71,8 +71,8 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
 
                 boneAnimation.pollRotationPoint(evaluator).ifPresent(rot -> {
                     BoneSnapshot initialSnapshot = snapshot.bone.getInitialSnapshot();
+                    @Deprecated PointData pointData = snapshot.cachedPointData;
                     if (blendRotation) {
-                        @Deprecated PointData pointData = snapshot.cachedPointData;
                         pointData.rotationValueX += rot.x();
                         pointData.rotationValueY += rot.y();
                         pointData.rotationValueZ += rot.z();
@@ -80,6 +80,9 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
                         snapshot.rotationValueY = pointData.rotationValueY + initialSnapshot.rotationValueY;
                         snapshot.rotationValueZ = pointData.rotationValueZ + initialSnapshot.rotationValueZ;
                     } else {
+                        pointData.rotationValueX = rot.x();
+                        pointData.rotationValueY = rot.y();
+                        pointData.rotationValueZ = rot.z();
                         snapshot.rotationValueX = rot.x() + initialSnapshot.rotationValueX;
                         snapshot.rotationValueY = rot.y() + initialSnapshot.rotationValueY;
                         snapshot.rotationValueZ = rot.z() + initialSnapshot.rotationValueZ;
