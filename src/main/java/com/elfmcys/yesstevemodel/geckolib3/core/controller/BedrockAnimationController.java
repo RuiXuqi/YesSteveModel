@@ -81,22 +81,24 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
         // 更新状态
         if (this.state == null) {
-            this.stateName = this.data.initialState();
-            var initialState = this.data.states().get(this.stateName);
+            var stateName = this.data.initialState();
+            var initialState = this.data.states().get(stateName);
             if (initialState == null) {
                 return;
             }
+            this.stateName = stateName;
             updateState(initialState, evaluator);
         } else {
             for (var transition : state.transitions()) {
                 if (!transition.getRight().evalAsBoolean(evaluator)) {
                     continue;
                 }
-                this.stateName = transition.getLeft();
-                var newState = this.data.states().get(this.stateName);
+                var stateName = transition.getLeft();
+                var newState = this.data.states().get(stateName);
                 if (newState == null) {
                     return;
                 }
+                this.stateName = stateName;
                 updateState(newState, evaluator);
             }
         }
@@ -114,10 +116,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         return this.name;
     }
 
-    @Nullable
     @Override
     public String getState() {
-        return stateName;
+        return stateName == null ? "(null)" : stateName;
     }
 
     @Override
