@@ -35,7 +35,6 @@ public class ClientModelManager {
     private static ClientModel DEFAULT_MODEL;
     private static final ConcurrentLinkedQueue<Triple<ClientModel, String, ObjectArrayFIFOQueue<Pair<ResourceLocation, AbstractTexture>>>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<ResourceLocation> REMOVED_TEXTURE_QUEUE = new ConcurrentLinkedQueue<>();
-    private static long tickCount;
 
     private static final WeakHashMap<ClientModelSyncListener, Object> LISTENERS = new WeakHashMap<>();
 
@@ -272,11 +271,8 @@ public class ClientModelManager {
         });
     }
 
-    // 每两 tick 注册或移除一个贴图，尽可能避免卡顿
+    // 每 tick 注册或移除一个贴图，尽可能避免卡顿
     public static void tick() {
-        if (++tickCount % 2 == 1) {
-            return;
-        }
         var removed = REMOVED_TEXTURE_QUEUE.poll();
         if (removed != null) {
             Minecraft.getInstance().getTextureManager().release(removed);
