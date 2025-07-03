@@ -5,6 +5,8 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.snapshot;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+
 public class BoneSnapshot {
     public final String name;
     public float scaleValueX;
@@ -20,13 +22,26 @@ public class BoneSnapshot {
     public boolean hidden;
     public boolean childrenHidden;
 
-    protected BoneSnapshot(String name) {
-        this.name = name;
+    public BoneSnapshot(IBone bone) {
+        copyFrom(bone);
+        this.name = bone.getName();
     }
 
-    public BoneSnapshot(BoneSnapshot snapshot) {
-        copyFrom(snapshot);
-        this.name = snapshot.name;
+    public void copyFrom(IBone bone) {
+        scaleValueX = bone.getScaleX();
+        scaleValueY = bone.getScaleY();
+        scaleValueZ = bone.getScaleZ();
+
+        positionOffsetX = bone.getPositionX();
+        positionOffsetY = bone.getPositionY();
+        positionOffsetZ = bone.getPositionZ();
+
+        rotationValueX = bone.getRotationX();
+        rotationValueY = bone.getRotationY();
+        rotationValueZ = bone.getRotationZ();
+
+        hidden = bone.isHidden();
+        childrenHidden = bone.areChildrenHidden();
     }
 
     public void copyFrom(BoneSnapshot snapshot) {

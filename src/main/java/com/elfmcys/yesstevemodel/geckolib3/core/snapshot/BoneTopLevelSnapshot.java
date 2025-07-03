@@ -21,22 +21,7 @@ public class BoneTopLevelSnapshot extends BoneSnapshot {
     public boolean isCurrentlyRunningScaleAnimation = true;
 
     public BoneTopLevelSnapshot(IBone bone) {
-        super(bone.getName());
-        rotationValueX = bone.getRotationX();
-        rotationValueY = bone.getRotationY();
-        rotationValueZ = bone.getRotationZ();
-
-        positionOffsetX = bone.getPositionX();
-        positionOffsetY = bone.getPositionY();
-        positionOffsetZ = bone.getPositionZ();
-
-        scaleValueX = bone.getScaleX();
-        scaleValueY = bone.getScaleY();
-        scaleValueZ = bone.getScaleZ();
-
-        hidden = bone.isHidden();
-        childrenHidden = bone.areChildrenHidden();
-
+        super(bone);
         this.bone = bone;
     }
 

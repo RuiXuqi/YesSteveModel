@@ -32,7 +32,7 @@ public class BoneAnimationQueue {
 
     public BoneAnimationQueue(BoneTopLevelSnapshot snapshot) {
         topLevelSnapshot = snapshot;
-        controllerSnapshot = new BoneSnapshot(snapshot);
+        controllerSnapshot = new BoneSnapshot(snapshot.bone);
     }
 
     public void setBoneAnimation(BoneAnimation animation) {
@@ -70,7 +70,7 @@ public class BoneAnimationQueue {
     }
 
     public void updateSnapshot() {
-        controllerSnapshot.copyFrom(topLevelSnapshot);
+        controllerSnapshot.copyFrom(topLevelSnapshot.bone);
     }
 
     /**
