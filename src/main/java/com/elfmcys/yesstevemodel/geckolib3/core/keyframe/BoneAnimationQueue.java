@@ -84,12 +84,15 @@ public class BoneAnimationQueue {
         this.active = active;
     }
 
+    /**
+     * 权重不小于 0
+     */
     public float getBlendWeight() {
         return blendWeight;
     }
 
     public void setBlendWeight(float blendWeight) {
-        this.blendWeight = blendWeight;
+        this.blendWeight = blendWeight > 0 ? blendWeight : 0;   // bb 里就是这样的
     }
 
     // 此处链表一般只含一个元素

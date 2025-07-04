@@ -1,29 +1,56 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.IBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.PointType;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.joml.Vector3f;
 
 public class TransitionPoint extends AnimationPoint {
-    private final IBlendTransition transition;
+    private final float transitionPercentProgress;
     private final Vector3f offsetPoint;
     private final BoneKeyFrame dstKeyframe;
-    private final boolean rotation;
+    private final PointType type;
 
-    public TransitionPoint(float currentTick, IBlendTransition transition, Vector3f offsetPoint, BoneKeyFrame dstKeyframe, boolean rotation, AnimationContext context) {
-        super(currentTick, transition.length(), context);
-        this.transition = transition;
-        this.offsetPoint = offsetPoint;
+    public TransitionPoint(float currentTick, float transitionPercentProgress, float transitionLength, Vector3f offsetPoint, BoneKeyFrame dstKeyframe, PointType type, AnimationContext context) {
+        super(currentTick, transitionLength, context);
+        this.transitionPercentProgress = transitionPercentProgress;
+        if (type == PointType.ROTATION) {
+            this.offsetPoint = MathUtil.wrapRadians(offsetPoint);
+        } else {
+            this.offsetPoint = offsetPoint;
+        }
         this.dstKeyframe = dstKeyframe;
-        this.rotation = rotation;
+        this.type = type;
     }
 
     @Override
     public Vector3f getLerpPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
         setupAnimationContext(evaluator);
-        return dstKeyframe.getTransitionPoint(evaluator, offsetPoint, rotation, transition.get(currentTick));
+        var result = dstKeyframe.getTransitionPoint(evaluator, offsetPoint, transitionPercentProgress);
+        if (type == PointType.ROTATION) {
+            return MathUtil.wrapRadians(result);
+        } else {
+            return result;
+        }
+    }
+
+    public Vector3f getTransitionDst(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+        var result = dstKeyframe.getTransitionPoint(evaluator, offsetPoint, 1f);
+        if (type == PointType.ROTATION) {
+            return MathUtil.wrapRadians(result);
+        } else {
+            return result;
+        }
+    }
+
+    public Vector3f getTransitionOffset() {
+        return offsetPoint;
+    }
+
+    public float getTransitionPercentProgress() {
+        return transitionPercentProgress;
     }
 }

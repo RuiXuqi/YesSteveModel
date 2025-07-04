@@ -32,16 +32,6 @@ public class MathUtil {
         return ((2 * begin - 2 * end + v0 + v1) * t3 + (-3 * begin + 3 * end - 2 * v0 - v1) * t2 + v0 * percent + begin);
     }
 
-    public static Vector3f rotLerp(float percent, Vector3f start, Vector3f end) {
-        return new Vector3f(MathUtil.rotLerp(percent, start.x, end.x),
-                MathUtil.rotLerp(percent, start.y, end.y),
-                MathUtil.rotLerp(percent, start.z, end.z));
-    }
-
-    public static float rotLerp(float percent, float start, float end) {
-        return end - (1 - percent) * wrapDegrees(end - start);
-    }
-
     public static float degreesToRadians(float degrees) {
         return degrees * DEGREES_TO_RADIANS;
     }
@@ -50,7 +40,11 @@ public class MathUtil {
         return degrees * RADIANS_TO_DEGREES;
     }
 
-    public static float wrapDegrees(float value) {
+    public static Vector3f wrapRadians(Vector3f value) {
+        return new Vector3f(wrapRadians(value.x), wrapRadians(value.y), wrapRadians(value.z));
+    }
+
+    public static float wrapRadians(float value) {
         float f = value % (360.0F * DEGREES_TO_RADIANS);
         if (f >= (180.0F * DEGREES_TO_RADIANS)) {
             f -= (360.0F * DEGREES_TO_RADIANS);

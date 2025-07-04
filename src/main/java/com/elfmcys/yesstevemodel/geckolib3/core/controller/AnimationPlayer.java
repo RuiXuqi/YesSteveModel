@@ -17,6 +17,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.EasingType;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.PointType;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
@@ -252,6 +253,8 @@ public class AnimationPlayer {
                 resetQueues();
 
                 var blendWeight = currentAnimation.blendWeight != null ? currentAnimation.blendWeight.evalAsFloat(evaluator) : 1;
+                var percentProgress = this.transition.get(adjustedTick);
+
                 for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimationQueues) {
                     boneAnimationQueue.setBlendWeight(blendWeight);
 
@@ -260,29 +263,29 @@ public class AnimationPlayer {
 
                     // 添加即将出现的动画的初始位置，以便模型转换到新动画的初始状态
                     if (boneAnimationQueue.rotationKeyFrames != null) {
-                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, true, adjustedTick,
+                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, PointType.ROTATION, adjustedTick,
                                 new Vector3f(boneSnapshot.rotationValueX - initialSnapshot.rotationValueX,
                                         boneSnapshot.rotationValueY - initialSnapshot.rotationValueY,
                                         boneSnapshot.rotationValueZ - initialSnapshot.rotationValueZ),
-                                context);
+                                percentProgress, context);
                         boneAnimationQueue.rotationQueue().add(point);
                     }
 
                     if (boneAnimationQueue.positionKeyFrames != null) {
-                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, false, adjustedTick,
+                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, PointType.POSITION, adjustedTick,
                                 new Vector3f(boneSnapshot.positionOffsetX,
                                         boneSnapshot.positionOffsetY,
                                         boneSnapshot.positionOffsetZ),
-                                context);
+                                percentProgress, context);
                         boneAnimationQueue.positionQueue().add(point);
                     }
 
                     if (boneAnimationQueue.scaleKeyFrames != null) {
-                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, false, adjustedTick,
+                        AnimationPoint point = getTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, PointType.SCALE, adjustedTick,
                                 new Vector3f(boneSnapshot.scaleValueX,
                                         boneSnapshot.scaleValueY,
                                         boneSnapshot.scaleValueZ),
-                                context);
+                                percentProgress, context);
                         boneAnimationQueue.scaleQueue().add(point);
                     }
                 }
@@ -446,9 +449,9 @@ public class AnimationPlayer {
     /**
      * 返回过渡进度
      **/
-    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, boolean rotation, float tick, Vector3f offsetPoint, AnimationContext context) {
+    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, PointType type, float tick, Vector3f offsetPoint, float transitionPercentProgress, AnimationContext context) {
         BoneKeyFrame dstFrame = frames.search(0);
-        return new TransitionPoint(tick, this.transition, offsetPoint, dstFrame, rotation, context);
+        return new TransitionPoint(tick, transitionPercentProgress, this.transition.length(), offsetPoint, dstFrame, type, context);
     }
 
     private void resetEventKeyFrames(boolean reachEnd, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
