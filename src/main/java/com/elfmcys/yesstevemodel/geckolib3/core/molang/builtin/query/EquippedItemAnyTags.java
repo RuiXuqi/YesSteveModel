@@ -28,7 +28,7 @@ public class EquippedItemAnyTags extends LivingEntityFunction {
         }
 
         for (int i = 1; i < arguments.size(); i++) {
-            ResourceLocation id = MolangUtils.parseResourceLocation(context.entity(), arguments.getAsString(context, i));
+            ResourceLocation id = arguments.getAsResourceLocation(context, i);
             if (id == null) {
                 return null;
             }

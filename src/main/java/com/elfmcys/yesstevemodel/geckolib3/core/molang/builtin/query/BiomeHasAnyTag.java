@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.EntityFunction;
-import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +18,7 @@ public class BiomeHasAnyTag extends EntityFunction {
         Holder<Biome> biome = entity.level().getBiome(entity.blockPosition());
 
         for (int i = 0; i < arguments.size(); i++) {
-            ResourceLocation id = MolangUtils.parseResourceLocation(context.entity(), arguments.getAsString(context, i));
+            ResourceLocation id = arguments.getAsResourceLocation(context, i);
             if (id == null) {
                 return null;
             }

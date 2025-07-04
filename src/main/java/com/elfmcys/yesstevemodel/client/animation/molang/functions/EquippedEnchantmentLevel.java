@@ -20,7 +20,7 @@ public class EquippedEnchantmentLevel extends LivingEntityFunction {
             return null;
         }
 
-        ResourceLocation id = MolangUtils.parseResourceLocation(context.entity(), arguments.getAsString(context, 1));
+        ResourceLocation id = arguments.getAsResourceLocation(context, 1);
         if (id == null) {
             return null;
         }

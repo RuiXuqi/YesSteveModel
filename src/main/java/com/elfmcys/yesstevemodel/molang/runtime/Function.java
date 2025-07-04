@@ -24,13 +24,13 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime;
 
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ValueConversions;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -73,6 +73,7 @@ public interface Function {
             return arguments.size();
         }
 
+        @Nullable
         public String getAsString(@NotNull ExecutionContext<?> ctx, final int index) {
             return ValueConversions.asString(ctx.eval(arguments.get(index)));
         }
@@ -93,6 +94,16 @@ public interface Function {
             return ValueConversions.asBoolean(ctx.eval(arguments.get(index)));
         }
 
+        @Nullable
+        public ResourceLocation getAsResourceLocation(@NotNull ExecutionContext<?> ctx, final int index) {
+            var value = getAsString(ctx, index);
+            if (value != null) {
+                return ResourceLocation.tryParse(value);
+            }
+            return null;
+        }
+
+        @Nullable
         public Object getValue(@NotNull ExecutionContext<?> ctx, final int index) {
             return ctx.eval(arguments.get(index));
         }

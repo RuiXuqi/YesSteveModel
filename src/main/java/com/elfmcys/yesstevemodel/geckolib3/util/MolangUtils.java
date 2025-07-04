@@ -31,15 +31,6 @@ public class MolangUtils {
         return ((float) (timestamp + 6000L) / 24000) % 1;
     }
 
-    public static ResourceLocation parseResourceLocation(IContext<?> context, String value) {
-        ResourceLocation id = ResourceLocation.tryParse(value);
-        if (id == null) {
-            context.debugPrint("Illegal resource location: %s", value);
-            return null;
-        }
-        return id;
-    }
-
     @Nullable
     public static BlockState getRelativeBlock(ExecutionContext<IContext<Entity>> ctx, Function.ArgumentCollection args) {
         return getRelativeBlock(ctx, args, 0);
