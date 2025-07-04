@@ -161,19 +161,21 @@ public class AnimationPlayer {
         }
 
         evaluator.entity().setAnimationContext(animationContext);
-        var animTicks = adjustTick(entityTicks);
+        var animTicks = getAnimTicks(entityTicks);
 
         if (currentAnimFinished
                 && this.state == AnimationState.RUNNING
                 && animTicks > currentAnim.animationLength
                 && currentLoopType == ILoopType.EDefaultLoopTypes.PLAY_ONCE) {
-            // 当前动画播放结束，清空状态
+            // 当前动画播放结束，清空状态。
+            // 使用 currentAnimFinished 作为条件延迟一帧清空状态，
+            // 是为了基岩版控制器能正确获取上一个状态的姿态作为过渡动画起始点
             resetEventKeyframes(evaluator, true);
             resetToIdle();
         }
 
-        // 没有动画正在播放时，尝试切换下一个动画
         if (this.state == AnimationState.IDLE) {
+            // 没有动画正在播放时，尝试切换下一个动画
             if (!loadNextAnim()) {
                 return;
             }
@@ -190,7 +192,7 @@ public class AnimationPlayer {
             }
         }
 
-        resetQueues();
+        resetBoneAnimationQueues();
 
         if (this.state == AnimationState.TRANSITIONING) {
             if (animTicks < this.transition.length()) {
@@ -210,7 +212,7 @@ public class AnimationPlayer {
         if (this.state == AnimationState.RUNNING) {
             if (animTicks > this.currentAnim.animationLength) {
                 if (currentLoopType == ILoopType.EDefaultLoopTypes.LOOP) {
-                    // 重置 tick offset，开始下一轮循环
+                    // 对于循环动画，本轮播放结束后重置 tick offset，开始下一轮循环
                     if (currentAnim.animationLength > 0) {
                         animTicks = animTicks % currentAnim.animationLength;
                     } else {
@@ -219,14 +221,17 @@ public class AnimationPlayer {
                     resetEventKeyframes(evaluator, dryRun);
                     this.animTickOffset = entityTicks - animTicks;
                 } else if (currentLoopType == ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME) {
-                    // 停在最后一帧
+                    // 停在最后一帧的动画，播放完成后 anim ticks 锁定在最后一帧的时间
                     animTicks = currentAnim.animationLength;
+                } else {
+                    // PLAY_ONCE 类型在上面就已经处理过了
                 }
                 this.currentAnimFinished = true;
             }
             animationContext.setAnimTime(animTicks / 20f);
 
             if (scheduledUpdate) {
+                // 更新事件关键帧（指令、音效、粒子等）
                 executeEventKeyframes(evaluator, animTicks, dryRun);
             }
             updateAnimation(evaluator, animTicks);
@@ -253,6 +258,9 @@ public class AnimationPlayer {
         }
     }
 
+    /**
+     * 下次更新时重载当前正在播放的动画
+     */
     public void forceReload() {
         this.lastSetAnim = null;
         if (state != AnimationState.IDLE) {
@@ -314,14 +322,14 @@ public class AnimationPlayer {
         }
     }
 
-    private void resetQueues() {
+    private void resetBoneAnimationQueues() {
         for (BoneAnimationQueue queue : activeBoneAnimQueues) {
             queue.resetQueues();
         }
     }
 
-    public float adjustTick(float tick) {
-        return Math.max(tick - this.animTickOffset, 0.0f);
+    public float getAnimTicks(float entityTicks) {
+        return Math.max(entityTicks - this.animTickOffset, 0.0f);
     }
 
     /**
@@ -349,6 +357,9 @@ public class AnimationPlayer {
         }
     }
 
+    /**
+     * 尝试加载下个动画
+     */
     private boolean loadNextAnim() {
         var next = this.nextAnim;
         if (next == null) {
@@ -376,7 +387,9 @@ public class AnimationPlayer {
         return true;
     }
 
-    // 切换模型，立刻清空所有状态
+    /**
+     * 切换模型，立刻清空所有状态
+     */
     public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
         resetToIdle();
         this.boneAnimQueues.clear();
@@ -388,6 +401,11 @@ public class AnimationPlayer {
         }
     }
 
+    /**
+     * 停止播放动画，重置为待机状态。
+     * 注意不会清空 setAnimation 缓存，下次 set 重置之前正在播放的动画不会生效；
+     * 要重新播放重置之前的动画，需要调用 forceReload() 。
+     */
     public void resetToIdle() {
         if (this.state != AnimationState.IDLE) {
             this.state = AnimationState.IDLE;

@@ -183,9 +183,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
         // 停用多余的动画播放器
         for (var i = state.animations().size(); i < this.activeAnimationPlayerSize; i++) {
-            var player = this.animationPlayers.get(i).animationPlayer();
-            player.resetToIdle();
-            player.forceReload();
+            this.animationPlayers.get(i).animationPlayer().forceReload();
         }
         // 初始化动画播放器
         this.activeAnimationPlayerSize = state.animations().size();

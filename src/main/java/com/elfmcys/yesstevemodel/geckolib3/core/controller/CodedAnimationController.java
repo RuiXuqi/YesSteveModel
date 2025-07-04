@@ -58,7 +58,6 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         if (playState == PlayState.CONTINUE) {
             this.animationPlayer.process(tick, evaluator, scheduledUpdate, false);
         } else {
-            this.animationPlayer.resetToIdle();
             this.animationPlayer.forceReload();
         }
     }
