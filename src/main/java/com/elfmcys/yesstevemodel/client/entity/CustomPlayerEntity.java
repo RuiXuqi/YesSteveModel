@@ -248,8 +248,9 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
             && entity != null) {
             EntityModelData data = (EntityModelData) extraData.get(0);
+            this.recoverLastCodedAnimation();
             boolean update = super.setCustomAnimations(ctx, animationEvent);
-            this.codeAnimation(animationEvent, data, entity, update);
+            this.codeAnimation(animationEvent, data, update);
             return update;
         } else {
             return super.setCustomAnimations(ctx, animationEvent);
@@ -272,13 +273,23 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         return false;
     }
 
-    @Deprecated
-    private void codeAnimation(AnimationEvent<CustomPlayerEntity> animationEvent, EntityModelData data, Player player, boolean update) {
-        // 2023/6/21 这一块设计应该改成 molang 的，而且这个寻找效率低下
-        // 2023/11/07 改善了寻找效率
-        IBone head = getBone("Head");
-        GeoModelState model = getCurrentModel();
+    private void recoverLastCodedAnimation() {
+        var model = getCurrentModel();
+        if (model != null && !model.headBones().isEmpty()) {
+            var head =  model.headBones().get(model.headBones().size() - 1);
+            head.setRotationX(headRot.x);
+            head.setRotationY(headRot.y);
+        }
+    }
 
+    @Deprecated
+    private void codeAnimation(AnimationEvent<CustomPlayerEntity> animationEvent, EntityModelData data, boolean update) {
+        GeoModelState model = getCurrentModel();
+        if (model == null) {
+            return;
+        }
+
+        var head = !model.headBones().isEmpty() ? model.headBones().get(model.headBones().size() - 1) : null;
         // 更新头部旋转
         if (head != null) {
             if (update) {
@@ -294,7 +305,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
                 if (model.firstPersonHead() != null) {
                     model.firstPersonHead().setHidden(FirstPersonCompat.shouldHideHead());
                 }
-                if (model != null && model.firstPersonViewLocator() != null) {
+                if (model.firstPersonViewLocator() != null) {
                     FirstPersonCompat.setHeadPos(model.firstPersonViewLocator().getPivotY() * animationEvent.getAnimatableEntity().getHeightScale());
                 } else if (update) {
                     FirstPersonCompat.setHeadPos(head == null ? 24f : (head.getPivotY() * animationEvent.getAnimatableEntity().getHeightScale()));
