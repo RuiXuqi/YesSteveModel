@@ -45,9 +45,9 @@ public class MolangUtils {
             return null;
         }
         var entity = ctx.entity().entity();
-        BlockPos pos = new BlockPos((int) Math.rint(entity.getX() + offsetX - 0.5d),
-                (int) Math.rint(entity.getY() + offsetY - 0.5d),
-                (int) Math.rint(entity.getZ() + offsetZ - 0.5d));
+        BlockPos pos = new BlockPos((int) Math.round(entity.getX() + offsetX - 0.5d),
+                (int) (entity.getY() + offsetY),        // 看起来有点怪，但是和之前版本保持一致比较好
+                (int) Math.round(entity.getZ() + offsetZ - 0.5d));
         return entity.level().getBlockState(pos);
     }
 
