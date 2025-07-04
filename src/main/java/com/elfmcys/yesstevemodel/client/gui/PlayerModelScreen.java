@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.data.ClientModelSyncListener;
 import com.elfmcys.yesstevemodel.client.event.DownloadScreenInterModEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
@@ -35,10 +36,11 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class PlayerModelScreen extends Screen {
+public class PlayerModelScreen extends Screen implements ClientModelSyncListener {
     private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_ENTITY = new CustomGuiPlayerEntity[10];
 
     private static int page = 0;
@@ -67,6 +69,7 @@ public class PlayerModelScreen extends Screen {
             animatedEntity.setPlayer(Minecraft.getInstance().player);
         }
         clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
+        ClientModelManager.addSyncListener(this);
     }
 
     protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
@@ -416,6 +419,16 @@ public class PlayerModelScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void onAlterModels(Map<String, ClientModel> models) {
+        init();
+    }
+
+    @Override
+    public void onNewModelLoaded(Map<String, ClientModel> models, String newModelId, ClientModel newModel) {
+        init();
     }
 
     private enum Category {
