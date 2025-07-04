@@ -1,9 +1,10 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.ControllerContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
@@ -47,8 +48,8 @@ public class QueryBinding extends ContextBinding {
         var("actor_count", ctx -> ctx.level().getEntityCount());
         var("anim_time", ctx -> getAnimationContext(ctx).map(AnimationContext::animTime).orElse(0f));
         // 目前控制器只能同时播放单一动画，所以两个 molang 都是一样的结果
-        var("all_animations_finished", ctx -> getAnimationContext(ctx).map(AnimationContext::isAllAnimationsFinished).orElse(false));
-        var("any_animation_finished", ctx -> getAnimationContext(ctx).map(AnimationContext::isAnyAnimationFinished).orElse(false));
+        var("all_animations_finished", ctx -> getControllerContext(ctx).map(ControllerContext::isAllAnimationsFinished).orElse(false));
+        var("any_animation_finished", ctx -> getControllerContext(ctx).map(ControllerContext::isAnyAnimationFinished).orElse(false));
         var("life_time", ctx -> ctx.animatableEntity().getSeekTime() / 20.0);
         var("head_x_rotation", ctx -> ctx.data().netHeadYaw);
         var("head_y_rotation", ctx -> ctx.data().headPitch);
@@ -98,8 +99,11 @@ public class QueryBinding extends ContextBinding {
     }
 
     private static Optional<AnimationContext> getAnimationContext(IContext<?> ctx) {
-        AnimationContext animationContext = ctx.animationContext();
-        return Optional.ofNullable(animationContext);
+        return Optional.ofNullable(ctx.animationContext());
+    }
+
+    private static Optional<ControllerContext> getControllerContext(IContext<?> ctx) {
+        return Optional.ofNullable(ctx.controllerContext());
     }
 
     private static boolean isFlying(IContext<AbstractClientPlayer> ctx) {

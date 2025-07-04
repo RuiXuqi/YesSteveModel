@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.IPhys
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.MolangMemory;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -48,10 +48,10 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     @SuppressWarnings("unchecked")
-    public void tickAnimation(float seekTime, boolean shouldUpdate, AnimationEvent<T> event, AnimationMolangContext<?> ctx) {
+    public void tickAnimation(float seekTime, boolean shouldUpdate, AnimationEvent<T> event, MolangContext<?> ctx) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
-        ExpressionEvaluator<AnimationMolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
+        ExpressionEvaluator<MolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
         preProcess(evaluator);
 
         // InstancedAnimationFactory 仅保有一个 AnimationData 实例，与传入的 uniqueID 无关
@@ -203,7 +203,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         return modelRendererList.isEmpty();
     }
 
-    private void preProcess(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+    private void preProcess(ExpressionEvaluator<MolangContext<?>> evaluator) {
         for (var iter = pendingMolangTask.iterator(); iter.hasNext(); ) {
             var task = iter.next();
             if (task.pre) {
@@ -214,7 +214,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         debugInfo.evaluatePre(evaluator);
     }
 
-    private void postProcess(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+    private void postProcess(ExpressionEvaluator<MolangContext<?>> evaluator) {
         float interval;
         long currentTime = Util.getNanos();
         if (cachePhysicsTimeStamp <= 0) {
@@ -235,7 +235,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         }
     }
 
-    private void executeMolangTask(MolangExecutionTask task, ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+    private void executeMolangTask(MolangExecutionTask task, ExpressionEvaluator<MolangContext<?>> evaluator) {
         String result;
         try {
             evaluator.entity().setAllowEmitting(task.allowEmitting());

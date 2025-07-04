@@ -47,7 +47,7 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
             ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
             if (entity instanceof IPlayerExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
                 info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
-                event.getCodedController().markNeedsReload();
+                event.getCodedController().forceReload();
             }
 
             String id = event.getAnimatableEntity().getModelId();

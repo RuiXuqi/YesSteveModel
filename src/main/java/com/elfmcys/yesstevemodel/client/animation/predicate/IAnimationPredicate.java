@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.AnimationBuilder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -12,13 +11,13 @@ import org.jetbrains.annotations.NotNull;
 public interface IAnimationPredicate<T extends AnimatableEntity<?>> {
     @NotNull
     static <T extends AnimatableEntity<?>> PlayState playAnimation(AnimationEvent<T> event, String animationName, ILoopType loopType) {
-        event.getCodedController().setAnimation(new AnimationBuilder().addAnimation(animationName, loopType));
+        event.getCodedController().setAnimation(animationName, loopType);
         return PlayState.CONTINUE;
     }
 
     @NotNull
     static <P extends AnimatableEntity<?>> PlayState playAnimation(AnimationEvent<P> event, String animationName) {
-        event.getCodedController().setAnimation(new AnimationBuilder().addAnimation(animationName));
+        event.getCodedController().setAnimation(animationName);
         return PlayState.CONTINUE;
     }
 

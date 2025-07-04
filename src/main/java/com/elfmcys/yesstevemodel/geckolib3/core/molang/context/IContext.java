@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -31,9 +30,11 @@ public interface IContext<TEntity> {
 
     EntityModelData data();
 
-    // FIXME: 莫名其妙会为 null
     @Nullable
     AnimationContext animationContext();
+
+    @Nullable
+    ControllerContext controllerContext();
 
     RandomSource random();
 

@@ -1,9 +1,9 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.PointType;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.joml.Vector3f;
@@ -27,7 +27,7 @@ public class TransitionPoint extends AnimationPoint {
     }
 
     @Override
-    public Vector3f getLerpPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+    public Vector3f getLerpPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
         setupAnimationContext(evaluator);
         var result = dstKeyframe.getTransitionPoint(evaluator, offsetPoint, transitionPercentProgress);
         if (type == PointType.ROTATION) {
@@ -37,7 +37,7 @@ public class TransitionPoint extends AnimationPoint {
         }
     }
 
-    public Vector3f getTransitionDst(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+    public Vector3f getTransitionDst(ExpressionEvaluator<MolangContext<?>> evaluator) {
         var result = dstKeyframe.getTransitionPoint(evaluator, offsetPoint, 1f);
         if (type == PointType.ROTATION) {
             return MathUtil.wrapRadians(result);

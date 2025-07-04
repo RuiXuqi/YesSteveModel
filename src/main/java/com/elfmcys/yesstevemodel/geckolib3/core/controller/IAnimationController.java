@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -25,7 +25,7 @@ public interface IAnimationController<T extends AnimatableEntity<?>> {
      */
     void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList);
 
-    void process(final float tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate);
+    void process(final float tick, AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate);
 
     void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor);
 

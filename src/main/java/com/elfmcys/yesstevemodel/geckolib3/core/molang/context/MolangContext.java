@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
 import com.elfmcys.yesstevemodel.capability.ArrowGeoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -24,27 +23,28 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
+public class MolangContext<TEntity> implements IContext<TEntity> {
     protected final TEntity entity;
     protected final AnimatableEntity<?> animatableEntity;
     protected final AnimationEvent<?> animationEvent;
     protected final EntityModelData data;
 
     protected AnimationContext animationContext;
+    protected ControllerContext controllerContext;
     protected RandomSource random;
     protected MolangMemory memory;
     protected IForeignVariableStorage foreignStorage;
     private DebugSource debugSource;
     private boolean allowEmitting;
 
-    public AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data) {
+    public MolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data) {
         this.entity = entity;
         this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
         this.data = data;
     }
 
-    private AnimationMolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, RandomSource random, MolangMemory memory) {
+    private MolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, RandomSource random, MolangMemory memory) {
         this.entity = entity;
         this.animatableEntity = animatableEntity;
         this.animationEvent = animationEvent;
@@ -84,6 +84,11 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     }
 
     @Override
+    public ControllerContext controllerContext() {
+        return controllerContext;
+    }
+
+    @Override
     public RandomSource random() {
         return random;
     }
@@ -111,7 +116,7 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
     // FIXME: 需要同时更新 animatable 和 entity 两个属性，再加上源属性
     @Override
     public <TChild> IContext<TChild> createChild(TChild child) {
-        return new AnimationMolangContext<>(child, animatableEntity, animationEvent, data, animationContext, random, memory);
+        return new MolangContext<>(child, animatableEntity, animationEvent, data, animationContext, random, memory);
     }
 
     @Override
@@ -184,8 +189,12 @@ public class AnimationMolangContext<TEntity> implements IContext<TEntity> {
         }
     }
 
-    public void setAnimationContext(AnimationContext animationContext) {
-        this.animationContext = animationContext;
+    public void setAnimationContext(AnimationContext ctx) {
+        this.animationContext = ctx;
+    }
+
+    public void setControllerContext(ControllerContext ctx) {
+        this.controllerContext = ctx;
     }
 
     public void setMemory(MolangMemory storage) {

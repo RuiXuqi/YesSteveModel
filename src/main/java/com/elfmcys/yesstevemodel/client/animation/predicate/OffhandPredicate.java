@@ -34,7 +34,7 @@ public class OffhandPredicate implements IAnimationPredicate<AnimatableEntity<? 
             ItemStack offhandItem = entity.getItemInHand(InteractionHand.OFF_HAND);
             if (entity instanceof IPlayerExtraInfo info && !isSameItem(offhandItem, info, InteractionHand.OFF_HAND)) {
                 info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
-                event.getCodedController().markNeedsReload();
+                event.getCodedController().forceReload();
             }
 
             String id = event.getAnimatableEntity().getModelId();

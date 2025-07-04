@@ -36,28 +36,30 @@ public class SoundKeyframeExecutor {
                 return;
             }
             nextIndex++;
-
             if (dryRun) {
                 continue;
             }
-
-            String soundName = keyFrame.getEventData();
-            SoundInstance soundInstance;
-            if (soundName.contains(":")) {
-                // 如果声音名带冒号，那么大概率就是调用原版音频，因为 Windows 中冒号不是合法的文件名
-                ResourceLocation soundId = new ResourceLocation(soundName);
-                SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(soundId);
-                MinecraftSoundInstance instance = new MinecraftSoundInstance(soundEvent, animatable.getEntity());
-                cachePlaySounds.add(instance);
-                soundInstance = instance;
-            } else {
-                // 否则认为是自定义的音频文件
-                CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundName, animatable.getEntity());
-                cachePlaySounds.add(instance);
-                soundInstance = instance;
-            }
-            Minecraft.getInstance().execute(() -> Minecraft.getInstance().getSoundManager().play(soundInstance));
+            playSound(animatable, keyFrame);
         }
+    }
+
+    private void playSound(AnimatableEntity<?> animatable, EventKeyFrame<String> keyFrame) {
+        String soundName = keyFrame.getEventData();
+        SoundInstance soundInstance;
+        if (soundName.contains(":")) {
+            // 如果声音名带冒号，那么大概率就是调用原版音频，因为 Windows 中冒号不是合法的文件名
+            ResourceLocation soundId = new ResourceLocation(soundName);
+            SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(soundId);
+            MinecraftSoundInstance instance = new MinecraftSoundInstance(soundEvent, animatable.getEntity());
+            cachePlaySounds.add(instance);
+            soundInstance = instance;
+        } else {
+            // 否则认为是自定义的音频文件
+            CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundName, animatable.getEntity());
+            cachePlaySounds.add(instance);
+            soundInstance = instance;
+        }
+        Minecraft.getInstance().execute(() -> Minecraft.getInstance().getSoundManager().play(soundInstance));
     }
 
     public void reset() {

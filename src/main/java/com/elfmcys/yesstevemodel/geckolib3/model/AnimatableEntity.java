@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationC
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -132,7 +132,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return animationProcessor.getBone(boneName);
     }
 
-    public boolean setCustomAnimations(AnimationMolangContext<?> ctx, @NotNull AnimationEvent<?> animationEvent) {
+    public boolean setCustomAnimations(MolangContext<?> ctx, @NotNull AnimationEvent<?> animationEvent) {
         Minecraft mc = Minecraft.getInstance();
 
         boolean forceUpdate = this.shouldForceUpdate();
@@ -318,7 +318,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         entityModelData.lerpedAge = entity.tickCount + partialTicks;
 
         AnimationEvent<?> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, partialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), Collections.singletonList(entityModelData));
-        AnimationMolangContext<?> ctx = new AnimationMolangContext<>(entity, this, event, entityModelData);
+        MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
         ctx.setDebugSource(getDebugSource());
         this.setCustomAnimations(ctx, event);
         return event;

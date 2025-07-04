@@ -21,7 +21,7 @@ public class CapPredicate implements IAnimationPredicate<CustomPlayerEntity> {
             if (cap.isPlayingAnimation()) {
                 if (cap.isAnimationDirty()) {
                     cap.clearAnimationDirty();
-                    event.getCodedController().markNeedsReload();
+                    event.getCodedController().forceReload();
                 }
                 return playAnimation(event, cap.getAnimationName());
             }

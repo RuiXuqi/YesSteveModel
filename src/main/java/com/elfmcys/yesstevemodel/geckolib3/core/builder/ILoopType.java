@@ -1,11 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.builder;
 
 public interface ILoopType {
-    /**
-     * 是否在动画结束后重复
-     *
-     * @return 是否在动画结束后重复
-     */
+    @Deprecated
     boolean isRepeatingAfterEnd();
 
     // Native Access: 所有枚举值都有读取

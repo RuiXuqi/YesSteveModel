@@ -16,10 +16,9 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationC
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -34,7 +33,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -243,7 +241,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
 
     @Override
     @SuppressWarnings("all")
-    public boolean setCustomAnimations(AnimationMolangContext ctx, @NotNull AnimationEvent animationEvent) {
+    public boolean setCustomAnimations(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
         List extraData = animationEvent.getExtraData();
         if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
             && entity != null) {

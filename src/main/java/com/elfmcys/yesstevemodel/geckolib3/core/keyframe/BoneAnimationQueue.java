@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class BoneAnimationQueue {
     public final BoneTopLevelSnapshot topLevelSnapshot;
-    public final BoneSnapshot controllerSnapshot;
+    public final BoneSnapshot transitionOffset;
 
     @Nullable 
     public OrderedSegmentSearcher<BoneKeyFrame> rotationKeyFrames;
@@ -26,13 +26,13 @@ public class BoneAnimationQueue {
     private boolean active = false;
     private float blendWeight = 1;
 
-    public final AnimationPointQueue rotationQueue = new AnimationPointQueue();
-    public final AnimationPointQueue positionQueue = new AnimationPointQueue();
-    public final AnimationPointQueue scaleQueue = new AnimationPointQueue();
+    public AnimationPoint rotation;
+    public AnimationPoint position;
+    public AnimationPoint scale;
 
     public BoneAnimationQueue(BoneTopLevelSnapshot snapshot) {
         topLevelSnapshot = snapshot;
-        controllerSnapshot = new BoneSnapshot(snapshot.bone);
+        transitionOffset = new BoneSnapshot(snapshot.bone);
     }
 
     public void setBoneAnimation(BoneAnimation animation) {
@@ -53,24 +53,24 @@ public class BoneAnimationQueue {
         }
     }
 
-    public BoneSnapshot snapshot() {
-        return controllerSnapshot;
+    public BoneSnapshot transitionOffset() {
+        return transitionOffset;
     }
 
-    public AnimationPointQueue rotationQueue() {
-        return rotationQueue;
+    public AnimationPoint rotation() {
+        return rotation;
     }
 
-    public AnimationPointQueue positionQueue() {
-        return positionQueue;
+    public AnimationPoint position() {
+        return position;
     }
 
-    public AnimationPointQueue scaleQueue() {
-        return scaleQueue;
+    public AnimationPoint scale() {
+        return scale;
     }
 
-    public void updateSnapshot() {
-        controllerSnapshot.copyFrom(topLevelSnapshot.bone);
+    public void updateTransitionOffset() {
+        transitionOffset.copyFrom(topLevelSnapshot.bone);
     }
 
     /**
@@ -97,8 +97,8 @@ public class BoneAnimationQueue {
 
     // 此处链表一般只含一个元素
     public void resetQueues() {
-        rotationQueue.clear();
-        positionQueue.clear();
-        scaleQueue.clear();
+        rotation = null;
+        position = null;
+        scale = null;
     }
 }

@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
 import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -53,7 +53,7 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     }
 
     @Override
-    public void process(final float tick, AnimationEvent<T> event, ExpressionEvaluator<AnimationMolangContext<?>> evaluator, boolean scheduledUpdate) {
+    public void process(final float tick, AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate) {
         this.activeController.process(tick, event, evaluator, scheduledUpdate);
     }
 

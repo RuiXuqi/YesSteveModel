@@ -5,8 +5,8 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.AnimationContext;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationMolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.joml.Vector3f;
 
@@ -34,9 +34,9 @@ public abstract class AnimationPoint {
         return totalTick == 0 ? 1 : (currentTick / totalTick);
     }
 
-    protected void setupAnimationContext(ExpressionEvaluator<AnimationMolangContext<?>> evaluator) {
+    protected void setupAnimationContext(ExpressionEvaluator<MolangContext<?>> evaluator) {
         evaluator.entity().setAnimationContext(context);
     }
 
-    public abstract Vector3f getLerpPoint(ExpressionEvaluator<AnimationMolangContext<?>> evaluator);
+    public abstract Vector3f getLerpPoint(ExpressionEvaluator<MolangContext<?>> evaluator);
 }
