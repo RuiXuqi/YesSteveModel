@@ -58,7 +58,8 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         if (playState == PlayState.CONTINUE) {
             this.animationPlayer.process(tick, evaluator, scheduledUpdate, false);
         } else {
-            this.animationPlayer.resetToIdle(evaluator, true);
+            this.animationPlayer.resetToIdle();
+            this.animationPlayer.forceReload();
         }
     }
 
@@ -80,7 +81,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     public String getState() {
         // 硬编码控制器没有状态，返回自己名称+正在播放的动画
         var animation = animationPlayer.getCurrentAnim();
-        if (animation == null || animationPlayer.getState() == AnimationState.STOPPING || animationPlayer.getState() == AnimationState.IDLE) {
+        if (animation == null || animationPlayer.getState() == AnimationState.IDLE) {
             return "Coded";
         } else {
             return "Coded -> " + animation.animationName;
@@ -109,7 +110,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     }
 
     public void resetAnim() {
-        this.animationPlayer.resetToIdle(null, false);
+        this.animationPlayer.resetToIdle();
     }
 
     public boolean isAnimFinished() {

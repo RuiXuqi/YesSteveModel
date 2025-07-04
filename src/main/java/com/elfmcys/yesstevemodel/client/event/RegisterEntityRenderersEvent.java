@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.yesstevemodel.client.renderer.CustomArrowRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import net.minecraft.client.Minecraft;
@@ -33,6 +34,7 @@ public class RegisterEntityRenderersEvent {
             EntityRendererProvider.Context context = new EntityRendererProvider.Context(dispatcher, itemRenderer, blockRenderer, itemInHandRenderer, resourceManager, entityModels, font);
             CUSTOM_PLAYER_RENDERER = new CustomPlayerRenderer(context);
             CUSTOM_ARROW_RENDERER = new CustomArrowRenderer(context);
+            SophisticatedCompat.init();
         });
     }
 

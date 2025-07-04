@@ -42,7 +42,6 @@ public class ClientSetupEvent {
         ParCoolCompat.init();
         SlashBladeCompat.init();
         SwemCompat.init();
-        SophisticatedCompat.init();
         initCoreClient();
     }
 

@@ -15,7 +15,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameExecuto
 import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.EasingType;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.PointType;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
@@ -61,11 +60,7 @@ public class AnimationPlayer {
      */
     private IBlendTransition transition;
     private float animTickOffset;
-    /**
-     * 默认情况下，动画将使用关键帧的 EasingType <br>
-     * 复写此数值将用于全局
-     */
-    private EasingType easingType = EasingType.LINEAR;
+
     /**
      * 实体对象
      */
@@ -89,20 +84,6 @@ public class AnimationPlayer {
         this.animTickOffset = 0.0f;
     }
 
-    /**
-     * 实例化动画播放器，每个播放器同一时间只能播放一个动画
-     *
-     * @param animatableEntity      实体
-     * @param transitionLengthTicks 动画过渡时间（tick）
-     * @param easingtype            动画过渡插值类型，默认没有
-     */
-    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks, EasingType easingtype) {
-        this.animatableEntity = animatableEntity;
-        this.transition = new LinearBlendTransition(transitionLengthTicks);
-        this.easingType = easingtype;
-        this.animTickOffset = 0.0f;
-    }
-
     public void setAnimation(@Nullable String animationName) {
         setAnimation(animationName, null);
     }
@@ -115,9 +96,7 @@ public class AnimationPlayer {
     public void setAnimation(@Nullable String animationName, @Nullable ILoopType loopTypeOverride) {
         if (animationName == null) {
             this.lastSetAnim = null;
-            if (this.state != AnimationState.IDLE) {
-                this.state = AnimationState.STOPPING;
-            }
+            resetToIdle();
             return;
         }
 
@@ -136,9 +115,7 @@ public class AnimationPlayer {
         if (lastSetAnim == null || !lastSetAnim.getSecond().equals(animationName) || lastSetAnim.getFirst() != loopTypeOverride) {
             this.lastSetAnim = new Pair<>(loopTypeOverride, animationName);
             this.nextAnim = new Pair<>(loopTypeOverride, animation);
-            if (this.state != AnimationState.IDLE) {
-                this.state = AnimationState.STOPPING;
-            }
+            resetToIdle();
         }
     }
 
@@ -186,15 +163,13 @@ public class AnimationPlayer {
         evaluator.entity().setAnimationContext(animationContext);
         var animTicks = adjustTick(entityTicks);
 
-        if (this.state == AnimationState.STOPPING) {
-            // 如果被停止，则清空状态
-            resetToIdle(evaluator, true);
-        } else if (this.state == AnimationState.RUNNING
+        if (currentAnimFinished
+                && this.state == AnimationState.RUNNING
                 && animTicks > currentAnim.animationLength
                 && currentLoopType == ILoopType.EDefaultLoopTypes.PLAY_ONCE) {
             // 当前动画播放结束，清空状态
             resetEventKeyframes(evaluator, true);
-            resetToIdle(null, false);
+            resetToIdle();
         }
 
         // 没有动画正在播放时，尝试切换下一个动画
@@ -234,7 +209,6 @@ public class AnimationPlayer {
         // 播放中
         if (this.state == AnimationState.RUNNING) {
             if (animTicks > this.currentAnim.animationLength) {
-                resetEventKeyframes(evaluator, dryRun);
                 if (currentLoopType == ILoopType.EDefaultLoopTypes.LOOP) {
                     // 重置 tick offset，开始下一轮循环
                     if (currentAnim.animationLength > 0) {
@@ -242,8 +216,9 @@ public class AnimationPlayer {
                     } else {
                         animTicks = 0;
                     }
+                    resetEventKeyframes(evaluator, dryRun);
                     this.animTickOffset = entityTicks - animTicks;
-                } else {
+                } else if (currentLoopType == ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME) {
                     // 停在最后一帧
                     animTicks = currentAnim.animationLength;
                 }
@@ -280,9 +255,9 @@ public class AnimationPlayer {
 
     public void forceReload() {
         this.lastSetAnim = null;
-        if (state == AnimationState.TRANSITIONING || state == AnimationState.RUNNING) {
+        if (state != AnimationState.IDLE) {
             nextAnim = new Pair<>(currentLoopType, currentAnim);
-            state = AnimationState.STOPPING;
+            resetToIdle();
         }
     }
 
@@ -403,7 +378,7 @@ public class AnimationPlayer {
 
     // 切换模型，立刻清空所有状态
     public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
-        resetToIdle(null, false);
+        resetToIdle();
         this.boneAnimQueues.clear();
         this.nextAnim = null;
         this.lastSetAnim = null;
@@ -413,19 +388,14 @@ public class AnimationPlayer {
         }
     }
 
-    public void resetToIdle(ExpressionEvaluator<MolangContext<?>> evaluator, boolean executeLastInstructionKeyframe) {
+    public void resetToIdle() {
         if (this.state != AnimationState.IDLE) {
-            if (executeLastInstructionKeyframe && evaluator != null && instructionKeyFrameExecutor != null && currentAnim != null) {
-                animationContext.setAnimTime(currentAnim.animationLength / 20f);
-                evaluator.entity().setAnimationContext(animationContext);
-                instructionKeyFrameExecutor.tryExecuteLastFrame(evaluator, currentAnim.animationLength);
-            }
-            instructionKeyFrameExecutor = null;
-
+            this.state = AnimationState.IDLE;
             if (soundKeyFrameExecutor != null) {
                 soundKeyFrameExecutor.reset();
             }
             soundKeyFrameExecutor = null;
+            instructionKeyFrameExecutor = null;
 
             for (var queue : this.activeBoneAnimQueues) {
                 queue.setActive(false);
@@ -433,7 +403,6 @@ public class AnimationPlayer {
             this.activeBoneAnimQueues.clear();
 
             this.currentAnim = null;
-            this.state = AnimationState.IDLE;
             this.currentAnimFinished = true;
         }
     }

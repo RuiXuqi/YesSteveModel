@@ -43,16 +43,6 @@ public class InstructionKeyFrameExecutor {
         nextIndex = list.size();
     }
 
-    public void tryExecuteLastFrame(ExpressionEvaluator<?> evaluator, float animationLength) {
-        if (nextIndex < list.size()) {
-            var last = list.get(list.size() - 1);
-            if (last.getStartTick() == animationLength) {
-                evalValues(evaluator, last.getEventData());
-            }
-        }
-        nextIndex = list.size();
-    }
-
     public boolean reachEnd() {
         return nextIndex >= list.size();
     }

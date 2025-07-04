@@ -17,9 +17,5 @@ public enum AnimationState {
     /**
      * 播放中
      */
-    RUNNING,
-    /**
-     * 被外部暂停
-     */
-    STOPPING
+    RUNNING
 }

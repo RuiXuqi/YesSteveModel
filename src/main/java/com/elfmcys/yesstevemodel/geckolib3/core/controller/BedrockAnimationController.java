@@ -67,18 +67,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             return;
         }
 
-        // 需要在更新控制器状态之前，写入 all_animations_finished 和 any_animation_finished 变量，供控制器使用
         evaluator.entity().setControllerContext(ctx);
-        ctx.setAnyAnimationFinished(false);
-        ctx.setAllAnimationsFinished(true);
-        for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
-            var holder = this.animationPlayers.get(i);
-            if (holder.animationPlayer.currentAnimFinished()) {
-                ctx.setAnyAnimationFinished(true);
-            } else {
-                ctx.setAllAnimationsFinished(false);
-            }
-        }
 
         // 更新状态
         if (this.state == null) {
@@ -101,6 +90,13 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 }
                 this.stateName = stateName;
                 updateState(newState, evaluator);
+                if (activeAnimationPlayerSize == 0) {
+                    ctx.setAllAnimationsFinished(true);
+                    ctx.setAnyAnimationFinished(true);
+                } else {
+                    ctx.setAllAnimationsFinished(false);
+                    ctx.setAnyAnimationFinished(false);
+                }
             }
         }
 
@@ -109,6 +105,20 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             var holder = this.animationPlayers.get(i);
             holder.conditionHolder().evaluateApplyCondition(evaluator);
             holder.animationPlayer().process(tick, evaluator, scheduledUpdate, !holder.conditionHolder().shouldApply());
+        }
+
+        // 在更新控制器状态之后写入 all_animations_finished 和 any_animation_finished 变量，供下次控制器更新时使用
+        if (activeAnimationPlayerSize > 0) {
+            ctx.setAnyAnimationFinished(false);
+            ctx.setAllAnimationsFinished(true);
+            for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
+                var holder = this.animationPlayers.get(i);
+                if (holder.animationPlayer.currentAnimFinished()) {
+                    ctx.setAnyAnimationFinished(true);
+                } else {
+                    ctx.setAllAnimationsFinished(false);
+                }
+            }
         }
     }
 
@@ -155,8 +165,6 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     private void updateState(GeoAnimationControllerState state, ExpressionEvaluator<MolangContext<?>> evaluator) {
-        assert this.modelRendererList != null;
-
         evaluator.entity().setAllowEmitting(true);
         if (this.state != null) {
             for (var exp : this.state.onExit()) {
@@ -175,7 +183,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
         // 停用多余的动画播放器
         for (var i = state.animations().size(); i < this.activeAnimationPlayerSize; i++) {
-            this.animationPlayers.get(i).animationPlayer().resetToIdle(evaluator, true);
+            var player = this.animationPlayers.get(i).animationPlayer();
+            player.resetToIdle();
+            player.forceReload();
         }
         // 初始化动画播放器
         this.activeAnimationPlayerSize = state.animations().size();

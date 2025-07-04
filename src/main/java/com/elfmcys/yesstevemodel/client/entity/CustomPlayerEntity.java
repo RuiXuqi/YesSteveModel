@@ -271,10 +271,23 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         return false;
     }
 
+    @Override
+    public boolean updateCurrentModel(boolean force) {
+        if (super.updateCurrentModel(force)) {
+            var model = getCurrentModel();
+            if (model != null && !model.headBones().isEmpty()) {
+                var head = model.headBones().get(model.headBones().size() - 1);
+                headRot.set(head.getRotationX(), head.getRotationY());
+            }
+            return true;
+        }
+        return false;
+    }
+
     private void recoverLastCodedAnimation() {
         var model = getCurrentModel();
         if (model != null && !model.headBones().isEmpty()) {
-            var head =  model.headBones().get(model.headBones().size() - 1);
+            var head = model.headBones().get(model.headBones().size() - 1);
             head.setRotationX(headRot.x);
             head.setRotationY(headRot.y);
         }
