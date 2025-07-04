@@ -57,6 +57,7 @@ public class YSMBinding extends ContextBinding {
         function("equipped_enchantment_level", new EquippedEnchantmentLevel());
         function("effect_level", new EffectLevel());
         function("relative_block_name", new RelativeBlockName());
+        function("relative_block_name_any", new RelativeBlockNameAny());
 
         function("bone_rot", new BoneRotation());
         function("bone_pos", new BonePosition());
