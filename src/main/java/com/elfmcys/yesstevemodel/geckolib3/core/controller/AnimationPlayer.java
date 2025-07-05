@@ -172,7 +172,7 @@ public class AnimationPlayer {
             // 当前动画播放结束，清空状态。
             // 使用 currentAnimFinished 作为条件延迟一帧清空状态，
             // 是为了基岩版控制器能正确获取上一个状态的姿态作为过渡动画起始点
-            resetEventKeyframes(evaluator, true);
+            resetEventKeyframes(evaluator, dryRun);
             resetToIdle();
         }
 
