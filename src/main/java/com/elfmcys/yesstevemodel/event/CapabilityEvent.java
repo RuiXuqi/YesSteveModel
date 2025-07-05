@@ -44,9 +44,9 @@ public final class CapabilityEvent {
                 event.addCapability(ANIMATABLE_CAP, new PlayerAnimatableCapabilityProvider(clientPlayer));
             }
         } else if (entity instanceof AbstractArrow) {
-            if (entity.level().isClientSide() && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ARROW_MODEL_INFO_CAP)) {
+            if (entity.level().isClientSide() && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
                 event.addCapability(PROJECTILE_ANIMATABLE_CAP, new ProjectileAnimatableCapabilityProvider((AbstractArrow) entity));
-            } else if (!entity.level().isClientSide() && !entity.getCapability(ProjectileModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
+            } else if (!entity.level().isClientSide() && !entity.getCapability(ProjectileModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_MODEL_INFO_CAP)) {
                 event.addCapability(PROJECTILE_MODEL_INFO_CAP, new ProjectileModelInfoCapabilityProvider());
             }
         }
