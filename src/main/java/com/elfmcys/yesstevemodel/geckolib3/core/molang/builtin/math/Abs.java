@@ -6,7 +6,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.Function;
 public class Abs implements Function {
     @Override
     public Object evaluate(ExecutionContext<?> context, ArgumentCollection arguments) {
-        return Math.abs(arguments.getAsDouble(context, 0));
+        return Math.abs(arguments.getAsFloat(context, 0));
     }
 
     @Override

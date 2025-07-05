@@ -6,8 +6,8 @@ import com.elfmcys.yesstevemodel.molang.runtime.Function;
 public class Max implements Function {
     @Override
     public Object evaluate(ExecutionContext<?> context, ArgumentCollection arguments) {
-        return Math.max(arguments.getAsDouble(context, 0),
-                arguments.getAsDouble(context, 1));
+        return Math.max(arguments.getAsFloat(context, 0),
+                arguments.getAsFloat(context, 1));
     }
 
     @Override

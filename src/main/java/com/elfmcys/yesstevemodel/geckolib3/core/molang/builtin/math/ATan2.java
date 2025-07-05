@@ -2,11 +2,12 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.math;
 
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
+import net.minecraft.util.Mth;
 
 public class ATan2 implements Function {
     @Override
     public Object evaluate(ExecutionContext<?> context, ArgumentCollection arguments) {
-        return Math.atan2(arguments.getAsDouble(context, 0),
+        return Mth.atan2(arguments.getAsDouble(context, 0),
                 arguments.getAsDouble(context, 1));
     }
 
