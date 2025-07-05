@@ -43,15 +43,25 @@ public class AnimationPlayer {
     private static final Cache<String, Object> NOT_EXIST_ANIMATION_NAME_CACHE = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.SECONDS).build();
 
     /**
-     * 模型所有骨骼队列
+     * 模型所有骨骼
      */
     private final Object2ReferenceOpenHashMap<String, BoneAnimationQueue> boneAnimQueues = new Object2ReferenceOpenHashMap<>();
     /**
-     * 当前动画的骨骼队列
+     * 当前有动画的骨骼
      */
     private final ReferenceArrayList<BoneAnimationQueue> activeBoneAnimQueues = new ReferenceArrayList<>();
-
+    /**
+     * 与动画播放相关的 molang 上下文
+     */
     private final AnimationContext animationContext = new AnimationContext();
+    /**
+     * 实体对象
+     */
+    private final AnimatableEntity<?> animatableEntity;
+    /**
+     * PLAY_ONCE 动画是否延迟一帧结束播放
+     */
+    private final boolean delayStop;
 
     private InstructionKeyFrameExecutor instructionKeyFrameExecutor;
     private SoundKeyframeExecutor soundKeyFrameExecutor;
@@ -61,10 +71,6 @@ public class AnimationPlayer {
     private IBlendTransition transition;
     private float animTickOffset;
 
-    /**
-     * 实体对象
-     */
-    private final AnimatableEntity<?> animatableEntity;
     private AnimationState state = AnimationState.IDLE;
     private Pair<ILoopType, String> lastSetAnim = null;
     private Pair<ILoopType, Animation> nextAnim = null;
@@ -78,10 +84,11 @@ public class AnimationPlayer {
      * @param animatableEntity      实体
      * @param transitionLengthTicks 动画过渡时间（tick）
      */
-    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
+    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks, boolean delayStop) {
         this.animatableEntity = animatableEntity;
         this.transition = new LinearBlendTransition(transitionLengthTicks);
         this.animTickOffset = 0.0f;
+        this.delayStop = delayStop;
     }
 
     public void setAnimation(@Nullable String animationName) {
@@ -155,15 +162,10 @@ public class AnimationPlayer {
      * @param entityTicks 当前 tick + 插值 tick
      */
     public void process(final float entityTicks, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate, boolean dryRun) {
-        // 动画播放已成功终止，但还未设定新的动画
-        if (this.currentAnim == null && this.nextAnim == null) {
-            return;
-        }
-
         evaluator.entity().setAnimationContext(animationContext);
         var animTicks = getAnimTicks(entityTicks);
 
-        if (currentAnimFinished
+        if ((!delayStop || currentAnimFinished)
                 && this.state == AnimationState.RUNNING
                 && animTicks > currentAnim.animationLength
                 && currentLoopType == ILoopType.EDefaultLoopTypes.PLAY_ONCE) {
@@ -403,7 +405,7 @@ public class AnimationPlayer {
 
     /**
      * 停止播放动画，重置为待机状态。
-     * 注意不会清空 setAnimation 缓存，下次 set 重置之前正在播放的动画不会生效；
+     * 注意不会清空 setAnimation 缓存，再次 set “重置之前正在播放的动画”不会生效；
      * 要重新播放重置之前的动画，需要调用 forceReload() 。
      */
     public void resetToIdle() {

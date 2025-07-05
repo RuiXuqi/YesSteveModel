@@ -221,7 +221,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
         private AnimationPlayerHolder(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
             conditionHolder = new ConditionHolder();
-            animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
+            animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks, true);
             dirty = true;
         }
 
