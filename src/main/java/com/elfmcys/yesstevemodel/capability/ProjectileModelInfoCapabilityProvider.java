@@ -10,10 +10,10 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ArrowModelInfoCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
-    public static Capability<ArrowModelInfoCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
+public class ProjectileModelInfoCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
+    public static Capability<ProjectileModelInfoCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
     });
-    private ArrowModelInfoCapability instance = null;
+    private ProjectileModelInfoCapability instance = null;
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
@@ -21,9 +21,9 @@ public class ArrowModelInfoCapabilityProvider implements ICapabilitySerializable
     }
 
     @NotNull
-    private ArrowModelInfoCapability createCapability() {
+    private ProjectileModelInfoCapability createCapability() {
         if (instance == null) {
-            this.instance = new ArrowModelInfoCapability();
+            this.instance = new ProjectileModelInfoCapability();
         }
         return instance;
     }

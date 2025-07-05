@@ -3,7 +3,7 @@ package com.elfmcys.yesstevemodel.capability;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.nbt.CompoundTag;
 
-public class ArrowModelInfoCapability {
+public class ProjectileModelInfoCapability {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private boolean initialized = false;
 
@@ -12,7 +12,7 @@ public class ArrowModelInfoCapability {
         this.initialized = true;
     }
 
-    public void copyFrom(ArrowModelInfoCapability source) {
+    public void copyFrom(ProjectileModelInfoCapability source) {
         this.modelId = source.modelId;
         this.initialized = source.initialized;
     }

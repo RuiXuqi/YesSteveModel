@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.mixin.client;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
-import com.elfmcys.yesstevemodel.capability.ArrowGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -18,7 +18,7 @@ public class ArrowRendererMixin {
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/world/entity/projectile/AbstractArrow;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
     public void render(AbstractArrow pEntity, float pEntityYaw, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, CallbackInfo callback) {
         if (!GeneralConfig.DISABLE_ARROWS_MODEL.get() && pEntity instanceof IArrowExtraInfo) {
-            pEntity.getCapability(ArrowGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            pEntity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isInitialized() && cap.isModelPresent()) {
                     RegisterEntityRenderersEvent.getArrowRenderer().render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
                     callback.cancel();

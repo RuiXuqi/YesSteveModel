@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
-import com.elfmcys.yesstevemodel.capability.ArrowGeoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
@@ -57,7 +57,7 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
                 foreignStorage = cap.getPublicVariableStorage();
             });
         } else if (entity instanceof AbstractArrow) {
-            ((AbstractArrow) entity).getCapability(ArrowGeoCapabilityProvider.CAP).ifPresent(cap -> {
+            ((AbstractArrow) entity).getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 foreignStorage = cap.getPublicVariableStorage();
             });
         }

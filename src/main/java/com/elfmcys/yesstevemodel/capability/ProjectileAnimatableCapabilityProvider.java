@@ -13,13 +13,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
-public class ArrowGeoCapabilityProvider implements ICapabilityProvider {
-    public static Capability<ArrowGeoCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
+public class ProjectileAnimatableCapabilityProvider implements ICapabilityProvider {
+    public static Capability<ProjectileAnimatableCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
     });
-    private ArrowGeoCapability instance;
+    private ProjectileAnimatableCapability instance;
     private AbstractArrow arrow;
 
-    public ArrowGeoCapabilityProvider(AbstractArrow arrow) {
+    public ProjectileAnimatableCapabilityProvider(AbstractArrow arrow) {
         this.arrow = arrow;
     }
 
@@ -29,9 +29,9 @@ public class ArrowGeoCapabilityProvider implements ICapabilityProvider {
     }
 
     @NotNull
-    private ArrowGeoCapability createCapability() {
+    private ProjectileAnimatableCapability createCapability() {
         if (instance == null) {
-            this.instance = new ArrowGeoCapability(arrow);
+            this.instance = new ProjectileAnimatableCapability(arrow);
             arrow = null;
         }
         return instance;

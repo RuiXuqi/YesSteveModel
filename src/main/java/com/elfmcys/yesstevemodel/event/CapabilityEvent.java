@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber
 public final class CapabilityEvent {
     private static final ResourceLocation MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "model_id");
-    private static final ResourceLocation ARROW_MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "arrow_model_id");
+    private static final ResourceLocation PROJECTILE_MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "projectile_model_id");
     private static final ResourceLocation AUTH_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "own_models");
     private static final ResourceLocation STAR_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "star_models");
     private static final ResourceLocation ANIMATABLE_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "animatable");
@@ -44,10 +44,10 @@ public final class CapabilityEvent {
                 event.addCapability(ANIMATABLE_CAP, new PlayerAnimatableCapabilityProvider(clientPlayer));
             }
         } else if (entity instanceof AbstractArrow) {
-            if (entity.level().isClientSide() && !entity.getCapability(ArrowGeoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ARROW_MODEL_INFO_CAP)) {
-                event.addCapability(ARROW_MODEL_INFO_CAP, new ArrowGeoCapabilityProvider((AbstractArrow) entity));
-            } else if (!entity.level().isClientSide() && !entity.getCapability(ArrowModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
-                event.addCapability(PROJECTILE_ANIMATABLE_CAP, new ArrowModelInfoCapabilityProvider());
+            if (entity.level().isClientSide() && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ARROW_MODEL_INFO_CAP)) {
+                event.addCapability(PROJECTILE_ANIMATABLE_CAP, new ProjectileAnimatableCapabilityProvider((AbstractArrow) entity));
+            } else if (!entity.level().isClientSide() && !entity.getCapability(ProjectileModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
+                event.addCapability(PROJECTILE_MODEL_INFO_CAP, new ProjectileModelInfoCapabilityProvider());
             }
         }
     }
@@ -82,9 +82,9 @@ public final class CapabilityEvent {
                 }, cap::markDirty);
             });
         } else if (event.getTarget() instanceof AbstractArrow arrow) {
-            arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+            arrow.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isInitialized()) {
-                    NetworkHandler.sendToClientPlayer(new SyncArrowModelInfo(arrow.getId(), cap), event.getEntity());
+                    NetworkHandler.sendToClientPlayer(new SyncProjectileModelInfo(arrow.getId(), cap), event.getEntity());
                 }
             });
         }
@@ -129,12 +129,13 @@ public final class CapabilityEvent {
                     return;
                 }
                 if (cap.isDirty()) {
-                    if (player.getServer() != null) {
-                        cap.buildPacketForDispatch(player).ifPresent(packet -> {
-                            cap.clearDirty();
-                            NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
-                        });
-                    }
+                    cap.buildPacketForDispatch(player).ifPresent(packet -> {
+                        cap.clearDirty();
+                        NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
+                    });
+                    cap.getPropertiesTracker().tick(player, cap.isDirty());
+                } else {
+                    cap.getPropertiesTracker().tick(player, true);
                 }
             });
         }
@@ -145,9 +146,9 @@ public final class CapabilityEvent {
             if (!NetworkHandler.isPlayerChannelPresent(owner) && !ownerCap.isMandatory()) {
                 return;
             }
-            arrow.getCapability(ArrowModelInfoCapabilityProvider.CAP).ifPresent(arrowCap -> {
+            arrow.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(arrowCap -> {
                 arrowCap.init(ownerCap.getModelId());
-                NetworkHandler.broadcastToVisiblePlayers(new SyncArrowModelInfo(arrow.getId(), arrowCap), arrow);
+                NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(arrow.getId(), arrowCap), arrow);
             });
         });
     }

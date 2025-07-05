@@ -23,12 +23,12 @@ public final class CommonEvent {
     @SubscribeEvent
     public static void registerCapability(RegisterCapabilitiesEvent event) {
         event.register(ModelInfoCapability.class);
-        event.register(ArrowModelInfoCapability.class);
+        event.register(ProjectileModelInfoCapability.class);
         event.register(AuthModelsCapability.class);
         event.register(StarModelsCapability.class);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             event.register(PlayerAnimatableCapability.class);
-            event.register(ArrowGeoCapability.class);
+            event.register(ProjectileAnimatableCapability.class);
         }
     }
 

@@ -70,7 +70,7 @@ public final class NetworkHandler {
         // CHANNEL.registerMessage(14, HandleFile.class, HandleFile::encode, HandleFile::decode, HandleFile::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(15, SubmitRoamingVarsChanges.class, SubmitRoamingVarsChanges::encode, SubmitRoamingVarsChanges::decode, SubmitRoamingVarsChanges::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
-        CHANNEL.registerMessage(16, SyncArrowModelInfo.class, SyncArrowModelInfo::encode, SyncArrowModelInfo::decode, SyncArrowModelInfo::handle,
+        CHANNEL.registerMessage(16, SyncProjectileModelInfo.class, SyncProjectileModelInfo::encode, SyncProjectileModelInfo::decode, SyncProjectileModelInfo::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(17, SubmitRouletteConfig.class, SubmitRouletteConfig::encode, SubmitRouletteConfig::decode, SubmitRouletteConfig::handle,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));

@@ -6,8 +6,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ArrowGeoCapability extends CustomArrowEntity {
-    public ArrowGeoCapability(AbstractArrow arrow) {
+public class ProjectileAnimatableCapability extends CustomArrowEntity {
+    public ProjectileAnimatableCapability(AbstractArrow arrow) {
         super(arrow);
     }
 
