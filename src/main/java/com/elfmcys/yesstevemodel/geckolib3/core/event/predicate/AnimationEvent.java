@@ -16,7 +16,7 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final float partialTick;
     private final boolean isMoving;
     private final List<Object> extraData;
-    public float animationTick;
+    public float renderTicks;
     @Nullable
     protected CodedAnimationController<T> codedController;
 
@@ -30,11 +30,8 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         this.extraData = extraData;
     }
 
-    /**
-     * 以动画控制的状态，获取当前动画时间，或者过渡动画时间
-     */
-    public float getAnimationTick() {
-        return animationTick;
+    public float getRenderTicks() {
+        return renderTicks;
     }
 
     public T getAnimatableEntity() {

@@ -149,17 +149,17 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             this.lastGameTickTime = manager.tick;
         }
 
-        animationEvent.animationTick = this.seekTime;
+        animationEvent.renderTicks = this.seekTime;
         if (!getAnimationProcessor().isModelRendererEmpty()) {
-            var shouldUpdate = rateLimiter.request((float) (seekTime / 20));
+            var shouldUpdate = rateLimiter.request(seekTime / 20);
             if (forceUpdate || shouldUpdate) {
-                float currentFrameTime = (float) getCurrentTick() * 50;
+                float currentFrameTime = getCurrentTick() * 50;
                 if (currentFrameTime > lastFrameTime && lastFrameTime != 0) {
                     updateFrameData(currentFrameTime, lastFrameTime, animationEvent.getPartialTick());
                 }
 
                 preAnimationSetup(this.seekTime);
-                getAnimationProcessor().tickAnimation(this.seekTime, shouldUpdate, animationEvent, ctx);
+                getAnimationProcessor().tickAnimation(shouldUpdate, animationEvent, ctx);
 
                 lastFrameTime = currentFrameTime;
                 return true;

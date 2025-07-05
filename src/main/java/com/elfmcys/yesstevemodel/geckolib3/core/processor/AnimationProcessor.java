@@ -49,7 +49,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     @SuppressWarnings("unchecked")
-    public void tickAnimation(float seekTime, boolean shouldUpdate, AnimationEvent<T> event, MolangContext<?> ctx) {
+    public void tickAnimation(boolean shouldUpdate, AnimationEvent<T> event, MolangContext<?> ctx) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
         ExpressionEvaluator<MolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
@@ -63,7 +63,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             }
             // 将当前控制器设置为动画测试事件
             // 处理动画并向点队列添加新值
-            controller.process(seekTime, event, evaluator, shouldUpdate);
+            controller.process(event, evaluator, shouldUpdate);
             // 解决一个历史遗留问题而保留的动画混合
             @Deprecated boolean blendRotation = controller.blendRotation();
             // 遍历每个骨骼，并对属性进行插值计算
@@ -103,7 +103,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             BoneSnapshot initialSnapshot = topLevelSnapshot.bone.getInitialSnapshot();
 
             if (!topLevelSnapshot.isCurrentlyRunningRotationAnimation) {
-                float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetRotationTick) / resetTickLength, 1);
+                float percentageReset = Math.min((event.renderTicks - topLevelSnapshot.mostRecentResetRotationTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
                     MathUtil.lerpValues(percentageReset, topLevelSnapshot.rotation, initialSnapshot.rotation, topLevelSnapshot.rotation);
                 }
@@ -114,22 +114,22 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             }
 
             if (!topLevelSnapshot.isCurrentlyRunningPositionAnimation) {
-                float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetPositionTick) / resetTickLength, 1);
+                float percentageReset = Math.min((event.renderTicks - topLevelSnapshot.mostRecentResetPositionTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
                     MathUtil.lerpValues(percentageReset, topLevelSnapshot.position, initialSnapshot.position, topLevelSnapshot.position);
                 }
             } else {
-                topLevelSnapshot.mostRecentResetPositionTick = seekTime;
+                topLevelSnapshot.mostRecentResetPositionTick = event.renderTicks;
                 topLevelSnapshot.isCurrentlyRunningPositionAnimation = false;
             }
 
             if (!topLevelSnapshot.isCurrentlyRunningScaleAnimation) {
-                float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetScaleTick) / resetTickLength, 1);
+                float percentageReset = Math.min((event.renderTicks - topLevelSnapshot.mostRecentResetScaleTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
                     MathUtil.lerpValues(percentageReset, topLevelSnapshot.scale, initialSnapshot.scale, topLevelSnapshot.scale);
                 }
             } else {
-                topLevelSnapshot.mostRecentResetScaleTick = seekTime;
+                topLevelSnapshot.mostRecentResetScaleTick = event.renderTicks;
                 topLevelSnapshot.isCurrentlyRunningScaleAnimation = false;
             }
 

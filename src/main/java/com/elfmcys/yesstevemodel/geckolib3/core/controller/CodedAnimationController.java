@@ -46,17 +46,17 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
                                     IAnimationPredicate<T> animationPredicate, boolean blendRotation) {
         this.name = name;
         this.animationPredicate = animationPredicate;
-        this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks, false);
+        this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
         this.boneAnimationQueues = new ReferenceArrayList<>();
         this.blendRotation = blendRotation;
     }
 
     @Override
-    public void process(final float tick, AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate) {
+    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate) {
         event.setCodedAnimationController(this);
         PlayState playState = this.animationPredicate.test(event, evaluator);
         if (playState == PlayState.CONTINUE) {
-            this.animationPlayer.process(tick, evaluator, scheduledUpdate, false);
+            this.animationPlayer.process(event.renderTicks, evaluator, scheduledUpdate, false);
         } else {
             this.animationPlayer.forceReload();
         }
@@ -112,8 +112,8 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.resetToIdle();
     }
 
-    public boolean isAnimFinished() {
-        return this.animationPlayer.currentAnimFinished();
+    public boolean isAnimFinished(float renderTicks) {
+        return this.animationPlayer.currentAnimFinished(renderTicks);
     }
 
     public void stopSoundKeyFrames() {

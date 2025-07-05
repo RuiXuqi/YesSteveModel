@@ -58,10 +58,6 @@ public class AnimationPlayer {
      * 实体对象
      */
     private final AnimatableEntity<?> animatableEntity;
-    /**
-     * PLAY_ONCE 动画是否延迟一帧结束播放
-     */
-    private final boolean delayStop;
 
     private InstructionKeyFrameExecutor instructionKeyFrameExecutor;
     private SoundKeyframeExecutor soundKeyFrameExecutor;
@@ -84,11 +80,10 @@ public class AnimationPlayer {
      * @param animatableEntity      实体
      * @param transitionLengthTicks 动画过渡时间（tick）
      */
-    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks, boolean delayStop) {
+    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
         this.animatableEntity = animatableEntity;
         this.transition = new LinearBlendTransition(transitionLengthTicks);
         this.animTickOffset = 0.0f;
-        this.delayStop = delayStop;
     }
 
     public void setAnimation(@Nullable String animationName) {
@@ -141,8 +136,14 @@ public class AnimationPlayer {
         return this.state;
     }
 
-    public boolean currentAnimFinished() {
-        return this.currentAnimFinished;
+    public boolean currentAnimFinished(float renderTicks) {
+        if (this.currentAnimFinished) {
+            return true;
+        }
+        if (this.state == AnimationState.TRANSITIONING) {
+            return false;
+        }
+        return getAnimTicks(renderTicks) > currentAnim.animationLength;
     }
 
     public void setTransition(IBlendTransition transition) {
@@ -159,19 +160,16 @@ public class AnimationPlayer {
     /**
      * 此方法每帧调用一次，以便填充动画点队列并处理动画状态逻辑。
      *
-     * @param entityTicks 当前 tick + 插值 tick
+     * @param renderTicks 当前 tick + 插值 tick
      */
-    public void process(final float entityTicks, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate, boolean dryRun) {
+    public void process(final float renderTicks, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate, boolean dryRun) {
         evaluator.entity().setAnimationContext(animationContext);
-        var animTicks = getAnimTicks(entityTicks);
+        var animTicks = getAnimTicks(renderTicks);
 
-        if ((!delayStop || currentAnimFinished)
-                && this.state == AnimationState.RUNNING
+        if (this.state == AnimationState.RUNNING
                 && animTicks > currentAnim.animationLength
                 && currentLoopType == ILoopType.EDefaultLoopTypes.PLAY_ONCE) {
-            // 当前动画播放结束，清空状态。
-            // 使用 currentAnimFinished 作为条件延迟一帧清空状态，
-            // 是为了基岩版控制器能正确获取上一个状态的姿态作为过渡动画起始点
+            // 当前动画播放结束，清空状态
             resetEventKeyframes(evaluator, dryRun);
             resetToIdle();
         }
@@ -182,8 +180,7 @@ public class AnimationPlayer {
                 return;
             }
 
-            this.currentAnimFinished = false;
-            this.animTickOffset = entityTicks;
+            this.animTickOffset = renderTicks;
             animTicks = 0;
 
             if (this.transition.length() > 0) {
@@ -205,7 +202,7 @@ public class AnimationPlayer {
             } else {
                 // 如果当前时间超过了过渡时长，则正式开始播放
                 animTicks = animTicks - this.transition.length();
-                this.animTickOffset = entityTicks - animTicks;
+                this.animTickOffset = renderTicks - animTicks;
                 this.state = AnimationState.RUNNING;
             }
         }
@@ -221,7 +218,7 @@ public class AnimationPlayer {
                         animTicks = 0;
                     }
                     resetEventKeyframes(evaluator, dryRun);
-                    this.animTickOffset = entityTicks - animTicks;
+                    this.animTickOffset = renderTicks - animTicks;
                 } else if (currentLoopType == ILoopType.EDefaultLoopTypes.HOLD_ON_LAST_FRAME) {
                     // 停在最后一帧的动画，播放完成后 anim ticks 锁定在最后一帧的时间
                     animTicks = currentAnim.animationLength;
@@ -265,10 +262,7 @@ public class AnimationPlayer {
      */
     public void forceReload() {
         this.lastSetAnim = null;
-        if (state != AnimationState.IDLE) {
-            nextAnim = new Pair<>(currentLoopType, currentAnim);
-            resetToIdle();
-        }
+        resetToIdle();
     }
 
     private void updateTransition(ExpressionEvaluator<MolangContext<?>> evaluator, float transitionTicks) {
@@ -323,8 +317,8 @@ public class AnimationPlayer {
         }
     }
 
-    public float getAnimTicks(float entityTicks) {
-        return Math.max(entityTicks - this.animTickOffset, 0.0f);
+    public float getAnimTicks(float renderTicks) {
+        return Math.max(renderTicks - this.animTickOffset, 0.0f);
     }
 
     /**
@@ -364,6 +358,7 @@ public class AnimationPlayer {
 
         this.currentAnim = next.getSecond();
         this.currentLoopType = next.getFirst();
+        this.currentAnimFinished = false;
 
         for (BoneAnimation animation : currentAnim.boneAnimations) {
             BoneAnimationQueue queue = boneAnimQueues.get(animation.boneName);

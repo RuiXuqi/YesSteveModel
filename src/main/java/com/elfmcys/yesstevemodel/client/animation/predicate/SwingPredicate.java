@@ -25,7 +25,7 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
         // 拔刀剑兼容，拔刀剑的使用不受 swing 限制
         if (!entity.isSleeping() && SlashBladeCompat.isSlashBladeItem(entity.getItemInHand(InteractionHand.MAIN_HAND))) {
             // 起手阻止后续原挥剑动画
-            if (event.getCodedController().isAnimFinished()) {
+            if (event.getCodedController().isAnimFinished(event.renderTicks)) {
                 // 重置动画
                 event.getCodedController().forceReload();
             }
