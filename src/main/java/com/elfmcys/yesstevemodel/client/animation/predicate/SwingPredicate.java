@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.EntityTickStates;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalSwing;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
@@ -43,8 +44,8 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
 
         // 其他情况
         if (entity.swinging && !entity.isSleeping()) {
-            if (entity.swingTime == 0) {
-                // 重置动画
+            if (entity.swingTime == 0 && event.getAnimatableEntity().setEntityTickState(EntityTickStates.SWING)) {
+                // swing 开始时重置动画
                 event.getCodedController().forceReload();
             }
             String id = event.getAnimatableEntity().getModelId();

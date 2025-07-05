@@ -19,6 +19,7 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -36,6 +37,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("unchecked,rawtypes")
 public abstract class AnimatableEntity<TEntity extends Entity> {
     private final AnimationData manager = new AnimationData();
+    private final IntOpenHashSet entityTickStates = new IntOpenHashSet();
     private final AnimationProcessor animationProcessor;
     private final RateLimiter rateLimiter;
 
@@ -44,6 +46,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     private float seekTime;
     private float lastGameTickTime;
+    private int lastEntityTickCount;
     private boolean initialize = false;
 
     private Vec3 lastPosition;
@@ -158,6 +161,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                     updateFrameData(currentFrameTime, lastFrameTime, animationEvent.getPartialTick());
                 }
 
+                int entityTickCount = entity.tickCount;
+                if (lastEntityTickCount != entityTickCount) {
+                    lastEntityTickCount = entityTickCount;
+                    entityTickStates.clear();
+                }
+
                 preAnimationSetup(this.seekTime);
                 getAnimationProcessor().tickAnimation(shouldUpdate, animationEvent, ctx);
 
@@ -206,6 +215,14 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             return true;
         }
         return false;
+    }
+
+    public boolean setEntityTickState(int name) {
+        return entityTickStates.add(name);
+    }
+
+    public boolean hasEntityTickState(int name) {
+        return entityTickStates.contains(name);
     }
 
     public GeoModelState getCurrentModel() {
