@@ -22,8 +22,6 @@ public class MaidRoulettePredicate implements IAnimationPredicate<CustomYsmMaidE
                 }
                 return playAnimation(event, cap.getRouletteAnim());
             }
-            // 在轮盘动画没有播放时，需要关闭轮盘的音频播放
-            event.getCodedController().stopSoundKeyFrames();
             return PlayState.STOP;
         }).orElse(PlayState.STOP);
     }
