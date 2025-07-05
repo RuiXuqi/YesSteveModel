@@ -20,25 +20,31 @@ public class DispatchServerDrivenProperty {
     private final int entityId;
     public final boolean full;
     public final byte flying;
+    public final int expLevel;
     public final Object2ByteMap<MobEffect> effects;
 
-    private DispatchServerDrivenProperty(boolean full, int entityId, byte flying, Object2ByteMap<MobEffect> effects) {
+    private DispatchServerDrivenProperty(boolean full, int entityId, byte flying, int expLevel, Object2ByteMap<MobEffect> effects) {
         this.full = full;
         this.entityId = entityId;
         this.flying = flying;
+        this.expLevel = expLevel;
         this.effects = effects;
     }
 
     public static DispatchServerDrivenProperty flying(int entityId, boolean flying) {
-        return new DispatchServerDrivenProperty(false, entityId, flying ? (byte) 1 : (byte) 0, Object2ByteMaps.emptyMap());
+        return new DispatchServerDrivenProperty(false, entityId, flying ? (byte) 1 : (byte) 0, -1, Object2ByteMaps.emptyMap());
     }
 
     public static DispatchServerDrivenProperty addEffect(int entityId, MobEffect effect, int level) {
-        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) level));
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.singleton(effect, (byte) level));
     }
 
     public static DispatchServerDrivenProperty removeEffect(int entityId, MobEffect effect) {
-        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, Object2ByteMaps.singleton(effect, (byte) 0));
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.singleton(effect, (byte) 0));
+    }
+
+    public static Object expLevel(int entityId, int expLevel) {
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, expLevel, Object2ByteMaps.emptyMap());
     }
 
     /**
@@ -47,10 +53,13 @@ public class DispatchServerDrivenProperty {
      */
     public static DispatchServerDrivenProperty full(Entity entity) {
         byte flying;
+        int expLevel;
         if (entity instanceof Player player) {
             flying = player.getAbilities().flying ? (byte) 1 : (byte) 0;
+            expLevel = player.experienceLevel;
         } else {
             flying = -1;
+            expLevel = -1;
         }
 
         Object2ByteMap<MobEffect> effects;
@@ -76,13 +85,14 @@ public class DispatchServerDrivenProperty {
             effects = Object2ByteMaps.emptyMap();
         }
 
-        return new DispatchServerDrivenProperty(true, entity.getId(), flying, effects);
+        return new DispatchServerDrivenProperty(true, entity.getId(), flying, expLevel, effects);
     }
 
     public static void encode(DispatchServerDrivenProperty message, FriendlyByteBuf buf) {
         buf.writeBoolean(message.full);
         buf.writeVarInt(message.entityId);
         buf.writeByte(message.flying);
+        buf.writeVarInt(message.expLevel);
         buf.writeVarInt(message.effects.size());
         Object2ByteMaps.fastForEach(message.effects, entry -> {
             buf.writeId(BuiltInRegistries.MOB_EFFECT, entry.getKey());
@@ -94,6 +104,7 @@ public class DispatchServerDrivenProperty {
         var full = buf.readBoolean();
         var entityId = buf.readVarInt();
         var flying = buf.readByte();
+        var expLevel = buf.readVarInt();
         var effectSize = buf.readVarInt();
         Object2ByteMap<MobEffect> effects;
         if (effectSize == 0) {
@@ -111,7 +122,7 @@ public class DispatchServerDrivenProperty {
             }
         }
 
-        return new DispatchServerDrivenProperty(full, entityId, flying, effects);
+        return new DispatchServerDrivenProperty(full, entityId, flying, expLevel, effects);
     }
 
     public static void handle(final DispatchServerDrivenProperty msg, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -138,3 +149,4 @@ public class DispatchServerDrivenProperty {
         }
     }
 }
+

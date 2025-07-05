@@ -94,7 +94,7 @@ public class QueryBinding extends ContextBinding {
 
         playerVar("has_cape", ctx -> hasCape(ctx.entity()));
         playerVar("cape_flap_amount", QueryBinding::getCapeFlapAmount);
-        playerVar("player_level", ctx -> ctx.entity().experienceLevel);
+        playerVar("player_level", QueryBinding::getExpLevel);
         playerVar("is_jumping", ctx -> !isFlying(ctx) && !ctx.entity().isPassenger() && !ctx.entity().onGround() && !ctx.entity().isInWater());
     }
 
@@ -111,6 +111,14 @@ public class QueryBinding extends ContextBinding {
             return cap.isFlying();
         } else {
             return ctx.entity().getAbilities().flying;
+        }
+    }
+
+    private static int getExpLevel(IContext<AbstractClientPlayer> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.expLevel();
+        } else {
+            return ctx.entity().experienceLevel;
         }
     }
 

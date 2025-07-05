@@ -22,6 +22,7 @@ public class ModelInfoCapability {
      */
     private boolean mandatory;
     private Int2ReferenceOpenHashMap<Object2FloatOpenHashMap<String>> molangStorage;
+    private ServerDrivenPlayerPropertiesTracker propertiesTracker;
 
     /* 以下字段不参与持久化 */
     private boolean dirty;
@@ -31,6 +32,7 @@ public class ModelInfoCapability {
         this.modelId = defaultModel.getLeft();
         this.selectTexture = defaultModel.getRight();
         this.molangStorage = new Int2ReferenceOpenHashMap<>();
+        this.propertiesTracker = new ServerDrivenPlayerPropertiesTracker();
     }
 
     public void setModelAndTexture(String modelId, String selectTexture) {
@@ -54,6 +56,7 @@ public class ModelInfoCapability {
         this.animation = source.animation;
         this.playAnimation = source.playAnimation;
         this.mandatory = source.mandatory;
+        this.propertiesTracker = source.propertiesTracker;
         markDirty();
     }
 
@@ -113,6 +116,10 @@ public class ModelInfoCapability {
             }
         });
         // 无需 markDirty
+    }
+
+    public ServerDrivenPlayerPropertiesTracker getPropertiesTracker() {
+        return propertiesTracker;
     }
 
     public boolean isPlayAnimation() {

@@ -37,6 +37,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     private Struct roamingStruct;
     private boolean remoteFlying;
+    private int expLevel;
     private final ConcurrentHashMap<MobEffect, Byte> effects;
 
     private static float YAW_SPEED;
@@ -175,6 +176,9 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             }
             effects.putAll(msg.effects);
         }
+        if (msg.expLevel > 0) {
+            expLevel = msg.expLevel;
+        }
     }
 
     public boolean isFlying() {
@@ -182,6 +186,10 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             return entity.getAbilities().flying;
         }
         return remoteFlying;
+    }
+
+    public int expLevel() {
+        return expLevel;
     }
 
     public byte getEffectLevel(MobEffect effect) {
