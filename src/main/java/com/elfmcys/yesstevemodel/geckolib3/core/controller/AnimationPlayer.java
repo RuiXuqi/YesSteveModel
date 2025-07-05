@@ -277,29 +277,22 @@ public class AnimationPlayer {
 
         for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimQueues) {
             boneAnimationQueue.setBlendWeight(blendWeight);
-
-            BoneSnapshot boneSnapshot = boneAnimationQueue.transitionOffset();
-            BoneSnapshot initialSnapshot = boneAnimationQueue.topLevelSnapshot.bone.getInitialSnapshot();
+            BoneSnapshot transitionOffset = boneAnimationQueue.transitionOffset();
 
             // 添加即将出现的动画的初始位置，以便模型转换到新动画的初始状态
             if (boneAnimationQueue.rotationKeyFrames != null) {
-                boneAnimationQueue.rotation = getTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, PointType.ROTATION, transitionTicks,
-                        new Vector3f(boneSnapshot.rotationValueX - initialSnapshot.rotationValueX,
-                                boneSnapshot.rotationValueY - initialSnapshot.rotationValueY,
-                                boneSnapshot.rotationValueZ - initialSnapshot.rotationValueZ),
-                        percentProgress);
+                boneAnimationQueue.rotation = getTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, transitionTicks, percentProgress,
+                        PointType.ROTATION, transitionOffset.rotation);
             }
 
             if (boneAnimationQueue.positionKeyFrames != null) {
-                boneAnimationQueue.position = getTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, PointType.POSITION, transitionTicks,
-                        new Vector3f(boneSnapshot.positionOffsetX, boneSnapshot.positionOffsetY, boneSnapshot.positionOffsetZ),
-                        percentProgress);
+                boneAnimationQueue.position = getTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, transitionTicks, percentProgress,
+                        PointType.POSITION, transitionOffset.position);
             }
 
             if (boneAnimationQueue.scaleKeyFrames != null) {
-                boneAnimationQueue.scale = getTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, PointType.SCALE, transitionTicks,
-                        new Vector3f(boneSnapshot.scaleValueX, boneSnapshot.scaleValueY, boneSnapshot.scaleValueZ),
-                        percentProgress);
+                boneAnimationQueue.scale = getTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, transitionTicks, percentProgress,
+                        PointType.SCALE, transitionOffset.scale);
             }
         }
     }
@@ -345,7 +338,7 @@ public class AnimationPlayer {
     /**
      * 返回过渡进度
      **/
-    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, PointType type, float tick, Vector3f offsetPoint, float transitionPercentProgress) {
+    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, float tick, float transitionPercentProgress, PointType type, Vector3f offsetPoint) {
         BoneKeyFrame dstFrame = frames.search(0);
         return new TransitionPoint(tick, transitionPercentProgress, this.transition.length(), offsetPoint, dstFrame, type, animationContext);
     }

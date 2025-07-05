@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.PointType;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.joml.Vector3f;

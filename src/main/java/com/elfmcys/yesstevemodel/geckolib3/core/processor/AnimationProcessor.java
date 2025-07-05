@@ -23,6 +23,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -71,36 +72,24 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
 
                 boneAnimation.pollRotationPoint(evaluator).ifPresent(rot -> {
                     BoneSnapshot initialSnapshot = snapshot.bone.getInitialSnapshot();
-                    @Deprecated PointData pointData = snapshot.cachedPointData;
+                    @Deprecated Vector3f pointData = snapshot.cachedPointData;
                     if (blendRotation) {
-                        pointData.rotationValueX += rot.x();
-                        pointData.rotationValueY += rot.y();
-                        pointData.rotationValueZ += rot.z();
-                        snapshot.rotationValueX = pointData.rotationValueX + initialSnapshot.rotationValueX;
-                        snapshot.rotationValueY = pointData.rotationValueY + initialSnapshot.rotationValueY;
-                        snapshot.rotationValueZ = pointData.rotationValueZ + initialSnapshot.rotationValueZ;
+                        pointData.add(rot);
+                        initialSnapshot.rotation.add(pointData, snapshot.rotation);
                     } else {
-                        pointData.rotationValueX = rot.x();
-                        pointData.rotationValueY = rot.y();
-                        pointData.rotationValueZ = rot.z();
-                        snapshot.rotationValueX = rot.x() + initialSnapshot.rotationValueX;
-                        snapshot.rotationValueY = rot.y() + initialSnapshot.rotationValueY;
-                        snapshot.rotationValueZ = rot.z() + initialSnapshot.rotationValueZ;
+                        pointData.set(rot);
+                        initialSnapshot.rotation.add(rot, snapshot.rotation);
                     }
                     snapshot.isCurrentlyRunningRotationAnimation = true;
                 });
 
                 boneAnimation.pollPositionPoint(evaluator).ifPresent(position -> {
-                    snapshot.positionOffsetX = position.x();
-                    snapshot.positionOffsetY = position.y();
-                    snapshot.positionOffsetZ = position.z();
+                    snapshot.position.set(position);
                     snapshot.isCurrentlyRunningPositionAnimation = true;
                 });
 
                 boneAnimation.pollScalePoint(evaluator).ifPresent(scale -> {
-                    snapshot.scaleValueX = scale.x();
-                    snapshot.scaleValueY = scale.y();
-                    snapshot.scaleValueZ = scale.z();
+                    snapshot.scale.set(scale);
                     snapshot.isCurrentlyRunningScaleAnimation = true;
                 });
             });
@@ -116,12 +105,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             if (!topLevelSnapshot.isCurrentlyRunningRotationAnimation) {
                 float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetRotationTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
-                    topLevelSnapshot.rotationValueX = MathUtil.lerpValues(percentageReset, topLevelSnapshot.rotationValueX,
-                            initialSnapshot.rotationValueX);
-                    topLevelSnapshot.rotationValueY = MathUtil.lerpValues(percentageReset, topLevelSnapshot.rotationValueY,
-                            initialSnapshot.rotationValueY);
-                    topLevelSnapshot.rotationValueZ = MathUtil.lerpValues(percentageReset, topLevelSnapshot.rotationValueZ,
-                            initialSnapshot.rotationValueZ);
+                    MathUtil.lerpValues(percentageReset, topLevelSnapshot.rotation, initialSnapshot.rotation, topLevelSnapshot.rotation);
                 }
             } else {
                 // FIXME: 2023/7/12 莫名其妙修好了旋转 bug，原因未知
@@ -132,12 +116,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             if (!topLevelSnapshot.isCurrentlyRunningPositionAnimation) {
                 float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetPositionTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
-                    topLevelSnapshot.positionOffsetX = MathUtil.lerpValues(percentageReset, topLevelSnapshot.positionOffsetX,
-                            initialSnapshot.positionOffsetX);
-                    topLevelSnapshot.positionOffsetY = MathUtil.lerpValues(percentageReset, topLevelSnapshot.positionOffsetY,
-                            initialSnapshot.positionOffsetY);
-                    topLevelSnapshot.positionOffsetZ = MathUtil.lerpValues(percentageReset, topLevelSnapshot.positionOffsetZ,
-                            initialSnapshot.positionOffsetZ);
+                    MathUtil.lerpValues(percentageReset, topLevelSnapshot.position, initialSnapshot.position, topLevelSnapshot.position);
                 }
             } else {
                 topLevelSnapshot.mostRecentResetPositionTick = seekTime;
@@ -147,9 +126,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             if (!topLevelSnapshot.isCurrentlyRunningScaleAnimation) {
                 float percentageReset = Math.min((seekTime - topLevelSnapshot.mostRecentResetScaleTick) / resetTickLength, 1);
                 if (percentageReset >= 1) {
-                    topLevelSnapshot.scaleValueX = MathUtil.lerpValues(percentageReset, topLevelSnapshot.scaleValueX, initialSnapshot.scaleValueX);
-                    topLevelSnapshot.scaleValueY = MathUtil.lerpValues(percentageReset, topLevelSnapshot.scaleValueY, initialSnapshot.scaleValueY);
-                    topLevelSnapshot.scaleValueZ = MathUtil.lerpValues(percentageReset, topLevelSnapshot.scaleValueZ, initialSnapshot.scaleValueZ);
+                    MathUtil.lerpValues(percentageReset, topLevelSnapshot.scale, initialSnapshot.scale, topLevelSnapshot.scale);
                 }
             } else {
                 topLevelSnapshot.mostRecentResetScaleTick = seekTime;

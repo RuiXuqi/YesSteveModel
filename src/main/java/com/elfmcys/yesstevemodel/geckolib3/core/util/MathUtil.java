@@ -14,6 +14,12 @@ public class MathUtil {
                 lerpValues(percentCompleted, begin.z(), end.z()));
     }
 
+    public static void lerpValues(float percentCompleted, Vector3f begin, Vector3f end, Vector3f dst) {
+        dst.set(lerpValues(percentCompleted, begin.x(), end.x()),
+                lerpValues(percentCompleted, begin.y(), end.y()),
+                lerpValues(percentCompleted, begin.z(), end.z()));
+    }
+
     public static float lerpValues(float percentCompleted, float startValue, float endValue) {
         return (startValue + percentCompleted * (endValue - startValue));
     }

@@ -6,18 +6,14 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.snapshot;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import org.joml.Vector3f;
 
 public class BoneSnapshot {
     public final String name;
-    public float scaleValueX;
-    public float scaleValueY;
-    public float scaleValueZ;
-    public float positionOffsetX;
-    public float positionOffsetY;
-    public float positionOffsetZ;
-    public float rotationValueX;
-    public float rotationValueY;
-    public float rotationValueZ;
+
+    public final Vector3f position = new Vector3f();
+    public final Vector3f rotation = new Vector3f();
+    public final Vector3f scale = new Vector3f(1, 1, 1);
 
     public boolean hidden;
     public boolean childrenHidden;
@@ -28,34 +24,18 @@ public class BoneSnapshot {
     }
 
     public void copyFrom(IBone bone) {
-        scaleValueX = bone.getScaleX();
-        scaleValueY = bone.getScaleY();
-        scaleValueZ = bone.getScaleZ();
-
-        positionOffsetX = bone.getPositionX();
-        positionOffsetY = bone.getPositionY();
-        positionOffsetZ = bone.getPositionZ();
-
-        rotationValueX = bone.getRotationX();
-        rotationValueY = bone.getRotationY();
-        rotationValueZ = bone.getRotationZ();
+        position.set(bone.getPositionX(), bone.getPositionY(), bone.getPositionZ());
+        rotation.set(bone.getRotationX(), bone.getRotationY(), bone.getRotationZ());
+        scale.set(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 
         hidden = bone.isHidden();
         childrenHidden = bone.areChildrenHidden();
     }
 
     public void copyFrom(BoneSnapshot snapshot) {
-        scaleValueX = snapshot.scaleValueX;
-        scaleValueY = snapshot.scaleValueY;
-        scaleValueZ = snapshot.scaleValueZ;
-
-        positionOffsetX = snapshot.positionOffsetX;
-        positionOffsetY = snapshot.positionOffsetY;
-        positionOffsetZ = snapshot.positionOffsetZ;
-
-        rotationValueX = snapshot.rotationValueX;
-        rotationValueY = snapshot.rotationValueY;
-        rotationValueZ = snapshot.rotationValueZ;
+        position.set(snapshot.position);
+        rotation.set(snapshot.rotation);
+        scale.set(snapshot.scale);
 
         hidden = snapshot.hidden;
         childrenHidden = snapshot.childrenHidden;

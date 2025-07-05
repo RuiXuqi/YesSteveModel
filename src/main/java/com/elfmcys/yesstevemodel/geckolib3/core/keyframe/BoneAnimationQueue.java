@@ -71,6 +71,7 @@ public class BoneAnimationQueue {
 
     public void updateTransitionOffset() {
         transitionOffset.copyFrom(topLevelSnapshot.bone);
+        transitionOffset.rotation.sub(topLevelSnapshot.bone.getInitialSnapshot().rotation);
     }
 
     /**
@@ -95,7 +96,6 @@ public class BoneAnimationQueue {
         this.blendWeight = blendWeight > 0 ? blendWeight : 0;   // bb 里就是这样的
     }
 
-    // 此处链表一般只含一个元素
     public void resetQueues() {
         rotation = null;
         position = null;
