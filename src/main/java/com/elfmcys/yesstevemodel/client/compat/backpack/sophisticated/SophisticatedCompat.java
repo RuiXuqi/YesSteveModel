@@ -9,6 +9,9 @@ public class SophisticatedCompat {
     private static final String MOD_ID = "sophisticatedbackpacks";
     private static boolean INSTALLED;
 
+    /**
+     * 需要在资源加载后初始化
+     */
     public static void init() {
         INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null;
         if (isInstalled()) {
