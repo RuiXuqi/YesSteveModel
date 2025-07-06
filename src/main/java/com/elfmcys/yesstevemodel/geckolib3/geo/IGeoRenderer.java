@@ -56,7 +56,7 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
     }
 
     default RenderType getRenderType(ResourceLocation texture) {
-        return GeoTranslucentRenderType.create(texture);
+        return CustomTranslucentRenderType.create(texture);
     }
 
     default Color getRenderColor(T instance, float partialTick, PoseStack poseStack,

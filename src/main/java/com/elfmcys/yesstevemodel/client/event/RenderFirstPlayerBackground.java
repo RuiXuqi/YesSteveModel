@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
-import com.elfmcys.yesstevemodel.geckolib3.geo.GeoTranslucentRenderType;
+import com.elfmcys.yesstevemodel.geckolib3.geo.CustomTranslucentRenderType;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -68,7 +68,7 @@ public class RenderFirstPlayerBackground {
 
             ResourceLocation textureLocation = cap.getTextureLocation();
             int textureIndex = cap.getTextureIndex();
-            var vertexConsumer = multiBufferSource.getBuffer(GeoTranslucentRenderType.create(textureLocation));
+            var vertexConsumer = multiBufferSource.getBuffer(CustomTranslucentRenderType.create(textureLocation));
 
             if (renderer != null) {
                 poseStack.pushPose();

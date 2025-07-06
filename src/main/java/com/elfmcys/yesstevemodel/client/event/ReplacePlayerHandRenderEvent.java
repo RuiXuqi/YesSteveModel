@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
-import com.elfmcys.yesstevemodel.geckolib3.geo.GeoTranslucentRenderType;
+import com.elfmcys.yesstevemodel.geckolib3.geo.CustomTranslucentRenderType;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -51,7 +51,7 @@ public class ReplacePlayerHandRenderEvent {
             }
             ResourceLocation textureLocation = renderEvent.getTextureLocationOverride() != null ? renderEvent.getTextureLocationOverride() : cap.getTextureLocation();
             int textureIndex = renderEvent.getTextureLocationOverride() == null ? cap.getTextureIndex() : 0;
-            var vertexConsumer = multiBufferSource.getBuffer(GeoTranslucentRenderType.create(textureLocation));
+            var vertexConsumer = multiBufferSource.getBuffer(CustomTranslucentRenderType.create(textureLocation));
 
             if (renderer != null) {
                 if (event.getArm() == HumanoidArm.LEFT) {
