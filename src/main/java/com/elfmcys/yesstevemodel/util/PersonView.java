@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.util;
 
-import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import net.minecraft.client.CameraType;
@@ -32,6 +32,6 @@ public final class PersonView {
     }
 
     public static boolean isInInventory(AnimatableEntity<?> animatableEntity) {
-        return animatableEntity instanceof CustomGuiPlayerEntity || RenderUtil.isRenderingEntitiesInInventory();
+        return animatableEntity instanceof IPreviewEntity || RenderUtil.isRenderingEntitiesInInventory();
     }
 }

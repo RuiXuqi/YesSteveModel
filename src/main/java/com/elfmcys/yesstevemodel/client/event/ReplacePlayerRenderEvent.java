@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,10 +23,13 @@ public class ReplacePlayerRenderEvent {
         if (!playerRender.equals(playerSelf) && GeneralConfig.DISABLE_OTHER_MODEL.get()) {
             return;
         }
+        if (event.getEntity().isSpectator()) {
+            return;
+        }
         if(!playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP).map(CustomPlayerEntity::isInitialized).orElse(false)) {
             return;
         }
         event.setCanceled(true);
-        RegisterEntityRenderersEvent.getPlayerRenderer().render((AbstractClientPlayer) event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
+        RegisterEntityRenderersEvent.getPlayerRenderer().render(event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
     }
 }

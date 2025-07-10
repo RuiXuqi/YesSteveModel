@@ -9,15 +9,12 @@
     "defaultRequire": 1
   },
   "client": [
-    "client.AbstractClientPlayerMixin",
     "client.ArrowEntityAccessor",
     "client.ArrowRendererMixin",
     "client.BufferSourceMixin",
     "client.InventoryScreenMixin",
     "client.LivingEntityAccessor",
     "client.LivingRendererMixin",
-    "client.MinecraftAccessor",
-    "client.TimerAccessor",
     "client.WorldRendererMixin"
   ],
   "mixins": [

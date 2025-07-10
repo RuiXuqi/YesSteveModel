@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.molang.TLMBindingInner;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidVehiclePredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.input.OpenRouletteScreen;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.render.CustomYsmMaidRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -130,6 +131,13 @@ public class TlmClientCompat {
     public static SoundBuffer getSoundBuffer(Entity maid, String soundPath) {
         if (isInstalled()) {
             return TlmClientCompatInner.getSoundBuffer(maid, soundPath);
+        }
+        return null;
+    }
+
+    public static CustomYsmMaidRenderer getRenderer() {
+        if (isInstalled()) {
+            return TlmClientCompatInner.getRenderer();
         }
         return null;
     }

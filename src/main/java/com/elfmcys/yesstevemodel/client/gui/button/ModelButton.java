@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
@@ -86,21 +87,22 @@ public class ModelButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float frameDeltaTime) {
+        var animInfo = animatedEntity.getPreviewInfo();
         if (isHovered()) {
             hoverTime = Util.getMillis();
-            animatedEntity.setHoverAnimation(hoverAnimationName);
+            animInfo.setHover(hoverAnimationName);
         } else {
             if (Util.getMillis() - hoverTime < fadeoutTime) {
-                animatedEntity.setHoverAnimation(this.hoverFadeoutAnimationName);
+                animInfo.setHover(this.hoverFadeoutAnimationName);
             } else {
-                animatedEntity.setHoverAnimation(AnimationRegister.EMPTY);
+                animInfo.setHover(AnimationRegister.EMPTY);
             }
         }
         if (isFocused()) {
-            animatedEntity.setFocusAnimation(focusAnimationName);
+            animInfo.setFocus(focusAnimationName);
         } else {
-            animatedEntity.setFocusAnimation(AnimationRegister.EMPTY);
+            animInfo.setFocus(AnimationRegister.EMPTY);
         }
 
         Minecraft minecraft = Minecraft.getInstance();
@@ -114,7 +116,7 @@ public class ModelButton extends Button {
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 20, 30, animatedEntity, disablePreviewRotation);
+        RenderUtil.renderModelInGui(this.getX() + this.width / 2f, this.getY() + this.height / 2f + 20f, 30f, minecraft.getFrameTime(), animatedEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), disablePreviewRotation, true);
         RenderSystem.disableScissor();
 
         Component message = this.getMessage();

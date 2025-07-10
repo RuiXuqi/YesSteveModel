@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import net.minecraft.util.Mth;
@@ -10,11 +10,11 @@ import java.util.function.BiPredicate;
 
 public class AnimationState<TE extends LivingEntity, AE extends AnimatableEntity<TE>> {
     private final String animationName;
-    private final ILoopType loopType;
+    private final LoopType loopType;
     private final int priority;
     private final BiPredicate<TE, AnimationEvent<AE>> predicate;
 
-    public AnimationState(String animationName, ILoopType loopType, int priority, BiPredicate<TE, AnimationEvent<AE>> predicate) {
+    public AnimationState(String animationName, LoopType loopType, int priority, BiPredicate<TE, AnimationEvent<AE>> predicate) {
         this.animationName = animationName;
         this.loopType = loopType;
         this.priority = Mth.clamp(priority, Priority.HIGHEST, Priority.LOWEST);
@@ -29,7 +29,7 @@ public class AnimationState<TE extends LivingEntity, AE extends AnimatableEntity
         return animationName;
     }
 
-    public ILoopType getLoopType() {
+    public LoopType getLoopType() {
         return loopType;
     }
 

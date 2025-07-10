@@ -27,13 +27,11 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
-import org.apache.commons.lang3.StringUtils;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -42,13 +40,9 @@ import java.util.List;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
-public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
+public class CustomPlayerEntity extends AnimatableEntity<Player> {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
-
-    private String previewAnimation = "";
-    private String hoverAnimation = "";
-    private String focusAnimation = "";
 
     private final boolean localPlayer;
     protected boolean isPlayingAnimation = false;
@@ -67,7 +61,7 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
      */
     private boolean tacGunAnimationNeedReload = false;
 
-    public CustomPlayerEntity(AbstractClientPlayer player, boolean localPlayer, boolean asyncUpdate) {
+    public CustomPlayerEntity(Player player, boolean localPlayer, boolean asyncUpdate) {
         super(player, asyncUpdate);
         this.localPlayer = localPlayer;
         getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
@@ -114,8 +108,8 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         CarryOnCompat.addCarryOnPredicate(this);
 
         // 下面不需要自定义动画控制器
-        {
-            addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0.1f, new CapPredicate()));
+        addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0.1f, new CapPredicate()));
+        if (this instanceof IPreviewEntity) {
             addAnimationController(new CodedAnimationController(this, HOVER_CONTROLLER, 0, new HoverPredicate()));
             addAnimationController(new CodedAnimationController(this, FOCUS_CONTROLLER, 0, new FocusPredicate()));
         }
@@ -164,38 +158,6 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
         this.textureName = textureName;
     }
 
-    public String getPreviewAnimation() {
-        return previewAnimation;
-    }
-
-    public void setPreviewAnimation(String previewAnimation) {
-        this.previewAnimation = previewAnimation;
-    }
-
-    public boolean hasPreviewAnimation() {
-        return StringUtils.isNoneBlank(this.previewAnimation);
-    }
-
-    public boolean hasPreviewAnimation(String previewAnimation) {
-        return hasPreviewAnimation() && previewAnimation.equals(this.previewAnimation);
-    }
-
-    public String getHoverAnimation() {
-        return hoverAnimation;
-    }
-
-    public String getFocusAnimation() {
-        return focusAnimation;
-    }
-
-    public void setHoverAnimation(String hoverAnimation) {
-        this.hoverAnimation = hoverAnimation;
-    }
-
-    public void setFocusAnimation(String focusAnimation) {
-        this.focusAnimation = focusAnimation;
-    }
-
     @Nullable
     public Struct getRoamingStruct() {
         return null;
@@ -241,17 +203,15 @@ public class CustomPlayerEntity extends AnimatableEntity<AbstractClientPlayer> {
 
     @Override
     @SuppressWarnings("all")
-    public boolean setCustomAnimations(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
-        List extraData = animationEvent.getExtraData();
-        if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
-            && entity != null) {
-            EntityModelData data = (EntityModelData) extraData.get(0);
+    protected boolean updateAnimation(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
+        if (animationEvent.getExtraData() != null && entity != null) {
+            EntityModelData data = animationEvent.getExtraData();
             this.recoverLastCodedAnimation();
-            boolean update = super.setCustomAnimations(ctx, animationEvent);
+            boolean update = super.updateAnimation(ctx, animationEvent);
             this.codeAnimation(animationEvent, data, update);
             return update;
         } else {
-            return super.setCustomAnimations(ctx, animationEvent);
+            return super.updateAnimation(ctx, animationEvent);
         }
     }
 

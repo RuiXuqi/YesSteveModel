@@ -1,12 +1,13 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.api.IPlayerExtraInfo;
+import com.elfmcys.yesstevemodel.api.IEntityExtraInfo;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalHold;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -24,7 +25,7 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
     @Override
     public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
-        if (entity == null || event.getAnimatableEntity().hasPreviewAnimation()) {
+        if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
         if (!entity.swinging && !entity.isUsingItem()) {
@@ -34,18 +35,18 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
                 return gunHoldAnimation;
             }
             if (mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(mainHandItem)) {
-                return playAnimation(event, "hold_mainhand:charged_crossbow", ILoopType.EDefaultLoopTypes.LOOP);
+                return playAnimation(event, "hold_mainhand:charged_crossbow", LoopType.LOOP);
             }
             boolean playerIsFishing = entity instanceof Player player && player.fishing != null;
             boolean maidIsFishing = TlmClientCompat.isMaidFishing(entity);
             if (playerIsFishing || maidIsFishing) {
-                return playAnimation(event, "hold_mainhand:fishing", ILoopType.EDefaultLoopTypes.LOOP);
+                return playAnimation(event, "hold_mainhand:fishing", LoopType.LOOP);
             }
         }
 
         if (checkSwingAndUse(entity, InteractionHand.MAIN_HAND)) {
             ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
-            if (entity instanceof IPlayerExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
+            if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
                 info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
                 event.getCodedController().forceReload();
             }
@@ -55,14 +56,14 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
             if (conditionalHold != null) {
                 String name = conditionalHold.doTest(entity, InteractionHand.MAIN_HAND);
                 if (StringUtils.isNoneBlank(name)) {
-                    return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                    return playAnimation(event, name, LoopType.LOOP);
                 }
             }
         }
         return PlayState.STOP;
     }
 
-    private boolean isSameItem(ItemStack playerItem, IPlayerExtraInfo info, InteractionHand hand) {
+    private boolean isSameItem(ItemStack playerItem, IEntityExtraInfo info, InteractionHand hand) {
         ItemStack preItem = info.getHandItem(hand);
         if (preItem.isDamaged()) {
             return ItemStack.isSameItem(playerItem, preItem);

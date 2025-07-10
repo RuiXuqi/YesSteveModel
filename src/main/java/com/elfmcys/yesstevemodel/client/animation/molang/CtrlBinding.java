@@ -11,6 +11,7 @@ import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -90,6 +91,10 @@ public class CtrlBinding extends ContextBinding {
     private static boolean testCondition(String name, IContext<LivingEntity> context) {
         LivingEntity entity = context.entity();
 
+        if (context.animatableEntity() instanceof IPreviewEntity) {
+            return false;
+        }
+
         // 跑酷
         if (entity instanceof Player player) {
             boolean parcool = ParCoolCompat.hasAnimation(player);
@@ -126,7 +131,7 @@ public class CtrlBinding extends ContextBinding {
 
     private static boolean isFlying(IContext<LivingEntity> ctx) {
         if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
-            return cap.isFlying();
+            return cap.getStateTracker().isFlying();
         } else if (ctx.entity() instanceof Player player) {
             return player.getAbilities().flying;
         }

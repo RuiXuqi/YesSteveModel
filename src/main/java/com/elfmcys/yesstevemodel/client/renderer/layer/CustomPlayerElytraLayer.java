@@ -31,29 +31,27 @@ public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerEntity
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        AbstractClientPlayer player = animatableEntity.getEntity();
+        var player = animatableEntity.getEntity();
         ItemStack stack = EquipmentUtil.getEquippedElytraItem(player);
         GeoModelState geoModel = animatableEntity.getCurrentModel();
-        if (!stack.isEmpty() && geoModel != null) {
-            if (!geoModel.elytraBones().isEmpty()) {
-                ResourceLocation texture;
-                if (player.isElytraLoaded() && player.getElytraTextureLocation() != null) {
-                    texture = player.getElytraTextureLocation();
-                } else if (player.isCapeLoaded() && player.getCloakTextureLocation() != null && player.isModelPartShown(PlayerModelPart.CAPE)) {
-                    texture = player.getCloakTextureLocation();
-                } else {
-                    texture = WINGS_LOCATION;
-                }
-                poseStack.pushPose();
-                translateToElytra(poseStack, geoModel);
-                poseStack.translate(0, 1.5, 0);
-                poseStack.mulPose(Axis.ZP.rotationDegrees(180));
-                poseStack.scale(2.0f, 2.0f, 2.0f);
-                this.elytraModel.setupAnim(player, pLimbSwing, pLimbSwingAmount, pAgeInTicks, pNetHeadYaw, pHeadPitch);
-                VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferIn, RenderType.armorCutoutNoCull(texture), false, stack.hasFoil());
-                this.elytraModel.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-                poseStack.popPose();
+        if (!stack.isEmpty() && geoModel != null && !geoModel.elytraBones().isEmpty() && player instanceof AbstractClientPlayer clientPlayer) {
+            ResourceLocation texture;
+            if (clientPlayer.isElytraLoaded() && clientPlayer.getElytraTextureLocation() != null) {
+                texture = clientPlayer.getElytraTextureLocation();
+            } else if (clientPlayer.isCapeLoaded() && clientPlayer.getCloakTextureLocation() != null && player.isModelPartShown(PlayerModelPart.CAPE)) {
+                texture = clientPlayer.getCloakTextureLocation();
+            } else {
+                texture = WINGS_LOCATION;
             }
+            poseStack.pushPose();
+            translateToElytra(poseStack, geoModel);
+            poseStack.translate(0, 1.5, 0);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+            poseStack.scale(2.0f, 2.0f, 2.0f);
+            this.elytraModel.setupAnim(player, pLimbSwing, pLimbSwingAmount, pAgeInTicks, pNetHeadYaw, pHeadPitch);
+            VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferIn, RenderType.armorCutoutNoCull(texture), false, stack.hasFoil());
+            this.elytraModel.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+            poseStack.popPose();
         }
     }
 

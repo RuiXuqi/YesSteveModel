@@ -2,29 +2,31 @@ package com.elfmcys.yesstevemodel.geckolib3.core.event.predicate;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
 
 public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final T animatable;
     private final float limbSwing;
     private final float limbSwingAmount;
+    private final int entityTickCount;
     private final float partialTick;
     private final boolean isMoving;
-    private final List<Object> extraData;
     public float renderTicks;
+    @Nullable
+    private final EntityModelData extraData;
     @Nullable
     protected CodedAnimationController<T> codedController;
 
-    public AnimationEvent(T animatable, float limbSwing, float limbSwingAmount, float partialTick, boolean isMoving,
-                          List<Object> extraData) {
+    public AnimationEvent(T animatable, float limbSwing, float limbSwingAmount, int entityTickCount, float partialTick, boolean isMoving,
+                          @Nullable EntityModelData extraData) {
         this.animatable = animatable;
         this.limbSwing = limbSwing;
         this.limbSwingAmount = limbSwingAmount;
+        this.entityTickCount = entityTickCount;
         this.partialTick = partialTick;
         this.isMoving = isMoving;
         this.extraData = extraData;
@@ -46,6 +48,10 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         return limbSwingAmount;
     }
 
+    public int getEntityTickCount() {
+        return entityTickCount;
+    }
+
     public float getPartialTick() {
         return partialTick;
     }
@@ -64,18 +70,8 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         this.codedController = controller;
     }
 
-    public List<Object> getExtraData() {
+    @Nullable
+    public EntityModelData getExtraData() {
         return extraData;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <D> List<D> getExtraDataOfType(Class<D> type) {
-        ObjectArrayList<D> matches = new ObjectArrayList<>();
-        for (Object obj : this.extraData) {
-            if (type.isAssignableFrom(obj.getClass())) {
-                matches.add((D) obj);
-            }
-        }
-        return matches;
     }
 }

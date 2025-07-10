@@ -3,7 +3,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.AnimationPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
@@ -55,6 +55,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate) {
         event.setCodedAnimationController(this);
         PlayState playState = this.animationPredicate.test(event, evaluator);
+
         if (playState == PlayState.CONTINUE) {
             this.animationPlayer.process(event.renderTicks, evaluator, scheduledUpdate, false);
         } else {
@@ -63,8 +64,8 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     }
 
     @Override
-    public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
-        this.animationPlayer.updateRenderer(modelRendererList);
+    public void updateModelBones(List<BoneTopLevelSnapshot> modelRendererList) {
+        this.animationPlayer.updateModel(modelRendererList);
         this.boneAnimationQueues.clear();
         for (var queue : this.animationPlayer.getBoneAnimQueues().values()) {
             this.boneAnimationQueues.add(new SingleBoneAnimationQueue(queue));
@@ -77,13 +78,13 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     }
 
     @Override
+    @SuppressWarnings("DataFlowIssue")
     public String getState() {
         // 硬编码控制器没有状态，返回自己名称+正在播放的动画
-        var animation = animationPlayer.getCurrentAnim();
-        if (animation == null || animationPlayer.getState() == AnimationState.IDLE) {
+        if (animationPlayer.getState() == AnimationState.IDLE) {
             return "Coded";
         } else {
-            return "Coded -> " + animation.animationName;
+            return "Coded -> " + animationPlayer.getCurrentAnim().name;
         }
     }
 
@@ -91,7 +92,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.setAnimation(animationName, null);
     }
 
-    public void setAnimation(String animationName, @Nullable ILoopType loopType) {
+    public void setAnimation(String animationName, @Nullable LoopType loopType) {
         this.animationPlayer.setAnimation(animationName, loopType);
     }
 
@@ -116,14 +117,14 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         return this.animationPlayer.currentAnimFinished(renderTicks);
     }
 
-    public void stopSoundKeyFrames() {
-        this.animationPlayer.stopSoundKeyFrames();
+    public void stopPlayingSounds() {
+        this.animationPlayer.stopPlayingSounds();
     }
 
     @Override
     @Deprecated
     public boolean blendRotation() {
-        // TODO: 仅临时缓解，未完全修复过渡动画混合问题
+        // TODO: 仅临时缓解，未完全修复过渡动画混合问题。
         return blendRotation && animationPlayer.getState() != AnimationState.TRANSITIONING;
     }
 

@@ -50,7 +50,7 @@ public class MaidModelScreen extends PlayerModelScreen {
     }
 
     @Override
-    protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         Window window = Minecraft.getInstance().getWindow();
         double scale = window.getGuiScale();
         int scissorX = (int) ((this.x + 5) * scale);

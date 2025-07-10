@@ -29,7 +29,7 @@ public class ExtraPlayerConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float frameDeltaTime) {
         int startX = this.posX;
         int startY = this.posY;
         int endX = (int) (startX + this.scale * 1);
@@ -68,7 +68,9 @@ public class ExtraPlayerConfigScreen extends Screen {
         graphics.pose().popPose();
 
         if (getMinecraft().player != null) {
-            RenderUtil.renderExtraPlayerEntity(graphics, getMinecraft().player, this.posX, this.posY, this.scale, this.yawOffset, -500);
+            RenderUtil.setRenderingEntitiesInPaperDoll(true);
+            RenderUtil.renderExtraPlayerEntity(graphics, getMinecraft().player, this.posX, this.posY, this.scale, this.yawOffset, -500, minecraft.getFrameTime());
+            RenderUtil.setRenderingEntitiesInPaperDoll(false);
         }
     }
 

@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.AnimationState;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +16,7 @@ public class GeoMaidAnimatedRegister {
     private static final float MIN_SPEED = 0.05f;
 
     public static void registerAnimationState() {
-        register("death", ILoopType.EDefaultLoopTypes.PLAY_ONCE, Priority.HIGHEST, (maid, event) -> maid.isDeadOrDying());
+        register("death", LoopType.PLAY_ONCE, Priority.HIGHEST, (maid, event) -> maid.isDeadOrDying());
         register("sleep", Priority.HIGHEST, (maid, event) -> maid.getPose() == Pose.SLEEPING);
         register("swim", Priority.HIGHEST, (maid, event) -> maid.isSwimming());
 
@@ -28,7 +28,7 @@ public class GeoMaidAnimatedRegister {
         register("sit", Priority.HIGH, (maid, event) -> maid.isMaidInSittingPose());
 
         register("swim_stand", Priority.NORMAL, (maid, event) -> maid.isInWater() && !maid.onGround());
-        register("attacked", ILoopType.EDefaultLoopTypes.PLAY_ONCE, Priority.NORMAL, (maid, event) -> maid.hurtTime > 0);
+        register("attacked", LoopType.PLAY_ONCE, Priority.NORMAL, (maid, event) -> maid.hurtTime > 0);
         register("jump", Priority.NORMAL, (maid, event) -> !maid.onGround() && !maid.isInWater());
 
         register("run", Priority.LOW, (maid, event) -> maid.onGround() && maid.isSprinting());
@@ -37,12 +37,12 @@ public class GeoMaidAnimatedRegister {
         register("idle", Priority.LOWEST, (maid, event) -> true);
     }
 
-    private static void register(String animationName, ILoopType loopType, int priority, BiPredicate<EntityMaid, AnimationEvent<CustomYsmMaidEntity>> predicate) {
+    private static void register(String animationName, LoopType loopType, int priority, BiPredicate<EntityMaid, AnimationEvent<CustomYsmMaidEntity>> predicate) {
         YsmMaidMainPredicate.register(new AnimationState<>(animationName, loopType, priority, predicate));
     }
 
     private static void register(String animationName, int priority, BiPredicate<EntityMaid, AnimationEvent<CustomYsmMaidEntity>> predicate) {
-        register(animationName, ILoopType.EDefaultLoopTypes.LOOP, priority, predicate);
+        register(animationName, LoopType.LOOP, priority, predicate);
     }
 
     private static float getVerticalSpeed(LivingEntity livingEntity) {

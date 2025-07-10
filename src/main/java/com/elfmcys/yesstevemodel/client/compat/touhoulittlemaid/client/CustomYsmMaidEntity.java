@@ -31,7 +31,6 @@ import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntity;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -40,8 +39,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
-
-import java.util.List;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
@@ -65,6 +62,16 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         super(player, asyncUpdate);
         getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
         registerControllers();
+    }
+
+    @Override
+    protected MaidStateTracker createStateTracker(EntityMaid entity) {
+        return new MaidStateTracker(entity);
+    }
+
+    @Override
+    public MaidStateTracker getStateTracker() {
+        return (MaidStateTracker) super.getStateTracker();
     }
 
     /**
@@ -135,6 +142,10 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         return ModelIdUtil.DEFAULT_MODEL_ID;
     }
 
+    public String getTextureName() {
+        return textureName;
+    }
+
     @Override
     public float getHeightScale() {
         return ClientModelManager.getModel(modelId).map(model -> model.modelInfo().properties().heightScale()).orElse(0.7f);
@@ -175,16 +186,15 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
 
     @Override
     @SuppressWarnings("all")
-    public boolean setCustomAnimations(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
-        List extraData = animationEvent.getExtraData();
-        if (!Minecraft.getInstance().isPaused() && extraData.size() == 1 && extraData.get(0) instanceof EntityModelData
-            && entity != null) {
-            EntityModelData data = (EntityModelData) extraData.get(0);
-            boolean update = super.setCustomAnimations(ctx, animationEvent);
+    protected boolean updateAnimation(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
+        if (animationEvent.getExtraData() != null && entity != null) {
+            EntityModelData data = animationEvent.getExtraData();
+            recoverLastCodedAnimation();
+            boolean update = super.updateAnimation(ctx, animationEvent);
             this.codeAnimation(animationEvent, data, entity, update);
             return update;
         } else {
-            return super.setCustomAnimations(ctx, animationEvent);
+            return super.updateAnimation(ctx, animationEvent);
         }
     }
 
@@ -234,6 +244,28 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean updateCurrentModel(boolean force) {
+        if (super.updateCurrentModel(force)) {
+            var model = getCurrentModel();
+            if (model != null && !model.headBones().isEmpty()) {
+                var head = model.headBones().get(model.headBones().size() - 1);
+                headRot.set(head.getRotationX(), head.getRotationY());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void recoverLastCodedAnimation() {
+        var model = getCurrentModel();
+        if (model != null && !model.headBones().isEmpty()) {
+            var head = model.headBones().get(model.headBones().size() - 1);
+            head.setRotationX(headRot.x);
+            head.setRotationY(headRot.y);
+        }
     }
 
     @Deprecated

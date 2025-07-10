@@ -35,7 +35,7 @@ public class BoneAnimationQueue {
         transitionOffset = new BoneSnapshot(snapshot.bone);
     }
 
-    public void setBoneAnimation(BoneAnimation animation) {
+    public void setActive(BoneAnimation animation) {
         if (!animation.rotationKeyFrames.isEmpty()) {
             rotationKeyFrames = new OrderedSegmentSearcher<>(animation.rotationKeyFrames, 0, BoneKeyFrame::getEndTick);
         } else {
@@ -51,6 +51,10 @@ public class BoneAnimationQueue {
         } else {
             scaleKeyFrames = null;
         }
+        transitionOffset.copyFrom(topLevelSnapshot.bone);
+        transitionOffset.rotation.sub(topLevelSnapshot.bone.getInitialSnapshot().rotation);
+        active = true;
+        resetQueues();
     }
 
     public BoneSnapshot transitionOffset() {
@@ -69,11 +73,6 @@ public class BoneAnimationQueue {
         return scale;
     }
 
-    public void updateTransitionOffset() {
-        transitionOffset.copyFrom(topLevelSnapshot.bone);
-        transitionOffset.rotation.sub(topLevelSnapshot.bone.getInitialSnapshot().rotation);
-    }
-
     /**
      * 该骨骼上是否有动画
      */
@@ -81,8 +80,12 @@ public class BoneAnimationQueue {
         return active;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setInactive() {
+        rotationKeyFrames = null;
+        positionKeyFrames = null;
+        scaleKeyFrames = null;
+        active = false;
+        resetQueues();
     }
 
     /**

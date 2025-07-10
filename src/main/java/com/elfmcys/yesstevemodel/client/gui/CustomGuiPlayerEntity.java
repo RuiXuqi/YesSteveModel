@@ -3,13 +3,28 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
-public final class CustomGuiPlayerEntity extends CustomPlayerEntity {
+import java.util.UUID;
+
+public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements IPreviewEntity {
+    private final PreviewAnimationInfo guiAnimationInfo;
+
     public CustomGuiPlayerEntity() {
-        super(Minecraft.getInstance().player, false, false);
+        super(new FakePlayer(), false, false);
+        guiAnimationInfo = new PreviewAnimationInfo();
+    }
+
+    @Override
+    public @NotNull PreviewAnimationInfo getPreviewInfo() {
+        return guiAnimationInfo;
     }
 
     @Override
@@ -19,23 +34,47 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity {
 
     @Override
     protected AnimationEvent<?> performUpdate(float partialTicks) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
+        if (entity instanceof FakePlayer fakePlayer && !fakePlayer.updateClientLevel()) {
             return null;
         }
-        setPlayer(player);
         return super.performUpdate(partialTicks);
     }
 
-    public void setPlayer(LocalPlayer player) {
-        entity = player;
+    public void waitForCapabilityUpdate() {
+        if (entity instanceof LocalPlayer player) {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::waitForAsyncUpdate);
+        }
     }
 
-    public void waitForCapabilityUpdate() {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            return;
+    private static class FakePlayer extends Player {
+        @SuppressWarnings("DataFlowIssue")
+        public FakePlayer() {
+            super(Minecraft.getInstance().level, BlockPos.ZERO, 0, createRandomGameProfile());
         }
-        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::waitForAsyncUpdate);
+
+        private static GameProfile createRandomGameProfile() {
+            var uuid = UUID.randomUUID();
+            return new GameProfile(uuid, "ysm_" + uuid.toString().replace('-', '_'));
+        }
+
+        @Override
+        public boolean isSpectator() {
+            return false;
+        }
+
+        @Override
+        public boolean isCreative() {
+            return false;
+        }
+
+        public boolean updateClientLevel() {
+            var level = Minecraft.getInstance().level;
+            if (level != null) {
+                this.setLevel(level);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

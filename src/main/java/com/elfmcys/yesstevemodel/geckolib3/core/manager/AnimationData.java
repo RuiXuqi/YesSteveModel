@@ -13,10 +13,8 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 public class AnimationData {
     private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(41);
-    public float tick;
-    public boolean isFirstTick = true;
+    public float lastTick;
     public float startTick = -1;
-    public boolean shouldPlayWhilePaused = false;
     private float resetTickLength = 1;
 
     public AnimationData() {

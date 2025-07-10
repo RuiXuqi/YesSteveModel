@@ -7,7 +7,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core;
 
 public enum AnimationState {
     /**
-     * 空闲中
+     * 待机中
      */
     IDLE,
     /**

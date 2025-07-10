@@ -11,17 +11,23 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientTickEvent {
+    private static int tickCount;
+
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) {
             return;
         }
-
+        tickCount++;
         ClientModelManager.tick();
 
         var player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::handleRoamingVarsChanges);
         }
+    }
+
+    public static int getTickCount() {
+        return tickCount;
     }
 }

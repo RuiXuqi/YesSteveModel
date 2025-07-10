@@ -9,7 +9,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ParrotRenderer;
@@ -17,6 +16,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.player.Player;
 
 public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerEntity> {
     private static final String ID = "id";
@@ -29,7 +29,7 @@ public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerEn
 
     @Override
     public void render(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        AbstractClientPlayer player = animatableEntity.getEntity();
+        var player = animatableEntity.getEntity();
         GeoModelState geoModel = animatableEntity.getCurrentModel();
         if (geoModel == null) {
             return;
@@ -42,7 +42,7 @@ public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerEn
         }
     }
 
-    private void render(PoseStack poseStack, MultiBufferSource buffer, GeoModelState geoModel, int packedLight, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch, boolean leftShoulder) {
+    private void render(PoseStack poseStack, MultiBufferSource buffer, GeoModelState geoModel, int packedLight, Player player, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch, boolean leftShoulder) {
         CompoundTag shoulderTag = leftShoulder ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
         EntityType.byString(shoulderTag.getString(ID)).filter(type -> type == EntityType.PARROT).ifPresent(type -> {
             poseStack.pushPose();

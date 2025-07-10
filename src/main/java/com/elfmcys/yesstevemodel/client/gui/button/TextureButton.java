@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
@@ -19,13 +20,11 @@ import java.util.List;
 
 public class TextureButton extends Button {
     protected final CustomGuiPlayerEntity animatedEntity;
-    protected final boolean disablePreviewRotation;
 
-    public TextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, boolean disablePreviewRotation) {
+    public TextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
         }, DEFAULT_NARRATION);
         this.animatedEntity = animatedEntity;
-        this.disablePreviewRotation = disablePreviewRotation;
     }
 
     @Override
@@ -40,12 +39,12 @@ public class TextureButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float frameDeltaTime) {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
 
         graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF_434242, 0xFF_434242);
-        renderReferenceEntity(graphics);
+        renderReferenceEntity(graphics, minecraft.getFrameTime());
 
         Component message = Component.literal(animatedEntity.getTextureName());
         List<FormattedCharSequence> split = font.split(message, 50);
@@ -63,7 +62,7 @@ public class TextureButton extends Button {
         }
     }
 
-    protected void renderReferenceEntity(GuiGraphics graphics) {
+    protected void renderReferenceEntity(GuiGraphics graphics, float partialTicks) {
         Window window = Minecraft.getInstance().getWindow();
         double scale = window.getGuiScale();
         int scissorX = (int) (this.getX() * scale);
@@ -71,7 +70,7 @@ public class TextureButton extends Button {
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInInventory(this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35, animatedEntity, this.disablePreviewRotation);
+        RenderUtil.renderModelInGui(this.getX() + this.width / 2f, this.getY() + this.height / 2f + 24f, 35f, partialTicks, animatedEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), false, true);
         RenderSystem.disableScissor();
     }
 }

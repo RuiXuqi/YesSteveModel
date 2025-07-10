@@ -68,16 +68,15 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
         IGeoRenderer.super.renderEarly(animatableEntity, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
     }
 
-    @SuppressWarnings("unchecked")
-    protected void renderAnimatableEntity(T animatableEntity, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
+    public void renderAnimatableEntity(T animatableEntity, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
                                           MultiBufferSource bufferSource, int packedLight) {
         AnimationEvent<?> event = isAsyncScope() ? animatableEntity.waitOrUpdate(partialTick) : animatableEntity.syncUpdate(partialTick);
 
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(animatableEntity.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
-        final TEntity entity = (TEntity) animatableEntity.getEntity();
+        final TEntity entity = animatableEntity.getEntity();
         if (event != null) {
-            final EntityModelData data = (EntityModelData) event.getExtraData().get(0);
+            final EntityModelData data = event.getExtraData();
             this.dispatchedMat = new Matrix4f(poseStack.last().pose());
 
             setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);

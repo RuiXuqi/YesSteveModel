@@ -4,8 +4,9 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.EntityTickStates;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalSwing;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -19,7 +20,7 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
     @Override
     public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
-        if (entity == null || event.getAnimatableEntity().hasPreviewAnimation()) {
+        if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
 
@@ -35,7 +36,7 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
                 String id = event.getAnimatableEntity().getModelId();
                 return ClientModelManager.getModel(id).map(clientModel -> {
                     if (clientModel.animations().containsKey(animationName)) {
-                        return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                        return playAnimation(event, animationName, LoopType.PLAY_ONCE);
                     }
                     return PlayState.CONTINUE;
                 }).orElse(PlayState.STOP);
@@ -44,7 +45,7 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
 
         // 其他情况
         if (entity.swinging && !entity.isSleeping()) {
-            if (entity.swingTime == 0 && event.getAnimatableEntity().setEntityTickState(EntityTickStates.SWING)) {
+            if (entity.swingTime == 0 && event.getAnimatableEntity().getStateTracker().setEntityTickState(EntityTickStates.SWING)) {
                 // swing 开始时重置动画
                 event.getCodedController().forceReload();
             }
@@ -53,11 +54,11 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
             if (conditionalSwing != null) {
                 String name = conditionalSwing.doTest(entity, entity.swingingArm);
                 if (StringUtils.isNoneBlank(name)) {
-                    return playAnimation(event, name, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                    return playAnimation(event, name, LoopType.PLAY_ONCE);
                 }
             }
             String defaultSwing = (entity.swingingArm == InteractionHand.MAIN_HAND) ? "swing_hand" : "swing_offhand";
-            return playAnimation(event, defaultSwing, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            return playAnimation(event, defaultSwing, LoopType.PLAY_ONCE);
         }
         return PlayState.CONTINUE;
     }

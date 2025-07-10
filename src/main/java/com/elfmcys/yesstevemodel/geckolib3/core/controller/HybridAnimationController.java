@@ -41,13 +41,13 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     }
 
     @Override
-    public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
+    public void updateModelBones(List<BoneTopLevelSnapshot> modelBones) {
         var animationControllerData = animatableEntity.getAnimationControllerData(this.name);
         if (animationControllerData != null) {
-            this.bedrockAnimationController.updateRenderer(modelRendererList, animationControllerData);
+            this.bedrockAnimationController.updateModelBones(modelBones, animationControllerData);
             this.activeController = this.bedrockAnimationController;
         } else {
-            this.codedAnimationController.updateRenderer(modelRendererList);
+            this.codedAnimationController.updateModelBones(modelBones);
             this.activeController = this.codedAnimationController;
         }
     }

@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
 import com.elfmcys.yesstevemodel.client.gui.button.TextureButton;
@@ -33,17 +34,16 @@ public class PlayerTextureScreen extends Screen {
     private static final float SCALE_MIN = 18f;
     private static final float PITCH_MAX = 90f;
     private static final float PITCH_MIN = -90f;
-    private static final CustomGuiPlayerEntity PREVIEW_ENTITY = new CustomGuiPlayerEntity();
     private static final CustomGuiPlayerEntity[] TEXTURE_BUTTON_ENTITY = new CustomGuiPlayerEntity[4];
 
     private static final int LEFT_MOUSE_BUTTON = 0;
     private static final int RIGHT_MOUSE_BUTTON = 1;
 
+    protected final CustomGuiPlayerEntity previewEntity;
     private final PlayerModelScreen parent;
     private final String modelId;
     private final FifoHashMap<String, ResourceLocation> textures;
     private final List<String> animations;
-    private final boolean disablePreviewRotation;
     private String animation = "";
     private int maxTexturePage;
     private int texturePage;
@@ -52,38 +52,34 @@ public class PlayerTextureScreen extends Screen {
     protected int x;
     protected int y;
 
-    private float posX = 0;
-    private float posY = -60;
-    private float scale = 80;
-    private float yaw = 165;
-    private float pitch = -5;
-    private boolean showGround = true;
+    protected float posX = 0;
+    protected float posY = -60;
+    protected float scale = 80;
+    protected float yaw = 165;
+    protected float pitch = -5;
+    protected boolean showGround = true;
 
     static {
         for (int i = 0; i < TEXTURE_BUTTON_ENTITY.length; i++) {
             CustomGuiPlayerEntity animatedEntity = new CustomGuiPlayerEntity();
-            animatedEntity.setPreviewAnimation(AnimationRegister.IDLE);
+            animatedEntity.getPreviewInfo().setPreview(AnimationRegister.IDLE);
             TEXTURE_BUTTON_ENTITY[i] = animatedEntity;
         }
     }
 
     public PlayerTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
         super(Component.literal("Player Texture GUI"));
+        this.previewEntity = new CustomGuiPlayerEntity();
         this.parent = parent;
         this.modelId = modelId;
         this.textures = model.textures();
         this.animations = new ArrayList<>(model.animations().keySet());
         this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
         this.animations.sort(String::compareTo);
-        this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
-        PREVIEW_ENTITY.setPlayer(Minecraft.getInstance().player);
-        for (CustomGuiPlayerEntity animatedEntity : TEXTURE_BUTTON_ENTITY) {
-            animatedEntity.setPlayer(Minecraft.getInstance().player);
-        }
     }
 
-    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, boolean disablePreviewRotation, int modelIndex) {
-        return new TextureButton(pX, pY, animatedEntity, disablePreviewRotation);
+    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, int modelIndex) {
+        return new TextureButton(pX, pY, animatedEntity);
     }
 
     @Override
@@ -176,12 +172,12 @@ public class PlayerTextureScreen extends Screen {
             int yStart = y + 5 + 104 * (i / 2);
             CustomGuiPlayerEntity animatedEntity = TEXTURE_BUTTON_ENTITY[i];
             animatedEntity.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
-            addRenderableWidget(getTextureButton(xStart, yStart, animatedEntity, this.disablePreviewRotation, modelIndex));
+            addRenderableWidget(getTextureButton(xStart, yStart, animatedEntity, modelIndex));
         }
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float frameDeltaTime) {
         LocalPlayer player = getMinecraft().player;
         if (player == null) {
             return;
@@ -199,10 +195,10 @@ public class PlayerTextureScreen extends Screen {
         int scissorW = (int) (206 * guiScale);
         int scissorH = (int) (235 * guiScale);
 
-        if (!PREVIEW_ENTITY.hasPreviewAnimation(animation)) {
-            PREVIEW_ENTITY.setPreviewAnimation(animation);
+        if (!previewEntity.getPreviewInfo().hasPreview(animation)) {
+            previewEntity.getPreviewInfo().setPreview(animation);
         }
-        renderReferenceEntity(graphics, scissorX, scissorY, scissorW, scissorH);
+        renderReferenceEntity(graphics, scissorX, scissorY, scissorW, scissorH, minecraft.getFrameTime());
 
         String texturePageInfo = String.format("%d/%d", texturePage + 1, this.maxTexturePage + 1);
         graphics.drawString(font, texturePageInfo, x + 302 + (118 - font.width(texturePageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
@@ -210,16 +206,16 @@ public class PlayerTextureScreen extends Screen {
         String animationPageInfo = String.format("%d/%d", animationPage + 1, this.maxAnimationPage + 1);
         graphics.drawString(font, animationPageInfo, x + 5 + (80 - font.width(animationPageInfo)) / 2, y + 218, 0xF3EFE0);
 
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, frameDeltaTime);
         this.renderables.stream().filter(r -> r instanceof FlatColorButton)
                 .forEach(r -> ((FlatColorButton) r).renderToolTip(graphics, this, mouseX, mouseY));
     }
 
-    protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY, int scissorW, int scissorH) {
+    protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY, int scissorW, int scissorH, float partialTicks) {
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        PREVIEW_ENTITY.getEntity().getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            PREVIEW_ENTITY.setModelAndTexture(modelId, cap.getTextureName());
-            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, PREVIEW_ENTITY, showGround);
+        minecraft.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            previewEntity.setModelAndTexture(modelId, cap.getTextureName());
+            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, partialTicks, previewEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), showGround);
         });
         RenderSystem.disableScissor();
     }

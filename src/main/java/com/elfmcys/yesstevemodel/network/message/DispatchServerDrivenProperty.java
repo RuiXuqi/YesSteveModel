@@ -144,7 +144,7 @@ public class DispatchServerDrivenProperty {
     public static void handle(Entity entity, DispatchServerDrivenProperty msg) {
         if (entity instanceof Player player) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.updateServerDrivenProperty(msg);
+                cap.getStateTracker().updateServerDrivenProperty(msg);
             });
         }
     }

@@ -26,6 +26,8 @@ import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class TlmClientCompatInner {
+    private static CustomYsmMaidRenderer customYsmMaidRenderer;
+
     static void registerEvent() {
         MinecraftForge.EVENT_BUS.register(new YsmMaidScreenEvent());
         MinecraftForge.EVENT_BUS.register(new SyncCapability());
@@ -35,7 +37,7 @@ public class TlmClientCompatInner {
 
     @SuppressWarnings("all")
     static void registerYsmEntityMaidRenderer() {
-        EntityMaidRenderer.YSM_ENTITY_MAID_RENDERER = (manager) -> (IGeoEntityRenderer) new CustomYsmMaidRenderer(manager);
+        EntityMaidRenderer.YSM_ENTITY_MAID_RENDERER = (manager) -> (IGeoEntityRenderer) (customYsmMaidRenderer = new CustomYsmMaidRenderer(manager));
     }
 
     static boolean isMaid(Entity entity) {
@@ -81,5 +83,9 @@ public class TlmClientCompatInner {
                     .orElse(null);
         }
         return null;
+    }
+
+    static CustomYsmMaidRenderer getRenderer() {
+        return customYsmMaidRenderer;
     }
 }

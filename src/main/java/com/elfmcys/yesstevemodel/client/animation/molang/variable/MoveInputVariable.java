@@ -11,7 +11,7 @@ public class MoveInputVariable {
         float partialTick = context.animationEvent().getPartialTick();
 
         // 求出当前移动的水平分量
-        var delta = context.animatableEntity().getPositionDelta();
+        var delta = context.animatableEntity().getStateTracker().getPositionDelta();
         var x = delta.x;
         var z = delta.z;
 
@@ -33,7 +33,7 @@ public class MoveInputVariable {
         float partialTick = context.animationEvent().getPartialTick();
 
         // 求出当前移动的水平分量
-        var delta = context.animatableEntity().getPositionDelta();
+        var delta = context.animatableEntity().getStateTracker().getPositionDelta();
         var x = delta.x;
         var z = delta.z;
 

@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -11,7 +12,7 @@ import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPre
 public class FocusPredicate implements IAnimationPredicate<CustomPlayerEntity> {
     @Override
     public PlayState test(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<?> evaluator) {
-        String focusAnimation = event.getAnimatableEntity().getFocusAnimation();
+        String focusAnimation = ((IPreviewEntity) event.getAnimatableEntity()).getPreviewInfo().getFocus();
         if (StringUtils.isNoneBlank(focusAnimation)) {
             return playLoopAnimation(event, focusAnimation);
         }

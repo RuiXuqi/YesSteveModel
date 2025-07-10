@@ -7,8 +7,9 @@ import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -36,7 +37,7 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
     @Nullable
     public PlayState getVehicleAnimation(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
-        if (entity == null || event.getAnimatableEntity().hasPreviewAnimation()) {
+        if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return null;
         }
         Entity vehicle = entity.getVehicle();
@@ -46,7 +47,7 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
 
         String swemAnimation = SwemCompat.getAnimation(entity);
         if (StringUtils.isNoneBlank(swemAnimation)) {
-            return playAnimation(event, swemAnimation, ILoopType.EDefaultLoopTypes.LOOP);
+            return playAnimation(event, swemAnimation, LoopType.LOOP);
         }
 
         String id = event.getAnimatableEntity().getModelId();
@@ -58,7 +59,7 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
             if (conditionalChair != null) {
                 String name = conditionalChair.doTest(entity);
                 if (StringUtils.isNoneBlank(name)) {
-                    return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                    return playAnimation(event, name, LoopType.LOOP);
                 }
             }
         }
@@ -68,26 +69,26 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
         if (vehicleCondition != null) {
             String name = vehicleCondition.doTest(entity);
             if (StringUtils.isNoneBlank(name)) {
-                return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                return playAnimation(event, name, LoopType.LOOP);
             }
         }
 
         // 兼容旧版本的几个动画
         if (vehicle instanceof Pig) {
-            return playAnimation(event, "ride_pig", ILoopType.EDefaultLoopTypes.LOOP);
+            return playAnimation(event, "ride_pig", LoopType.LOOP);
         }
         if (vehicle instanceof Saddleable) {
-            return playAnimation(event, "ride", ILoopType.EDefaultLoopTypes.LOOP);
+            return playAnimation(event, "ride", LoopType.LOOP);
         }
         if (vehicle instanceof Boat) {
-            return playAnimation(event, "boat", ILoopType.EDefaultLoopTypes.LOOP);
+            return playAnimation(event, "boat", LoopType.LOOP);
         }
 
         // carry on 兼容
         boolean playerIsOnPrincess = entity instanceof Player player && CarryOnCompat.isCarryOnPrincess(player);
         boolean maidIsOnPrincess = TlmClientCompat.isMaid(entity) && entity.getVehicle() instanceof Player;
         if (playerIsOnPrincess || maidIsOnPrincess) {
-            return playAnimation(event, "carryon:princess", ILoopType.EDefaultLoopTypes.LOOP);
+            return playAnimation(event, "carryon:princess", LoopType.LOOP);
         }
 
         // 安装女仆模组后，那么需要兼容几个女仆的内容
@@ -96,6 +97,6 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
             return playState;
         }
 
-        return playAnimation(event, "sit", ILoopType.EDefaultLoopTypes.LOOP);
+        return playAnimation(event, "sit", LoopType.LOOP);
     }
 }

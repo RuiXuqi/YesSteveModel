@@ -23,7 +23,7 @@ public interface IAnimationController<T extends AnimatableEntity<?>> {
     /**
      * 更新模型
      */
-    void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList);
+    void updateModelBones(List<BoneTopLevelSnapshot> modelRendererList);
 
     void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate);
 

@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.compat.slashblade;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import net.minecraft.world.entity.LivingEntity;
@@ -54,7 +54,7 @@ public class SlashBladeCompat {
     }
 
     @Nullable
-    public static PlayState playMainAnimation(LivingEntity livingEntity, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, ILoopType loopType) {
+    public static PlayState playMainAnimation(LivingEntity livingEntity, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
         if (isSlashBladeLoaded() && isSlashBladeItem(livingEntity.getMainHandItem())) {
             return SlashBladeAnimation.playMainAnimation(event, animationName, loopType);
         }

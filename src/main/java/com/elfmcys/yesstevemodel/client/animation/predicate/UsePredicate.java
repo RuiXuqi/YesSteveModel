@@ -1,9 +1,11 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.EntityTickStates;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalUse;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -17,11 +19,11 @@ public class UsePredicate implements IAnimationPredicate<AnimatableEntity<? exte
     @Override
     public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
-        if (entity == null || event.getAnimatableEntity().hasPreviewAnimation()) {
+        if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
         if (entity.isUsingItem() && !entity.isSleeping()) {
-            if (entity.getTicksUsingItem() == 1) {
+            if (entity.getTicksUsingItem() == 1 && event.getAnimatableEntity().getStateTracker().setEntityTickState(EntityTickStates.USING_ITEM)) {
                 event.getCodedController().forceReload();
             }
             if (entity.getUsedItemHand() == InteractionHand.MAIN_HAND) {
@@ -30,20 +32,20 @@ public class UsePredicate implements IAnimationPredicate<AnimatableEntity<? exte
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(entity, InteractionHand.MAIN_HAND);
                     if (StringUtils.isNoneBlank(name)) {
-                        return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                        return playAnimation(event, name, LoopType.LOOP);
                     }
                 }
-                return playAnimation(event, "use_mainhand", ILoopType.EDefaultLoopTypes.LOOP);
+                return playAnimation(event, "use_mainhand", LoopType.LOOP);
             } else {
                 String id = event.getAnimatableEntity().getModelId();
                 ConditionalUse conditionalUse = ClientModelManager.getModel(id).map(model -> model.conditionManager().getUseOffhand()).orElse(null);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(entity, InteractionHand.OFF_HAND);
                     if (StringUtils.isNoneBlank(name)) {
-                        return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                        return playAnimation(event, name, LoopType.LOOP);
                     }
                 }
-                return playAnimation(event, "use_offhand", ILoopType.EDefaultLoopTypes.LOOP);
+                return playAnimation(event, "use_offhand", LoopType.LOOP);
             }
         }
         return PlayState.STOP;

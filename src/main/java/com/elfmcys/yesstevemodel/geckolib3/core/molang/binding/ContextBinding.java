@@ -18,6 +18,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.Item;
@@ -68,8 +69,12 @@ public class ContextBinding implements ObjectBinding {
         bindings.put(name, new TamableEntityVariable(evaluator));
     }
 
-    public void playerVar(String name, IValueEvaluator<?, IContext<AbstractClientPlayer>> evaluator) {
+    public void playerVar(String name, IValueEvaluator<?, IContext<Player>> evaluator) {
         bindings.put(name, new PlayerVariable(evaluator));
+    }
+
+    public void clientPlayerVar(String name, IValueEvaluator<?, IContext<AbstractClientPlayer>> evaluator) {
+        bindings.put(name, new ClientPlayerVariable(evaluator));
     }
 
     public void localPlayerVar(String name, IValueEvaluator<?, IContext<LocalPlayer>> evaluator) {

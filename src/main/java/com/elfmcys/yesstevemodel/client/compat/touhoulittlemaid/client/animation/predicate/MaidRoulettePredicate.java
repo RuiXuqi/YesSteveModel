@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -13,16 +13,20 @@ public class MaidRoulettePredicate implements IAnimationPredicate<CustomYsmMaidE
     @Override
     public PlayState test(AnimationEvent<CustomYsmMaidEntity> event, ExpressionEvaluator<?> evaluator) {
         CustomYsmMaidEntity animatable = event.getAnimatableEntity();
-
-        return animatable.getEntity().getCapability(YsmMaidCapabilityProvider.CAP).map(cap -> {
-            if (cap.isRouletteAnimPlaying()) {
-                if (cap.isRouletteAnimDirty()) {
-                    cap.clearRouletteAnimDirty();
-                    event.getCodedController().forceReload();
-                }
-                return playAnimation(event, cap.getRouletteAnim());
+        if (animatable instanceof IPreviewEntity guiEntity) {
+            if (guiEntity.getPreviewInfo().hasPreview()) {
+                return IAnimationPredicate.playLoopAnimation(event, guiEntity.getPreviewInfo().getPreview());
             }
             return PlayState.STOP;
-        }).orElse(PlayState.STOP);
+        }
+
+        if (animatable.isRouletteAnimPlaying()) {
+            if (animatable.isRouletteAnimDirty()) {
+                animatable.clearRouletteAnimDirty();
+                event.getCodedController().forceReload();
+            }
+            return playAnimation(event, animatable.getRouletteAnim());
+        }
+        return PlayState.STOP;
     }
 }

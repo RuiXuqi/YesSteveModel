@@ -1,20 +1,21 @@
 package com.elfmcys.yesstevemodel.util;
 
-import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
-import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
-import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
+import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import org.joml.Quaternionf;
@@ -31,7 +32,7 @@ public final class RenderUtil {
     }
 
     public static boolean isRenderingEntitiesInInventory() {
-        return RenderSystem.isOnRenderThread() && renderingEntitiesInInventory;
+        return renderingEntitiesInInventory && RenderSystem.isOnRenderThread();
     }
 
     public static void setRenderingEntitiesInPaperDoll(boolean renderingEntitiesInPaperDoll) {
@@ -39,12 +40,11 @@ public final class RenderUtil {
     }
 
     public static boolean isRenderingEntitiesInPaperDoll() {
-        return renderingEntitiesInPaperDoll;
+        return renderingEntitiesInPaperDoll && RenderSystem.isOnRenderThread();
     }
 
-    public static void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, CustomGuiPlayerEntity entity, boolean showGround) {
-        CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
-        AbstractClientPlayer player = entity.getEntity();
+    public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T> & IPreviewEntity> void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, float partialTicks, TAnimatable entity, GeoReplacedEntityRenderer<T, ? super TAnimatable> renderer, boolean showGround) {
+        var living = entity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
@@ -63,18 +63,24 @@ public final class RenderUtil {
 
         entity.waitForCapabilityUpdate();
 
-        float yBodyRot = player.yBodyRot;
-        float yRot = player.getYRot();
-        float xRot = player.getXRot();
-        float yHeadRotO = player.yHeadRotO;
-        float yHeadRot = player.yHeadRot;
-        Pose pose = player.getPose();
+        float yBodyRot = living.yBodyRot;
+        float yBodyRotO = living.yBodyRotO;
+        float yRot = living.getYRot();
+        float yRotO = living.yRotO;
+        float xRot = living.getXRot();
+        float xRotO = living.xRotO;
+        float yHeadRotO = living.yHeadRotO;
+        float yHeadRot = living.yHeadRot;
+        Pose pose = living.getPose();
 
-        player.yBodyRot = -yaw;
-        player.setYRot(180);
-        player.setXRot(0);
-        player.yHeadRot = -yaw;
-        player.yHeadRotO = -yaw;
+        living.yBodyRot = -yaw;
+        living.yBodyRotO = -yaw;
+        living.setYRot(180);
+        living.yRotO = 180;
+        living.setXRot(0);
+        living.xRotO = 0;
+        living.yHeadRot = -yaw;
+        living.yHeadRotO = -yaw;
 
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -83,52 +89,54 @@ public final class RenderUtil {
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            if (entity.hasPreviewAnimation("sleep")) {
+            var guiAnim = entity.getPreviewInfo();
+            if (guiAnim.hasPreview("sleep")) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90));
                 poseStack.translate(0.5, 0.5625, 0);
-                player.setPose(Pose.SLEEPING);
+                living.setPose(Pose.SLEEPING);
             }
-            if (entity.hasPreviewAnimation("swim") || entity.hasPreviewAnimation("swim_stand")) {
-                player.setPose(Pose.SWIMMING);
+            if (guiAnim.hasPreview("swim") || guiAnim.hasPreview("swim_stand")) {
+                living.setPose(Pose.SWIMMING);
             }
-            if (entity.hasPreviewAnimation("sneak") || entity.hasPreviewAnimation("sneaking")) {
-                player.setPose(Pose.CROUCHING);
+            if (guiAnim.hasPreview("sneak") || guiAnim.hasPreview("sneaking")) {
+                living.setPose(Pose.CROUCHING);
             }
-            if (entity.hasPreviewAnimation("sit")) {
+            if (guiAnim.hasPreview("sit")) {
                 poseStack.translate(0, -0.5, 0);
             }
-            if (entity.hasPreviewAnimation("ride")) {
+            if (guiAnim.hasPreview("ride")) {
                 poseStack.translate(0, 0.85, 0);
             }
-            if (entity.hasPreviewAnimation("ride_pig")) {
+            if (guiAnim.hasPreview("ride_pig")) {
                 poseStack.translate(0, 0.3125, 0);
             }
-            if (entity.hasPreviewAnimation("boat")) {
+            if (guiAnim.hasPreview("boat")) {
                 poseStack.translate(0, -0.45, 0);
             }
             try {
-                renderExtraEntity(yaw, entity, poseStack, dispatcher, bufferSource);
+                renderExtraEntity(yaw, entity, partialTicks, poseStack, dispatcher, bufferSource);
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
-            if (showGround) {
-                if (entity.hasPreviewAnimation("sleep")) {
-                    renderBed(pScale, pitch, yaw, bufferSource);
-                }
-                renderGround(pScale, pitch, yaw, bufferSource);
-                bufferSource.endBatch();
+            if (guiAnim.hasPreview("sleep")) {
+                renderBed(pScale, pitch, yaw, bufferSource);
             }
-            renderer.renderModelInGui(entity, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
+            renderGround(pScale, pitch, yaw, bufferSource);
+            bufferSource.endBatch();
+            renderer.renderAnimatableEntity(entity, null, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
         dispatcher.setRenderShadow(true);
 
-        player.yBodyRot = yBodyRot;
-        player.setYRot(yRot);
-        player.setXRot(xRot);
-        player.yHeadRotO = yHeadRotO;
-        player.yHeadRot = yHeadRot;
-        player.setPose(pose);
+        living.yBodyRot = yBodyRot;
+        living.yBodyRotO = yBodyRotO;
+        living.setYRot(yRot);
+        living.yRotO = yRotO;
+        living.setXRot(xRot);
+        living.xRotO = xRotO;
+        living.yHeadRotO = yHeadRotO;
+        living.yHeadRot = yHeadRot;
+        living.setPose(pose);
 
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
@@ -175,40 +183,44 @@ public final class RenderUtil {
         Minecraft.getInstance().getBlockRenderer().renderSingleBlock(Blocks.RED_TULIP.defaultBlockState(), poseStack, bufferSource, 0xf000f0, OverlayTexture.NO_OVERLAY);
     }
 
-    private static void renderExtraEntity(float yaw, CustomGuiPlayerEntity animatableEntity, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource) throws ExecutionException {
-        AbstractClientPlayer player = animatableEntity.getEntity();
+    private static <TAnimatable extends AnimatableEntity<?> & IPreviewEntity> void renderExtraEntity(float yaw, TAnimatable animatableEntity, float partialTicks, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource) throws ExecutionException {
+        var player = animatableEntity.getEntity();
+        var guiAnim = animatableEntity.getPreviewInfo();
 
-        if (animatableEntity.hasPreviewAnimation("ride")) {
+        if (guiAnim.hasPreview("ride")) {
             Entity entity = AnimatableCacheUtil.ENTITIES_CACHE.get(EntityType.getKey(EntityType.HORSE), () -> EntityType.HORSE.create(player.level()));
-            renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity);
+            renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity, partialTicks);
             return;
         }
-        if (animatableEntity.hasPreviewAnimation("ride_pig")) {
+        if (guiAnim.hasPreview("ride_pig")) {
             Entity entity = AnimatableCacheUtil.ENTITIES_CACHE.get(EntityType.getKey(EntityType.PIG), () -> EntityType.PIG.create(player.level()));
-            renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity);
+            renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity, partialTicks);
             return;
         }
-        if (animatableEntity.hasPreviewAnimation("boat")) {
+        if (guiAnim.hasPreview("boat")) {
             Entity entity = AnimatableCacheUtil.ENTITIES_CACHE.get(EntityType.getKey(EntityType.BOAT), () -> EntityType.BOAT.create(player.level()));
-            renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity);
+            renderExtraEntity(yaw, player, poseStack, dispatcher, bufferSource, entity, partialTicks);
             return;
         }
     }
 
-    private static void renderExtraEntity(float yaw, AbstractClientPlayer player, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource, Entity entity) {
+    private static void renderExtraEntity(float yaw, Entity player, PoseStack poseStack, EntityRenderDispatcher dispatcher, MultiBufferSource.BufferSource bufferSource, Entity entity, float partialTicks) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(yaw));
-        dispatcher.render(entity, 0, -entity.getPassengersRidingOffset() - player.getMyRidingOffset(), 0, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
+        dispatcher.render(entity, 0, -entity.getPassengersRidingOffset() - player.getMyRidingOffset(), 0, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
         poseStack.popPose();
     }
 
-    public static void renderModelInInventory(int pPosX, int pPosY, int pScale, CustomGuiPlayerEntity animatableEntity, boolean disablePreviewRotation) {
-        CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
-        renderModel((double) pPosX, (double) pPosY, (float) pScale, animatableEntity, renderer, disablePreviewRotation);
-    }
-
-    private static void renderModel(double pPosX, double pPosY, float pScale, CustomGuiPlayerEntity animatableEntity, CustomPlayerRenderer renderer, boolean disablePreviewRotation) {
-        AbstractClientPlayer player = animatableEntity.getEntity();
+    public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T>> void renderModelInGui(
+            float pPosX,
+            float pPosY,
+            float pScale,
+            float partialTicks,
+            TAnimatable animatableEntity,
+            GeoReplacedEntityRenderer<T, TAnimatable> renderer,
+            boolean disablePreviewRotation,
+            boolean disableEquipments) {
+        var living = animatableEntity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
@@ -224,41 +236,54 @@ public final class RenderUtil {
         zp.mul(xp);
         poseStack.mulPose(zp);
 
-        animatableEntity.waitForCapabilityUpdate();
+        if (animatableEntity instanceof IPreviewEntity guiEntity) {
+            guiEntity.waitForCapabilityUpdate();
+        }
 
-        float yBodyRot = player.yBodyRot;
-        float yRot = player.getYRot();
-        float xRot = player.getXRot();
-        float yHeadRotO = player.yHeadRotO;
-        float yHeadRot = player.yHeadRot;
+        float yBodyRot = living.yBodyRot;
+        float yBodyRotO = living.yBodyRotO;
+        float yRot = living.getYRot();
+        float yRotO = living.yRotO;
+        float xRot = living.getXRot();
+        float xRotO = living.xRotO;
+        float yHeadRotO = living.yHeadRotO;
+        float yHeadRot = living.yHeadRot;
 
-        ItemStack[] itemStacks = new ItemStack[EquipmentSlot.values().length];
-        int i = 0;
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            itemStacks[i] = player.getItemBySlot(slot);
-            if (slot == EquipmentSlot.MAINHAND) {
-                player.getInventory().items.set(player.getInventory().selected, ItemStack.EMPTY);
-            } else if (slot == EquipmentSlot.OFFHAND) {
-                player.getInventory().offhand.set(0, ItemStack.EMPTY);
-            } else {
-                player.getInventory().armor.set(slot.getIndex(), ItemStack.EMPTY);
+        ItemStack[] itemStacks;
+        if (disableEquipments && living instanceof Player player) {
+            itemStacks = new ItemStack[EquipmentSlot.values().length];
+            int i = 0;
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                itemStacks[i] = player.getItemBySlot(slot);
+                if (slot == EquipmentSlot.MAINHAND) {
+                    player.getInventory().items.set(player.getInventory().selected, ItemStack.EMPTY);
+                } else if (slot == EquipmentSlot.OFFHAND) {
+                    player.getInventory().offhand.set(0, ItemStack.EMPTY);
+                } else {
+                    player.getInventory().armor.set(slot.getIndex(), ItemStack.EMPTY);
+                }
+                i++;
             }
-            i++;
+        } else {
+            itemStacks = null;
         }
 
         float yRotGui = disablePreviewRotation ? 180 : 200;
-        player.yBodyRot = yRotGui;
-        player.setYRot(yRotGui);
-        player.setXRot(0);
-        player.yHeadRot = player.getYRot();
-        player.yHeadRotO = player.getYRot();
+        living.yBodyRot = yRotGui;
+        living.yBodyRotO = yRotGui;
+        living.setYRot(yRotGui);
+        living.yRotO = yRotGui;
+        living.setXRot(0);
+        living.xRotO = 0;
+        living.yHeadRot = living.getYRot();
+        living.yHeadRotO = living.getYRot();
 
         // 修正骑乘时 GUI 界面歪头的 bug
-        if (player.getVehicle() instanceof LivingEntity vehicle) {
+        if (living.getVehicle() instanceof LivingEntity vehicle) {
             float vehicleYRot = vehicle.getYRot();
             poseStack.mulPose(Axis.YP.rotationDegrees(vehicleYRot - yRotGui));
-            player.yHeadRot = vehicleYRot;
-            player.yHeadRotO = vehicleYRot;
+            living.yHeadRot = vehicleYRot;
+            living.yHeadRotO = vehicleYRot;
         }
 
         Lighting.setupForEntityInInventory();
@@ -268,28 +293,34 @@ public final class RenderUtil {
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            renderer.renderModelInGui(animatableEntity, 0, 1.0f, poseStack, bufferSource, 0xf000f0);
+            renderer.renderAnimatableEntity(animatableEntity, null, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
         dispatcher.setRenderShadow(true);
 
-        player.yBodyRot = yBodyRot;
-        player.setYRot(yRot);
-        player.setXRot(xRot);
-        player.yHeadRotO = yHeadRotO;
-        player.yHeadRot = yHeadRot;
+        living.yBodyRot = yBodyRot;
+        living.yBodyRotO = yBodyRotO;
+        living.setYRot(yRot);
+        living.yRotO = yRotO;
+        living.setXRot(xRot);
+        living.xRotO = xRot;
+        living.yHeadRotO = yHeadRotO;
+        living.yHeadRot = yHeadRot;
 
-        i = 0;
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            ItemStack itemStack = itemStacks[i];
-            if (slot == EquipmentSlot.MAINHAND) {
-                player.getInventory().items.set(player.getInventory().selected, itemStack);
-            } else if (slot == EquipmentSlot.OFFHAND) {
-                player.getInventory().offhand.set(0, itemStack);
-            } else {
-                player.getInventory().armor.set(slot.getIndex(), itemStack);
+        if (itemStacks != null) {
+            Player player = (Player) living;
+            int i = 0;
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack itemStack = itemStacks[i];
+                if (slot == EquipmentSlot.MAINHAND) {
+                    player.getInventory().items.set(player.getInventory().selected, itemStack);
+                } else if (slot == EquipmentSlot.OFFHAND) {
+                    player.getInventory().offhand.set(0, itemStack);
+                } else {
+                    player.getInventory().armor.set(slot.getIndex(), itemStack);
+                }
+                i++;
             }
-            i++;
         }
 
         viewStack.popPose();
@@ -297,7 +328,7 @@ public final class RenderUtil {
         Lighting.setupFor3DItems();
     }
 
-    public static void renderExtraPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z) {
+    public static void renderExtraPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z, float partialTicks) {
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
         viewStack.translate(posX + scale * 0.5, posY + scale * 2, 0);
@@ -306,17 +337,16 @@ public final class RenderUtil {
         pGuiGraphics.pose().pushPose();
         pGuiGraphics.pose().translate(0, 0, -z);
         pGuiGraphics.pose().scale(scale, scale, scale);
-        Quaternionf zRot = Axis.ZP.rotationDegrees(180.0F);
-        Quaternionf yRot = Axis.YP.rotationDegrees(player.yBodyRot + yawOffset - 180);
-        Quaternionf xRot = Axis.XP.rotationDegrees(1F); // 转一度能避免剔除算法产生 Nan 值
-        zRot.mul(yRot).mul(xRot);
+        Quaternionf zRot = Axis.ZP.rotationDegrees(180.1F);
+        Quaternionf yRot = Axis.YP.rotationDegrees(Mth.lerp(partialTicks, player.yBodyRotO, player.yBodyRot) + yawOffset - 180);
+        zRot.mul(yRot);
         pGuiGraphics.pose().mulPose(zRot);
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         yRot.conjugate();
         renderDispatcher.overrideCameraOrientation(yRot);
         renderDispatcher.setRenderShadow(false);
-        RenderSystem.runAsFancy(() -> renderDispatcher.render(player, 0, 0, 0.0D, 0.0F, 1.0F, pGuiGraphics.pose(), pGuiGraphics.bufferSource(), 15728880));
+        RenderSystem.runAsFancy(() -> renderDispatcher.render(player, 0, 0, 0.0D, 0.0F, partialTicks, pGuiGraphics.pose(), pGuiGraphics.bufferSource(), 15728880));
         pGuiGraphics.flush();
         renderDispatcher.setRenderShadow(true);
         pGuiGraphics.pose().popPose();

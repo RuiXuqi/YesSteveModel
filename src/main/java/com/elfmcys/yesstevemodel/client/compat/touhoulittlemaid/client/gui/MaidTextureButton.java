@@ -8,11 +8,6 @@ import com.elfmcys.yesstevemodel.util.NameUtil;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.network.NetworkHandler;
 import com.github.tartaricacid.touhoulittlemaid.network.message.YsmMaidModelMessage;
-import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 
 public class MaidTextureButton extends TextureButton {
@@ -23,8 +18,8 @@ public class MaidTextureButton extends TextureButton {
     private String textureName;
     private Component name;
 
-    public MaidTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, boolean disablePreviewRotation, EntityMaid rawMaid, int modelIndex) {
-        super(pX, pY, animatedEntity, disablePreviewRotation);
+    public MaidTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, EntityMaid rawMaid, int modelIndex) {
+        super(pX, pY, animatedEntity);
         this.renderMaid = new EntityMaid(rawMaid.level());
         this.renderMaid.setIsYsmModel(true);
         this.renderMaid.setOnGround(true);
@@ -35,6 +30,7 @@ public class MaidTextureButton extends TextureButton {
                 this.name = NameUtil.getModeName(model, modelId);
                 this.textureName = model.textures().getKeyAt(modelIndex);
                 this.renderMaid.setYsmModel(modelId, this.textureName, name);
+                animatedEntity.setModelAndTexture(modelId, textureName);
             });
         });
     }
@@ -43,20 +39,5 @@ public class MaidTextureButton extends TextureButton {
     public void onPress() {
         this.renderMaid.setYsmModel(this.modelId, this.textureName, this.name);
         NetworkHandler.CHANNEL.sendToServer(new YsmMaidModelMessage(this.maidId, this.modelId, this.textureName, this.name));
-    }
-
-    @Override
-    protected void renderReferenceEntity(GuiGraphics graphics) {
-        Window window = Minecraft.getInstance().getWindow();
-        double scale = window.getGuiScale();
-        int scissorX = (int) (this.getX() * scale);
-        int scissorY = (int) (window.getHeight() - ((this.getY() + this.height - 20) * scale));
-        int scissorW = (int) (this.width * scale);
-        int scissorH = (int) ((this.height - 20) * scale);
-        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics,
-                this.getX() + this.width / 2, this.getY() + this.height / 2 + 24, 35,
-                30, -10, this.renderMaid);
-        RenderSystem.disableScissor();
     }
 }

@@ -9,8 +9,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.render.BackpackModelManager;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.render.IBackpackModel;
@@ -19,7 +19,7 @@ import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 import static net.p3pp3rf1y.sophisticatedbackpacks.client.render.BackpackLayerRenderer.renderBackpack;
 
 public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntity> {
-    private final EntityModel<AbstractClientPlayer> model;
+    private final EntityModel<Player> model;
 
     YsmBackpackLayerRenderer() {
         BackpackModelManager.initModels();
@@ -30,10 +30,10 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
      * 空 EntityModel，仅用于渲染背包时的占位符
      */
     @SuppressWarnings("all")
-    private static EntityModel<AbstractClientPlayer> getEmptyModel() {
+    private static EntityModel<Player> getEmptyModel() {
         return new EntityModel<>() {
             @Override
-            public void setupAnim(AbstractClientPlayer entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+            public void setupAnim(Player entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
             }
 
             @Override
@@ -49,7 +49,7 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
         if (geoModel == null || geoModel.backpackBones().isEmpty()) {
             return;
         }
-        AbstractClientPlayer player = animatableEntity.getEntity();
+        Player player = animatableEntity.getEntity();
         final ItemStack[] backpack = new ItemStack[1];
         // 先尝试获取 curios 的背包
         if (CuriosCompat.isInstalled()) {

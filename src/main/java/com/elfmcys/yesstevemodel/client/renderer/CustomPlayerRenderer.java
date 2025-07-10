@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerElytraLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerItemInHandLayer;
@@ -12,7 +11,6 @@ import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -20,6 +18,7 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
@@ -27,8 +26,7 @@ import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
-public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClientPlayer, CustomPlayerEntity> {
-
+public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, CustomPlayerEntity> {
     @SuppressWarnings("all")
     public CustomPlayerRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
@@ -39,7 +37,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
 
     @Override
     @SuppressWarnings("all")
-    public void render(AbstractClientPlayer player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+    public void render(Player player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         PlayerAnimatableCapability cap = player.getCapability(PlayerAnimatableCapabilityProvider.CAP).orElse(null);
         if (cap == null) {
             return;
@@ -53,13 +51,8 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
         renderAnimatableEntity(cap, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    public void renderModelInGui(CustomGuiPlayerEntity entity, float entityYaw, float partialTick, PoseStack poseStack,
-                                 MultiBufferSource bufferSource, int packedLight) {
-        renderAnimatableEntity(entity, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
-    }
-
     @Override
-    public boolean shouldShowName(AbstractClientPlayer entity) {
+    public boolean shouldShowName(Player entity) {
         double distance = this.entityRenderDispatcher.distanceToSqr(entity);
         float renderDistance = entity.isDiscrete() ? 32.0F : 64.0F;
         if (distance >= (double) (renderDistance * renderDistance)) {
@@ -91,13 +84,13 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
 
     @Override
     @NotNull
-    public ResourceLocation getTextureLocation(AbstractClientPlayer pEntity) {
+    public ResourceLocation getTextureLocation(Player pEntity) {
         return pEntity.getCapability(PlayerAnimatableCapabilityProvider.CAP).map(CustomPlayerEntity::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
     }
 
     @Override
     @SuppressWarnings("all")
-    protected void renderNameTag(AbstractClientPlayer player, Component displayName, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+    protected void renderNameTag(Player player, Component displayName, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         double distance = this.entityRenderDispatcher.distanceToSqr(player);
         poseStack.pushPose();
         if (distance < 100) {
@@ -114,7 +107,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<AbstractClie
     }
 
     @Override
-    protected void setupRotations(AbstractClientPlayer player, PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
+    protected void setupRotations(Player player, PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
         super.setupRotations(player, poseStack, pAgeInTicks, pRotationYaw, pPartialTicks);
         // 如果是坐在女仆的实体上，则需要偏移回去（哎，屎山代码+1006）
         Entity vehicle = player.getVehicle();

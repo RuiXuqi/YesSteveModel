@@ -6,8 +6,9 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.github.tartaricacid.touhoulittlemaid.api.client.render.MaidRenderState;
@@ -36,7 +37,7 @@ public class YsmMaidMainPredicate implements IAnimationPredicate<CustomYsmMaidEn
     @Override
     public PlayState test(AnimationEvent<CustomYsmMaidEntity> event, ExpressionEvaluator<?> evaluator) {
         EntityMaid maid = event.getAnimatableEntity().getEntity();
-        if (maid == null) {
+        if (maid == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
 
@@ -56,7 +57,7 @@ public class YsmMaidMainPredicate implements IAnimationPredicate<CustomYsmMaidEn
             for (AnimationState<EntityMaid, CustomYsmMaidEntity> state : DATA[i]) {
                 if (state.getPredicate().test(maid, event)) {
                     String animationName = state.getAnimationName();
-                    ILoopType loopType = state.getLoopType();
+                    LoopType loopType = state.getLoopType();
 
                     // 先判断拔刀剑动画
                     // FIXME: 女仆不能打出剑技吧？

@@ -6,13 +6,14 @@ import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPre
 
 public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEntity> {
     @SuppressWarnings("unchecked")
-    private static final ReferenceArrayList<AnimationState<AbstractClientPlayer, CustomPlayerEntity>>[] DATA = new ReferenceArrayList[Priority.LOWEST + 1];
+    private static final ReferenceArrayList<AnimationState<Player, CustomPlayerEntity>>[] DATA = new ReferenceArrayList[Priority.LOWEST + 1];
 
     static {
         for (int i = 0; i < DATA.length; i++) {
@@ -28,17 +29,17 @@ public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEnti
         }
     }
 
-    public static void register(AnimationState<AbstractClientPlayer, CustomPlayerEntity> state) {
+    public static void register(AnimationState<Player, CustomPlayerEntity> state) {
         DATA[state.getPriority()].add(state);
     }
 
     @Override
     public PlayState test(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<?> evaluator) {
-        AbstractClientPlayer player = event.getAnimatableEntity().getEntity();
+        Player player = event.getAnimatableEntity().getEntity();
         if (player == null) {
             return PlayState.STOP;
         }
-        if (event.getAnimatableEntity().hasPreviewAnimation()) {
+        if (event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
         // 跑酷模组兼容
@@ -53,10 +54,10 @@ public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEnti
         }
 
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {
-            for (AnimationState<AbstractClientPlayer, CustomPlayerEntity> state : DATA[i]) {
+            for (AnimationState<Player, CustomPlayerEntity> state : DATA[i]) {
                 if (state.getPredicate().test(player, event)) {
                     String animationName = state.getAnimationName();
-                    ILoopType loopType = state.getLoopType();
+                    LoopType loopType = state.getLoopType();
 
                     // 先判断拔刀剑动画
                     PlayState slashBladeAnimation = SlashBladeCompat.playMainAnimation(player, event, animationName, loopType);

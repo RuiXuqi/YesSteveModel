@@ -39,7 +39,7 @@ public class EffectLevel extends ContextFunction<Entity> {
                 }
             }
         } else if (context.entity().animatableEntity() instanceof PlayerAnimatableCapability cap) {
-            return cap.getEffectLevel(effect);
+            return cap.getStateTracker().getEffectLevel(effect);
         } else if (context.entity().entity() instanceof LivingEntity) {
             MobEffectInstance instance = ((LivingEntity) context.entity().entity()).getEffect(effect);
             if (instance != null) {

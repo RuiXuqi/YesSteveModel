@@ -2,6 +2,8 @@ package com.elfmcys.yesstevemodel.geckolib3.model;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
+import com.elfmcys.yesstevemodel.client.event.ClientTickEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
@@ -17,19 +19,15 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -37,24 +35,15 @@ import java.util.function.Consumer;
 @SuppressWarnings("unchecked,rawtypes")
 public abstract class AnimatableEntity<TEntity extends Entity> {
     private final AnimationData manager = new AnimationData();
-    private final IntOpenHashSet entityTickStates = new IntOpenHashSet();
     private final AnimationProcessor animationProcessor;
     private final RateLimiter rateLimiter;
+    private final EntityStateTracker<TEntity> entityStateTracker;
 
-    protected TEntity entity;
+    protected final TEntity entity;
     private GeoModelState currentModel;
 
     private float seekTime;
-    private float lastGameTickTime;
-    private int lastEntityTickCount;
     private boolean initialize = false;
-
-    private Vec3 lastPosition;
-    private Vec3 positionDelta = Vec3.ZERO;
-    /**
-     * ms
-     */
-    protected float lastFrameTime;
 
     @Nullable
     private Future<AnimationEvent<?>> task;
@@ -63,9 +52,18 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.entity = entity;
         this.animationProcessor = new AnimationProcessor(this);
         this.rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
+        this.entityStateTracker = createStateTracker(entity);
         if (asyncUpdate) {
             AnimationParallelTicker.register(this);
         }
+    }
+
+    protected EntityStateTracker<TEntity> createStateTracker(TEntity entity) {
+        return new EntityStateTracker(entity);
+    }
+
+    public EntityStateTracker<TEntity> getStateTracker() {
+        return entityStateTracker;
     }
 
     public float getSeekTime() {
@@ -84,6 +82,10 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     public abstract ResourceLocation getTextureLocation();
 
+    /**
+     * 获取当前选中的模型，
+     * 在更新前未必等于 currentModel
+     */
     public abstract GeoModel getModel();
 
     public abstract boolean isModelPresent();
@@ -91,11 +93,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     public abstract float getWidthScale();
 
     public abstract float getHeightScale();
-
-    public boolean hasPreviewAnimation() {
-        // 是否有预览动画功能，目前仅有玩家支持此功能
-        return false;
-    }
 
     @Nullable
     public abstract Animation getAnimation(String name);
@@ -135,64 +132,34 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return animationProcessor.getBone(boneName);
     }
 
-    public boolean setCustomAnimations(MolangContext<?> ctx, @NotNull AnimationEvent<?> animationEvent) {
-        Minecraft mc = Minecraft.getInstance();
-
-        boolean forceUpdate = this.shouldForceUpdate();
-        float currentTick = getCurrentTick();
+    protected boolean updateAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<?> animationEvent) {
+        var frameTime = animationEvent.getEntityTickCount() + animationEvent.getPartialTick();
 
         if (manager.startTick == -1) {
-            manager.startTick = currentTick;
+            manager.startTick = frameTime;
         } else {
-            manager.tick = currentTick - manager.startTick;
-            if (!mc.isPaused() || manager.shouldPlayWhilePaused) {
-                float deltaTicks = manager.tick - this.lastGameTickTime;
-                this.seekTime += deltaTicks;
+            float currentTick = frameTime - manager.startTick;
+            float deltaTicks = currentTick - manager.lastTick;
+            if (deltaTicks < 0f) {  // 目前不允许倒退，可能会影响 replay 的回放
+                return false;
             }
-            this.lastGameTickTime = manager.tick;
+            manager.lastTick = currentTick;
+            this.seekTime += deltaTicks;
         }
 
+        boolean forceUpdate = this.shouldForceUpdate();
         animationEvent.renderTicks = this.seekTime;
-        if (!getAnimationProcessor().isModelRendererEmpty()) {
+
+        if (!getAnimationProcessor().isModelEmpty()) {
             var shouldUpdate = rateLimiter.request(seekTime / 20);
             if (forceUpdate || shouldUpdate) {
-                float currentFrameTime = getCurrentTick() * 50;
-                if (currentFrameTime > lastFrameTime && lastFrameTime != 0) {
-                    updateFrameData(currentFrameTime, lastFrameTime, animationEvent.getPartialTick());
-                }
-
-                int entityTickCount = entity.tickCount;
-                if (lastEntityTickCount != entityTickCount) {
-                    lastEntityTickCount = entityTickCount;
-                    entityTickStates.clear();
-                }
-
+                entityStateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
                 preAnimationSetup(this.seekTime);
                 getAnimationProcessor().tickAnimation(shouldUpdate, animationEvent, ctx);
-
-                lastFrameTime = currentFrameTime;
                 return true;
             }
         }
         return false;
-    }
-
-    protected void updateFrameData(float currentFrameTime, float lastFrameTime, float partialTicks) {
-        updatePositionDelta(partialTicks);
-    }
-
-    private void updatePositionDelta(float partialTicks) {
-        var cur = new Vec3(Mth.lerp(partialTicks, entity.xo, entity.getX()),
-                Mth.lerp(partialTicks, entity.yo, entity.getY()),
-                Mth.lerp(partialTicks, entity.zo, entity.getZ()));
-        if (lastPosition != null) {
-            positionDelta = cur.subtract(lastPosition);
-        }
-        lastPosition = cur;
-    }
-
-    public Vec3 getPositionDelta() {
-        return positionDelta;
     }
 
     public AnimationProcessor getAnimationProcessor() {
@@ -200,40 +167,37 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     /**
-     * 成功更新返回 true，未更新返回 false
+     * 检查选择的模型是否有更新并尝试更新，成功更新返回 true，未更新返回 false
      */
     public boolean updateCurrentModel(boolean force) {
         GeoModel model = getModel();
         if (model == null) {
-            this.currentModel = null;
-            return true;
+            if (this.currentModel != null) {
+                this.currentModel = null;
+                return true;
+            }
+            return false;
         }
         if (force || this.currentModel == null || model != this.currentModel.model()) {
             this.currentModel = new GeoModelState(model);
-            this.animationProcessor.registerModelRenderer(currentModel.boneMap());
+            this.animationProcessor.registerModelBones(currentModel.boneMap());
             setupModel(this.currentModel);
             return true;
         }
         return false;
     }
 
-    public boolean setEntityTickState(int name) {
-        return entityTickStates.add(name);
-    }
-
-    public boolean hasEntityTickState(int name) {
-        return entityTickStates.contains(name);
-    }
-
+    /**
+     * 获取当前正在使用的模型
+     */
     public GeoModelState getCurrentModel() {
         return currentModel;
     }
 
+    /**
+     * 更新当前使用的模型后调用
+     */
     protected void setupModel(GeoModelState model) {
-    }
-
-    public float getCurrentTick() {
-        return RenderUtils.getRenderTickTime();
     }
 
     public boolean shouldForceUpdate() {
@@ -293,6 +257,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         }
         final Entity entity = this.entity;
         final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
+        int entityTickCount = this instanceof IPreviewEntity ? ClientTickEvent.getTickCount() : entity.tickCount;
+        float realPartialTicks = partialTicks != 1f ? partialTicks : Minecraft.getInstance().getFrameTime();
 
         boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
         float limbSwingAmount = 0;
@@ -337,12 +303,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         entityModelData.rawNetHeadYaw = netHeadYaw;
         entityModelData.netHeadYaw = -Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
         entityModelData.lerpBodyRot = lerpBodyRot;
-        entityModelData.lerpedAge = entity.tickCount + partialTicks;
+        entityModelData.lerpedAge = entityTickCount + partialTicks;
 
-        AnimationEvent<?> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, partialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), Collections.singletonList(entityModelData));
+        AnimationEvent<?> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
         MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
         ctx.setDebugSource(getDebugSource());
-        this.setCustomAnimations(ctx, event);
+        this.updateAnimation(ctx, event);
         return event;
     }
 

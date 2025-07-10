@@ -2,8 +2,9 @@ package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalPassenger;
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -17,7 +18,7 @@ public class PassengerPredicate implements IAnimationPredicate<AnimatableEntity<
     @Override
     public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
-        if (entity == null || event.getAnimatableEntity().hasPreviewAnimation()) {
+        if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
         Entity passenger = entity.getFirstPassenger();
@@ -30,7 +31,7 @@ public class PassengerPredicate implements IAnimationPredicate<AnimatableEntity<
         if (conditionalPassenger != null) {
             String name = conditionalPassenger.doTest(entity);
             if (StringUtils.isNoneBlank(name)) {
-                return playAnimation(event, name, ILoopType.EDefaultLoopTypes.LOOP);
+                return playAnimation(event, name, LoopType.LOOP);
             }
         }
         return PlayState.STOP;

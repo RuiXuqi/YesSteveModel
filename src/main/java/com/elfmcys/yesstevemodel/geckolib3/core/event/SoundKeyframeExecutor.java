@@ -11,22 +11,22 @@ import com.elfmcys.yesstevemodel.client.sound.MinecraftSoundInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.EventKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.init.ModSounds;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class SoundKeyframeExecutor {
     private final List<EventKeyFrame<String>> list;
-    private List<ICanStopSound> cachePlaySounds;
+    private final ReferenceArrayList<ICanStopSound> cachePlaySounds;
     private int nextIndex = 0;
 
     public SoundKeyframeExecutor(List<EventKeyFrame<String>> list) {
         this.list = list;
-        this.cachePlaySounds = new LinkedList<>();
+        this.cachePlaySounds = new ReferenceArrayList<>();
     }
 
     public void executeTo(AnimatableEntity<?> animatable, float currentTick, boolean dryRun) {
@@ -64,10 +64,13 @@ public class SoundKeyframeExecutor {
 
     public void reset() {
         nextIndex = 0;
+        stopPlayingSounds();
+    }
+
+    public void stopPlayingSounds() {
         if (!cachePlaySounds.isEmpty()) {
             cachePlaySounds.forEach(ICanStopSound::setStopped);
-            // 重建比删除快？
-            cachePlaySounds = new LinkedList<>();
+            cachePlaySounds.clear();
         }
     }
 

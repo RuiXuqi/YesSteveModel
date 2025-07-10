@@ -15,9 +15,9 @@ import java.util.List;
 
 // Native Access
 public class Animation {
-    public final String animationName;
+    public final String name;
     public final float animationLength;
-    public final ILoopType loop;
+    public final LoopType loop;
     @Nullable
     public final IValue startDelay;
     @Nullable
@@ -32,8 +32,8 @@ public class Animation {
     public final List<EventKeyFrame<IValue[]>> customInstructionKeyframes;
 
     // Native Access
-    public Animation(String animationName, double animationLength, ILoopType loop, @Nullable IValue startDelay, @Nullable IValue loopDelay, @Nullable IValue blendWeight, @Nullable Boolean overridePreviousAnimation, BoneAnimation[] boneAnimations, EventKeyFrame<String>[] soundKeyFrames, ParticleEventKeyFrame[] particleKeyFrames, EventKeyFrame<IValue[]>[] customInstructionKeyframes) {
-        this.animationName = animationName;
+    public Animation(String name, double animationLength, LoopType loop, @Nullable IValue startDelay, @Nullable IValue loopDelay, @Nullable IValue blendWeight, @Nullable Boolean overridePreviousAnimation, BoneAnimation[] boneAnimations, EventKeyFrame<String>[] soundKeyFrames, ParticleEventKeyFrame[] particleKeyFrames, EventKeyFrame<IValue[]>[] customInstructionKeyframes) {
+        this.name = name;
         this.animationLength = (float) animationLength;
         this.loop = loop;
         this.startDelay = startDelay;

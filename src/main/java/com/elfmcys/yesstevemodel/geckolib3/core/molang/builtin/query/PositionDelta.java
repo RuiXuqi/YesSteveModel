@@ -9,7 +9,7 @@ public class PositionDelta extends EntityFunction {
     @Override
     protected Object eval(ExecutionContext<IContext<Entity>> context, ArgumentCollection arguments) {
         int axis = arguments.getAsInt(context, 0);
-        var delta = context.entity().animatableEntity().getPositionDelta();
+        var delta = context.entity().animatableEntity().getStateTracker().getPositionDelta();
         switch (axis) {
             case 0: return delta.x;
             case 1: return delta.y;

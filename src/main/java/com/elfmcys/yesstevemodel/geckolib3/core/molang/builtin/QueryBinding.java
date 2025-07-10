@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
+import com.elfmcys.yesstevemodel.capability.PlayerStateTracker;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
@@ -92,10 +94,11 @@ public class QueryBinding extends ContextBinding {
         livingEntityVar("item_remaining_use_duration", ctx -> ctx.entity().getUseItemRemainingTicks() / 20.0);
         livingEntityVar("equipment_count", ctx -> getEquipmentCount(ctx.entity()));
 
-        playerVar("has_cape", ctx -> hasCape(ctx.entity()));
         playerVar("cape_flap_amount", QueryBinding::getCapeFlapAmount);
         playerVar("player_level", QueryBinding::getExpLevel);
         playerVar("is_jumping", ctx -> !isFlying(ctx) && !ctx.entity().isPassenger() && !ctx.entity().onGround() && !ctx.entity().isInWater());
+
+        clientPlayerVar("has_cape", ctx -> hasCape(ctx.entity()));
     }
 
     private static Optional<AnimationContext> getAnimationContext(IContext<?> ctx) {
@@ -106,17 +109,17 @@ public class QueryBinding extends ContextBinding {
         return Optional.ofNullable(ctx.controllerContext());
     }
 
-    private static boolean isFlying(IContext<AbstractClientPlayer> ctx) {
+    private static boolean isFlying(IContext<Player> ctx) {
         if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
-            return cap.isFlying();
+            return cap.getStateTracker().isFlying();
         } else {
             return ctx.entity().getAbilities().flying;
         }
     }
 
-    private static int getExpLevel(IContext<AbstractClientPlayer> ctx) {
+    private static int getExpLevel(IContext<Player> ctx) {
         if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
-            return cap.expLevel();
+            return cap.getStateTracker().expLevel();
         } else {
             return ctx.entity().experienceLevel;
         }
@@ -151,7 +154,7 @@ public class QueryBinding extends ContextBinding {
 
     private static float getYawSpeed(IContext<Entity> ctx) {
         if (ctx.entity() instanceof LocalPlayer) {
-            return PlayerAnimatableCapability.getLocalPlayerYawSpeed();
+            return PlayerStateTracker.getLocalPlayerYawSpeed();
         } else {
             return 20 * (ctx.entity().getYRot() - ctx.entity().yRotO);
         }
@@ -166,9 +169,9 @@ public class QueryBinding extends ContextBinding {
         return 20 * (float) (entity.position().y - entity.yo);
     }
 
-    private static float getCapeFlapAmount(IContext<AbstractClientPlayer> ctx) {
+    private static float getCapeFlapAmount(IContext<Player> ctx) {
         float pPartialTicks = ctx.animationEvent().getPartialTick();
-        AbstractClientPlayer pLivingEntity = ctx.entity();
+        var pLivingEntity = ctx.entity();
 
         float d0 = (float) (Mth.lerp(pPartialTicks, pLivingEntity.xCloakO, pLivingEntity.xCloak) - Mth.lerp(pPartialTicks, pLivingEntity.xo, pLivingEntity.getX()));
         float d1 = (float) (Mth.lerp(pPartialTicks, pLivingEntity.yCloakO, pLivingEntity.yCloak) - Mth.lerp(pPartialTicks, pLivingEntity.yo, pLivingEntity.getY()));

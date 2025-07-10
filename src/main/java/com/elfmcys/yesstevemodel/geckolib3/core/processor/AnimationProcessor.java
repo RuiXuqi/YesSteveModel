@@ -32,8 +32,8 @@ import java.util.function.Consumer;
 public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private static final int ROAMING_STRUCT_NAME = StringPool.computeIfAbsent("roaming");
 
-    private final ReferenceArrayList<BoneTopLevelSnapshot> modelRendererList = new ReferenceArrayList<>();
-    private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelRendererMap = new Object2ReferenceOpenHashMap<>();
+    private final ReferenceArrayList<BoneTopLevelSnapshot> modelBones = new ReferenceArrayList<>();
+    private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelBonesMap = new Object2ReferenceOpenHashMap<>();
     private final MolangMemory molangMemory = new MolangMemory();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
     private final DebugInfo debugInfo = new DebugInfo();
@@ -41,7 +41,7 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     private final Object2ReferenceOpenHashMap<String, IPhysics> physicsValues = new Object2ReferenceOpenHashMap<>(16);
     private final T animatable;
 
-    private boolean rendererDirty = false;
+    private boolean modelDirty = false;
     private long cachePhysicsTimeStamp = -1L;
 
     public AnimationProcessor(T animatable) {
@@ -58,8 +58,8 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         // InstancedAnimationFactory 仅保有一个 AnimationData 实例，与传入的 uniqueID 无关
         AnimationData manager = this.animatable.getAnimationData();
         for (IAnimationController<T> controller : manager.getAnimationControllers()) {
-            if (this.rendererDirty) {
-                controller.updateRenderer(this.modelRendererList);
+            if (this.modelDirty) {
+                controller.updateModelBones(this.modelBones);
             }
             // 将当前控制器设置为动画测试事件
             // 处理动画并向点队列添加新值
@@ -95,11 +95,11 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             });
         }
 
-        this.rendererDirty = false;
+        this.modelDirty = false;
 
         // 追踪哪些骨骼应用了动画，并最终将没有动画的骨骼设置为默认值
         final float resetTickLength = manager.getResetSpeed();
-        for (BoneTopLevelSnapshot topLevelSnapshot : modelRendererList) {
+        for (BoneTopLevelSnapshot topLevelSnapshot : modelBones) {
             BoneSnapshot initialSnapshot = topLevelSnapshot.bone.getInitialSnapshot();
 
             if (!topLevelSnapshot.isCurrentlyRunningRotationAnimation) {
@@ -135,30 +135,29 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
 
             topLevelSnapshot.commit();
         }
-        manager.isFirstTick = false;
 
         postProcess(evaluator);
     }
 
     @Nullable
     public IBone getBone(String boneName) {
-        BoneTopLevelSnapshot renderer = modelRendererMap.get(boneName);
-        return renderer != null ? renderer.bone : null;
+        BoneTopLevelSnapshot bone = modelBonesMap.get(boneName);
+        return bone != null ? bone.bone : null;
     }
 
-    public void registerModelRenderer(Map<String, IBone> boneMap) {
-        this.modelRendererMap.clear();
-        this.modelRendererList.clear();
-        this.modelRendererList.ensureCapacity(boneMap.size());
+    public void registerModelBones(Map<String, IBone> boneMap) {
+        this.modelBonesMap.clear();
+        this.modelBones.clear();
+        this.modelBones.ensureCapacity(boneMap.size());
         for (Map.Entry<String, IBone> entry : boneMap.entrySet()) {
-            BoneTopLevelSnapshot renderer = new BoneTopLevelSnapshot(entry.getValue());
-            this.modelRendererMap.put(entry.getKey(), renderer);
-            this.modelRendererList.add(renderer);
+            BoneTopLevelSnapshot bone = new BoneTopLevelSnapshot(entry.getValue());
+            this.modelBonesMap.put(entry.getKey(), bone);
+            this.modelBones.add(bone);
         }
         this.molangMemory.initialize(null);
         this.physicsValues.clear();
         this.cachePhysicsTimeStamp = -1L;
-        this.rendererDirty = true;
+        this.modelDirty = true;
     }
 
     public void putRemoteStruct(@Nullable Struct remoteStruct) {
@@ -176,8 +175,8 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         return this.physicsValues.get(key);
     }
 
-    public boolean isModelRendererEmpty() {
-        return modelRendererList.isEmpty();
+    public boolean isModelEmpty() {
+        return modelBones.isEmpty();
     }
 
     private void preProcess(ExpressionEvaluator<MolangContext<?>> evaluator) {

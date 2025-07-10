@@ -36,7 +36,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -57,7 +56,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     static {
         for (int i = 0; i < MODEL_PREVIEW_ENTITY.length; i++) {
             CustomGuiPlayerEntity animatedEntity = new CustomGuiPlayerEntity();
-            animatedEntity.setPreviewAnimation(AnimationRegister.IDLE);
+            animatedEntity.getPreviewInfo().setPreview(AnimationRegister.IDLE);
             MODEL_PREVIEW_ENTITY[i] = animatedEntity;
         }
     }
@@ -65,9 +64,6 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     public PlayerModelScreen() {
         super(Component.literal("YSM Player Model GUI"));
         this.category = Category.ALL;
-        for (CustomGuiPlayerEntity animatedEntity : MODEL_PREVIEW_ENTITY) {
-            animatedEntity.setPlayer(Minecraft.getInstance().player);
-        }
         clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
         ClientModelManager.addSyncListener(this);
     }
@@ -246,7 +242,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                 minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                     var model = models.get(id);
                     animatedEntity.setModelAndTexture(id, model.defaultTextureName());
-                    animatedEntity.setPreviewAnimation(model.modelInfo().properties().previewAnimation());
+                    animatedEntity.getPreviewInfo().setPreview(model.modelInfo().properties().previewAnimation());
                     addRenderableWidget(getModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), animatedEntity, model));
                 });
             }
@@ -255,15 +251,15 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
     @Override
     @SuppressWarnings("all")
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float frameDeltaTime) {
         renderBackground(graphics);
 
         graphics.fillGradient(x, y, x + 135, y + 235, 0xff_222222, 0xff_222222);
         graphics.fillGradient(x + 138, y, x + 420, y + 235, 0xff_222222, 0xff_222222);
         graphics.fillGradient(x + 351, y + 7, x + 352, y + 21, 0xFF_F3EFE0, 0xFF_F3EFE0);
 
-        textField.render(graphics, mouseX, mouseY, partialTicks);
-        renderReferenceEntity(graphics, mouseX, mouseY);
+        textField.render(graphics, mouseX, mouseY, frameDeltaTime);
+        renderReferenceEntity(graphics, mouseX, mouseY, minecraft.getFrameTime());
 
         if (textField.getValue().isEmpty() && !textField.isFocused()) {
             graphics.drawString(font, Component.translatable("gui.yes_steve_model.search").withStyle(ChatFormatting.ITALIC), x + 148, y + 10, 0x777777);
@@ -275,14 +271,14 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         String debugInfo = String.format("%s-%s", SharedConstants.getCurrentVersion().getName(), ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString());
         graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
 
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        super.render(graphics, mouseX, mouseY, frameDeltaTime);
         this.renderables.stream().filter(r -> r instanceof FlatIconButton)
                 .forEach(r -> ((FlatIconButton) r).renderToolTip(graphics, this, mouseX, mouseY));
         this.renderables.stream().filter(r -> r instanceof ModelButton)
                 .forEach(r -> ((ModelButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
     }
 
-    protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             Window window = Minecraft.getInstance().getWindow();

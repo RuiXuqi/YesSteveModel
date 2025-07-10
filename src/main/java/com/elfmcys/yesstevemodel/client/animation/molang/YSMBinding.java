@@ -111,9 +111,6 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("is_fishing", YSMBinding::isFishing);
 
         playerVar("texture_name", new TextureNameVariable());
-        playerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
-        playerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
-        playerVar("elytra_rot_z", ctx -> Math.toDegrees(ctx.entity().elytraRotZ));
         playerVar("first_person_mod_hide", new FirstPersonModHideVariable());
         playerVar("has_left_shoulder_parrot", ctx -> hasParrot(ctx.entity(), true));
         playerVar("has_right_shoulder_parrot", ctx -> hasParrot(ctx.entity(), false));
@@ -133,6 +130,10 @@ public class YSMBinding extends ContextBinding {
         playerVar("entity_gravity", ctx -> ctx.entity().getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()));
         playerVar("step_height_addition", ctx -> ctx.entity().getAttributeValue(ForgeMod.STEP_HEIGHT_ADDITION.get()));
         playerVar("nametag_distance", ctx -> ctx.entity().getAttributeValue(ForgeMod.NAMETAG_DISTANCE.get()));
+
+        clientPlayerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
+        clientPlayerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
+        clientPlayerVar("elytra_rot_z", ctx -> Math.toDegrees(ctx.entity().elytraRotZ));
 
         function("first_order", new FirstOrderFunction());
         function("second_order", new SecondOrderFunction());

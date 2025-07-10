@@ -36,7 +36,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private final ControllerContext ctx;
 
     @Nullable
-    private List<BoneTopLevelSnapshot> modelRendererList;
+    private List<BoneTopLevelSnapshot> modelBones;
     @Nullable
     private GeoAnimationController data;
     @Nullable
@@ -55,7 +55,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
      *
      * @param animatableEntity      实体
      * @param name                  动画控制器名称
-     * @param transitionLengthTicks 动画过渡时间（tick）
+     * @param transitionLengthTicks 默认动画过渡时间（tick）
      */
     public BedrockAnimationController(T animatableEntity, String name, float transitionLengthTicks) {
         this.animatableEntity = animatableEntity;
@@ -137,27 +137,27 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     @Override
-    public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList) {
+    public void updateModelBones(List<BoneTopLevelSnapshot> modelBones) {
         var data = this.animatableEntity.getAnimationControllerData(this.name);
         if (data != null) {
-            this.updateRenderer(modelRendererList, data);
+            this.updateModelBones(modelBones, data);
         } else {
-            this.clearRenderer();
+            this.clearModelBones();
         }
     }
 
-    public void updateRenderer(List<BoneTopLevelSnapshot> modelRendererList, @NotNull GeoAnimationController animationControllerData) {
-        clearRenderer();
+    public void updateModelBones(List<BoneTopLevelSnapshot> modelBones, @NotNull GeoAnimationController animationControllerData) {
+        clearModelBones();
 
         this.data = animationControllerData;
-        for (var snapshot : modelRendererList) {
-            this.blendAnimationQueues.add(new BlendBoneAnimationQueue(snapshot));
+        for (var bone : modelBones) {
+            this.blendAnimationQueues.add(new BlendBoneAnimationQueue(bone));
         }
-        this.modelRendererList = modelRendererList;
+        this.modelBones = modelBones;
     }
 
-    public void clearRenderer() {
-        this.modelRendererList = ReferenceLists.emptyList();
+    public void clearModelBones() {
+        this.modelBones = ReferenceLists.emptyList();
         this.data = null;
         this.state = null;
         this.activeAnimationPlayerSize = 0;
@@ -196,7 +196,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             var animPair = newState.animations().get(i);
 
             if (holder.isDirty()) {
-                holder.animationPlayer().updateRenderer(this.modelRendererList);
+                holder.animationPlayer().updateModel(this.modelBones);
                 for (var queue : this.blendAnimationQueues) {
                     queue.addUnderlyingQueue(holder.conditionHolder(), holder.animationPlayer().getBoneAnimQueues().get(queue.boneName()));
                 }
@@ -339,7 +339,6 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             Vector3f offset = null;
             float transitionPercentProgress = 0f;
 
-            // 很多内部状态在 getLerpPoint 之后才更新，不要尝试提前初始化上面的变量
             for (var pair : this.underlyingQueues) {
                 var queue = pair.right();
                 if (!queue.isActive()) {
@@ -398,8 +397,6 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             boolean isTransition = false;
             Vector3f offset = null;
             float transitionPercentProgress = 0f;
-
-            // 很多内部状态在 getLerpPoint 之后才更新，不要尝试提前初始化上面的变量
 
             for (var pair : this.underlyingQueues) {
                 var queue = pair.right();

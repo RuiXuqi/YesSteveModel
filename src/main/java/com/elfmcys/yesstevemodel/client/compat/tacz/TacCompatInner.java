@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.ILoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -91,7 +91,7 @@ class TacCompatInner {
      * tac:run
      * tac:walk
      */
-    static PlayState playGunMainAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, ILoopType loopType) {
+    static PlayState playGunMainAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
         String tacName = "tac:" + animationName;
         String modelId = event.getAnimatableEntity().getModelId();
         Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, tacName);
@@ -168,12 +168,12 @@ class TacCompatInner {
 
         float reloadProgress = operator.getSynReloadState().getCountDown();
         if (reloadProgress > 0) {
-            return getGunTypeAnimation(event, weaponType, "tac:reload:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            return getGunTypeAnimation(event, weaponType, "tac:reload:", LoopType.PLAY_ONCE);
         }
 
         long synMeleeCoolDown = operator.getSynMeleeCoolDown();
         if (synMeleeCoolDown > 0) {
-            return getGunTypeAnimation(event, weaponType, "tac:melee:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            return getGunTypeAnimation(event, weaponType, "tac:melee:", LoopType.PLAY_ONCE);
         }
 
         if (fireTick > 0) {
@@ -181,12 +181,12 @@ class TacCompatInner {
             boolean isClimbing = !livingEntity.isSwimming() && livingEntity.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) <= 0.05;
 
             if (isClimbing) {
-                return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                return getGunTypeAnimation(event, weaponType, "tac:climbing:fire:", LoopType.PLAY_ONCE);
             }
             if (aimProgress > 0) {
-                return getGunTypeAnimation(event, weaponType, "tac:aim:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                return getGunTypeAnimation(event, weaponType, "tac:aim:fire:", LoopType.PLAY_ONCE);
             } else {
-                return getGunTypeAnimation(event, weaponType, "tac:hold:fire:", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                return getGunTypeAnimation(event, weaponType, "tac:hold:fire:", LoopType.PLAY_ONCE);
             }
         }
         return PlayState.CONTINUE;
@@ -216,11 +216,11 @@ class TacCompatInner {
 
     @NotNull
     private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String weaponType, String prefix) {
-        return getGunTypeAnimation(event, weaponType, prefix, ILoopType.EDefaultLoopTypes.LOOP);
+        return getGunTypeAnimation(event, weaponType, prefix, LoopType.LOOP);
     }
 
     @NotNull
-    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String weaponType, String prefix, ILoopType loopType) {
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String weaponType, String prefix, LoopType loopType) {
         String modelId = event.getAnimatableEntity().getModelId();
         ConditionTAC conditionTAC = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
         if (conditionTAC != null) {
@@ -241,11 +241,11 @@ class TacCompatInner {
 
     @NotNull
     private static PlayState playLoopAnimation(AnimationEvent<?> event, String animationName) {
-        return playAnimation(event, animationName, ILoopType.EDefaultLoopTypes.LOOP);
+        return playAnimation(event, animationName, LoopType.LOOP);
     }
 
     @NotNull
-    private static PlayState playAnimation(AnimationEvent<?> event, String animationName, ILoopType loopType) {
+    private static PlayState playAnimation(AnimationEvent<?> event, String animationName, LoopType loopType) {
         event.getCodedController().setAnimation(animationName, loopType);
         return PlayState.CONTINUE;
     }
