@@ -95,7 +95,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 var holder = this.animationPlayers.get(i);
                 if (holder.conditionHolder.shouldApply()) {
                     appliedController++;
-                    if (holder.animationPlayer.currentAnimFinished(renderTicks)) {
+                    if (holder.animationPlayer.currentAnimFinished()) {
                         ctx.setAnyAnimationFinished(true);
                     } else {
                         ctx.setAllAnimationsFinished(false);
@@ -187,6 +187,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void updateState(GeoAnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
         evaluator.entity().setAllowEmitting(true);
         if (this.state != null) {
@@ -226,6 +227,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
             holder.conditionHolder().setApplyCondition(animPair.getRight());
             holder.animationPlayer().setTransition(newState.blendTransition().startNew());
+            holder.animationPlayer().forceReload();
             holder.animationPlayer().setAnimation(animPair.getLeft());
         }
     }

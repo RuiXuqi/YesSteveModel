@@ -100,12 +100,8 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.forceReload();
     }
 
-    public void resetAnim() {
-        this.animationPlayer.resetToIdle();
-    }
-
-    public boolean isAnimFinished(float renderTicks) {
-        return this.animationPlayer.currentAnimFinished(renderTicks);
+    public boolean isAnimFinished() {
+        return this.animationPlayer.currentAnimFinished();
     }
 
     public void stopPlayingSounds() {

@@ -144,10 +144,14 @@ public class AnimationPlayer {
         evaluator.entity().setAnimationContext(animationContext);
         var animTicks = getAnimTicks(renderTicks);
 
-        if (this.state == AnimationState.RUNNING
-                && animTicks > currentAnim.animationLength
+        if (currentAnimFinished
+                && this.state == AnimationState.RUNNING
                 && currentLoopType == LoopType.PLAY_ONCE) {
-            // 当前动画播放结束，清空状态
+            /*
+             * 当前动画播放结束，清空状态；
+             * 使用 currentAnimFinished 作为条件延迟一帧清空，是为了最后一个指令关键帧得以执行，
+             * 以及动画控制器下一个状态可以正确读取当前姿态作为过渡起点
+             */
             resetEventKeyframes(evaluator, dryRun);
             resetToIdle();
         }
@@ -374,14 +378,8 @@ public class AnimationPlayer {
      * <p>
      * Transition 状态下恒为 false，Idle 状态下恒为 true。
      */
-    public boolean currentAnimFinished(float renderTicks) {
-        if (this.currentAnimFinished) {
-            return true;
-        }
-        if (this.state == AnimationState.TRANSITIONING) {
-            return false;
-        }
-        return getAnimTicks(renderTicks) > currentAnim.animationLength;
+    public boolean currentAnimFinished() {
+        return currentAnimFinished;
     }
 
     public void setTransition(IBlendTransition transition) {
@@ -402,7 +400,7 @@ public class AnimationPlayer {
     }
 
     /**
-     * 停止播放并进入 IDLE 状态，下次 setAnimation 可重新播放相同的动画。
+     * 清空所有状态，下次 setAnimation 可重新播放相同的动画。
      */
     public void forceReload() {
         this.lastSetAnim = null;
