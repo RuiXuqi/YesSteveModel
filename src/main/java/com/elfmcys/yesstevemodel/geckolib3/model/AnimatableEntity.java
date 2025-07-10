@@ -14,7 +14,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -32,15 +31,18 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unchecked,rawtypes")
 public abstract class AnimatableEntity<TEntity extends Entity> {
     private final AnimationData manager = new AnimationData();
-    private final AnimationProcessor animationProcessor;
+    private final AnimationProcessor<TEntity> animationProcessor;
     private final RateLimiter rateLimiter;
-    private final EntityStateTracker<TEntity> entityStateTracker;
+    private final EntityStateTracker<TEntity> stateTracker;
 
     protected final TEntity entity;
     private GeoModelState currentModel;
+
+    // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
+    protected float lastFrameTime;
+    protected int currentFrameRenderTimes;
 
     private float seekTime;
     private boolean initialize = false;
@@ -50,27 +52,27 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     protected AnimatableEntity(TEntity entity, boolean asyncUpdate) {
         this.entity = entity;
-        this.animationProcessor = new AnimationProcessor(this);
+        this.animationProcessor = new AnimationProcessor<>(this);
         this.rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
-        this.entityStateTracker = createStateTracker(entity);
+        this.stateTracker = createStateTracker(entity);
         if (asyncUpdate) {
             AnimationParallelTicker.register(this);
         }
     }
 
     protected EntityStateTracker<TEntity> createStateTracker(TEntity entity) {
-        return new EntityStateTracker(entity);
+        return new EntityStateTracker<>(entity);
     }
 
     public EntityStateTracker<TEntity> getStateTracker() {
-        return entityStateTracker;
+        return stateTracker;
     }
 
     public float getSeekTime() {
         return seekTime;
     }
 
-    public void addAnimationController(IAnimationController value) {
+    public void addAnimationController(IAnimationController<? extends AnimatableEntity<TEntity>> value) {
         this.manager.addAnimationController(value);
     }
 
@@ -120,6 +122,10 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return 0.15f;
     }
 
+    /**
+     * 更新动画之前调用，
+     * 如果由于频率限制、renderTick 倒退等原因导致动画不更新，则不会调用
+     */
     protected void preAnimationSetup(float seekTime) {
     }
 
@@ -128,11 +134,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     @Nullable
-    public IBone getBone(String boneName) {
+    public IBone getBone(int boneName) {
         return animationProcessor.getBone(boneName);
     }
 
-    protected boolean updateAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<?> animationEvent) {
+    protected boolean updateAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
         var frameTime = animationEvent.getEntityTickCount() + animationEvent.getPartialTick();
 
         if (manager.startTick == -1) {
@@ -140,29 +146,38 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         } else {
             float currentTick = frameTime - manager.startTick;
             float deltaTicks = currentTick - manager.lastTick;
-            if (deltaTicks < 0f) {  // 目前不允许倒退，可能会影响 replay 的回放
-                return false;
+            if (deltaTicks > 0f) {
+                manager.lastTick = currentTick;
+            } else {
+                // 目前不允许倒退，可能会影响 replay 的回放
+                deltaTicks = 0;
             }
-            manager.lastTick = currentTick;
             this.seekTime += deltaTicks;
+        }
+
+        if (frameTime > lastFrameTime) {
+            currentFrameRenderTimes = 1;
+            lastFrameTime = frameTime;
+        } else {
+            currentFrameRenderTimes++;
         }
 
         boolean forceUpdate = this.shouldForceUpdate();
         animationEvent.renderTicks = this.seekTime;
 
-        if (!getAnimationProcessor().isModelEmpty()) {
+        if (!animationProcessor.isModelEmpty()) {
             var shouldUpdate = rateLimiter.request(seekTime / 20);
             if (forceUpdate || shouldUpdate) {
-                entityStateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
+                stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
                 preAnimationSetup(this.seekTime);
-                getAnimationProcessor().tickAnimation(shouldUpdate, animationEvent, ctx);
+                getAnimationProcessor().tickAnimation(animationEvent, ctx);
                 return true;
             }
         }
         return false;
     }
 
-    public AnimationProcessor getAnimationProcessor() {
+    public AnimationProcessor<TEntity> getAnimationProcessor() {
         return this.animationProcessor;
     }
 
@@ -202,10 +217,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     public boolean shouldForceUpdate() {
         return false;
-    }
-
-    public DebugInfo getDebugInfo() {
-        return animationProcessor.getDebugInfo();
     }
 
     public void executeMolangExp(IValue value, boolean allowEmitting, boolean pre, @Nullable Consumer<String> resultConsumer) {
@@ -305,7 +316,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         entityModelData.lerpBodyRot = lerpBodyRot;
         entityModelData.lerpedAge = entityTickCount + partialTicks;
 
-        AnimationEvent<?> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
+        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
         MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
         ctx.setDebugSource(getDebugSource());
         this.updateAnimation(ctx, event);
@@ -329,6 +340,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return false;
     }
 
+    @SuppressWarnings("resource")
     public boolean isActive() {
         return Minecraft.getInstance().level == entity.level() && !entity.isRemoved();
     }

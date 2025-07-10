@@ -23,11 +23,11 @@ public class PlayerMoveEvent {
         LocalPlayer player = Minecraft.getInstance().player;
         if (isMoveKey() && player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                if (!LOCK_EXTRA_ANIMATION && cap.isPlayingAnimation()) {
+                if (!LOCK_EXTRA_ANIMATION && cap.isPlayingExtraAnimation()) {
                     if (NetworkHandler.isRemoteChannelPresent()) {
                         NetworkHandler.sendToServer(SetPlayAnimation.stop());
                     } else {
-                        cap.stopAnimation();
+                        cap.stopExtraAnimation();
                     }
                 }
             });

@@ -44,6 +44,7 @@ public final class RenderUtil {
     }
 
     public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T> & IPreviewEntity> void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, float partialTicks, TAnimatable entity, GeoReplacedEntityRenderer<T, ? super TAnimatable> renderer, boolean showGround) {
+        setRenderingEntitiesInInventory(true);
         var living = entity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
@@ -141,6 +142,7 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
+        setRenderingEntitiesInInventory(false);
     }
 
     private static void renderBed(float scale, float pitch, float yaw, MultiBufferSource.BufferSource bufferSource) {
@@ -220,6 +222,7 @@ public final class RenderUtil {
             GeoReplacedEntityRenderer<T, TAnimatable> renderer,
             boolean disablePreviewRotation,
             boolean disableEquipments) {
+        setRenderingEntitiesInInventory(true);
         var living = animatableEntity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
@@ -326,9 +329,11 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
+        setRenderingEntitiesInInventory(false);
     }
 
     public static void renderExtraPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z, float partialTicks) {
+        RenderUtil.setRenderingEntitiesInPaperDoll(true);
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
         viewStack.translate(posX + scale * 0.5, posY + scale * 2, 0);
@@ -353,5 +358,6 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
+        RenderUtil.setRenderingEntitiesInPaperDoll(false);
     }
 }

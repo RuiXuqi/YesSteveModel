@@ -1,21 +1,28 @@
 package com.elfmcys.yesstevemodel.geckolib3.model;
 
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.util.TlmConverterHelper;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
 
 public class GeoModelState {
     private static final int INPUT_STATE_STRIDE = 12;
     private static final int OUTPUT_STATE_STRIDE = 4;
 
-    private final Object2ReferenceMap<String, IBone> boneMap;
+    private static final int ALL_HEAD_NAME = StringPool.computeIfAbsent("AllHead");
+    private static final int VIEW_LOCATOR_NAME = StringPool.computeIfAbsent("ViewLocator");
+
+    private final Int2ReferenceMap<IBone> boneMap;
 
     private final float[] inputState;
     private final float[] outputState;
@@ -72,12 +79,12 @@ public class GeoModelState {
         this.inputState = new float[INPUT_STATE_STRIDE * sortedBones.size()];
         this.outputState = new float[OUTPUT_STATE_STRIDE * sortedBones.size()];
 
-        Object2ReferenceOpenHashMap<String, IBone> boneMap = new Object2ReferenceOpenHashMap<>(sortedBones.size());
+        Int2ReferenceOpenHashMap<IBone> boneMap = new Int2ReferenceOpenHashMap<>(sortedBones.size());
         for (int i = 0; i < sortedBones.size(); i++) {
             GeoBone bone = sortedBones.get(i);
-            boneMap.put(bone.name(), new GeoBoneState(bone, inputState, i * INPUT_STATE_STRIDE, outputState, i * OUTPUT_STATE_STRIDE));
+            boneMap.put(bone.pooledName(), new GeoBoneState(bone, inputState, i * INPUT_STATE_STRIDE, outputState, i * OUTPUT_STATE_STRIDE));
         }
-        this.boneMap = Object2ReferenceMaps.unmodifiable(boneMap);
+        this.boneMap = Int2ReferenceMaps.unmodifiable(boneMap);
 
         headBones = findBones(model.headBones);
         leftHandBones = findBones(model.leftHandBones);
@@ -92,19 +99,17 @@ public class GeoModelState {
         bladeBones = findBones(model.bladeBones);
         sheathBones = findBones(model.sheathBones);
         backpackBones = findBones(model.backpackBones);
-        firstPersonHead = boneMap.get("AllHead");
-        firstPersonViewLocator = boneMap.get("ViewLocator");
+        firstPersonHead = boneMap.get(ALL_HEAD_NAME);
+        firstPersonViewLocator = boneMap.get(VIEW_LOCATOR_NAME);
 
         model.extraLeftHandBones.forEach(list -> extraLeftHandBones.add(findBones(list)));
         model.extraRightHandBones.forEach(list -> extraRightHandBones.add(findBones(list)));
     }
 
     @NotNull
-    private List<IBone> findBones(@NotNull List<String> boneNames) {
+    private List<IBone> findBones(@NotNull IntList boneNames) {
         ReferenceArrayList<IBone> list = new ReferenceArrayList<>(boneNames.size());
-        for (String boneName : boneNames) {
-            list.add(boneMap.get(boneName));
-        }
+        boneNames.forEach(name -> list.add(boneMap.get(name)));
         return ReferenceLists.unmodifiable(list);
     }
 
@@ -116,7 +121,7 @@ public class GeoModelState {
         return outputState;
     }
 
-    public Map<String, IBone> boneMap() {
+    public Int2ReferenceMap<IBone> boneMap() {
         return boneMap;
     }
 

@@ -12,7 +12,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -24,7 +23,6 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     private final String name;
     private final IAnimationPredicate<T> animationPredicate;
     private final AnimationPlayer animationPlayer;
-    private final ReferenceArrayList<SingleBoneAnimationQueue> boneAnimationQueues;
     private final boolean blendRotation;
 
     /**
@@ -47,17 +45,16 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.name = name;
         this.animationPredicate = animationPredicate;
         this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
-        this.boneAnimationQueues = new ReferenceArrayList<>();
         this.blendRotation = blendRotation;
     }
 
     @Override
-    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate) {
+    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator) {
         event.setCodedAnimationController(this);
         PlayState playState = this.animationPredicate.test(event, evaluator);
 
         if (playState == PlayState.CONTINUE) {
-            this.animationPlayer.process(event.renderTicks, evaluator, scheduledUpdate, false);
+            this.animationPlayer.process(event.renderTicks, evaluator, false);
         } else {
             this.animationPlayer.forceReload();
         }
@@ -66,10 +63,6 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     @Override
     public void updateModelBones(List<BoneTopLevelSnapshot> modelRendererList) {
         this.animationPlayer.updateModel(modelRendererList);
-        this.boneAnimationQueues.clear();
-        for (var queue : this.animationPlayer.getBoneAnimQueues().values()) {
-            this.boneAnimationQueues.add(new SingleBoneAnimationQueue(queue));
-        }
     }
 
     @Override
@@ -98,10 +91,8 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
     @Override
     public void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor) {
-        for (var queue : this.boneAnimationQueues) {
-            if (queue.isActive()) {
-                visitor.accept(queue);
-            }
+        for (var queue : this.animationPlayer.getActiveBoneAnimQueues()) {
+            visitor.accept(new SingleBoneAnimationQueue(queue));
         }
     }
 
@@ -128,13 +119,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         return blendRotation && animationPlayer.getState() != AnimationState.TRANSITIONING;
     }
 
-    private static class SingleBoneAnimationQueue implements IBoneAnimationQueue {
-        private final BoneAnimationQueue queue;
-
-        public SingleBoneAnimationQueue(BoneAnimationQueue queue) {
-            this.queue = queue;
-        }
-
+    private record SingleBoneAnimationQueue(BoneAnimationQueue queue) implements IBoneAnimationQueue {
         @Override
         public BoneTopLevelSnapshot getSnapshot() {
             return queue.topLevelSnapshot;
@@ -169,10 +154,6 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
             } else {
                 return Optional.of(MathUtil.computeWeightedScale(pointValue, weight));
             }
-        }
-
-        public boolean isActive() {
-            return this.queue.isActive();
         }
     }
 }

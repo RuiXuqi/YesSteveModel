@@ -24,6 +24,8 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime.binding;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import com.elfmcys.yesstevemodel.molang.parser.ast.StringExpression;
 import org.jetbrains.annotations.Nullable;
 
 public final class ValueConversions {
@@ -89,10 +91,22 @@ public final class ValueConversions {
     }
 
     public static String asString(final @Nullable Object obj) {
-        if (obj instanceof String) {
-            return ((String) obj);
+        if (obj instanceof StringExpression) {
+            return ((StringExpression) obj).value();
+        } else if (obj instanceof String) {
+            return (String) obj;
         } else {
             return null;
+        }
+    }
+
+    public static int asPooledString(final @Nullable Object obj) {
+        if (obj instanceof StringExpression) {
+            return ((StringExpression) obj).pooledValue();
+        } else if (obj instanceof String) {
+            return StringPool.computeIfAbsent((String) obj);
+        } else {
+            return StringPool.EMPTY;
         }
     }
 }

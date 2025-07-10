@@ -13,22 +13,22 @@ public class EntityStateTracker<T extends Entity> {
 
     private Vec3 lastPosition;
     private Vec3 positionDelta = Vec3.ZERO;
-    protected float lastFrameTime;
+    protected float lastRenderTick;
 
     public EntityStateTracker(T entity) {
         this.entity = entity;
         this.entityTickStates = new IntOpenHashSet();
     }
 
-    protected void update(int entityTickCount, float partialTicks, float renderTick) {
+    final void update(int entityTickCount, float renderTick, float partialTicks) {
         if (lastEntityTickCount < entityTickCount) {
             updateEntityTickData(entityTickCount, lastEntityTickCount);
             lastEntityTickCount = entityTickCount;
         }
 
-        float currentFrameTime = renderTick * 50;
-        if (currentFrameTime > lastFrameTime && lastFrameTime != 0) {
-            updateRenderTickData(currentFrameTime, lastFrameTime, partialTicks);
+        if (lastRenderTick < renderTick) {
+            updateRenderTickData(renderTick, lastRenderTick, partialTicks);
+            lastRenderTick = renderTick;
         }
     }
 
@@ -41,7 +41,7 @@ public class EntityStateTracker<T extends Entity> {
      * 第一次更新可能是在 iris 渲染阴影时，不过问题不大；
      * 不要用 entity.tickCount，否则会受暂停影响。
      */
-    protected void updateRenderTickData(float currentFrameTime, float lastFrameTime, float partialTicks) {
+    protected void updateRenderTickData(float currentRenderTick, float lastRenderTick, float partialTicks) {
         updatePositionDelta(partialTicks);
     }
 

@@ -33,9 +33,6 @@ public class DebugInfo {
     }
 
     public void evaluatePre(ExpressionEvaluator<?> evaluator) {
-        if (!enabled) {
-            return;
-        }
         for (DebugItem item : items) {
             if (item.phase == Phase.PRE_ANIMATION) {
                 item.eval(evaluator);
@@ -44,9 +41,6 @@ public class DebugInfo {
     }
 
     public void evaluatePost(ExpressionEvaluator<?> evaluator) {
-        if (!enabled) {
-            return;
-        }
         for (DebugItem item : items) {
             if (item.phase == Phase.POST_ANIMATION) {
                 item.eval(evaluator);

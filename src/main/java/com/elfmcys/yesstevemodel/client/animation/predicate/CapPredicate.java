@@ -20,12 +20,12 @@ public class CapPredicate implements IAnimationPredicate<CustomPlayerEntity> {
             return PlayState.STOP;
         }
 
-        if (animatable.isPlayingAnimation()) {
-            if (animatable.isAnimationDirty()) {
-                animatable.clearAnimationDirty();
+        if (animatable.isPlayingExtraAnimation()) {
+            if (animatable.isExtraAnimationDirty()) {
+                animatable.clearExtraAnimationDirty();
                 event.getCodedController().forceReload();
             }
-            return playAnimation(event, animatable.getAnimationName());
+            return playAnimation(event, animatable.getExtraAnimationName());
         }
         return PlayState.STOP;
     }

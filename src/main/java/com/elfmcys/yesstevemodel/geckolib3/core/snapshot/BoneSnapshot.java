@@ -9,7 +9,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import org.joml.Vector3f;
 
 public class BoneSnapshot {
-    public final String name;
+    public final int name;
 
     public final Vector3f position = new Vector3f();
     public final Vector3f rotation = new Vector3f();
@@ -20,7 +20,7 @@ public class BoneSnapshot {
 
     public BoneSnapshot(IBone bone) {
         copyFrom(bone);
-        this.name = bone.getName();
+        this.name = bone.getPooledName();
     }
 
     public void copyFrom(IBone bone) {
@@ -48,13 +48,13 @@ public class BoneSnapshot {
         }
         if(o instanceof BoneSnapshot) {
             BoneSnapshot that = (BoneSnapshot) o;
-            return name.equals(that.name);
+            return name == that.name;
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return name;
     }
 }

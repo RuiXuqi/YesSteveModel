@@ -26,7 +26,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -45,7 +45,7 @@ public class AnimationPlayer {
     /**
      * 模型所有骨骼
      */
-    private final Object2ReferenceOpenHashMap<String, BoneAnimationQueue> boneAnimQueues = new Object2ReferenceOpenHashMap<>();
+    private final Int2ReferenceOpenHashMap<BoneAnimationQueue> boneAnimQueues = new Int2ReferenceOpenHashMap<>();
     /**
      * 当前有动画的骨骼
      */
@@ -140,7 +140,7 @@ public class AnimationPlayer {
      *
      * @param renderTicks 当前 tick + 插值 tick
      */
-    public void process(final float renderTicks, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate, boolean dryRun) {
+    public void process(final float renderTicks, ExpressionEvaluator<MolangContext<?>> evaluator, boolean dryRun) {
         evaluator.entity().setAnimationContext(animationContext);
         var animTicks = getAnimTicks(renderTicks);
 
@@ -173,7 +173,7 @@ public class AnimationPlayer {
 
         if (this.state == AnimationState.TRANSITIONING) {
             if (animTicks < this.transition.length()) {
-                // 播放过渡动画
+                // 更新过渡动画
                 animationContext.setAnimTime(0);
                 updateTransition(evaluator, animTicks);
                 return;
@@ -207,10 +207,9 @@ public class AnimationPlayer {
             }
             animationContext.setAnimTime(animTicks / 20f);
 
-            if (scheduledUpdate) {
-                // 更新事件关键帧（指令、音效、粒子等）
-                executeEventKeyframes(evaluator, animTicks, dryRun);
-            }
+            // 更新事件关键帧（指令、音效、粒子等）
+            executeEventKeyframes(evaluator, animTicks, dryRun);
+            // 更新动画
             updateAnimation(evaluator, animTicks);
         }
     }
@@ -326,7 +325,7 @@ public class AnimationPlayer {
         this.currentAnimFinished = false;
 
         for (BoneAnimation animation : currentAnim.boneAnimations) {
-            BoneAnimationQueue queue = boneAnimQueues.get(animation.boneName);
+            BoneAnimationQueue queue = boneAnimQueues.get(animation.bonePooledName);
             if (queue == null) {
                 continue;
             }
@@ -357,8 +356,15 @@ public class AnimationPlayer {
     /**
      * 当前模型所有骨骼动画队列
      */
-    public Map<String, BoneAnimationQueue> getBoneAnimQueues() {
+    public Int2ReferenceOpenHashMap<BoneAnimationQueue> getBoneAnimQueues() {
         return this.boneAnimQueues;
+    }
+
+    /**
+     * 当前模型有动画的骨骼动画队列
+     */
+    public ReferenceArrayList<BoneAnimationQueue> getActiveBoneAnimQueues() {
+        return this.activeBoneAnimQueues;
     }
 
     /**

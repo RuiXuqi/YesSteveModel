@@ -64,11 +64,11 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
     }
 
     @Override
-    protected void updateRenderTickData(float currentFrameTime, float lastFrameTime, float partialTicks) {
+    protected void updateEntityTickData(int currentRenderTick, int lastRenderTick) {
         if (localPlayer) {
-            updateLocalPlayerYawSpeed(entity, currentFrameTime, lastFrameTime);
+            updateLocalPlayerYawSpeed(entity, currentRenderTick, lastRenderTick);
         }
-        super.updateRenderTickData(currentFrameTime, lastFrameTime, partialTicks);
+        super.updateEntityTickData(currentRenderTick, lastRenderTick);
     }
 
     public ItemStack getHandItem(InteractionHand hand) {
@@ -87,10 +87,10 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
         }
     }
 
-    private static void updateLocalPlayerYawSpeed(Player entity, float currentFrameTime, float lastFrameTime) {
-        float yaw = entity.getYRot();
-        if (lastFrameTime > 0) {
-            YAW_SPEED = (yaw - LAST_YAW) * 1000 / (currentFrameTime - lastFrameTime);
+    private static void updateLocalPlayerYawSpeed(Player entity, int currentRenderTick, int lastRenderTick) {
+        float yaw = entity.getYRot();   // local player 的 yRot 每帧都更新，不需要处理 partialTicks
+        if (lastRenderTick > 0) {
+            YAW_SPEED = (yaw - LAST_YAW) * 20 / (currentRenderTick - lastRenderTick);
         }
         LAST_YAW = yaw;
     }

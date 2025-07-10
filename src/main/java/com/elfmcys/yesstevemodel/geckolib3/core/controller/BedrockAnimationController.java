@@ -14,6 +14,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceLists;
 import org.jetbrains.annotations.NotNull;
@@ -45,8 +46,11 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private String stateName;
 
     private final ReferenceArrayList<AnimationPlayerHolder> animationPlayers = new ReferenceArrayList<>(8);
-    private final ReferenceArrayList<BlendBoneAnimationQueue> blendAnimationQueues = new ReferenceArrayList<>(64);
     private int activeAnimationPlayerSize = 0;
+
+    private final Int2ReferenceOpenHashMap<BlendBoneAnimationQueue> blendAnimationQueues = new Int2ReferenceOpenHashMap<>(64);
+    private final ReferenceArrayList<BlendBoneAnimationQueue> activeBlendAnimationQueues = new ReferenceArrayList<>(16);
+    private boolean isActiveQueuesDirty = false;
 
     /**
      * 实例化基岩版动画控制器 <br>
@@ -65,7 +69,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     @Override
-    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate) {
+    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator) {
         if (this.data == null) {
             return;
         }
@@ -122,7 +126,22 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
             var holder = this.animationPlayers.get(i);
             holder.conditionHolder().evaluateApplyCondition(evaluator);
-            holder.animationPlayer().process(renderTicks, evaluator, scheduledUpdate, !holder.conditionHolder().shouldApply());
+            holder.animationPlayer().process(renderTicks, evaluator, !holder.conditionHolder().shouldApply());
+        }
+
+        if (isActiveQueuesDirty) {
+            for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
+                var holder = this.animationPlayers.get(i);
+                for (var queue : holder.animationPlayer.getActiveBoneAnimQueues()) {
+                    var blendQueue = blendAnimationQueues.get(queue.topLevelSnapshot.name);
+                    if (!blendQueue.isActive()) {
+                        blendQueue.setActive();
+                        activeBlendAnimationQueues.add(blendQueue);
+                    }
+                    blendQueue.addUnderlyingQueue(holder.conditionHolder, queue);
+                }
+            }
+            isActiveQueuesDirty = false;
         }
     }
 
@@ -151,7 +170,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
         this.data = animationControllerData;
         for (var bone : modelBones) {
-            this.blendAnimationQueues.add(new BlendBoneAnimationQueue(bone));
+            this.blendAnimationQueues.put(bone.name, new BlendBoneAnimationQueue(bone));
         }
         this.modelBones = modelBones;
     }
@@ -180,6 +199,11 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
         evaluator.entity().setAllowEmitting(false);
         this.state = newState;
+        for (var queue : this.activeBlendAnimationQueues) {
+            queue.setInactive();
+        }
+        this.activeBlendAnimationQueues.clear();
+        this.isActiveQueuesDirty = true;
 
         // 扩容动画播放器列表
         for (var i = this.animationPlayers.size(); i < newState.animations().size(); i++) {
@@ -197,9 +221,6 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
             if (holder.isDirty()) {
                 holder.animationPlayer().updateModel(this.modelBones);
-                for (var queue : this.blendAnimationQueues) {
-                    queue.addUnderlyingQueue(holder.conditionHolder(), holder.animationPlayer().getBoneAnimQueues().get(queue.boneName()));
-                }
                 holder.clearDirty();
             }
 
@@ -211,8 +232,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
     @Override
     public void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor) {
-        for (var queue : this.blendAnimationQueues) {
-            if (queue.isActive()) {
+        for (var queue : this.activeBlendAnimationQueues) {
+            if (queue.shouldApply()) {
                 visitor.accept(queue);
             }
         }
@@ -284,13 +305,14 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private static class BlendBoneAnimationQueue implements IBoneAnimationQueue {
         private final BoneTopLevelSnapshot snapshot;
         private final ReferenceArrayList<Pair<ConditionHolder, BoneAnimationQueue>> underlyingQueues;
+        private boolean active;
 
         public BlendBoneAnimationQueue(BoneTopLevelSnapshot snapshot) {
             this.snapshot = snapshot;
             this.underlyingQueues = new ReferenceArrayList<>(4);
         }
 
-        public String boneName() {
+        public int boneName() {
             return snapshot.name;
         }
 
@@ -298,16 +320,29 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             this.underlyingQueues.add(Pair.of(conditionHolder, queue));
         }
 
-        public boolean isActive() {
+        public boolean shouldApply() {
             if (this.underlyingQueues.isEmpty()) {
                 return false;
             }
             for (var pair : this.underlyingQueues) {
-                if (pair.left().shouldApply() && pair.right().isActive()) {
+                if (pair.left().shouldApply()) {
                     return true;
                 }
             }
             return false;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public void setActive() {
+            this.active = true;
+        }
+
+        public void setInactive() {
+            active = false;
+            underlyingQueues.clear();
         }
 
         @Override

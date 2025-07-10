@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidMiscPredicate;
@@ -8,6 +9,7 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidStatuePredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.entity.IPhysicsEntity;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
@@ -18,13 +20,12 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
+import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
-import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.github.tartaricacid.touhoulittlemaid.api.entity.IMaid;
 import com.github.tartaricacid.touhoulittlemaid.client.resource.pojo.MaidModelInfo;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -46,11 +47,12 @@ import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
  * 基于 CustomPlayerEntity 复制来的，基本上没做删除，试想尝试让女仆能调用轮盘动画之类的,所以就先预留着
  */
 @OnlyIn(Dist.CLIENT)
-public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements IGeoEntity {
+public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements IGeoEntity, IPhysicsEntity {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
     private final Vector2f headRot = new Vector2f();
-    private volatile boolean renderedWithTempChanges = false;
+
+    private final PhysicsManager physicsManager;
 
     /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
@@ -60,8 +62,8 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
 
     public CustomYsmMaidEntity(EntityMaid player, boolean asyncUpdate) {
         super(player, asyncUpdate);
-        getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
         registerControllers();
+        physicsManager = new PhysicsManager();
     }
 
     @Override
@@ -235,15 +237,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
 
     @Override
     public boolean shouldForceUpdate() {
-        if (RenderUtil.isRenderingEntitiesInInventory()) {
-            renderedWithTempChanges = true;
-            return true;
-        }
-        if (renderedWithTempChanges) {
-            renderedWithTempChanges = false;
-            return true;
-        }
-        return false;
+        return currentFrameRenderTimes > 1 || !NativeRenderer.isAsyncScope();
     }
 
     @Override
@@ -270,12 +264,10 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
 
     @Deprecated
     private void codeAnimation(AnimationEvent<CustomYsmMaidEntity> animationEvent, EntityModelData data, EntityMaid player, boolean update) {
-        // 2023/6/21 这一块设计应该改成 molang 的，而且这个寻找效率低下
-        // 2023/11/07 改善了寻找效率
-        IBone head = getBone("Head");
-
+        var model = getCurrentModel();
         // 更新头部旋转
-        if (head != null) {
+        if (model != null && !model.headBones().isEmpty()) {
+            var head = model.headBones().get(model.headBones().size() - 1);
             if (update) {
                 headRot.set(head.getRotationX(), head.getRotationY());
             }
@@ -291,6 +283,11 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         } else {
             return null;
         }
+    }
+
+    @Override
+    public PhysicsManager getPhysicsManager() {
+        return physicsManager;
     }
 
     @Override

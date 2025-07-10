@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
+import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
@@ -19,6 +20,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
+import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -40,17 +42,19 @@ import java.util.List;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
-public class CustomPlayerEntity extends AnimatableEntity<Player> {
+public class CustomPlayerEntity extends AnimatableEntity<Player> implements IPhysicsEntity {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
 
-    private final boolean localPlayer;
-    protected boolean isPlayingAnimation = false;
-    protected String animationName = "idle";
-    protected boolean isAnimationDirty = false;
+    protected final boolean localPlayer;
+    protected final PhysicsManager physicsManager;
+    protected final PhysicsManager guiPhysicsManager;
+
+    protected boolean isPlayingExtraAnimation = false;
+    protected String extraAnimationName = "idle";
+    protected boolean isExtraAnimationDirty = false;
 
     private final Vector2f headRot = new Vector2f();
-    private volatile boolean renderedWithTempChanges = false;
 
     private boolean fireInitEvent = false;
     private IValue wrappedUpdateHandler = null;
@@ -64,7 +68,8 @@ public class CustomPlayerEntity extends AnimatableEntity<Player> {
     public CustomPlayerEntity(Player player, boolean localPlayer, boolean asyncUpdate) {
         super(player, asyncUpdate);
         this.localPlayer = localPlayer;
-        getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
+        this.physicsManager = new PhysicsManager();
+        this.guiPhysicsManager = new PhysicsManager();
         if (player instanceof LocalPlayer) {
             setInitialized();
         }
@@ -126,6 +131,15 @@ public class CustomPlayerEntity extends AnimatableEntity<Player> {
                 String controllerName = ARMOR_CONTROLLER + slot.getName();
                 addAnimationController(new HybridAnimationController(this, controllerName, 0, new ArmorPredicate(slot)));
             }
+        }
+    }
+
+    @Override
+    public PhysicsManager getPhysicsManager() {
+        if (NativeRenderer.isAsyncScope() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
+            return physicsManager;
+        } else {
+            return guiPhysicsManager;
         }
     }
 
@@ -216,19 +230,11 @@ public class CustomPlayerEntity extends AnimatableEntity<Player> {
     }
 
     /**
-     * 注意非幂等
+     * 现在幂等了
      */
     @Override
     public boolean shouldForceUpdate() {
-        if (FirstPersonCompat.isRenderingPlayer() || RenderUtil.isRenderingEntitiesInInventory()) {
-            renderedWithTempChanges = true;
-            return true;
-        }
-        if (renderedWithTempChanges) {
-            renderedWithTempChanges = false;
-            return true;
-        }
-        return false;
+        return currentFrameRenderTimes > 1 || !NativeRenderer.isAsyncScope();
     }
 
     @Override
@@ -309,34 +315,34 @@ public class CustomPlayerEntity extends AnimatableEntity<Player> {
         this.textureName = textureName;
     }
 
-    public void playAnimation(String animationName) {
+    public void playExtraAnimation(String animationName) {
         if (ClientModelManager.getPlayerAnimation(getModelId(), animationName).isPresent()) {
-            this.animationName = animationName;
-            this.isPlayingAnimation = true;
-            this.isAnimationDirty = true;
+            this.extraAnimationName = animationName;
+            this.isPlayingExtraAnimation = true;
+            this.isExtraAnimationDirty = true;
         } else {
-            this.isPlayingAnimation = false;
+            this.isPlayingExtraAnimation = false;
         }
     }
 
-    public boolean isAnimationDirty() {
-        return isAnimationDirty;
+    public boolean isExtraAnimationDirty() {
+        return isExtraAnimationDirty;
     }
 
-    public void clearAnimationDirty() {
-        this.isAnimationDirty = false;
+    public void clearExtraAnimationDirty() {
+        this.isExtraAnimationDirty = false;
     }
 
-    public boolean isPlayingAnimation() {
-        return isPlayingAnimation;
+    public boolean isPlayingExtraAnimation() {
+        return isPlayingExtraAnimation;
     }
 
-    public String getAnimationName() {
-        return this.animationName;
+    public String getExtraAnimationName() {
+        return this.extraAnimationName;
     }
 
-    public void stopAnimation() {
-        this.isPlayingAnimation = false;
+    public void stopExtraAnimation() {
+        this.isPlayingExtraAnimation = false;
     }
 
     @Override
@@ -357,11 +363,18 @@ public class CustomPlayerEntity extends AnimatableEntity<Player> {
             wrappedUpdateHandler = null;
         }
         syncHandler = getEventHandler(MolangEventWrapper.SYNC);
+        physicsManager.reset();
     }
 
     @Override
     protected void preAnimationSetup(float seekTime) {
+        // 设置 roaming 变量
         getAnimationProcessor().putRemoteStruct(getRoamingStruct());
+
+        // 更新物理
+        getPhysicsManager().update(seekTime);
+
+        // 触发事件
         if (fireInitEvent) {
             fireInitEvent = false;
             var initEvent = getEventHandler(MolangEventWrapper.PLAYER_INIT);

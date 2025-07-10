@@ -1,8 +1,11 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo.render.built;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+
 // Native Access
 public class GeoBone {
     private final String name;
+    private final int pooledName;
 
     private final boolean isHidden;
     private final boolean areCubesHidden;
@@ -19,6 +22,7 @@ public class GeoBone {
     @SuppressWarnings("unused")
     public GeoBone(String name, boolean isHidden, boolean areCubesHidden, boolean hideChildBonesToo, float rotationPointX, float rotationPointY, float rotationPointZ, float rotateX, float rotateY, float rotateZ) {
         this.name = name;
+        this.pooledName = StringPool.computeIfAbsent(name);
 
         this.isHidden = isHidden;
         this.areCubesHidden = areCubesHidden;
@@ -35,6 +39,10 @@ public class GeoBone {
 
     public String name() {
         return name;
+    }
+
+    public int pooledName() {
+        return pooledName;
     }
 
     public boolean isHidden() {

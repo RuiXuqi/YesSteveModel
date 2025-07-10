@@ -99,9 +99,9 @@ public class SyncModelInfo {
             cap.resetRoamingVars(msg.modelHashShort, msg.molangVarsClientBound);
             DispatchServerDrivenProperty.handle(entity, msg.properties);
             if (msg.playAnimation) {
-                cap.playAnimation(msg.animation);
+                cap.playExtraAnimation(msg.animation);
             } else {
-                cap.stopAnimation();
+                cap.stopExtraAnimation();
             }
         });
     }

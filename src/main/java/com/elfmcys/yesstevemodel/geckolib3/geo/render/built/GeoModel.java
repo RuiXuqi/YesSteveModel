@@ -1,8 +1,12 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo.render.built;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.geo.raw.pojo.GeoModelProperties;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.util.CleanerUtil;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntLists;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.jetbrains.annotations.NotNull;
@@ -16,37 +20,37 @@ public class GeoModel {
     public final List<GeoBone> sortedBones;
 
     @NotNull
-    public final List<String> leftHandBones;
+    public final IntList leftHandBones;
     @NotNull
-    public final List<List<String>> extraLeftHandBones = new ObjectArrayList<>();
+    public final List<IntList> extraLeftHandBones = new ObjectArrayList<>();
     @NotNull
-    public final List<String> rightHandBones;
+    public final IntList rightHandBones;
     @NotNull
-    public final List<List<String>> extraRightHandBones = new ObjectArrayList<>();
+    public final List<IntList> extraRightHandBones = new ObjectArrayList<>();
     @NotNull
-    public final List<String> elytraBones;
+    public final IntList elytraBones;
     @NotNull
-    public final List<String> tacPistolBones;
+    public final IntList tacPistolBones;
     @NotNull
-    public final List<String> tacRifleBones;
+    public final IntList tacRifleBones;
     @NotNull
-    public final List<String> leftWaistBones;
+    public final IntList leftWaistBones;
     @NotNull
-    public final List<String> rightWaistBones;
+    public final IntList rightWaistBones;
     @NotNull
-    public final List<String> leftShoulderBones;
+    public final IntList leftShoulderBones;
     @NotNull
-    public final List<String> rightShoulderBones;
+    public final IntList rightShoulderBones;
 
     @NotNull
-    public final List<String> bladeBones;
+    public final IntList bladeBones;
     @NotNull
-    public final List<String> sheathBones;
+    public final IntList sheathBones;
 
     @NotNull
-    public final List<String> headBones;
+    public final IntList headBones;
     @NotNull
-    public final List<String> backpackBones;
+    public final IntList backpackBones;
 
     public final boolean hasFirstPersonLeftArm;
     public final boolean hasFirstPersonRightArm;
@@ -65,35 +69,35 @@ public class GeoModel {
     public GeoModel(GeoBone[] sortedBones, String[][] locatorHierarchy, boolean[] hasRendererFeature, @NotNull GeoModelProperties properties) {
         this.sortedBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(sortedBones));
 
-        this.leftHandBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[0]));
-        this.rightHandBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[1]));
-        this.elytraBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[2]));
-        this.tacPistolBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[3]));
-        this.tacRifleBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[4]));
-        this.leftWaistBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[5]));
-        this.rightWaistBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[6]));
-        this.leftShoulderBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[7]));
-        this.rightShoulderBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[8]));
+        this.leftHandBones = buildLocatorHierarchy(locatorHierarchy[0]);
+        this.rightHandBones = buildLocatorHierarchy(locatorHierarchy[1]);
+        this.elytraBones = buildLocatorHierarchy(locatorHierarchy[2]);
+        this.tacPistolBones = buildLocatorHierarchy(locatorHierarchy[3]);
+        this.tacRifleBones = buildLocatorHierarchy(locatorHierarchy[4]);
+        this.leftWaistBones = buildLocatorHierarchy(locatorHierarchy[5]);
+        this.rightWaistBones = buildLocatorHierarchy(locatorHierarchy[6]);
+        this.leftShoulderBones = buildLocatorHierarchy(locatorHierarchy[7]);
+        this.rightShoulderBones = buildLocatorHierarchy(locatorHierarchy[8]);
 
-        this.bladeBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[9]));
-        this.sheathBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[10]));
+        this.bladeBones = buildLocatorHierarchy(locatorHierarchy[9]);
+        this.sheathBones = buildLocatorHierarchy(locatorHierarchy[10]);
 
         // 头部和背包，主要是兼容女仆的
-        this.headBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[11]));
-        this.backpackBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(locatorHierarchy[12]));
+        this.headBones = buildLocatorHierarchy(locatorHierarchy[11]);
+        this.backpackBones = buildLocatorHierarchy(locatorHierarchy[12]);
 
         // 13-19 是额外副手物品
         for (int i = 13; i <= 19; i++) {
             String[] extraLocators = locatorHierarchy[i];
             if (extraLocators.length > 0) {
-                extraLeftHandBones.add(ObjectLists.unmodifiable(ObjectArrayList.wrap(extraLocators)));
+                extraLeftHandBones.add(buildLocatorHierarchy(extraLocators));
             }
         }
         // 20-26 是额外主手物品
         for (int i = 20; i <= 26; i++) {
             String[] extraLocators = locatorHierarchy[i];
             if (extraLocators.length > 0) {
-                extraRightHandBones.add(ObjectLists.unmodifiable(ObjectArrayList.wrap(extraLocators)));
+                extraRightHandBones.add(buildLocatorHierarchy(extraLocators));
             }
         }
 
@@ -105,6 +109,14 @@ public class GeoModel {
 
         this.initialState = new GeoModelState(this).inputState();
         CleanerUtil.ref(this, GeoModel::free);
+    }
+
+    private IntList buildLocatorHierarchy(String[] hierarchy) {
+        var list = new IntArrayList(hierarchy.length);
+        for (var name : hierarchy) {
+            list.add(StringPool.computeIfAbsent(name));
+        }
+        return IntLists.unmodifiable(list);
     }
 
     @NotNull

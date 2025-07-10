@@ -423,7 +423,7 @@ public class AnimationRouletteScreen extends Screen {
             }
         } else if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                    .ifPresent(cap -> cap.playAnimation(selectKey));
+                    .ifPresent(cap -> cap.playExtraAnimation(selectKey));
         }
         if (player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
             MutableComponent component = Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectKey);

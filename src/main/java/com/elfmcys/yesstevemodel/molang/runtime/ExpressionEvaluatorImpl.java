@@ -310,7 +310,7 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
 
     @Override
     public Object visitString(@NotNull StringExpression expression) {
-        return expression.value();
+        return expression;
     }
 
     @Override

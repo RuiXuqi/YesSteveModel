@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.processor;
 
-import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.IPhysics;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
@@ -15,41 +14,40 @@ import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import net.minecraft.Util;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
-public class AnimationProcessor<T extends AnimatableEntity<?>> {
+public class AnimationProcessor<TEntity extends Entity> {
     private static final int ROAMING_STRUCT_NAME = StringPool.computeIfAbsent("roaming");
 
+    private final AnimatableEntity<TEntity> animatable;
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelBones = new ReferenceArrayList<>();
-    private final Object2ReferenceOpenHashMap<String, BoneTopLevelSnapshot> modelBonesMap = new Object2ReferenceOpenHashMap<>();
+    private final Int2ReferenceOpenHashMap<BoneTopLevelSnapshot> modelBonesMap = new Int2ReferenceOpenHashMap<>();
+
     private final MolangMemory molangMemory = new MolangMemory();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
-    private final DebugInfo debugInfo = new DebugInfo();
-    private final ConcurrentLinkedQueue<MolangExecutionTask> pendingMolangTask = new ConcurrentLinkedQueue<>();         // molang 执行任务的生产和消费可能在不同线程上
-    private final Object2ReferenceOpenHashMap<String, IPhysics> physicsValues = new Object2ReferenceOpenHashMap<>(16);
-    private final T animatable;
+    // molang 执行任务的生产和消费可能在不同线程上
+    private final ConcurrentLinkedQueue<MolangExecutionTask> pendingMolangTask = new ConcurrentLinkedQueue<>();
 
     private boolean modelDirty = false;
-    private long cachePhysicsTimeStamp = -1L;
 
-    public AnimationProcessor(T animatable) {
+    public AnimationProcessor(AnimatableEntity<TEntity> animatable) {
         this.animatable = animatable;
     }
 
     @SuppressWarnings("unchecked")
-    public void tickAnimation(boolean shouldUpdate, AnimationEvent<T> event, MolangContext<?> ctx) {
+    public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
         ExpressionEvaluator<MolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
@@ -57,13 +55,13 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
 
         // InstancedAnimationFactory 仅保有一个 AnimationData 实例，与传入的 uniqueID 无关
         AnimationData manager = this.animatable.getAnimationData();
-        for (IAnimationController<T> controller : manager.getAnimationControllers()) {
+        for (IAnimationController<AnimatableEntity<TEntity>> controller : manager.getAnimationControllers()) {
             if (this.modelDirty) {
                 controller.updateModelBones(this.modelBones);
             }
             // 将当前控制器设置为动画测试事件
             // 处理动画并向点队列添加新值
-            controller.process(event, evaluator, shouldUpdate);
+            controller.process(event, evaluator);
             // 解决一个历史遗留问题而保留的动画混合
             @Deprecated boolean blendRotation = controller.blendRotation();
             // 遍历每个骨骼，并对属性进行插值计算
@@ -140,23 +138,21 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
     }
 
     @Nullable
-    public IBone getBone(String boneName) {
+    public IBone getBone(int boneName) {
         BoneTopLevelSnapshot bone = modelBonesMap.get(boneName);
         return bone != null ? bone.bone : null;
     }
 
-    public void registerModelBones(Map<String, IBone> boneMap) {
+    public void registerModelBones(Int2ReferenceMap<IBone> boneMap) {
         this.modelBonesMap.clear();
         this.modelBones.clear();
         this.modelBones.ensureCapacity(boneMap.size());
-        for (Map.Entry<String, IBone> entry : boneMap.entrySet()) {
+        Int2ReferenceMaps.fastForEach(boneMap, entry -> {
             BoneTopLevelSnapshot bone = new BoneTopLevelSnapshot(entry.getValue());
-            this.modelBonesMap.put(entry.getKey(), bone);
+            this.modelBonesMap.put(entry.getIntKey(), bone);
             this.modelBones.add(bone);
-        }
+        });
         this.molangMemory.initialize(null);
-        this.physicsValues.clear();
-        this.cachePhysicsTimeStamp = -1L;
         this.modelDirty = true;
     }
 
@@ -164,15 +160,6 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
         if (remoteStruct != null) {
             molangMemory.setScoped(ROAMING_STRUCT_NAME, remoteStruct);
         }
-    }
-
-    public void putPhysicsValue(String key, IPhysics physics) {
-        this.physicsValues.put(key, physics);
-    }
-
-    @Nullable
-    public IPhysics getPhysicsValue(String key) {
-        return this.physicsValues.get(key);
     }
 
     public boolean isModelEmpty() {
@@ -187,21 +174,9 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
                 iter.remove();
             }
         }
-        debugInfo.evaluatePre(evaluator);
     }
 
     private void postProcess(ExpressionEvaluator<MolangContext<?>> evaluator) {
-        float interval;
-        long currentTime = Util.getNanos();
-        if (cachePhysicsTimeStamp <= 0) {
-            interval = 1 / 60f;
-        } else {
-            interval = Mth.clamp((currentTime - cachePhysicsTimeStamp) / 1000_000_000f, 0f, 1);
-        }
-        cachePhysicsTimeStamp = currentTime;
-        physicsValues.object2ReferenceEntrySet().fastForEach(entry -> entry.getValue().update(interval));
-
-        debugInfo.evaluatePost(evaluator);
         for (var iter = pendingMolangTask.iterator(); iter.hasNext(); ) {
             var task = iter.next();
             if (!task.pre) {
@@ -232,10 +207,6 @@ public class AnimationProcessor<T extends AnimatableEntity<?>> {
             evaluator.entity().setAllowEmitting(false);
         }
         task.resultCallback().accept(result);
-    }
-
-    public DebugInfo getDebugInfo() {
-        return debugInfo;
     }
 
     public void enqueueMolangTask(IValue value, boolean allowEmitting, boolean pre, @Nullable Consumer<String> resultConsumer) {

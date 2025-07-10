@@ -78,6 +78,10 @@ public interface Function {
             return ValueConversions.asString(ctx.eval(arguments.get(index)));
         }
 
+        public int getAsPooledString(@NotNull ExecutionContext<?> ctx, final int index) {
+            return ValueConversions.asPooledString(ctx.eval(arguments.get(index)));
+        }
+
         public double getAsDouble(@NotNull ExecutionContext<?> ctx, final int index) {
             return ValueConversions.asDouble(ctx.eval(arguments.get(index)));
         }

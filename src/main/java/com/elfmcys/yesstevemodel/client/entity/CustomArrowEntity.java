@@ -27,7 +27,6 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
 
     public CustomArrowEntity(AbstractArrow arrow) {
         super(arrow, true);
-        getDebugInfo().setEnabled(DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE);
         registerControllers();
     }
 

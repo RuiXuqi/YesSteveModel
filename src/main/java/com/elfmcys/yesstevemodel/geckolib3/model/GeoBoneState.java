@@ -29,6 +29,8 @@ public class GeoBoneState implements IBone {
     private static final int OUT_IDX_ABS_PIVOT_Z = 2;
 
     private final String name;
+    private final int pooledName;
+
     private final float pivotX;
     private final float pivotY;
     private final float pivotZ;
@@ -50,6 +52,7 @@ public class GeoBoneState implements IBone {
 
     public GeoBoneState(GeoBone bone, float[] inputState, int inputStateOffset, float[] outputState, int outputStateOffset) {
         this.name = bone.name();
+        this.pooledName = bone.pooledName();
 
         this.pivotX = bone.pivotX();
         this.pivotY = bone.pivotY();
@@ -94,6 +97,11 @@ public class GeoBoneState implements IBone {
     @Override
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public int getPooledName() {
+        return this.pooledName;
     }
 
     @Override

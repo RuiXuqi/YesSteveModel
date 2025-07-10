@@ -53,8 +53,8 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     }
 
     @Override
-    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean scheduledUpdate) {
-        this.activeController.process(event, evaluator, scheduledUpdate);
+    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator) {
+        this.activeController.process(event, evaluator);
     }
 
     @Override

@@ -66,4 +66,6 @@ public interface IBone {
     float getAbsolutePivotZ();
 
     String getName();
+
+    int getPooledName();
 }

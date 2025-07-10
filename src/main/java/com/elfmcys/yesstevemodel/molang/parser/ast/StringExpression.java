@@ -24,6 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -39,9 +40,11 @@ import java.util.Objects;
 public final class StringExpression implements Expression {
 
     private final String value;
+    private final int pooledValue;
 
     public StringExpression(final @NotNull String value) {
         this.value = Objects.requireNonNull(value, "value");
+        this.pooledValue = StringPool.computeIfAbsent(value);
     }
 
     /**
@@ -54,13 +57,18 @@ public final class StringExpression implements Expression {
         return value;
     }
 
+    public int pooledValue() {
+        return pooledValue;
+    }
+
     @Override
     public <R> R visit(final @NotNull ExpressionVisitor<R> visitor) {
         return visitor.visitString(this);
     }
+
     @Override
     public String toString() {
-        return "String('" + value + "')";
+        return value;
     }
 
     @Override

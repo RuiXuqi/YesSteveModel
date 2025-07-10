@@ -6,7 +6,9 @@ import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
+import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -28,11 +30,14 @@ import org.jetbrains.annotations.Nullable;
 @OnlyIn(Dist.CLIENT)
 public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     private final Int2ReferenceOpenHashMap<RemoteStorage> storageMap = new Int2ReferenceOpenHashMap<>(8);
+    private final DebugInfo debugInfo;
+
     private int currentHashShort;
     private Struct roamingStruct;
 
     public PlayerAnimatableCapability(Player player) {
         super(player, player instanceof LocalPlayer, true);
+        debugInfo = localPlayer ? new DebugInfo() : null;
     }
 
     @Override
@@ -46,15 +51,15 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     private boolean isFirstPersonModActive() {
         if (isLocalPlayer()) {
-            return Minecraft.getInstance().options.getCameraType().isFirstPerson() && FirstPersonCompat.isInstalled() && FirstPersonCompat.isEnabled();
+            return FirstPersonCompat.isInstalled() && FirstPersonCompat.isEnabled();
         }
         return false;
     }
 
     @Override
     public boolean canUpdateAsync() {
-        // 在第一人称下，如果安装了第一人称模组并启用，则异步更新是多余的
-        return !isFirstPersonModActive();
+        // 在第一人称下，如果安装了第一人称模组并启用，或没有禁用纸娃娃，则异步更新是多余的
+        return !Minecraft.getInstance().options.getCameraType().isFirstPerson() || (!isFirstPersonModActive() && ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.get());
     }
 
     @Override
@@ -78,6 +83,28 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         } else {
             roamingStruct = null;
         }
+    }
+
+    @Override
+    protected void preAnimationSetup(float seekTime) {
+        super.preAnimationSetup(seekTime);
+
+        // 更新调试信息
+        if (debugInfo != null && debugInfo.isEnabled()) {
+            var processor = getAnimationProcessor();
+            processor.enqueueMolangTask(evaluator -> {
+                debugInfo.evaluatePre(evaluator);
+                return null;
+            }, false, true, null);
+            processor.enqueueMolangTask(evaluator -> {
+                debugInfo.evaluatePost(evaluator);
+                return null;
+            }, false, false, null);
+        }
+    }
+
+    public DebugInfo getDebugInfo() {
+        return debugInfo;
     }
 
     public void resetRoamingVars(int modelHashShort, Int2FloatOpenHashMap vars) {
