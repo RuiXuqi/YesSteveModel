@@ -119,13 +119,12 @@ public class AnimationPlayer {
             return;
         }
 
-        // 放在这里是对的嘛吗？
         resetToIdle();
 
         var animation = animatableEntity.getAnimation(animationName);
         if (animation == null) {
             if (NOT_EXIST_ANIMATION_NAME_CACHE.getIfPresent(animationName) == null) {
-                YesSteveModel.LOGGER.warn("Could not load animation: {}. Is it missing?", animationName);
+                YesSteveModel.LOGGER.debug("Could not load animation: {}. Is it missing?", animationName);
                 NOT_EXIST_ANIMATION_NAME_CACHE.put(animationName, animationName);
             }
             return;

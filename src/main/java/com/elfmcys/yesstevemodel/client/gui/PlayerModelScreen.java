@@ -271,11 +271,44 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         String debugInfo = String.format("%s-%s", SharedConstants.getCurrentVersion().getName(), ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString());
         graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
 
+        drawSyncState(graphics);
+
         super.render(graphics, mouseX, mouseY, frameDeltaTime);
         this.renderables.stream().filter(r -> r instanceof FlatIconButton)
                 .forEach(r -> ((FlatIconButton) r).renderToolTip(graphics, this, mouseX, mouseY));
         this.renderables.stream().filter(r -> r instanceof ModelButton)
                 .forEach(r -> ((ModelButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private void drawSyncState(GuiGraphics graphics) {
+        var state = ClientModelManager.getSyncState();
+
+        Component text;
+        switch (state.getType()) {
+            case WAITING: {
+                text = Component.translatable("gui.yes_steve_model.sync_hint.waiting");
+            } break;
+            case LOADING: {
+                text = Component.translatable("gui.yes_steve_model.sync_hint.loading");
+            } break;
+            case PREPARING: {
+                text = Component.translatable("gui.yes_steve_model.sync_hint.preparing");
+            } break;
+            case SYNCING: {
+                if (state.getReceived() == 0) {
+                    text = Component.translatable("gui.yes_steve_model.sync_hint.syncing");
+                } else {
+                    text = Component.literal(String.format("%s/%s", state.getReceived(), state.getTotal()));
+                }
+            } break;
+            default: return;
+        }
+
+        var x = this.x + 414 - font.width(text);
+        var y = this.y + 215 + Math.round((14 - font.lineHeight) / 2f);
+
+        graphics.drawString(font, text, x, y, ChatFormatting.DARK_GRAY.getColor());
     }
 
     protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
