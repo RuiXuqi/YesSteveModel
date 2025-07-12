@@ -10,15 +10,12 @@ import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
-import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -292,15 +289,6 @@ public class CustomPlayerEntity extends AnimatableEntity<Player> implements IPhy
             if (BetterCombatCompat.isInstalled() && model.firstPersonHead() != null) {
                 model.firstPersonHead().setHidden(BetterCombatCompat.shouldHideHead(this));
             }
-        }
-    }
-
-    @Override
-    public DebugSource getDebugSource() {
-        if (DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
-            return CustomDebugSource.INSTANCE;
-        } else {
-            return null;
         }
     }
 

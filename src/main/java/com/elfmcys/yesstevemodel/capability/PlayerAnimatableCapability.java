@@ -1,12 +1,15 @@
 package com.elfmcys.yesstevemodel.capability;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.RemoteRoamingStruct;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
+import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -47,6 +50,15 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     public PlayerStateTracker getStateTracker() {
         return (PlayerStateTracker) super.getStateTracker();
+    }
+
+    @Override
+    public DebugSource getDebugSource() {
+        if (DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
+            return CustomDebugSource.INSTANCE;
+        } else {
+            return null;
+        }
     }
 
     private boolean isFirstPersonModActive() {
