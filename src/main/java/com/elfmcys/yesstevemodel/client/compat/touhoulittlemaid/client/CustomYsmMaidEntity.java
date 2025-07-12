@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
@@ -23,6 +24,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
@@ -53,6 +55,9 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     private final Vector2f headRot = new Vector2f();
 
     private final PhysicsManager physicsManager;
+
+    private boolean fireInitEvent = false;
+    private IValue wrappedUpdateHandler = null;
 
     /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
@@ -233,6 +238,22 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     @Override
     protected void preAnimationSetup(float seekTime) {
         getAnimationProcessor().putRemoteStruct(getRemoteStruct());
+
+        // 更新物理
+        getPhysicsManager().update(seekTime);
+
+        // 触发事件
+        // 由于女仆套用了大多数玩家动画，所以要触发玩家事件
+        if (fireInitEvent) {
+            fireInitEvent = false;
+            var initEvent = getEventHandler(MolangEventWrapper.PLAYER_INIT);
+            if (initEvent != null) {
+                executeMolangExp(MolangEventWrapper.wrap(initEvent), true, true, null);
+            }
+        }
+        if (wrappedUpdateHandler != null) {
+            executeMolangExp(wrappedUpdateHandler, true, true, null);
+        }
     }
 
     @Override
@@ -301,6 +322,18 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
                 .map(model -> model.textures().keyList().indexOf(textureName))
                 .filter(i -> i >= 0)
                 .orElse(0);
+    }
+
+    @Override
+    protected void setupModel(GeoModelState model) {
+        fireInitEvent = true;
+        var updateHandlers = getEventHandler(MolangEventWrapper.PLAYER_UPDATE);
+        if (updateHandlers != null) {
+            wrappedUpdateHandler = MolangEventWrapper.wrap(updateHandlers);
+        } else {
+            wrappedUpdateHandler = null;
+        }
+        physicsManager.reset();
     }
 
     @Override
