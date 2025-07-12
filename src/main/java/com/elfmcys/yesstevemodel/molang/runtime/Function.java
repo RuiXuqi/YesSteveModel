@@ -75,27 +75,27 @@ public interface Function {
 
         @Nullable
         public String getAsString(@NotNull ExecutionContext<?> ctx, final int index) {
-            return ValueConversions.asString(ctx.eval(arguments.get(index)));
+            return ValueConversions.asString(ctx.evalSingleExpression(arguments.get(index)));
         }
 
         public int getAsPooledString(@NotNull ExecutionContext<?> ctx, final int index) {
-            return ValueConversions.asPooledString(ctx.eval(arguments.get(index)));
+            return ValueConversions.asPooledString(ctx.evalSingleExpression(arguments.get(index)));
         }
 
         public double getAsDouble(@NotNull ExecutionContext<?> ctx, final int index) {
-            return ValueConversions.asDouble(ctx.eval(arguments.get(index)));
+            return ValueConversions.asDouble(ctx.evalSingleExpression(arguments.get(index)));
         }
 
         public int getAsInt(@NotNull ExecutionContext<?> ctx, final int index) {
-            return ValueConversions.asInt(ctx.eval(arguments.get(index)));
+            return ValueConversions.asInt(ctx.evalSingleExpression(arguments.get(index)));
         }
 
         public float getAsFloat(@NotNull ExecutionContext<?> ctx, final int index) {
-            return ValueConversions.asFloat(ctx.eval(arguments.get(index)));
+            return ValueConversions.asFloat(ctx.evalSingleExpression(arguments.get(index)));
         }
 
         public boolean getAsBoolean(@NotNull ExecutionContext<?> ctx, final int index) {
-            return ValueConversions.asBoolean(ctx.eval(arguments.get(index)));
+            return ValueConversions.asBoolean(ctx.evalSingleExpression(arguments.get(index)));
         }
 
         @Nullable
@@ -109,7 +109,7 @@ public interface Function {
 
         @Nullable
         public Object getValue(@NotNull ExecutionContext<?> ctx, final int index) {
-            return ctx.eval(arguments.get(index));
+            return ctx.evalSingleExpression(arguments.get(index));
         }
 
         public Expression getExpression(final int index) {

@@ -32,11 +32,22 @@ import com.elfmcys.yesstevemodel.molang.parser.ast.Expression;
 public interface ExecutionContext<TEntity> {
     TEntity entity();
 
-    @Nullable Object evalUnsafe(final @NotNull Expression expression);
+    @Nullable Object evalSingleExpressionUnsafe(final @NotNull Expression expression);
 
-    default @Nullable Object eval(final @NotNull Expression expression) {
+    @Nullable Object evalMultiExpressionUnsafe(final @NotNull Iterable<Expression> multiExpression, boolean returnThrough);
+
+    default @Nullable Object evalSingleExpression(final @NotNull Expression expression) {
         try {
-            return evalUnsafe(expression);
+            return evalSingleExpressionUnsafe(expression);
+        } catch (Exception e) {
+            YesSteveModel.LOGGER.debug("Failed to evaluate molang expression.", e);
+            return null;
+        }
+    }
+
+    default @Nullable Object evalMultiExpression(final @NotNull Iterable<Expression> multiExpression, boolean returnThrough) {
+        try {
+            return evalMultiExpressionUnsafe(multiExpression, returnThrough);
         } catch (Exception e) {
             YesSteveModel.LOGGER.debug("Failed to evaluate molang expression.", e);
             return null;

@@ -21,17 +21,17 @@ public class MolangParser {
 
     // Native Access
     @SuppressWarnings("unused")
-    public IValue parseExpression(String molangExpression, boolean allowComment) {
+    public IValue parseExpression(String molangExpression, boolean isUserFunc) {
         try {
-            return parseExpressionUnsafe(molangExpression, allowComment);
+            return parseExpressionUnsafe(molangExpression, isUserFunc);
         } catch (Exception e) {
             YesSteveModel.LOGGER.debug("Failed to parse molang expression \"{}\": {}", molangExpression, e.getMessage());
             return FloatValue.ZERO;
         }
     }
 
-    public IValue parseExpressionUnsafe(String molangExpression, boolean allowComment) throws ParseException {
-        MolangValue value = new MolangValue(engine.parse(allowComment ? filterComment(molangExpression) : molangExpression));
+    public IValue parseExpressionUnsafe(String molangExpression, boolean isUserFunc) throws ParseException {
+        MolangValue value = new MolangValue(engine.parse(isUserFunc ? filterComment(molangExpression) : molangExpression), isUserFunc);
         primaryBinding.resetTransient();
         return value;
     }

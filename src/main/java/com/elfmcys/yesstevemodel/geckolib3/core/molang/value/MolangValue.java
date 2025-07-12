@@ -6,25 +6,16 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import java.util.List;
 
 public class MolangValue implements IValue {
-    private final Expression[] expressions;
+    private final List<Expression> expressions;
+    private final boolean isUserFunc;
 
-    public MolangValue(List<Expression> expressions) {
-        this.expressions = expressions.toArray(new Expression[0]);
+    public MolangValue(List<Expression> expressions , boolean isUserFunc) {
+        this.expressions = expressions;
+        this.isUserFunc = isUserFunc;
     }
 
     @Override
     public Object evalUnsafe(ExpressionEvaluator<?> evaluator) {
-        Object lastResult = 0d;
-
-        for (Expression expression : expressions) {
-            lastResult = evaluator.evalUnsafe(expression);
-            Object returnValue = evaluator.popReturnValue();
-            if (returnValue != null) {
-                lastResult = returnValue;
-                break;
-            }
-        }
-
-        return lastResult;
+        return evaluator.evalMultiExpressionUnsafe(expressions, isUserFunc);
     }
 }
