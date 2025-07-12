@@ -33,7 +33,7 @@ public class OrderedSegmentSearcher<T> {
 
         if (point < currentLeft) {
             var firstSegment = segments.get(0);
-            if (leftBound == currentLeft) {
+            if (currentIndex == 0) {
                 return firstSegment;
             }
 
@@ -47,7 +47,7 @@ public class OrderedSegmentSearcher<T> {
             }
         }
 
-        if (point < currentRight || currentRight == rightBound) {
+        if (point == currentLeft || point < currentRight || currentRight == rightBound) {
             return segments.get(currentIndex);
         }
 

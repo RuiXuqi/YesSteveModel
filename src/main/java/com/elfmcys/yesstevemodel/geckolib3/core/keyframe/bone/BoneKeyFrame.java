@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.joml.Vector3f;
 
@@ -31,22 +30,11 @@ public abstract class BoneKeyFrame {
 
     public abstract Vector3f getLerpPoint(ExpressionEvaluator<?> evaluator, float percentCompleted);
 
-    public Vector3f getTransitionPoint(ExpressionEvaluator<?> evaluator, Vector3f offsetPoint, float percentCompleted) {
-        if (isBegin(percentCompleted)) {
-            return offsetPoint;
-        }
-        var dst = this.beginPoint.eval(evaluator);
-        if (isEnd(percentCompleted)) {
-            return dst;
-        }
-        return MathUtil.lerpValues(percentCompleted, offsetPoint, dst);
-    }
-
-    protected static boolean isBegin(float percentCompleted) {
+    public static boolean isBegin(float percentCompleted) {
         return percentCompleted < 0.00001;
     }
 
-    protected static boolean isEnd(float percentCompleted) {
+    public static boolean isEnd(float percentCompleted) {
         return percentCompleted > 0.99999f;
     }
 }

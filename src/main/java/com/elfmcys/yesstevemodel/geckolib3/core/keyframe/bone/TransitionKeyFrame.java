@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.joml.Vector3f;
 
@@ -18,5 +19,9 @@ public class TransitionKeyFrame extends BoneKeyFrame {
         } else {
             return postPoint.eval(evaluator);
         }
+    }
+
+    public Vector3f getTransitionDst(ExpressionEvaluator<?> evaluator) {
+        return this.beginPoint.eval(evaluator);
     }
 }

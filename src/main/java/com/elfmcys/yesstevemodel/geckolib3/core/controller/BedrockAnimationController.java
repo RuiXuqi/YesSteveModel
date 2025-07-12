@@ -354,12 +354,12 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
         @Override
         public Optional<Vector3f> pollRotationPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return pollAndBlend(queue -> queue.rotation, evaluator);
+            return pollAndBlend(queue -> queue.rotation, evaluator, true);
         }
 
         @Override
         public Optional<Vector3f> pollPositionPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return pollAndBlend(queue -> queue.position, evaluator);
+            return pollAndBlend(queue -> queue.position, evaluator, false);
         }
 
         @Override
@@ -367,7 +367,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             return pollAndBlendScale(queue -> queue.scale, evaluator);
         }
 
-        private Optional<Vector3f> pollAndBlend(Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<MolangContext<?>> evaluator) {
+        private Optional<Vector3f> pollAndBlend(Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<MolangContext<?>> evaluator, boolean rotation) {
             var target = new Vector3f();
 
             boolean active = false;
@@ -377,15 +377,15 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             float transitionPercentProgress = 0f;
 
             for (var pair : this.underlyingQueues) {
+                if (!pair.left().shouldApply()) {
+                    continue;
+                }
                 var queue = pair.right();
                 if (!queue.isActive()) {
                     continue;
                 }
                 var point = pointGetter.apply(queue);
                 if (point == null) {
-                    continue;
-                }
-                if (!pair.left().shouldApply()) {
                     continue;
                 }
                 active = true;
@@ -399,11 +399,10 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                     }
                 }
 
-                // 高概率分支尽量放在前面
                 if (!isTransition) {
                     var pointValue = point.getLerpPoint(evaluator);
                     target.fma(pair.right().getBlendWeight(), pointValue);
-                } else if (transitionPercentProgress <= -0.00001 || transitionPercentProgress >= 0.00001) {
+                } else if (transitionPercentProgress <= -0.00001f || transitionPercentProgress >= 0.00001f) {
                     var transitionPoint = (TransitionPoint) point;
                     var dst = transitionPoint.getTransitionDst(evaluator);
                     target.fma(pair.right().getBlendWeight(), dst);
@@ -416,6 +415,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 if (!isTransition) {
                     return Optional.of(target);
                 } else {
+                    if (rotation) {
+                        target.sub(MathUtil.wrapRadians(new Vector3f(target).sub(offset)), offset);
+                    }
                     return Optional.of(MathUtil.lerpValues(transitionPercentProgress, offset, target));
                 }
             } else {
@@ -436,15 +438,15 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             float transitionPercentProgress = 0f;
 
             for (var pair : this.underlyingQueues) {
+                if (!pair.left().shouldApply()) {
+                    continue;
+                }
                 var queue = pair.right();
                 if (!queue.isActive()) {
                     continue;
                 }
                 var point = pointGetter.apply(queue);
                 if (point == null) {
-                    continue;
-                }
-                if (!pair.left().shouldApply()) {
                     continue;
                 }
                 active = true;

@@ -15,6 +15,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.InstructionKeyFrameExecuto
 import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.TransitionKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.PointType;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
@@ -310,7 +311,11 @@ public class AnimationPlayer {
      **/
     private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, float tick, float transitionPercentProgress, PointType type, Vector3f offsetPoint) {
         BoneKeyFrame dstFrame = frames.search(0);
-        return new TransitionPoint(tick, transitionPercentProgress, this.transition.length(), offsetPoint, dstFrame, type, animationContext);
+        if (type == PointType.ROTATION) {
+            return new TransitionRotationPoint(tick, transitionPercentProgress, this.transition.length(), offsetPoint, (TransitionKeyFrame) dstFrame, animationContext);
+        } else {
+            return new TransitionPoint(tick, transitionPercentProgress, this.transition.length(), offsetPoint, (TransitionKeyFrame) dstFrame, animationContext);
+        }
     }
 
     /**
