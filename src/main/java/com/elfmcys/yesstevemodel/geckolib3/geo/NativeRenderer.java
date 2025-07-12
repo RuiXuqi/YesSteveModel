@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.compat.OptifineCompat;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -33,9 +34,11 @@ public class NativeRenderer {
         var forceLegacyRenderer = OptifineCompat.isInstalled() || GeneralConfig.USE_COMPATIBILITY_RENDERER.get();
         RenderSystem.getProjectionMatrix().mul(RenderSystem.getModelViewMatrix(), POST_MAT);
 
+        var renderOnGui = RenderUtil.isRenderingEntitiesInInventory() || RenderUtil.isRenderingEntitiesInPaperDoll();
+
         nRenderModel(vertexConsumer, poseState, POST_MAT, forceLegacyRenderer,
                 model, inputState, outputState, textureIndex, renderMode,
-                packedLight, packedOverlay, red, green, blue, alpha);
+                packedLight, packedOverlay, red, green, blue, alpha, renderOnGui);
     }
 
     public static void beginAsyncScope() {
@@ -44,7 +47,7 @@ public class NativeRenderer {
 
     private static native void nRenderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState, Matrix4f postMat, boolean useCompatibilityRenderer,
                                             GeoModel model, float[] inputState, float @Nullable [] outputState, int textureIndex, int renderMode,
-                                            int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
+                                            int packedLight, int packedOverlay, float red, float green, float blue, float alpha, boolean renderOnGui);
 
     public static boolean isAsyncScope() {
         return IS_ASYNC_SCOPE;

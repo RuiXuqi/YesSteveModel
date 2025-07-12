@@ -75,6 +75,7 @@
     "extra_animation_classify": [],
     "preview_animation": "idle",
     "disable_preview_rotation": false,
+    "gui_no_lighting": false,
     "default_texture": "default",
     "render_layers_first": false,
     "free": true
