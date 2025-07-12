@@ -79,6 +79,11 @@ public final class CommandRegistry {
 
     @SubscribeEvent
     public static void onServerStaring(RegisterCommandsEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            RootCommand.registerPlaceholder(event.getDispatcher());
+            return;
+        }
+
         RootCommand.register(event.getDispatcher());
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ClientRootCommand.register(event.getDispatcher());

@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.mixin;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
 import com.elfmcys.yesstevemodel.event.CapabilityEvent;
 import net.minecraft.resources.ResourceLocation;
@@ -45,6 +46,9 @@ public class AbstractArrowEntityMixin implements IArrowExtraInfo {
 
     @Inject(at = @At("RETURN"), method = "setOwner(Lnet/minecraft/world/entity/Entity;)V")
     private void setOwner(Entity owner, CallbackInfo callbackInfo) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         // 仅在服务端执行
         if (owner instanceof ServerPlayer) {
             CapabilityEvent.onArrowSetOwner((AbstractArrow) (Object) this, (ServerPlayer) owner);

@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.yesstevemodel.client.renderer.CustomArrowRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
@@ -38,6 +39,9 @@ public class RegisterEntityRenderersEvent {
 
     @SubscribeEvent
     public static void onAddReloadListener(AddReloadListenerEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         event.addListener((ResourceManagerReloadListener) RegisterEntityRenderersEvent::init);
     }
 

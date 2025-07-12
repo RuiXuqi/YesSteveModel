@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
@@ -26,6 +27,9 @@ public class DebugAnimationKey {
 
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (DEBUG_ANIMATION_KEY.isDown()) {
             switch (TYPE) {
                 case NONE:

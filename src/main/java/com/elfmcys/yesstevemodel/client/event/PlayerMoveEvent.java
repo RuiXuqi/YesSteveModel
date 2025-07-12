@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
@@ -20,6 +21,9 @@ public class PlayerMoveEvent {
 
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         LocalPlayer player = Minecraft.getInstance().player;
         if (isMoveKey() && player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {

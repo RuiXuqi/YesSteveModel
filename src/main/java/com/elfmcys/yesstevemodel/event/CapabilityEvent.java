@@ -29,6 +29,9 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onAttachCapabilityEvent(AttachCapabilitiesEvent<Entity> event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         Entity entity = event.getObject();
         if (entity instanceof Player player) {
             if (entity instanceof ServerPlayer && !player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).isPresent() && !event.getCapabilities().containsKey(MODEL_INFO_CAP)) {
@@ -54,6 +57,9 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onPlayerCloned(PlayerEvent.Clone event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         event.getOriginal().reviveCaps();
         LazyOptional<ModelInfoCapability> oldModelInfoCap = getModelInfoCap(event.getOriginal());
         LazyOptional<AuthModelsCapability> oldAuthModelsCap = getAuthModelsCap(event.getOriginal());
@@ -71,6 +77,9 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onTrackingPlayer(PlayerEvent.StartTracking event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.getTarget() instanceof ServerPlayer trackPlayer) {
             final Player player = event.getEntity();
             getModelInfoCap(trackPlayer).ifPresent(cap -> {
@@ -92,6 +101,9 @@ public final class CapabilityEvent {
 
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             getModelInfoCap(serverPlayer).ifPresent(modelInfoCap -> {
                 if (!NetworkHandler.isPlayerChannelPresent(serverPlayer) && !modelInfoCap.isMandatory()) {
@@ -119,6 +131,9 @@ public final class CapabilityEvent {
      */
     @SubscribeEvent
     public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.phase == TickEvent.Phase.END
                 && event.player instanceof ServerPlayer player) {
             getModelInfoCap(player).ifPresent(cap -> {

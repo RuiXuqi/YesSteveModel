@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.ServerInfo;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +12,9 @@ import net.minecraftforge.fml.common.Mod;
 public final class LoginEvent {
     @SubscribeEvent
     public static void onLoggedInServer(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             NetworkHandler.sendToClientPlayer(new ServerInfo(), serverPlayer);
         }

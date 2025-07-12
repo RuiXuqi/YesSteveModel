@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.init.InitEntities;
@@ -18,6 +19,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class CopyYsmModelEvent {
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         Player player = event.getEntity();
 
         // 玩家必须是创造模式

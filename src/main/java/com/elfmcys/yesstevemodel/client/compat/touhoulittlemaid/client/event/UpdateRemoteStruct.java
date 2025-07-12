@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.github.tartaricacid.touhoulittlemaid.compat.ysm.event.UpdateRemoteStructEvent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -10,6 +11,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class UpdateRemoteStruct {
     @SubscribeEvent
     public void onUpdateRemote(UpdateRemoteStructEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         event.getMaid().getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> cap.setRemoteStruct(event.getRoamingVars()));
     }
 }

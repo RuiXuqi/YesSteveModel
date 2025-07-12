@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerConfigScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
@@ -23,6 +24,9 @@ public class ExtraPlayerConfigKey {
 
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (EXTRA_PLAYER_RENDER_KEY.isDown()) {
             Minecraft.getInstance().setScreen(new ExtraPlayerConfigScreen());
         }

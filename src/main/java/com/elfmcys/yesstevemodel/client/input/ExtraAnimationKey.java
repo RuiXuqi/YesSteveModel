@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
@@ -30,6 +31,9 @@ public class ExtraAnimationKey {
 
     @SubscribeEvent
     public static void registerKeyBinding(RegisterKeyMappingsEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         for (int i = 0; i <= 7; i++) {
             String name = String.format("key.yes_steve_model.extra_animation.%d.desc", i);
             KeyMapping keyMapping = new KeyMapping(name,
@@ -45,6 +49,9 @@ public class ExtraAnimationKey {
 
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
             if (key.isDown() && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {

@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +20,9 @@ public class EntityLoadEvent {
 
     @SubscribeEvent
     public static void onEntityLoadToWorld(final EntityJoinLevelEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         var list = CACHE.getIfPresent(event.getEntity().getId());
         if (list != null) {
             for (var consumer : list) {

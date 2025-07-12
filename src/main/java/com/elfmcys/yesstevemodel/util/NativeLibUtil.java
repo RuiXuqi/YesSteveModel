@@ -23,12 +23,16 @@ public final class NativeLibUtil {
     private static final String WINDOWS_LIB_NAME = "ysm-core.dll";
     private static final String LINUX_LIB_NAME = "libysm-core.so";
 
-    public static void loadCoreLibrary() throws IOException {
+    public static boolean loadCoreLibrary() throws IOException {
         String libPath = System.getenv("YSM_CORE_LIB");
         if (StringUtil.isNullOrEmpty(libPath)) {
             libPath = setupLib();
+            if (libPath == null) {
+                return false;
+            }
         }
         System.load(libPath);
+        return true;
     }
 
     private static String setupLib() throws IOException {
@@ -40,26 +44,26 @@ public final class NativeLibUtil {
         String modVersion = ModList.get().getModFileById(YesSteveModel.MOD_ID).getFile().getModInfos().get(0).getVersion().toString();
         if (SystemUtils.IS_OS_WINDOWS) {
             if (!isX64) {
-                throw new RuntimeException("Only cpus with x64 arch are supported");
+                return null;
             }
 
             libData = readEmbeddedFile(LIB_PATH + WINDOWS_LIB_NAME);
             libFileName = "ysm-core-" + modVersion + ".dll";
         } else if (SystemUtils.IS_OS_LINUX) {
             if (!isX64) {
-                throw new RuntimeException("Only cpus with x64 arch are supported");
+                return null;
             }
             if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
-                throw new RuntimeException("Only YSM server is supported on linux.");
+                return null;
             }
             if (!isGLibc()) {
-                throw new RuntimeException("Only glibc based java runtime is supported on linux.");
+                return null;
             }
 
             libData = readEmbeddedFile(LIB_PATH + LINUX_LIB_NAME);
             libFileName = "libysm-core-" + modVersion + ".so";
         } else {
-            throw new RuntimeException(SystemUtils.OS_NAME + " is not supported");
+            return null;
         }
 
         var libPath = FMLPaths.CONFIGDIR.get()

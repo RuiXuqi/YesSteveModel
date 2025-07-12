@@ -23,6 +23,9 @@ public class DownloadScreenInterModEvent {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onInterModProcess(InterModProcessEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         InterModComms.getMessages(YesSteveModel.MOD_ID).findFirst().ifPresent(message -> {
             String method = message.method();
             if (DOWNLOAD_SCREEN_METHOD.equals(method) && message.messageSupplier().get() instanceof Screen screen) {

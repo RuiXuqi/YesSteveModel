@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import net.minecraft.client.Minecraft;
@@ -21,6 +22,9 @@ public class VanillaPlayerRenderEvent {
 
     @SubscribeEvent
     public static void onRenderPlayer(SpecialPlayerRenderEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         Player player = event.getPlayer();
         if (isVanillaPlayer(event.getModelId()) && player instanceof AbstractClientPlayer) {
             AbstractClientPlayer clientPlayer = (AbstractClientPlayer) player;

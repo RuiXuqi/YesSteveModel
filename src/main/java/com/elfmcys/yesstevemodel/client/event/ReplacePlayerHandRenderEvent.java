@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
@@ -26,6 +27,9 @@ import net.minecraftforge.fml.common.Mod;
 public class ReplacePlayerHandRenderEvent {
     @SubscribeEvent
     public static void onRenderHand(RenderArmEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
             return;
         }

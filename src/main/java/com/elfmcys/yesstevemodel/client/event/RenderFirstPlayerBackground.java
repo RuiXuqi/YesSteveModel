@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
@@ -34,6 +35,9 @@ public class RenderFirstPlayerBackground {
 
     @SubscribeEvent
     public static void onRenderLevelLase(RenderLevelStageEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
             ALREADY_RENDERED = false;
         }
@@ -41,6 +45,9 @@ public class RenderFirstPlayerBackground {
 
     @SubscribeEvent
     public static void onRenderHand(RenderHandEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
             return;
         }

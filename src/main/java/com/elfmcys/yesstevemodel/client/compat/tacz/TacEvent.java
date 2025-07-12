@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.tacz;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.tacz.guns.api.event.common.GunFireEvent;
@@ -11,6 +12,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class TacEvent {
     @SubscribeEvent
     public void onGunShoot(GunFireEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         LivingEntity shooter = event.getShooter();
         shooter.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setTacGunAnimationNeedReload(true);
@@ -20,6 +24,9 @@ public class TacEvent {
 
     @SubscribeEvent
     public void onGunShoot(GunMeleeEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         LivingEntity shooter = event.getShooter();
         shooter.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setTacGunAnimationNeedReload(true);
@@ -29,6 +36,9 @@ public class TacEvent {
 
     @SubscribeEvent
     public void onGunShoot(GunReloadEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         LivingEntity shooter = event.getEntity();
         shooter.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             cap.setTacGunAnimationNeedReload(true);

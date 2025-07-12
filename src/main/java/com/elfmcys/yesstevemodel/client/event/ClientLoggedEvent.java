@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import net.minecraft.client.Minecraft;
@@ -16,11 +17,15 @@ public class ClientLoggedEvent {
     private static boolean LOGGED_IN = false;
 
     @SubscribeEvent
-    public static void onPlayerLoggedIn(EntityJoinLevelEvent event) {
-        if (LOGGED_IN || !(event.getEntity() instanceof LocalPlayer)) {
+    public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        if (LOGGED_IN) {
             return;
         }
         LOGGED_IN = true;
+        if (!YesSteveModel.isAvailable()) {
+            YesSteveModel.sendUnavailableMessage();
+            return;
+        }
 
         if (Minecraft.getInstance().isLocalServer()) {
             return;
@@ -46,6 +51,10 @@ public class ClientLoggedEvent {
     public static void onPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
         if (LOGGED_IN) {
             LOGGED_IN = false;
+            if (!YesSteveModel.isAvailable()) {
+                return;
+            }
+
             ClientModelManager.syncAbort();
         }
     }

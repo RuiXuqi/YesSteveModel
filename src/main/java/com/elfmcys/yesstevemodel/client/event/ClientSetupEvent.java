@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.*;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
@@ -27,6 +28,9 @@ import static net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.DEBUG_TEXT
 public class ClientSetupEvent {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         AnimationRegister.registerAnimationState();
         CuriosCompat.init();
         FirstPersonCompat.init();
@@ -47,6 +51,11 @@ public class ClientSetupEvent {
     @SubscribeEvent
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(PlayerModelScreenKey.PLAYER_MODEL_KEY);
+        
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
+
         event.register(AnimationRouletteKey.ANIMATION_ROULETTE_KEY);
         event.register(AnimationRouletteKey.LOCK_ROULETTE_KEY);
         event.register(DebugAnimationKey.DEBUG_ANIMATION_KEY);
@@ -56,6 +65,9 @@ public class ClientSetupEvent {
 
     @SubscribeEvent
     public static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         event.registerAbove(DEBUG_TEXT.id(), "ysm_debug_info", new DebugAnimationScreen());
         event.registerAbove(DEBUG_TEXT.id(), "ysm_extra_player", new ExtraPlayerScreen());
     }

@@ -359,6 +359,7 @@
   "error.yes_steve_model.build_animation_controller_object": "Failed to build animation controller object %s",
   "error.yes_steve_model.empty_model": "Empty model",
   "error.yes_steve_model.read_cache": "Failed to read model cache %s",
+  "error.yes_steve_model.unsupported_platform": "§6§l[§aYSM§6§l] §eCurrent platform is unsupported: %s - %s",
   "commands.yes_steve_model.auth_model.add.info": "Add '%1$s' model for player '%2$s'",
   "commands.yes_steve_model.auth_model.remove.info": "Remove '%1$s' model for player '%2$s'",
   "commands.yes_steve_model.auth_model.all.info": "Add all model for player '%s'",

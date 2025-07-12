@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.input;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
@@ -34,6 +35,9 @@ public class AnimationRouletteKey {
 
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.getAction() == GLFW.GLFW_PRESS && ANIMATION_ROULETTE_KEY.matches(event.getKey(), event.getScanCode()) && DisableSwitch.CAN_SWITCH) {
             if (TlmClientCompat.pointToMaid()) {
                 TlmClientCompat.onRouletteMainKeyPressed();

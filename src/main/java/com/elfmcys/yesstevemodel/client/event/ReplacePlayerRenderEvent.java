@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.config.GeneralConfig;
@@ -15,6 +16,9 @@ import net.minecraftforge.fml.common.Mod;
 public class ReplacePlayerRenderEvent {
     @SubscribeEvent
     public static void onRender(RenderPlayerEvent.Pre event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         Player playerRender = event.getEntity();
         LocalPlayer playerSelf = Minecraft.getInstance().player;
         if (playerRender.equals(playerSelf) && GeneralConfig.DISABLE_SELF_MODEL.get()) {

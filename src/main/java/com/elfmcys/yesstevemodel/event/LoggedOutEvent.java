@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +12,9 @@ import net.minecraftforge.fml.common.Mod;
 public class LoggedOutEvent {
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             if (NetworkHandler.isPlayerChannelPresent(serverPlayer)) {
                 ServerModelManager.syncTaskAbort(serverPlayer.getUUID());

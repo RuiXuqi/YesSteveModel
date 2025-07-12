@@ -74,6 +74,7 @@ public class YSMBinding extends ContextBinding {
         entityVar("input_horizontal", MoveInputVariable::getHorizontal);
         entityVar("person_view", PersonView::getPersonView);
         entityVar("rendering_in_paperdoll", ctx -> RenderUtil.isRenderingEntitiesInPaperDoll());
+        entityVar("rendering_in_inventory", PersonView::isInInventory);
 
         entityVar("is_passenger", ctx -> ctx.entity().isPassenger());
         entityVar("is_sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);
@@ -95,7 +96,6 @@ public class YSMBinding extends ContextBinding {
         livingEntityVar("armor_value", ctx -> ctx.entity().getArmorValue());
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
         livingEntityVar("is_close_eyes", ctx -> getEyeCloseState(ctx.animationEvent(), ctx.entity()));
-        livingEntityVar("rendering_in_inventory", PersonView::isInInventory);
         livingEntityVar("on_ladder", ctx -> ctx.entity().onClimbable());
         livingEntityVar("ladder_facing", new LadderFacingVariable());
         livingEntityVar("arrow_count", ctx -> ctx.entity().getArrowCount());

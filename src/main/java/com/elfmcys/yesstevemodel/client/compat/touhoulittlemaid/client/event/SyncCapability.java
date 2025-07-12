@@ -16,6 +16,9 @@ public final class SyncCapability {
 
     @SubscribeEvent
     public void onAttachCapabilityEvent(AttachCapabilitiesEvent<Entity> event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         if (event.getObject() instanceof EntityMaid maid && maid.level().isClientSide()) {
             event.addCapability(YSM_MAID_CAP, new YsmMaidCapabilityProvider(maid));
         }

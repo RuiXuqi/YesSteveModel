@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.event;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.*;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -15,6 +16,9 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 public final class CommonEvent {
     @SubscribeEvent
     public static void onSetupEvent(FMLCommonSetupEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         event.enqueueWork(NetworkHandler::init);
         event.enqueueWork(TlmCommonCompat::registerEvent);
         initCoreCommon();
@@ -22,6 +26,9 @@ public final class CommonEvent {
 
     @SubscribeEvent
     public static void registerCapability(RegisterCapabilitiesEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
         event.register(ModelInfoCapability.class);
         event.register(ProjectileModelInfoCapability.class);
         event.register(AuthModelsCapability.class);
