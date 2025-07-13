@@ -29,17 +29,16 @@ public class SoundKeyframeExecutor {
         this.cachePlaySounds = new ReferenceArrayList<>();
     }
 
-    public void executeTo(AnimatableEntity<?> animatable, float currentTick, boolean dryRun) {
+    public void executeTo(AnimatableEntity<?> animatable, float currentTick, boolean allowEmitting) {
         while (!reachEnd()) {
             EventKeyFrame<String> keyFrame = list.get(nextIndex);
             if (keyFrame.getStartTick() > currentTick) {
                 return;
             }
             nextIndex++;
-            if (dryRun) {
-                continue;
+            if (allowEmitting) {
+                playSound(animatable, keyFrame);
             }
-            playSound(animatable, keyFrame);
         }
     }
 

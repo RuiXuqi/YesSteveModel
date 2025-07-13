@@ -73,6 +73,12 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
     }
 
     @Override
+    protected boolean allowEmitting() {
+        // 同帧内只有第一次更新允许生成行为
+        return currentFrameRenderTimes == 1;
+    }
+
+    @Override
     public DebugSource getDebugSource() {
         if (DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
             return CustomDebugSource.INSTANCE;

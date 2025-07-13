@@ -307,6 +307,12 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     }
 
     @Override
+    protected boolean allowEmitting() {
+        // 同一帧内只有第一次更新允许生成行为
+        return currentFrameRenderTimes == 1;
+    }
+
+    @Override
     public PhysicsManager getPhysicsManager() {
         return physicsManager;
     }

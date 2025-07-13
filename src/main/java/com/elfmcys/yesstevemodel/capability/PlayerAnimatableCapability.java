@@ -80,6 +80,12 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     @Override
+    protected boolean allowEmitting() {
+        // 同一帧内只有第一次更新允许生成行为
+        return currentFrameRenderTimes == 1;
+    }
+
+    @Override
     public void setupModel(GeoModelState model) {
         super.setupModel(model);
         var hashShort = ClientModelManager.getModel(getModelId()).map(ClientModel::modelInfo).orElseThrow().hashShort();

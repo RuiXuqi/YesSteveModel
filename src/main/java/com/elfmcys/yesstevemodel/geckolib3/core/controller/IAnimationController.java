@@ -25,7 +25,7 @@ public interface IAnimationController<T extends AnimatableEntity<?>> {
      */
     void updateModelBones(List<BoneTopLevelSnapshot> modelRendererList);
 
-    void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator);
+    void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting);
 
     void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor);
 

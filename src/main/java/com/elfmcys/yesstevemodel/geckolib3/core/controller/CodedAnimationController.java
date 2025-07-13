@@ -49,12 +49,12 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     }
 
     @Override
-    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator) {
+    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
         event.setCodedAnimationController(this);
         PlayState playState = this.animationPredicate.test(event, evaluator);
 
         if (playState == PlayState.CONTINUE) {
-            this.animationPlayer.process(event.renderTicks, evaluator, false);
+            this.animationPlayer.process(event.renderTicks, evaluator, allowEmitting);
         } else {
             this.animationPlayer.forceReload();
         }

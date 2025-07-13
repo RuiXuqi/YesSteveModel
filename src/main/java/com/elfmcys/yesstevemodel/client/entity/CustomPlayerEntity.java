@@ -39,7 +39,7 @@ import java.util.List;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
-public class CustomPlayerEntity extends AnimatableEntity<Player> implements IPhysicsEntity {
+public abstract class CustomPlayerEntity extends AnimatableEntity<Player> implements IPhysicsEntity {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
 
@@ -371,7 +371,7 @@ public class CustomPlayerEntity extends AnimatableEntity<Player> implements IPhy
             }
         }
         if (wrappedUpdateHandler != null) {
-            executeMolangExp(wrappedUpdateHandler, true, true, null);
+            executeMolangExp(wrappedUpdateHandler, allowEmitting(), true, null);
         }
     }
 

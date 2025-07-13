@@ -33,6 +33,12 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
+    protected boolean allowEmitting() {
+        // gui 上不允许生成行为
+        return false;
+    }
+
+    @Override
     protected AnimationEvent<?> performUpdate(float partialTicks) {
         if (entity instanceof FakePlayer fakePlayer && !fakePlayer.updateClientLevel()) {
             return null;
@@ -40,6 +46,7 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
         return super.performUpdate(partialTicks);
     }
 
+    @Override
     public void waitForCapabilityUpdate() {
         if (entity instanceof LocalPlayer player) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::waitForAsyncUpdate);

@@ -69,7 +69,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     @Override
-    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator) {
+    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
         if (this.data == null) {
             return;
         }
@@ -126,7 +126,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
             var holder = this.animationPlayers.get(i);
             holder.conditionHolder().evaluateApplyCondition(evaluator);
-            holder.animationPlayer().process(renderTicks, evaluator, !holder.conditionHolder().shouldApply());
+            holder.animationPlayer().process(renderTicks, evaluator, allowEmitting && holder.conditionHolder().shouldApply());
         }
 
         if (isActiveQueuesDirty) {

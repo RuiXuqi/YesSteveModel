@@ -53,8 +53,8 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     }
 
     @Override
-    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator) {
-        this.activeController.process(event, evaluator);
+    public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
+        this.activeController.process(event, evaluator, allowEmitting);
     }
 
     @Override

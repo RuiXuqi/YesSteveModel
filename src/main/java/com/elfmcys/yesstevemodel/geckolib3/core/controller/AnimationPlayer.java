@@ -140,7 +140,7 @@ public class AnimationPlayer {
      *
      * @param renderTicks 当前 tick + 插值 tick
      */
-    public void process(final float renderTicks, ExpressionEvaluator<MolangContext<?>> evaluator, boolean dryRun) {
+    public void process(final float renderTicks, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
         evaluator.entity().setAnimationContext(animationContext);
         var animTicks = getAnimTicks(renderTicks);
 
@@ -152,7 +152,7 @@ public class AnimationPlayer {
              * 使用 currentAnimFinished 作为条件延迟一帧清空，是为了最后一个指令关键帧得以执行，
              * 以及动画控制器下一个状态可以正确读取当前姿态作为过渡起点
              */
-            resetEventKeyframes(evaluator, dryRun);
+            resetEventKeyframes(evaluator, allowEmitting);
             resetToIdle();
         }
 
@@ -199,7 +199,7 @@ public class AnimationPlayer {
                     } else {
                         animTicks = 0;
                     }
-                    resetEventKeyframes(evaluator, dryRun);
+                    resetEventKeyframes(evaluator, allowEmitting);
                     this.animTickOffset = renderTicks - animTicks;
                 } else if (currentLoopType == LoopType.HOLD_ON_LAST_FRAME) {
                     // 停在最后一帧的动画，播放完成后 anim ticks 锁定在最后一帧的时间
@@ -212,7 +212,7 @@ public class AnimationPlayer {
             animationContext.setAnimTime(animTicks / 20f);
 
             // 更新事件关键帧（指令、音效、粒子等）
-            executeEventKeyframes(evaluator, animTicks, dryRun);
+            executeEventKeyframes(evaluator, animTicks, allowEmitting);
             // 更新动画
             updateAnimation(evaluator, animTicks);
         }
@@ -220,12 +220,11 @@ public class AnimationPlayer {
 
     /**
      * 执行剩余的事件关键帧，并重置到初始状态
-     * @param dryRun 设为 true 可禁止生成行为
      */
-    private void resetEventKeyframes(ExpressionEvaluator<MolangContext<?>> evaluator, boolean dryRun) {
+    private void resetEventKeyframes(ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
         animationContext.setAnimTime(currentAnim.animationLength / 20f);
         if (this.instructionKeyFrameExecutor != null) {
-            this.instructionKeyFrameExecutor.executeRemaining(evaluator, dryRun);
+            this.instructionKeyFrameExecutor.executeRemaining(evaluator, allowEmitting);
             this.instructionKeyFrameExecutor.reset();
         }
         if (this.soundKeyFrameExecutor != null) {
@@ -235,14 +234,13 @@ public class AnimationPlayer {
 
     /**
      * 执行时间关键帧指指定时间点
-     * @param dryRun 设为 true 可禁止生成行为
      */
-    private void executeEventKeyframes(ExpressionEvaluator<MolangContext<?>> evaluator, float animTicks, boolean dryRun) {
+    private void executeEventKeyframes(ExpressionEvaluator<MolangContext<?>> evaluator, float animTicks, boolean allowEmitting) {
         if (soundKeyFrameExecutor != null) {
-            soundKeyFrameExecutor.executeTo(animatableEntity, animTicks, dryRun);
+            soundKeyFrameExecutor.executeTo(animatableEntity, animTicks, allowEmitting);
         }
         if (instructionKeyFrameExecutor != null) {
-            instructionKeyFrameExecutor.executeTo(evaluator, animTicks, dryRun);
+            instructionKeyFrameExecutor.executeTo(evaluator, animTicks, allowEmitting);
         }
     }
 

@@ -138,6 +138,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return animationProcessor.getBone(boneName);
     }
 
+    protected abstract boolean allowEmitting();
+
     protected boolean updateAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
         var frameTime = animationEvent.getEntityTickCount() + animationEvent.getPartialTick();
 
@@ -170,7 +172,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             if (forceUpdate || shouldUpdate) {
                 stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
                 preAnimationSetup(this.seekTime);
-                getAnimationProcessor().tickAnimation(animationEvent, ctx);
+                getAnimationProcessor().tickAnimation(animationEvent, ctx, allowEmitting());
                 return true;
             }
         }
