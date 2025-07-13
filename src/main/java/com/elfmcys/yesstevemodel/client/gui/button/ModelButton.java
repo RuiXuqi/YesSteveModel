@@ -137,7 +137,7 @@ public class ModelButton extends Button {
         if (minecraft.player != null) {
             minecraft.player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
                 if (cap.containModel(animatedEntity.getModelId())) {
-                    graphics.blit(ICON, this.getX() + this.width - 14, this.getY(), 16, 16, 16, 0, 16, 16, 256, 256);
+                    graphics.blit(ICON, this.getX() + this.width - 14, this.getY(), 3000, 16, 0, 16, 16, 256, 256);
                 }
             });
         }
@@ -149,7 +149,10 @@ public class ModelButton extends Button {
 
     public void renderComponentTooltip(GuiGraphics graphics, Screen screen, int pMouseX, int pMouseY) {
         if (this.isHovered()) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(0f, 0f, 4000);
             graphics.renderComponentTooltip(screen.getMinecraft().font, model.clientModelInfo().displayInfo(), pMouseX, pMouseY);
+            graphics.pose().popPose();
         }
     }
 
