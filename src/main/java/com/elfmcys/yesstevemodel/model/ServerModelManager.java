@@ -70,7 +70,7 @@ public final class ServerModelManager {
         syncTaskEnqueue(new UUID[]{player.getUUID()}, new String[]{player.getGameProfile().getName()}, completeCallback);
     }
 
-    public static native ExportModelResult exportModel(String modelId, @Nullable String extra);
+    public static native void exportModel(String modelId, @Nullable String extra, @Nullable Consumer<ExportModelResult> resultCallback);
 
     // 非阻塞
     // 如果有其它 reload 任务正在进行，将忽略本次重载并返回 false

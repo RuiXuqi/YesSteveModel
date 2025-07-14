@@ -1,10 +1,8 @@
 package com.elfmcys.yesstevemodel.command.sub;
 
 import com.elfmcys.yesstevemodel.event.CommandRegistry;
-import com.elfmcys.yesstevemodel.model.ExportModelResult;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.util.CommandUtil;
-import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -43,8 +41,7 @@ public class ExportCommand {
     }
 
     private static void exportModel(CommandSourceStack source, String modelId, @Nullable String extra) {
-        ThreadTools.submit(() -> {
-            ExportModelResult result = ServerModelManager.exportModel(modelId, extra);
+        ServerModelManager.exportModel(modelId, extra, result -> {
             if (result.message() != null) {
                 CommandUtil.sendAsyncFeedback(source, CommandUtil.wrapMessage(result.message()), false);
             }
