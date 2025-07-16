@@ -3,7 +3,7 @@
  * Author: Bernie G. (Gecko)
  */
 
-package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
+package com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
@@ -24,13 +24,15 @@ public abstract class AnimationPoint {
      */
     private final AnimationContext context;
 
+    public Vector3f lastLerpResult;
+
     public AnimationPoint(float currentTick, float totalTick, AnimationContext context) {
         this.currentTick = currentTick;
         this.totalTick = totalTick;
         this.context = context;
     }
 
-    protected float getPercentCompleted() {
+    public float getPercentCompleted() {
         return totalTick == 0 ? 1 : (currentTick / totalTick);
     }
 

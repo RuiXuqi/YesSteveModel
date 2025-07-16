@@ -3,9 +3,9 @@ package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationControllerState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.AnimationPoint;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.TransitionPoint;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.BeginningTransitionPoint;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.EndingTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.ControllerContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -24,7 +24,6 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 
 public class BedrockAnimationController<T extends AnimatableEntity<?>> implements IAnimationController<T> {
@@ -212,7 +211,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
         // 停用多余的动画播放器
         for (var i = newState.animations().size(); i < this.activeAnimationPlayerSize; i++) {
-            this.animationPlayers.get(i).animationPlayer().forceReload();
+            this.animationPlayers.get(i).animationPlayer().reset();
         }
         // 初始化动画播放器
         this.activeAnimationPlayerSize = newState.animations().size();
@@ -226,8 +225,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             }
 
             holder.conditionHolder().setApplyCondition(animPair.getRight());
-            holder.animationPlayer().setTransition(newState.blendTransition().startNew());
-            holder.animationPlayer().forceReload();
+            holder.animationPlayer().setBeginningTransition(newState.blendTransition().startNew());
+            holder.animationPlayer().indicateReload();
             holder.animationPlayer().setAnimation(animPair.getLeft());
         }
     }
@@ -353,26 +352,13 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
 
         @Override
-        public Optional<Vector3f> pollRotationPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return pollAndBlend(queue -> queue.rotation, evaluator, true);
-        }
+        public Optional<AnimationVec3> pollRotationPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
+            var target = new AnimationVec3();
 
-        @Override
-        public Optional<Vector3f> pollPositionPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return pollAndBlend(queue -> queue.position, evaluator, false);
-        }
-
-        @Override
-        public Optional<Vector3f> pollScalePoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return pollAndBlendScale(queue -> queue.scale, evaluator);
-        }
-
-        private Optional<Vector3f> pollAndBlend(Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<MolangContext<?>> evaluator, boolean rotation) {
-            var target = new Vector3f();
-
+            // 这一坨不要轻易改
             boolean active = false;
             boolean first = true;
-            boolean isTransition = false;
+            boolean isBeginningTransition = false;
             Vector3f offset = null;
             float transitionPercentProgress = 0f;
 
@@ -384,7 +370,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 if (!queue.isActive()) {
                     continue;
                 }
-                var point = pointGetter.apply(queue);
+                var point = queue.rotation;
                 if (point == null) {
                     continue;
                 }
@@ -392,48 +378,53 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
                 if (first) {
                     first = false;
-                    if (point instanceof TransitionPoint transitionPoint) {
-                        isTransition = true;
+                    if (point instanceof BeginningTransitionPoint transitionPoint) {
+                        isBeginningTransition = true;
                         offset = transitionPoint.getTransitionOffset();
                         transitionPercentProgress = transitionPoint.getTransitionPercentProgress();
+                        target.setEndingTransitionPercentProgressIfLess(0);
                     }
                 }
 
-                if (!isTransition) {
+                if (!isBeginningTransition) {
                     var pointValue = point.getLerpPoint(evaluator);
-                    target.fma(pair.right().getBlendWeight(), pointValue);
+                    var weight = pair.right().getBlendWeight();
+                    if (point instanceof EndingTransitionPoint endingPoint) {
+                        var progress = endingPoint.getPercentCompleted();
+                        weight *= (1 - progress);
+                        target.setEndingTransitionPercentProgressIfLess(progress);
+                    } else {
+                        target.setEndingTransitionPercentProgressIfLess(0);
+                    }
+                    target.mul(weight, pointValue);
                 } else if (transitionPercentProgress <= -0.00001f || transitionPercentProgress >= 0.00001f) {
-                    var transitionPoint = (TransitionPoint) point;
+                    var transitionPoint = (BeginningTransitionPoint) point;
                     var dst = transitionPoint.getTransitionDst(evaluator);
                     target.fma(pair.right().getBlendWeight(), dst);
                 } else {
-                    return Optional.of(offset);
+                    target.set(offset);
+                    return Optional.of(target);
                 }
             }
 
             if (active) {
-                if (!isTransition) {
-                    return Optional.of(target);
-                } else {
-                    if (rotation) {
-                        target.sub(MathUtil.wrapRadians(new Vector3f(target).sub(offset)), offset);
-                    }
-                    return Optional.of(MathUtil.lerpValues(transitionPercentProgress, offset, target));
+                if (isBeginningTransition) {
+                    MathUtil.lerpRotationValues(transitionPercentProgress, offset, target, target);
                 }
+                return Optional.of(target);
             } else {
                 return Optional.empty();
             }
         }
 
-        /**
-         * scale 的混合比较特殊，它不是累加，而是连乘
-         */
-        private Optional<Vector3f> pollAndBlendScale(Function<BoneAnimationQueue, @Nullable AnimationPoint> pointGetter, ExpressionEvaluator<MolangContext<?>> evaluator) {
-            var target = new Vector3f(1, 1, 1);
+        @Override
+        public Optional<AnimationVec3> pollPositionPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
+            var target = new AnimationVec3();
 
+            // 这一坨不要轻易改
             boolean active = false;
             boolean first = true;
-            boolean isTransition = false;
+            boolean isBeginningTransition = false;
             Vector3f offset = null;
             float transitionPercentProgress = 0f;
 
@@ -445,7 +436,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 if (!queue.isActive()) {
                     continue;
                 }
-                var point = pointGetter.apply(queue);
+                var point = queue.position;
                 if (point == null) {
                     continue;
                 }
@@ -453,37 +444,109 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
                 if (first) {
                     first = false;
-                    if (point instanceof TransitionPoint transitionPoint) {
-                        isTransition = true;
+                    if (point instanceof BeginningTransitionPoint transitionPoint) {
+                        isBeginningTransition = true;
+                        offset = transitionPoint.getTransitionOffset();
+                        transitionPercentProgress = transitionPoint.getTransitionPercentProgress();
+                        target.setEndingTransitionPercentProgressIfLess(0);
+                    }
+                }
+
+                if (!isBeginningTransition) {
+                    var pointValue = point.getLerpPoint(evaluator);
+                    var weight = pair.right().getBlendWeight();
+                    if (point instanceof EndingTransitionPoint endingPoint) {
+                        var progress = endingPoint.getPercentCompleted();
+                        weight *= (1 - progress);
+                        target.setEndingTransitionPercentProgressIfLess(progress);
+                    } else {
+                        target.setEndingTransitionPercentProgressIfLess(0);
+                    }
+                    target.fma(weight, pointValue);
+                } else if (transitionPercentProgress <= -0.00001f || transitionPercentProgress >= 0.00001f) {
+                    var transitionPoint = (BeginningTransitionPoint) point;
+                    var dst = transitionPoint.getTransitionDst(evaluator);
+                    target.fma(pair.right().getBlendWeight(), dst);
+                } else {
+                    target.set(offset);
+                    return Optional.of(target);
+                }
+            }
+
+            if (active) {
+                if (isBeginningTransition) {
+                    MathUtil.lerpValues(transitionPercentProgress, offset, target, target);
+                }
+                return Optional.of(target);
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        @Override
+        public Optional<AnimationVec3> pollScalePoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
+            var target = new AnimationVec3(1, 1, 1);
+
+            // 这一坨不要轻易改
+            boolean active = false;
+            boolean first = true;
+            boolean isBeginningTransition = false;
+            Vector3f offset = null;
+            float transitionPercentProgress = 0f;
+
+            for (var pair : this.underlyingQueues) {
+                if (!pair.left().shouldApply()) {
+                    continue;
+                }
+                var queue = pair.right();
+                if (!queue.isActive()) {
+                    continue;
+                }
+                var point = queue.scale;
+                if (point == null) {
+                    continue;
+                }
+                active = true;
+
+                if (first) {
+                    first = false;
+                    if (point instanceof BeginningTransitionPoint transitionPoint) {
+                        isBeginningTransition = true;
                         offset = transitionPoint.getTransitionOffset();
                         transitionPercentProgress = transitionPoint.getTransitionPercentProgress();
                     }
                 }
 
-                // 高概率分支尽量放在前面
-                if (!isTransition) {
+                if (!isBeginningTransition) {
                     var pointValue = point.getLerpPoint(evaluator);
                     var weight = pair.right().getBlendWeight();
+                    if (point instanceof EndingTransitionPoint endingPoint) {
+                        var progress = endingPoint.getPercentCompleted();
+                        weight *= (1 - progress);
+                        target.setEndingTransitionPercentProgressIfLess(progress);
+                    } else {
+                        target.setEndingTransitionPercentProgressIfLess(0);
+                    }
                     if (weight == 1f) {
                         target.mul(pointValue);
                     } else {
                         target.mul(MathUtil.computeWeightedScale(pointValue, weight));
                     }
-                } else if (transitionPercentProgress <= -0.00001 || transitionPercentProgress >= 0.00001) {
-                    var transitionPoint = (TransitionPoint) point;
+                } else if (transitionPercentProgress <= -0.00001f || transitionPercentProgress >= 0.00001f) {
+                    var transitionPoint = (BeginningTransitionPoint) point;
                     var dst = transitionPoint.getTransitionDst(evaluator);
                     target.mul(MathUtil.computeWeightedScale(dst, pair.right().getBlendWeight()));
                 } else {
-                    return Optional.of(offset);
+                    target.set(offset);
+                    return Optional.of(target);
                 }
             }
 
             if (active) {
-                if (!isTransition) {
-                    return Optional.of(target);
-                } else {
-                    return Optional.of(MathUtil.lerpValues(transitionPercentProgress, offset, target));
+                if (isBeginningTransition) {
+                    MathUtil.lerpValues(transitionPercentProgress, offset, target, target);
                 }
+                return Optional.of(target);
             } else {
                 return Optional.empty();
             }

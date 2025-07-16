@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
+package com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
@@ -17,6 +17,12 @@ public class KeyFramePoint extends AnimationPoint {
     @Override
     public Vector3f getLerpPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
         setupAnimationContext(evaluator);
-        return keyframe.getLerpPoint(evaluator, getPercentCompleted());
+        var result = keyframe.getLerpPoint(evaluator, getPercentCompleted());
+        if (lastLerpResult == null) {
+            lastLerpResult = new Vector3f(result);
+        } else {
+            lastLerpResult.set(result);
+        }
+        return result;
     }
 }

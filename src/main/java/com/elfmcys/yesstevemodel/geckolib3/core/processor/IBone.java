@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.processor;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
+import org.joml.Vector3f;
 
 public interface IBone {
     float getRotationX();
@@ -57,7 +57,7 @@ public interface IBone {
 
     void setTracking(boolean tracking);
 
-    BoneSnapshot getInitialSnapshot();
+    Vector3f getInitialRotation();
 
     float getAbsolutePivotX();
     

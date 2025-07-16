@@ -24,7 +24,7 @@ public class UsePredicate implements IAnimationPredicate<AnimatableEntity<? exte
         }
         if (entity.isUsingItem() && !entity.isSleeping()) {
             if (entity.getTicksUsingItem() == 1 && event.getAnimatableEntity().getStateTracker().setEntityTickState(EntityTickStates.USING_ITEM)) {
-                event.getCodedController().forceReload();
+                event.getCodedController().indicateReload();
             }
             if (entity.getUsedItemHand() == InteractionHand.MAIN_HAND) {
                 String id = event.getAnimatableEntity().getModelId();

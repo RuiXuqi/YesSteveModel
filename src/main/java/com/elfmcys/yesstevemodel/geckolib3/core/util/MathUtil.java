@@ -1,12 +1,24 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.util;
 
 import net.minecraft.util.Mth;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class MathUtil {
     private static final float DEGREES_TO_RADIANS = Mth.DEG_TO_RAD;
     private static final float RADIANS_TO_DEGREES = Mth.RAD_TO_DEG;
     public static final float PI = (float) Math.PI;
+    public static final Vector3f ZERO = new Vector3f(0.0f, 0.0f, 0.0f);
+    public static final Vector3f ONE = new Vector3f(1.0f, 1.0f, 1.0f);
+
+    public static void lerpRotationValues(float percentCompleted, Vector3f begin, Vector3f end, Vector3f dst) {
+        new Quaternionf()
+                .rotateZYX(begin.z, begin.y, begin.x)
+                .slerp(new Quaternionf().rotateZYX(end.z, end.y, end.x), percentCompleted)
+                .getEulerAnglesZYX(dst);
+
+        dst.add(new Vector3f(end).sub(MathUtil.wrapRadians(end)));
+    }
 
     public static Vector3f lerpValues(float percentCompleted, Vector3f begin, Vector3f end) {
         return new Vector3f(lerpValues(percentCompleted, begin.x(), end.x()),
@@ -65,6 +77,9 @@ public class MathUtil {
 
     public static Vector3f computeWeightedScale(Vector3f value, float weight) {
         return new Vector3f(computeWeightedScale(value.x, weight), computeWeightedScale(value.y, weight), computeWeightedScale(value.z, weight));
+    }
+    public static void computeWeightedScale(Vector3f value, float weight, Vector3f dst) {
+        dst.set(computeWeightedScale(value.x, weight), computeWeightedScale(value.y, weight), computeWeightedScale(value.z, weight));
     }
 
     public static float computeWeightedScale(float value, float weight) {

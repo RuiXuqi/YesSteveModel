@@ -99,8 +99,8 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         addAnimationController(new HybridAnimationController(this, POST_MAIN_CONTROLLER, 0, new EmptyPredicate()));
 
         addAnimationController(new HybridAnimationController(this, PRE_HOLD_CONTROLLER, 0, new EmptyPredicate()));
-        addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0, new OffhandPredicate()));
-        addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0, new MainhandPredicate()));
+        addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0.1f, new OffhandPredicate()));
+        addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0.1f, new MainhandPredicate()));
         addAnimationController(new HybridAnimationController(this, POST_HOLD_CONTROLLER, 0, new EmptyPredicate()));
 
         TACZCompat.addTaczPredicate(this);

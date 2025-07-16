@@ -24,8 +24,10 @@ public class BoneSnapshot {
     }
 
     public void copyFrom(IBone bone) {
+        var initRot = bone.getInitialRotation();
+
         position.set(bone.getPositionX(), bone.getPositionY(), bone.getPositionZ());
-        rotation.set(bone.getRotationX(), bone.getRotationY(), bone.getRotationZ());
+        rotation.set(bone.getRotationX() - initRot.x, bone.getRotationY() - initRot.y, bone.getRotationZ() - initRot.z);
         scale.set(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 
         hidden = bone.isHidden();

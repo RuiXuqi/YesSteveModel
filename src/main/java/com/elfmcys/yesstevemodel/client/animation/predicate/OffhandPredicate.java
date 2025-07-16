@@ -25,28 +25,30 @@ public class OffhandPredicate implements IAnimationPredicate<AnimatableEntity<? 
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
-        if (!entity.swinging && !entity.isUsingItem()) {
-            ItemStack offhandItem = entity.getItemInHand(InteractionHand.OFF_HAND);
-            if (offhandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(offhandItem)) {
-                return playAnimation(event, "hold_offhand:charged_crossbow", LoopType.LOOP);
-            }
-        }
-        if (checkSwingAndUse(entity, InteractionHand.OFF_HAND)) {
-            ItemStack offhandItem = entity.getItemInHand(InteractionHand.OFF_HAND);
-            if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(offhandItem, info, InteractionHand.OFF_HAND)) {
-                info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
-                event.getCodedController().forceReload();
-            }
 
-            String id = event.getAnimatableEntity().getModelId();
-            ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldOffhand()).orElse(null);
-            if (conditionalHold != null) {
-                String name = conditionalHold.doTest(entity, InteractionHand.OFF_HAND);
-                if (StringUtils.isNoneBlank(name)) {
-                    return playAnimation(event, name, LoopType.LOOP);
-                }
+        if (!checkSwingAndUse(entity, InteractionHand.OFF_HAND)) {
+            return PlayState.PAUSE;
+        }
+
+        ItemStack offhandItem = entity.getItemInHand(InteractionHand.OFF_HAND);
+        if (offhandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(offhandItem)) {
+            return playAnimation(event, "hold_offhand:charged_crossbow", LoopType.LOOP);
+        }
+
+        if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(offhandItem, info, InteractionHand.OFF_HAND)) {
+            info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
+            event.getCodedController().indicateReload();
+        }
+
+        String id = event.getAnimatableEntity().getModelId();
+        ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldOffhand()).orElse(null);
+        if (conditionalHold != null) {
+            String name = conditionalHold.doTest(entity, InteractionHand.OFF_HAND);
+            if (StringUtils.isNoneBlank(name)) {
+                return playAnimation(event, name, LoopType.LOOP);
             }
         }
+
         return PlayState.STOP;
     }
 

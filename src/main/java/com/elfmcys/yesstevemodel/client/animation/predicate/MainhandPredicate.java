@@ -28,38 +28,39 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
         }
-        if (!entity.swinging && !entity.isUsingItem()) {
-            ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
-            PlayState gunHoldAnimation = TACZCompat.playGunHoldAnimation(mainHandItem, event);
-            if (gunHoldAnimation != null) {
-                return gunHoldAnimation;
-            }
-            if (mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(mainHandItem)) {
-                return playAnimation(event, "hold_mainhand:charged_crossbow", LoopType.LOOP);
-            }
-            boolean playerIsFishing = entity instanceof Player player && player.fishing != null;
-            boolean maidIsFishing = TlmClientCompat.isMaidFishing(entity);
-            if (playerIsFishing || maidIsFishing) {
-                return playAnimation(event, "hold_mainhand:fishing", LoopType.LOOP);
+
+        if (!checkSwingAndUse(entity, InteractionHand.MAIN_HAND)) {
+            return PlayState.PAUSE;
+        }
+
+        ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
+        PlayState gunHoldAnimation = TACZCompat.playGunHoldAnimation(mainHandItem, event);
+        if (gunHoldAnimation != null) {
+            return gunHoldAnimation;
+        }
+        if (mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(mainHandItem)) {
+            return playAnimation(event, "hold_mainhand:charged_crossbow", LoopType.LOOP);
+        }
+        boolean playerIsFishing = entity instanceof Player player && player.fishing != null;
+        boolean maidIsFishing = TlmClientCompat.isMaidFishing(entity);
+        if (playerIsFishing || maidIsFishing) {
+            return playAnimation(event, "hold_mainhand:fishing", LoopType.LOOP);
+        }
+
+        if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
+            info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
+            event.getCodedController().indicateReload();
+        }
+
+        String id = event.getAnimatableEntity().getModelId();
+        ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldMainhand()).orElse(null);
+        if (conditionalHold != null) {
+            String name = conditionalHold.doTest(entity, InteractionHand.MAIN_HAND);
+            if (StringUtils.isNoneBlank(name)) {
+                return playAnimation(event, name, LoopType.LOOP);
             }
         }
 
-        if (checkSwingAndUse(entity, InteractionHand.MAIN_HAND)) {
-            ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
-            if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
-                info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
-                event.getCodedController().forceReload();
-            }
-
-            String id = event.getAnimatableEntity().getModelId();
-            ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldMainhand()).orElse(null);
-            if (conditionalHold != null) {
-                String name = conditionalHold.doTest(entity, InteractionHand.MAIN_HAND);
-                if (StringUtils.isNoneBlank(name)) {
-                    return playAnimation(event, name, LoopType.LOOP);
-                }
-            }
-        }
         return PlayState.STOP;
     }
 

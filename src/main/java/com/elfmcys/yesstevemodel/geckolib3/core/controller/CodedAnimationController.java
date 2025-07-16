@@ -4,16 +4,16 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.LinearBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.AnimationPoint;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.EndingTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,8 +55,17 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
         if (playState == PlayState.CONTINUE) {
             this.animationPlayer.process(event.renderTicks, evaluator, allowEmitting);
+        } else if (playState == PlayState.STOP) {
+            var state = this.animationPlayer.getState();
+            if (state == AnimationState.BEGINNING_TRANSITION || state == AnimationState.RUNNING) {
+                this.animationPlayer.stop(event.renderTicks);
+                this.animationPlayer.indicateReload();
+            }
+            if (state == AnimationState.ENDING_TRANSITION) {
+                this.animationPlayer.process(event.renderTicks, evaluator, allowEmitting);
+            }
         } else {
-            this.animationPlayer.forceReload();
+            this.animationPlayer.resetBoneAnimationQueues();
         }
     }
 
@@ -89,6 +98,12 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.setAnimation(animationName, loopType);
     }
 
+    public void setBeginningTransitionLength(float sec) {
+        if (this.animationPlayer.getBeginningTransitionLength() != sec) {
+            this.animationPlayer.setBeginningTransition(new LinearBlendTransition(sec));
+        }
+    }
+
     @Override
     public void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor) {
         for (var queue : this.animationPlayer.getActiveBoneAnimQueues()) {
@@ -96,8 +111,16 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         }
     }
 
-    public void forceReload() {
-        this.animationPlayer.forceReload();
+    public void reset() {
+        this.animationPlayer.reset();
+    }
+
+    public void indicateReload() {
+        this.animationPlayer.indicateReload();
+    }
+
+    public void stop(float renderTicks) {
+        this.animationPlayer.stop(renderTicks);
     }
 
     public boolean isAnimFinished() {
@@ -112,7 +135,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     @Deprecated
     public boolean blendRotation() {
         // TODO: 仅临时缓解，未完全修复过渡动画混合问题。
-        return blendRotation && animationPlayer.getState() != AnimationState.TRANSITIONING;
+        return blendRotation && animationPlayer.getState() == AnimationState.RUNNING;
     }
 
     private record SingleBoneAnimationQueue(BoneAnimationQueue queue) implements IBoneAnimationQueue {
@@ -122,34 +145,69 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         }
 
         @Override
-        public Optional<Vector3f> pollRotationPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return blend(this.queue.rotation, false, evaluator);
-        }
+        public Optional<AnimationVec3> pollRotationPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
+            var point = this.queue.rotation;
 
-        @Override
-        public Optional<Vector3f> pollPositionPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return blend(this.queue.position, false, evaluator);
-        }
-
-        @Override
-        public Optional<Vector3f> pollScalePoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
-            return blend(this.queue.scale, true, evaluator);
-        }
-
-        private Optional<Vector3f> blend(AnimationPoint point, boolean scale, ExpressionEvaluator<MolangContext<?>> evaluator) {
             if (point == null) {
                 return Optional.empty();
             }
-            var pointValue = point.getLerpPoint(evaluator);
-            var weight = queue.getBlendWeight();
-            if (weight == 1) {
-                return Optional.of(pointValue);
-            }
-            if (!scale) {
-                return Optional.of(pointValue.mul(weight));
+
+            var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
+            if (point instanceof EndingTransitionPoint endingPoint) {
+                pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
             } else {
-                return Optional.of(MathUtil.computeWeightedScale(pointValue, weight));
+                pointValue.setEndingTransitionPercentProgressIfLess(0);
             }
+
+            var weight = queue.getBlendWeight();
+            if (weight != 1) {
+                pointValue.mul(weight);
+            }
+            return Optional.of(pointValue);
+        }
+
+        @Override
+        public Optional<AnimationVec3> pollPositionPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
+            var point = this.queue.position;
+
+            if (point == null) {
+                return Optional.empty();
+            }
+
+            var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
+            if (point instanceof EndingTransitionPoint endingPoint) {
+                pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
+            } else {
+                pointValue.setEndingTransitionPercentProgressIfLess(0);
+            }
+
+            var weight = queue.getBlendWeight();
+            if (weight != 1) {
+                pointValue.mul(weight);
+            }
+            return Optional.of(pointValue);
+        }
+
+        @Override
+        public Optional<AnimationVec3> pollScalePoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
+            var point = this.queue.scale;
+
+            if (point == null) {
+                return Optional.empty();
+            }
+
+            var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
+            if (point instanceof EndingTransitionPoint endingPoint) {
+                pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
+            } else {
+                pointValue.setEndingTransitionPercentProgressIfLess(0);
+            }
+
+            var weight = queue.getBlendWeight();
+            if (weight != 1) {
+                MathUtil.computeWeightedScale(pointValue, weight, pointValue);
+            }
+            return Optional.of(pointValue);
         }
     }
 }

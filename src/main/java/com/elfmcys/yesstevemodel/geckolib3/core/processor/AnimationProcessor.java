@@ -8,7 +8,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableS
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.MolangMemory;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
-import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -34,6 +33,7 @@ public class AnimationProcessor<TEntity extends Entity> {
     private final AnimatableEntity<TEntity> animatable;
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelBones = new ReferenceArrayList<>();
     private final Int2ReferenceOpenHashMap<BoneTopLevelSnapshot> modelBonesMap = new Int2ReferenceOpenHashMap<>();
+    private final ReferenceArrayList<BoneTopLevelSnapshot> activeModelBonesMap = new ReferenceArrayList<>();      // 即使更新开销大也比链表更优
 
     private final MolangMemory molangMemory = new MolangMemory();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
@@ -50,10 +50,12 @@ public class AnimationProcessor<TEntity extends Entity> {
     public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx, boolean allowEmitting) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
+
         ExpressionEvaluator<MolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
+        var renderTicks = event.renderTicks;
+
         preProcess(evaluator);
 
-        // InstancedAnimationFactory 仅保有一个 AnimationData 实例，与传入的 uniqueID 无关
         AnimationData manager = this.animatable.getAnimationData();
         for (IAnimationController<AnimatableEntity<TEntity>> controller : manager.getAnimationControllers()) {
             if (this.modelDirty) {
@@ -67,71 +69,116 @@ public class AnimationProcessor<TEntity extends Entity> {
             // 遍历每个骨骼，并对属性进行插值计算
             controller.visitBoneAnimationQueues(boneAnimation -> {
                 BoneTopLevelSnapshot snapshot = boneAnimation.getSnapshot();
+                if (!snapshot.hasAnimation) {
+                    snapshot.hasAnimation = true;
+                    activeModelBonesMap.add(snapshot);
+                }
 
                 boneAnimation.pollRotationPoint(evaluator).ifPresent(rot -> {
-                    BoneSnapshot initialSnapshot = snapshot.bone.getInitialSnapshot();
-                    @Deprecated Vector3f pointData = snapshot.cachedPointData;
-                    if (blendRotation) {
-                        pointData.add(rot);
-                        initialSnapshot.rotation.add(pointData, snapshot.rotation);
-                    } else {
-                        pointData.set(rot);
-                        initialSnapshot.rotation.add(rot, snapshot.rotation);
+                    @Deprecated var pointData = snapshot.cachedPointData;
+                    if (!snapshot.isCurrentlyRunningRotationAnimation) {
+                        snapshot.isCurrentlyRunningRotationAnimation = true;
+                        snapshot.rotation.set(0, 0, 0);
                     }
-                    snapshot.isCurrentlyRunningRotationAnimation = true;
+                    snapshot.lastRotationUpdateTime = renderTicks;
+                    if (blendRotation) {
+                        // 此处假设旧版 blendRotation 只有高并行动画在用，并且该类型动画永不结束，所以尾过渡进度永远为 0。实际上也理应如此
+                        pointData.add(rot);
+                        snapshot.rotation.set(pointData);
+                    } else {
+                        rot.apply(snapshot.rotation, true);
+                        pointData.set(snapshot.rotation);
+                    }
                 });
 
                 boneAnimation.pollPositionPoint(evaluator).ifPresent(position -> {
-                    snapshot.position.set(position);
-                    snapshot.isCurrentlyRunningPositionAnimation = true;
+                    if (!snapshot.isCurrentlyRunningPositionAnimation) {
+                        snapshot.isCurrentlyRunningPositionAnimation = true;
+                        snapshot.position.set(0, 0, 0);
+                    }
+                    snapshot.lastPositionUpdateTime = renderTicks;
+                    position.apply(snapshot.position, false);
                 });
 
                 boneAnimation.pollScalePoint(evaluator).ifPresent(scale -> {
-                    snapshot.scale.set(scale);
-                    snapshot.isCurrentlyRunningScaleAnimation = true;
+                    if (!snapshot.isCurrentlyRunningScaleAnimation) {
+                        snapshot.isCurrentlyRunningScaleAnimation = true;
+                        snapshot.scale.set(1, 1, 1);
+                    }
+                    snapshot.lastScaleUpdateTime = renderTicks;
+                    scale.apply(snapshot.scale, false);
                 });
             });
         }
 
         this.modelDirty = false;
 
-        // 追踪哪些骨骼应用了动画，并最终将没有动画的骨骼设置为默认值
-        final float resetTickLength = manager.getResetSpeed();
-        for (BoneTopLevelSnapshot topLevelSnapshot : modelBones) {
-            BoneSnapshot initialSnapshot = topLevelSnapshot.bone.getInitialSnapshot();
+        // 追踪哪些骨骼应用了动画，并最终将没有动画的骨骼过渡到默认值
+        // 反向遍历降低更新开销
+        var activeBoneIterator = activeModelBonesMap.listIterator(activeModelBonesMap.size());
+        while (activeBoneIterator.hasPrevious()) {
+            var snapshot = activeBoneIterator.previous();
+            var active = false;
 
-            if (!topLevelSnapshot.isCurrentlyRunningRotationAnimation) {
-                float percentageReset = Math.min((event.renderTicks - topLevelSnapshot.mostRecentResetRotationTick) / resetTickLength, 1);
-                if (percentageReset >= 1) {
-                    MathUtil.lerpValues(percentageReset, topLevelSnapshot.rotation, initialSnapshot.rotation, topLevelSnapshot.rotation);
-                }
+            // 处理旋转尾过渡
+            if (snapshot.isCurrentlyRunningRotationAnimation) {
+                active = true;
+                snapshot.isCurrentlyRunningRotationAnimation = false;
+                snapshot.rotationOffset = null;
             } else {
-                // FIXME: 2023/7/12 莫名其妙修好了旋转 bug，原因未知
-                topLevelSnapshot.mostRecentResetRotationTick = 0;
-                topLevelSnapshot.isCurrentlyRunningRotationAnimation = false;
+                if (snapshot.rotationOffset == null) {
+                    snapshot.rotationOffset = new Vector3f(snapshot.rotation);
+                }
+                var progress = (renderTicks - snapshot.lastRotationUpdateTime) / manager.getResetSpeed();
+                if (progress < 1f) {
+                    active = true;
+                    MathUtil.lerpRotationValues(progress, snapshot.rotationOffset, MathUtil.ZERO, snapshot.rotation);
+                } else {
+                    snapshot.rotation.set(0, 0, 0);
+                }
             }
 
-            if (!topLevelSnapshot.isCurrentlyRunningPositionAnimation) {
-                float percentageReset = Math.min((event.renderTicks - topLevelSnapshot.mostRecentResetPositionTick) / resetTickLength, 1);
-                if (percentageReset >= 1) {
-                    MathUtil.lerpValues(percentageReset, topLevelSnapshot.position, initialSnapshot.position, topLevelSnapshot.position);
-                }
+            // 处理位移尾过渡
+            if (snapshot.isCurrentlyRunningPositionAnimation) {
+                active = true;
+                snapshot.isCurrentlyRunningPositionAnimation = false;
+                snapshot.positionOffset = null;
             } else {
-                topLevelSnapshot.mostRecentResetPositionTick = event.renderTicks;
-                topLevelSnapshot.isCurrentlyRunningPositionAnimation = false;
+                if (snapshot.positionOffset == null) {
+                    snapshot.positionOffset = new Vector3f(snapshot.position);
+                }
+                var progress = (renderTicks - snapshot.lastPositionUpdateTime) / manager.getResetSpeed();
+                if (progress < 1f) {
+                    active = true;
+                    MathUtil.lerpValues(progress, snapshot.positionOffset, MathUtil.ZERO, snapshot.position);
+                } else {
+                    snapshot.position.set(0, 0, 0);
+                }
             }
 
-            if (!topLevelSnapshot.isCurrentlyRunningScaleAnimation) {
-                float percentageReset = Math.min((event.renderTicks - topLevelSnapshot.mostRecentResetScaleTick) / resetTickLength, 1);
-                if (percentageReset >= 1) {
-                    MathUtil.lerpValues(percentageReset, topLevelSnapshot.scale, initialSnapshot.scale, topLevelSnapshot.scale);
-                }
+            // 处理缩放尾过渡，终点为 1,1,1
+            if (snapshot.isCurrentlyRunningScaleAnimation) {
+                active = true;
+                snapshot.isCurrentlyRunningScaleAnimation = false;
+                snapshot.scaleOffset = null;
             } else {
-                topLevelSnapshot.mostRecentResetScaleTick = event.renderTicks;
-                topLevelSnapshot.isCurrentlyRunningScaleAnimation = false;
+                if (snapshot.scaleOffset == null) {
+                    snapshot.scaleOffset = new Vector3f(snapshot.scale);
+                }
+                var progress = (renderTicks - snapshot.lastScaleUpdateTime) / manager.getResetSpeed();
+                if (progress < 1f) {
+                    active = true;
+                    MathUtil.lerpValues(progress, snapshot.scaleOffset, MathUtil.ONE, snapshot.scale);
+                } else {
+                    snapshot.scale.set(1, 1, 1);
+                }
             }
 
-            topLevelSnapshot.commit();
+            snapshot.commit();
+            if (!active) {
+                snapshot.hasAnimation = false;
+                activeBoneIterator.remove();
+            }
         }
 
         postProcess(evaluator);
@@ -145,6 +192,7 @@ public class AnimationProcessor<TEntity extends Entity> {
 
     public void registerModelBones(Int2ReferenceMap<IBone> boneMap) {
         this.modelBonesMap.clear();
+        this.activeModelBonesMap.clear();
         this.modelBones.clear();
         this.modelBones.ensureCapacity(boneMap.size());
         Int2ReferenceMaps.fastForEach(boneMap, entry -> {

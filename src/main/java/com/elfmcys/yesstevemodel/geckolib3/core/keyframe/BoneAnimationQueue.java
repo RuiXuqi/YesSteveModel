@@ -6,11 +6,13 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.keyframe;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.AnimationPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 
 import com.elfmcys.yesstevemodel.geckolib3.util.OrderedSegmentSearcher;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public class BoneAnimationQueue {
     public final BoneTopLevelSnapshot topLevelSnapshot;
@@ -25,6 +27,10 @@ public class BoneAnimationQueue {
 
     private boolean active = false;
     private float blendWeight = 1;
+
+    public Vector3f rotationOffset;
+    public Vector3f positionOffset;
+    public Vector3f scaleOffset;
 
     public AnimationPoint rotation;
     public AnimationPoint position;
@@ -52,7 +58,6 @@ public class BoneAnimationQueue {
             scaleKeyFrames = null;
         }
         transitionOffset.copyFrom(topLevelSnapshot.bone);
-        transitionOffset.rotation.sub(topLevelSnapshot.bone.getInitialSnapshot().rotation);
         active = true;
         resetQueues();
     }
@@ -84,6 +89,11 @@ public class BoneAnimationQueue {
         rotationKeyFrames = null;
         positionKeyFrames = null;
         scaleKeyFrames = null;
+
+        rotationOffset = null;
+        positionOffset = null;
+        scaleOffset = null;
+
         active = false;
         resetQueues();
     }

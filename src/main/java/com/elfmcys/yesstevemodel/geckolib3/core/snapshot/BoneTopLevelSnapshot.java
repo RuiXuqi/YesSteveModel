@@ -13,12 +13,18 @@ public class BoneTopLevelSnapshot extends BoneSnapshot {
     @Deprecated
     public final Vector3f cachedPointData = new Vector3f();
 
-    public float mostRecentResetRotationTick = 0;
-    public float mostRecentResetPositionTick = 0;
-    public float mostRecentResetScaleTick = 0;
+    public boolean hasAnimation = false;
     public boolean isCurrentlyRunningRotationAnimation = true;
     public boolean isCurrentlyRunningPositionAnimation = true;
     public boolean isCurrentlyRunningScaleAnimation = true;
+
+    public float lastRotationUpdateTime;
+    public float lastPositionUpdateTime;
+    public float lastScaleUpdateTime;
+
+    public Vector3f rotationOffset;
+    public Vector3f positionOffset;
+    public Vector3f scaleOffset;
 
     public BoneTopLevelSnapshot(IBone bone) {
         super(bone);
@@ -28,9 +34,10 @@ public class BoneTopLevelSnapshot extends BoneSnapshot {
     public void commit() {
         bone.setHidden(hidden, childrenHidden);
 
-        bone.setRotationX(rotation.x);
-        bone.setRotationY(rotation.y);
-        bone.setRotationZ(rotation.z);
+        var initRot = bone.getInitialRotation();
+        bone.setRotationX(rotation.x + initRot.x);
+        bone.setRotationY(rotation.y + initRot.y);
+        bone.setRotationZ(rotation.z + initRot.z);
 
         bone.setPositionX(position.x);
         bone.setPositionY(position.y);
@@ -40,6 +47,6 @@ public class BoneTopLevelSnapshot extends BoneSnapshot {
         bone.setScaleY(scale.y);
         bone.setScaleZ(scale.z);
 
-        cachedPointData.set(0);
+        cachedPointData.set(0, 0, 0);
     }
 }

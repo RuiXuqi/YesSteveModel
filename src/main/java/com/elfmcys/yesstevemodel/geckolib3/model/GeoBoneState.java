@@ -2,9 +2,8 @@ package com.elfmcys.yesstevemodel.geckolib3.model;
 
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.util.TlmConverterHelper;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
-import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
-import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoBone;
+import org.joml.Vector3f;
 
 public class GeoBoneState implements IBone {
     // Native Association: 所有 index 都有关联
@@ -41,7 +40,7 @@ public class GeoBoneState implements IBone {
     private final float[] outputState;
     private final int outputStateOffset;
 
-    private final BoneSnapshot initialSnapshot;
+    private final Vector3f initialRotation;
 
     /**
      * 仅用于 TLM 定位组获取的的 AnimationModel
@@ -71,12 +70,12 @@ public class GeoBoneState implements IBone {
         this.setScaleY(1);
         this.setScaleZ(1);
 
-        this.initialSnapshot = new BoneTopLevelSnapshot(this);
+        this.initialRotation = new Vector3f(bone.rotationX(), bone.rotationY(), bone.rotationZ());
     }
 
     @Override
-    public BoneSnapshot getInitialSnapshot() {
-        return this.initialSnapshot;
+    public Vector3f getInitialRotation() {
+        return this.initialRotation;
     }
 
     @Override

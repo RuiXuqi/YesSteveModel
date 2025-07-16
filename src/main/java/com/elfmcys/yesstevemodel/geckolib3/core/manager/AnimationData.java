@@ -12,10 +12,13 @@ import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public class AnimationData {
+    public static final float DEFAULT_ENDING_TRANSITION_LENGTH = 3;
+
     private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(41);
     public float lastTick;
     public float startTick = -1;
-    private float resetTickLength = 1;
+    // 全局尾过渡动画的长度，一定不能小于 1
+    private float resetTickLength = DEFAULT_ENDING_TRANSITION_LENGTH;
 
     public AnimationData() {
     }

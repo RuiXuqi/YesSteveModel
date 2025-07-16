@@ -16,7 +16,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.SoundKeyframeExecutor;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.BoneKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.bone.TransitionKeyFrame;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.PointType;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.*;
+import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
@@ -59,10 +60,17 @@ public class AnimationPlayer {
      * 实体对象
      */
     private final AnimatableEntity<?> animatableEntity;
+    /**
+     * 尾过渡动画长度
+     * <p>
+     * 一定不能小于 1
+     */
+    private final float endingTransitionLength = AnimationData.DEFAULT_ENDING_TRANSITION_LENGTH;
 
     private AnimationState state = AnimationState.IDLE;
     private float animTickOffset;
-    private IBlendTransition transition;
+    private IBlendTransition beginningTransition;
+    private float endingTransitionSrcTick;
 
     private Pair<@Nullable LoopType, String> lastSetAnim = null;
     private Pair<LoopType, Animation> nextAnim = null;
@@ -81,7 +89,7 @@ public class AnimationPlayer {
      */
     public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
         this.animatableEntity = animatableEntity;
-        this.transition = new LinearBlendTransition(transitionLengthTicks);
+        this.beginningTransition = new LinearBlendTransition(transitionLengthTicks);
         this.animTickOffset = 0.0f;
     }
 
@@ -89,8 +97,7 @@ public class AnimationPlayer {
      * 切换模型，重置所有状态
      */
     public void updateModel(List<BoneTopLevelSnapshot> boneList) {
-        forceReload();
-        this.nextAnim = null;
+        reset();
         this.boneAnimQueues.clear();
         for (BoneTopLevelSnapshot bone : boneList) {
             this.boneAnimQueues.put(bone.name, new BoneAnimationQueue(bone));
@@ -106,13 +113,13 @@ public class AnimationPlayer {
      * <p>
      * 你可以每帧运行此方法，如果每次都传入相同的动画，它将不会重新启动，
      * <p>
-     * 如果需要重新启动，在该调用之前额外调用 forceReload 即可。
+     * 如果需要重新启动，在该调用之前额外调用 indicateReload 即可。
      * <p>
      * 此外，它还可以在动画状态之间平滑过渡。
      */
     public void setAnimation(@Nullable String animationName, @Nullable LoopType loopTypeOverride) {
         if (animationName == null) {
-            forceReload();
+            reset();
             return;
         }
 
@@ -144,16 +151,19 @@ public class AnimationPlayer {
         evaluator.entity().setAnimationContext(animationContext);
         var animTicks = getAnimTicks(renderTicks);
 
-        if (currentAnimFinished
-                && this.state == AnimationState.RUNNING
-                && currentLoopType == LoopType.PLAY_ONCE) {
-            /*
-             * 当前动画播放结束，清空状态；
-             * 使用 currentAnimFinished 作为条件延迟一帧清空，是为了最后一个指令关键帧得以执行，
-             * 以及动画控制器下一个状态可以正确读取当前姿态作为过渡起点
-             */
-            resetEventKeyframes(evaluator, allowEmitting);
+        // 尾过渡结束后回到待机状态
+        if (this.state == AnimationState.ENDING_TRANSITION && animTicks >= endingTransitionLength) {
             resetToIdle();
+        }
+
+        /*  PLAY_ONCE 结束后转入尾过渡状态
+         *  为了最后一个指令帧得以执行，以及基岩版控制器下一个状态的过渡动画能够正确衔接，需要延迟一帧停止动画，
+         *  所以这块判断要放在上一块的后面
+         */
+        if (this.state == AnimationState.RUNNING && currentLoopType == LoopType.PLAY_ONCE && animTicks >= currentAnim.animationLength) {
+            resetEventKeyframes(evaluator, allowEmitting);
+            setupEndingTransition(renderTicks);
+            animTicks = getAnimTicks(renderTicks);
         }
 
         if (this.state == AnimationState.IDLE) {
@@ -165,8 +175,8 @@ public class AnimationPlayer {
             this.animTickOffset = renderTicks;
             animTicks = 0;
 
-            if (this.transition.length() > 0) {
-                this.state = AnimationState.TRANSITIONING;
+            if (this.beginningTransition.length() > 0) {
+                this.state = AnimationState.BEGINNING_TRANSITION;
             } else {
                 // 如果过渡长度为 0，直接开始播放
                 this.state = AnimationState.RUNNING;
@@ -175,15 +185,15 @@ public class AnimationPlayer {
 
         resetBoneAnimationQueues();
 
-        if (this.state == AnimationState.TRANSITIONING) {
-            if (animTicks < this.transition.length()) {
-                // 更新过渡动画
+        if (this.state == AnimationState.BEGINNING_TRANSITION) {
+            if (animTicks < this.beginningTransition.length()) {
+                // 更新起始过渡动画
                 animationContext.setAnimTime(0);
-                updateTransition(evaluator, animTicks);
+                runBeginningTransition(evaluator, animTicks);
                 return;
             } else {
                 // 如果当前时间超过了过渡时长，则正式开始播放
-                animTicks = animTicks - this.transition.length();
+                animTicks = animTicks - this.beginningTransition.length();
                 this.animTickOffset = renderTicks - animTicks;
                 this.state = AnimationState.RUNNING;
             }
@@ -192,6 +202,8 @@ public class AnimationPlayer {
         // 播放中
         if (this.state == AnimationState.RUNNING) {
             if (animTicks > this.currentAnim.animationLength) {
+                this.currentAnimFinished = true;
+
                 if (currentLoopType == LoopType.LOOP) {
                     // 对于循环动画，本轮播放结束后重置 tick offset，开始下一轮循环
                     if (currentAnim.animationLength > 0) {
@@ -200,21 +212,31 @@ public class AnimationPlayer {
                         animTicks = 0;
                     }
                     resetEventKeyframes(evaluator, allowEmitting);
-                    this.animTickOffset = renderTicks - animTicks;
+                    animTickOffset = renderTicks - animTicks;
                 } else if (currentLoopType == LoopType.HOLD_ON_LAST_FRAME) {
-                    // 停在最后一帧的动画，播放完成后 anim ticks 锁定在最后一帧的时间
+                    // 对于停在最后一帧的动画，播放完成后 anim ticks 锁定在最后一帧的时间
                     animTicks = currentAnim.animationLength;
                 } else {
                     // PLAY_ONCE 类型在上面就已经处理过了
                 }
-                this.currentAnimFinished = true;
             }
-            animationContext.setAnimTime(animTicks / 20f);
 
+            animationContext.setAnimTime(animTicks / 20f);
             // 更新事件关键帧（指令、音效、粒子等）
             executeEventKeyframes(evaluator, animTicks, allowEmitting);
             // 更新动画
-            updateAnimation(evaluator, animTicks);
+            runAnimation(evaluator, animTicks);
+            return;
+        }
+
+        if (this.state == AnimationState.ENDING_TRANSITION) {
+            if (animTicks > endingTransitionLength) {
+                animTicks = endingTransitionLength;
+            }
+
+            animationContext.setAnimTime(endingTransitionSrcTick / 20f);
+            // 更新结尾过渡动画
+            runEndingTransition(evaluator, animTicks);
         }
     }
 
@@ -244,9 +266,51 @@ public class AnimationPlayer {
         }
     }
 
-    private void updateTransition(ExpressionEvaluator<MolangContext<?>> evaluator, float transitionTicks) {
+    /**
+     * 保存当前姿态作为起始点，准备开始尾过渡；
+     * 必须在 resetBoneAnimationQueues 之前调用
+     */
+    private void setupEndingTransition(float renderTicks) {
+        if (state == AnimationState.RUNNING || state == AnimationState.BEGINNING_TRANSITION) {
+            var animTick = getAnimTicks(renderTicks);
+            for (var queue : activeBoneAnimQueues) {
+                if (queue.rotation != null && queue.rotation.lastLerpResult != null) {
+                    queue.rotationOffset = new Vector3f(queue.rotation.lastLerpResult);
+                }
+
+                if (queue.position != null && queue.position.lastLerpResult != null) {
+                    queue.positionOffset = new Vector3f(queue.position.lastLerpResult);
+                }
+
+                if (queue.scale != null && queue.scale.lastLerpResult != null) {
+                    queue.scaleOffset = new Vector3f(queue.scale.lastLerpResult);
+                }
+            }
+
+            if (state == AnimationState.RUNNING) {
+                if (animTick > currentAnim.animationLength) {
+                    this.animTickOffset = renderTicks - (animTick - currentAnim.animationLength);
+                    animTick = currentAnim.animationLength;
+                } else {
+                    this.animTickOffset = renderTicks;
+                }
+                this.endingTransitionSrcTick = animTick;
+            } else {
+                if (animTick > this.beginningTransition.length()) {
+                    this.animTickOffset = renderTicks - (animTick - this.beginningTransition.length());
+                } else {
+                    this.animTickOffset = renderTicks;
+                }
+                this.endingTransitionSrcTick = 0;
+            }
+            this.currentAnimFinished = true;
+            this.state = AnimationState.ENDING_TRANSITION;
+        }
+    }
+
+    private void runBeginningTransition(ExpressionEvaluator<MolangContext<?>> evaluator, float transitionTicks) {
         var blendWeight = currentAnim.blendWeight != null ? currentAnim.blendWeight.evalAsFloat(evaluator) : 1;
-        var percentProgress = this.transition.get(transitionTicks);
+        var percentProgress = this.beginningTransition.get(transitionTicks);
 
         for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimQueues) {
             boneAnimationQueue.setBlendWeight(blendWeight);
@@ -254,23 +318,23 @@ public class AnimationPlayer {
 
             // 添加即将出现的动画的初始位置，以便模型转换到新动画的初始状态
             if (boneAnimationQueue.rotationKeyFrames != null) {
-                boneAnimationQueue.rotation = getTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, transitionTicks, percentProgress,
-                        PointType.ROTATION, transitionOffset.rotation);
+                boneAnimationQueue.rotation = getBeginningTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, true, transitionTicks, percentProgress,
+                        transitionOffset.rotation);
             }
 
             if (boneAnimationQueue.positionKeyFrames != null) {
-                boneAnimationQueue.position = getTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, transitionTicks, percentProgress,
-                        PointType.POSITION, transitionOffset.position);
+                boneAnimationQueue.position = getBeginningTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, false, transitionTicks, percentProgress,
+                        transitionOffset.position);
             }
 
             if (boneAnimationQueue.scaleKeyFrames != null) {
-                boneAnimationQueue.scale = getTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, transitionTicks, percentProgress,
-                        PointType.SCALE, transitionOffset.scale);
+                boneAnimationQueue.scale = getBeginningTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, false, transitionTicks, percentProgress,
+                        transitionOffset.scale);
             }
         }
     }
 
-    private void updateAnimation(ExpressionEvaluator<MolangContext<?>> evaluator, float animTicks) {
+    private void runAnimation(ExpressionEvaluator<MolangContext<?>> evaluator, float animTicks) {
         // 循环遍历当前动画中的每个骨骼动画并处理值
         var blendWeight = currentAnim.blendWeight != null ? currentAnim.blendWeight.evalAsFloat(evaluator) : 1;
         for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimQueues) {
@@ -290,30 +354,56 @@ public class AnimationPlayer {
         }
     }
 
-    private void resetBoneAnimationQueues() {
-        for (BoneAnimationQueue queue : activeBoneAnimQueues) {
-            queue.resetQueues();
+    private void runEndingTransition(ExpressionEvaluator<MolangContext<?>> evaluator, float transitionTicks) {
+        var blendWeight = currentAnim.blendWeight != null ? currentAnim.blendWeight.evalAsFloat(evaluator) : 1;
+
+        for (BoneAnimationQueue boneAnimationQueue : activeBoneAnimQueues) {
+            boneAnimationQueue.setBlendWeight(blendWeight);
+
+            if (boneAnimationQueue.rotationOffset != null) {
+                boneAnimationQueue.rotation = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.rotationOffset);
+            }
+
+            if (boneAnimationQueue.positionOffset != null) {
+                boneAnimationQueue.position = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.positionOffset);
+            }
+
+            if (boneAnimationQueue.scaleOffset != null) {
+                boneAnimationQueue.scale = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.scaleOffset);
+            }
+        }
+    }
+
+    public void resetBoneAnimationQueues() {
+        if (this.state != AnimationState.IDLE) {
+            for (BoneAnimationQueue queue : activeBoneAnimQueues) {
+                queue.resetQueues();
+            }
         }
     }
 
     /**
-     * 返回当前关键帧播放进度
-     **/
-    private AnimationPoint getKeyFramePointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, float tick) {
+     * 返回当前关键帧进度点
+     */
+    private KeyFramePoint getKeyFramePointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, float tick) {
         var frame = frames.search(tick);
         return new KeyFramePoint(tick - frame.getStartTick(), frame, animationContext);
     }
 
     /**
-     * 返回过渡进度
-     **/
-    private TransitionPoint getTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, float tick, float transitionPercentProgress, PointType type, Vector3f offsetPoint) {
-        BoneKeyFrame dstFrame = frames.search(0);
-        if (type == PointType.ROTATION) {
-            return new TransitionRotationPoint(tick, transitionPercentProgress, this.transition.length(), offsetPoint, (TransitionKeyFrame) dstFrame, animationContext);
-        } else {
-            return new TransitionPoint(tick, transitionPercentProgress, this.transition.length(), offsetPoint, (TransitionKeyFrame) dstFrame, animationContext);
-        }
+     * 返回起始过渡点；
+     * 由于自定义过渡曲线的原因， 过渡进度需要单独传，而不能用 tick / length
+     */
+    private BeginningTransitionPoint getBeginningTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, boolean isRotation, float tick, float transitionPercentProgress, Vector3f offsetPoint) {
+        var dstFrame = frames.search(0);
+        return new BeginningTransitionPoint(tick, transitionPercentProgress, this.beginningTransition.length(), offsetPoint, (TransitionKeyFrame) dstFrame, isRotation, animationContext);
+    }
+
+    /**
+     * 返回结尾过渡点
+     */
+    private EndingTransitionPoint getEndingTransitionPointAtTick(float tick, Vector3f offsetPoint) {
+        return new EndingTransitionPoint(tick, endingTransitionLength, offsetPoint, animationContext);
     }
 
     /**
@@ -345,6 +435,28 @@ public class AnimationPlayer {
     }
 
     /**
+     * 停止播放动画并进入 IDLE 状态，注意下次 setAnimation 不可播放相同的动画。
+     */
+    private void resetToIdle() {
+        if (this.state != AnimationState.IDLE) {
+            this.state = AnimationState.IDLE;
+            if (soundKeyFrameExecutor != null) {
+                soundKeyFrameExecutor.reset();
+            }
+            soundKeyFrameExecutor = null;
+            instructionKeyFrameExecutor = null;
+
+            for (var queue : this.activeBoneAnimQueues) {
+                queue.setInactive();
+            }
+            this.activeBoneAnimQueues.clear();
+
+            this.currentAnim = null;
+            this.currentAnimFinished = true;
+        }
+    }
+
+    /**
      * 当前动画，仅在 IDLE 状态下为 null
      */
     @Nullable
@@ -362,7 +474,7 @@ public class AnimationPlayer {
     /**
      * 当前模型所有骨骼动画队列
      */
-    public Int2ReferenceOpenHashMap<BoneAnimationQueue> getBoneAnimQueues() {
+    public Int2ReferenceOpenHashMap<BoneAnimationQueue> getAllBoneAnimQueues() {
         return this.boneAnimQueues;
     }
 
@@ -384,8 +496,12 @@ public class AnimationPlayer {
         return currentAnimFinished;
     }
 
-    public void setTransition(IBlendTransition transition) {
-        this.transition = transition;
+    public void setBeginningTransition(IBlendTransition beginningTransition) {
+        this.beginningTransition = beginningTransition;
+    }
+
+    public float getBeginningTransitionLength() {
+        return this.beginningTransition.length() * 20f;
     }
 
     public float getAnimTicks(float renderTicks) {
@@ -402,32 +518,25 @@ public class AnimationPlayer {
     }
 
     /**
-     * 清空所有状态，下次 setAnimation 可重新播放相同的动画。
+     * 重置至初始状态
      */
-    public void forceReload() {
+    public void reset() {
         this.lastSetAnim = null;
+        this.nextAnim = null;
         resetToIdle();
     }
 
     /**
-     * 停止播放动画并进入 IDLE 状态，注意下次 setAnimation 不可播放相同的动画。
+     * 指示下次 setAnimation 可传入相同的动画以实现重载
      */
-    public void resetToIdle() {
-        if (this.state != AnimationState.IDLE) {
-            this.state = AnimationState.IDLE;
-            if (soundKeyFrameExecutor != null) {
-                soundKeyFrameExecutor.reset();
-            }
-            soundKeyFrameExecutor = null;
-            instructionKeyFrameExecutor = null;
+    public void indicateReload() {
+        this.lastSetAnim = null;
+    }
 
-            for (var queue : this.activeBoneAnimQueues) {
-                queue.setInactive();
-            }
-            this.activeBoneAnimQueues.clear();
-
-            this.currentAnim = null;
-            this.currentAnimFinished = true;
-        }
+    /**
+     * 以当前点为起始点进入尾过渡状态，随后停止播放
+     */
+    public void stop(float renderTicks) {
+        setupEndingTransition(renderTicks);
     }
 }

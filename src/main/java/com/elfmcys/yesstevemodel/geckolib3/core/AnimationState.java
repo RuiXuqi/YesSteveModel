@@ -11,11 +11,15 @@ public enum AnimationState {
      */
     IDLE,
     /**
-     * 过渡中
+     * 开始前的过渡
      */
-    TRANSITIONING,
+    BEGINNING_TRANSITION,
     /**
      * 播放中
      */
-    RUNNING
+    RUNNING,
+    /**
+     * PLAY_ONCE 类型的动画结束后的过渡
+     */
+    ENDING_TRANSITION
 }
