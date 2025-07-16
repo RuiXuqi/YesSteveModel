@@ -62,16 +62,15 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     private boolean isFirstPersonModActive() {
-        if (isLocalPlayer()) {
-            return FirstPersonCompat.isInstalled() && FirstPersonCompat.isEnabled();
-        }
-        return false;
+        return FirstPersonCompat.isInstalled() && FirstPersonCompat.isEnabled();
     }
 
     @Override
     public boolean canUpdateAsync() {
-        // 在第一人称下，如果安装了第一人称模组并启用，或没有禁用纸娃娃，则异步更新是多余的
-        return !Minecraft.getInstance().options.getCameraType().isFirstPerson() || (!isFirstPersonModActive() && ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.get());
+        // 在 LocalPlayer 第一人称下，如果安装了第一人称模组并启用，或没有禁用纸娃娃，则异步更新是多余的
+        return !isLocalPlayer()
+                || !Minecraft.getInstance().options.getCameraType().isFirstPerson()
+                || (!isFirstPersonModActive() && ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.get());
     }
 
     @Override
