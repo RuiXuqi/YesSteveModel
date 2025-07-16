@@ -289,7 +289,11 @@ public class AnimationPlayer {
 
             if (state == AnimationState.RUNNING) {
                 if (animTick > currentAnim.animationLength) {
-                    this.animTickOffset = renderTicks - (animTick - currentAnim.animationLength);
+                    if (currentLoopType == LoopType.HOLD_ON_LAST_FRAME) {
+                        this.animTickOffset = renderTicks;
+                    } else {
+                        this.animTickOffset = renderTicks - (animTick - currentAnim.animationLength);
+                    }
                     animTick = currentAnim.animationLength;
                 } else {
                     this.animTickOffset = renderTicks;
