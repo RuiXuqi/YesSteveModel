@@ -15,6 +15,9 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
 
     private boolean remoteFlying;
     private int expLevel;
+    private int health;
+    private int maxHealth;
+    private int foodLevel;
 
     private ItemStack mainhandItemStack = ItemStack.EMPTY;
     private ItemStack offhandItemStack = ItemStack.EMPTY;
@@ -41,6 +44,15 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
         if (msg.expLevel > 0) {
             expLevel = msg.expLevel;
         }
+        if (msg.foodLevel > 0) {
+            foodLevel = msg.foodLevel;
+        }
+        if (msg.health > 0) {
+            health = msg.health;
+        }
+        if (msg.maxHealth > 0) {
+            maxHealth = msg.maxHealth;
+        }
     }
 
     public boolean isFlying() {
@@ -52,6 +64,18 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
 
     public int expLevel() {
         return expLevel;
+    }
+
+    public int health() {
+        return health;
+    }
+
+    public int maxHealth() {
+        return maxHealth;
+    }
+
+    public int foodLevel() {
+        return foodLevel;
     }
 
     public byte getEffectLevel(MobEffect effect) {

@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.*;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.FirstPersonModHideVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.LadderFacingVariable;
@@ -178,12 +179,14 @@ public class YSMBinding extends ContextBinding {
         return key.toString();
     }
 
-    private static int getFoodLevel(IContext<LivingEntity> ctx) {
-        LivingEntity entity = ctx.entity();
-        if (entity instanceof Player player) {
+    private static Object getFoodLevel(IContext<LivingEntity> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getStateTracker().foodLevel();
+        } else if (ctx.entity() instanceof Player player) {
             return player.getFoodData().getFoodLevel();
+        } else {
+            return 20;
         }
-        return 20;
     }
 
     private static boolean getEyeCloseState(AnimationEvent<?> animationEvent, LivingEntity player) {

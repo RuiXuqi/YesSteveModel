@@ -16,35 +16,54 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
+// TODO: 太笨了，后续加更多属性要重构
 public class DispatchServerDrivenProperty {
     private final int entityId;
     public final boolean full;
     public final byte flying;
     public final int expLevel;
     public final Object2ByteMap<MobEffect> effects;
+    public final int foodLevel;
+    public final int health;
+    public final int maxHealth;
 
-    private DispatchServerDrivenProperty(boolean full, int entityId, byte flying, int expLevel, Object2ByteMap<MobEffect> effects) {
+    private DispatchServerDrivenProperty(boolean full, int entityId, byte flying, int expLevel, Object2ByteMap<MobEffect> effects, int foodLevel, int health, int maxHealth) {
         this.full = full;
         this.entityId = entityId;
         this.flying = flying;
         this.expLevel = expLevel;
         this.effects = effects;
+        this.foodLevel = foodLevel;
+        this.health = health;
+        this.maxHealth = maxHealth;
     }
 
     public static DispatchServerDrivenProperty flying(int entityId, boolean flying) {
-        return new DispatchServerDrivenProperty(false, entityId, flying ? (byte) 1 : (byte) 0, -1, Object2ByteMaps.emptyMap());
+        return new DispatchServerDrivenProperty(false, entityId, flying ? (byte) 1 : (byte) 0, -1, Object2ByteMaps.emptyMap(), -1, -1, -1);
     }
 
     public static DispatchServerDrivenProperty addEffect(int entityId, MobEffect effect, int level) {
-        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.singleton(effect, (byte) level));
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.singleton(effect, (byte) level), -1, -1, -1);
     }
 
     public static DispatchServerDrivenProperty removeEffect(int entityId, MobEffect effect) {
-        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.singleton(effect, (byte) 0));
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.singleton(effect, (byte) 0), -1, -1, -1);
     }
 
-    public static Object expLevel(int entityId, int expLevel) {
-        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, expLevel, Object2ByteMaps.emptyMap());
+    public static DispatchServerDrivenProperty expLevel(int entityId, int expLevel) {
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, expLevel, Object2ByteMaps.emptyMap(), -1, -1, -1);
+    }
+
+    public static DispatchServerDrivenProperty health(int entityId, int health) {
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.emptyMap(), -1, health, -1);
+    }
+
+    public static DispatchServerDrivenProperty maxHealth(int entityId, int maxHealth) {
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.emptyMap(), -1, -1, maxHealth);
+    }
+
+    public static DispatchServerDrivenProperty foodLevel(int entityId, int foodLevel) {
+        return new DispatchServerDrivenProperty(false, entityId, (byte) -1, -1, Object2ByteMaps.emptyMap(), foodLevel, -1, -1);
     }
 
     /**
@@ -54,15 +73,21 @@ public class DispatchServerDrivenProperty {
     public static DispatchServerDrivenProperty full(Entity entity) {
         byte flying;
         int expLevel;
+        Object2ByteMap<MobEffect> effects;
+        int foodLevel;
+        int health;
+        int maxHealth;
+
         if (entity instanceof Player player) {
             flying = player.getAbilities().flying ? (byte) 1 : (byte) 0;
             expLevel = player.experienceLevel;
+            foodLevel = player.getFoodData().getFoodLevel();
         } else {
             flying = -1;
             expLevel = -1;
+            foodLevel = -1;
         }
 
-        Object2ByteMap<MobEffect> effects;
         if (entity instanceof LivingEntity living) {
             var effectInstances = living.getActiveEffects();
             if (effectInstances.isEmpty()) {
@@ -81,11 +106,15 @@ public class DispatchServerDrivenProperty {
                 }
                 effects = new Object2ByteArrayMap<>(effectArray, levelArray);
             }
+            health = (int) living.getHealth();
+            maxHealth = (int) living.getMaxHealth();
         } else {
             effects = Object2ByteMaps.emptyMap();
+            health = -1;
+            maxHealth = -1;
         }
 
-        return new DispatchServerDrivenProperty(true, entity.getId(), flying, expLevel, effects);
+        return new DispatchServerDrivenProperty(true, entity.getId(), flying, expLevel, effects, foodLevel, health, maxHealth);
     }
 
     public static void encode(DispatchServerDrivenProperty message, FriendlyByteBuf buf) {
@@ -98,6 +127,9 @@ public class DispatchServerDrivenProperty {
             buf.writeId(BuiltInRegistries.MOB_EFFECT, entry.getKey());
             buf.writeByte(entry.getByteValue());
         });
+        buf.writeVarInt(message.foodLevel);
+        buf.writeVarInt(message.health);
+        buf.writeVarInt(message.maxHealth);
     }
 
     public static DispatchServerDrivenProperty decode(FriendlyByteBuf buf) {
@@ -121,8 +153,11 @@ public class DispatchServerDrivenProperty {
                 effects.put(effect, level);
             }
         }
+        var foodLevel = buf.readVarInt();
+        var health = buf.readVarInt();
+        var maxHealth = buf.readVarInt();
 
-        return new DispatchServerDrivenProperty(full, entityId, flying, expLevel, effects);
+        return new DispatchServerDrivenProperty(full, entityId, flying, expLevel, effects, foodLevel, health, maxHealth);
     }
 
     public static void handle(final DispatchServerDrivenProperty msg, Supplier<NetworkEvent.Context> contextSupplier) {

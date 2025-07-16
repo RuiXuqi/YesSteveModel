@@ -82,8 +82,8 @@ public class QueryBinding extends ContextBinding {
 
         livingEntityVar("body_x_rotation", ctx -> Mth.lerp(ctx.animationEvent().getPartialTick(), ctx.entity().xRotO, ctx.entity().getXRot()));
         livingEntityVar("body_y_rotation", ctx -> Mth.wrapDegrees(Mth.lerp(ctx.animationEvent().getPartialTick(), ctx.entity().yBodyRotO, ctx.entity().yBodyRot)));
-        livingEntityVar("health", ctx -> ctx.entity().getHealth());
-        livingEntityVar("max_health", ctx -> ctx.entity().getMaxHealth());
+        livingEntityVar("health", QueryBinding::getHealth);
+        livingEntityVar("max_health", QueryBinding::getMaxHealth);
         livingEntityVar("hurt_time", ctx -> ctx.entity().hurtTime);
         livingEntityVar("is_eating", ctx -> ctx.entity().getUseItem().getUseAnimation() == UseAnim.EAT);
         livingEntityVar("is_playing_dead", ctx -> ctx.entity().isDeadOrDying());
@@ -122,6 +122,22 @@ public class QueryBinding extends ContextBinding {
             return cap.getStateTracker().expLevel();
         } else {
             return ctx.entity().experienceLevel;
+        }
+    }
+
+    private static Object getHealth(IContext<LivingEntity> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getStateTracker().health();
+        } else {
+            return ctx.entity().getHealth();
+        }
+    }
+
+    private static Object getMaxHealth(IContext<LivingEntity> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getStateTracker().maxHealth();
+        } else {
+            return ctx.entity().getMaxHealth();
         }
     }
 
