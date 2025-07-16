@@ -396,7 +396,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                     } else {
                         target.setEndingTransitionPercentProgressIfLess(0);
                     }
-                    target.mul(weight, pointValue);
+                    target.fma(weight, pointValue);
                 } else if (transitionPercentProgress <= -0.00001f || transitionPercentProgress >= 0.00001f) {
                     var transitionPoint = (BeginningTransitionPoint) point;
                     var dst = transitionPoint.getTransitionDst(evaluator);

@@ -12,12 +12,14 @@ public class MathUtil {
     public static final Vector3f ONE = new Vector3f(1.0f, 1.0f, 1.0f);
 
     public static void lerpRotationValues(float percentCompleted, Vector3f begin, Vector3f end, Vector3f dst) {
+        var delta = new Vector3f(end).sub(MathUtil.wrapRadians(end));
+
         new Quaternionf()
                 .rotateZYX(begin.z, begin.y, begin.x)
                 .slerp(new Quaternionf().rotateZYX(end.z, end.y, end.x), percentCompleted)
                 .getEulerAnglesZYX(dst);
 
-        dst.add(new Vector3f(end).sub(MathUtil.wrapRadians(end)));
+        dst.add(delta);
     }
 
     public static Vector3f lerpValues(float percentCompleted, Vector3f begin, Vector3f end) {
