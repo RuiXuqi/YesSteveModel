@@ -127,14 +127,14 @@ public class AnimationProcessor<TEntity extends Entity> {
                 snapshot.rotationOffset = null;
             } else {
                 if (snapshot.rotationOffset == null) {
-                    snapshot.rotationOffset = new Vector3f(snapshot.rotation);
+                    snapshot.rotationOffset = MathUtil.normalizeRotation(snapshot.rotation, snapshot.bone.getInitialRotation(), 1);
                 }
                 var progress = (renderTicks - snapshot.lastRotationUpdateTime) / manager.getResetSpeed();
                 if (progress < 1f) {
                     active = true;
                     MathUtil.lerpRotationValues(progress, snapshot.rotationOffset, MathUtil.ZERO, snapshot.rotation);
                 } else {
-                    snapshot.rotation.set(0, 0, 0);
+                    snapshot.rotation.set(MathUtil.ZERO);
                 }
             }
 

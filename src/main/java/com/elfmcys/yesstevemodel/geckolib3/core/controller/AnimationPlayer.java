@@ -22,6 +22,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
+import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.util.OrderedSegmentSearcher;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -168,7 +169,7 @@ public class AnimationPlayer {
 
         if (this.state == AnimationState.IDLE) {
             // 没有动画正在播放时，尝试切换下一个动画
-            if (!loadNextAnim()) {
+            if (!loadNextAnim(evaluator)) {
                 return;
             }
 
@@ -275,7 +276,7 @@ public class AnimationPlayer {
             var animTick = getAnimTicks(renderTicks);
             for (var queue : activeBoneAnimQueues) {
                 if (queue.rotation != null && queue.rotation.lastLerpResult != null) {
-                    queue.rotationOffset = new Vector3f(queue.rotation.lastLerpResult);
+                    queue.rotationOffset = MathUtil.normalizeRotation(queue.rotation.lastLerpResult, queue.topLevelSnapshot.bone.getInitialRotation(), queue.getBlendWeight());
                 }
 
                 if (queue.position != null && queue.position.lastLerpResult != null) {
@@ -413,7 +414,7 @@ public class AnimationPlayer {
     /**
      * 尝试加载下个动画
      */
-    private boolean loadNextAnim() {
+    private boolean loadNextAnim(ExpressionEvaluator<MolangContext<?>> evaluator) {
         var next = this.nextAnim;
         if (next == null) {
             return false;
@@ -424,12 +425,14 @@ public class AnimationPlayer {
         this.currentLoopType = next.getFirst();
         this.currentAnimFinished = false;
 
+        animationContext.setAnimTime(0);
+        var blendWeight = currentAnim.blendWeight != null ? currentAnim.blendWeight.evalAsFloat(evaluator) : 1;
         for (BoneAnimation animation : currentAnim.boneAnimations) {
             BoneAnimationQueue queue = boneAnimQueues.get(animation.bonePooledName);
             if (queue == null) {
                 continue;
             }
-            queue.setActive(animation);
+            queue.setActive(animation, blendWeight);
             activeBoneAnimQueues.add(queue);
         }
         instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(currentAnim.customInstructionKeyframes);

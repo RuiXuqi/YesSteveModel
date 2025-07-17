@@ -8,18 +8,19 @@ public class MathUtil {
     private static final float DEGREES_TO_RADIANS = Mth.DEG_TO_RAD;
     private static final float RADIANS_TO_DEGREES = Mth.RAD_TO_DEG;
     public static final float PI = (float) Math.PI;
+
+    public static final float ROUND = (float) Math.toRadians(360f);
+    public static final float HALF_ROUND = (float) Math.toRadians(180f);
+    public static final float RIGHT_ANG = (float) Math.toRadians(90f);
+
     public static final Vector3f ZERO = new Vector3f(0.0f, 0.0f, 0.0f);
     public static final Vector3f ONE = new Vector3f(1.0f, 1.0f, 1.0f);
 
     public static void lerpRotationValues(float percentCompleted, Vector3f begin, Vector3f end, Vector3f dst) {
-        var delta = new Vector3f(end).sub(MathUtil.wrapRadians(end));
-
-        new Quaternionf()
-                .rotateZYX(begin.z, begin.y, begin.x)
-                .slerp(new Quaternionf().rotateZYX(end.z, end.y, end.x), percentCompleted)
-                .getEulerAnglesZYX(dst);
-
-        dst.add(delta);
+        var temp = new Vector3f(end).sub(begin);
+        MathUtil.wrapRotation(temp, temp);
+        end.sub(temp, temp);
+        MathUtil.lerpValues(percentCompleted, temp, end, dst);
     }
 
     public static Vector3f lerpValues(float percentCompleted, Vector3f begin, Vector3f end) {
@@ -60,18 +61,39 @@ public class MathUtil {
         return degrees * RADIANS_TO_DEGREES;
     }
 
-    public static Vector3f wrapRadians(Vector3f value) {
-        return new Vector3f(wrapRadians(value.x), wrapRadians(value.y), wrapRadians(value.z));
+    public static Vector3f normalizeRotation(Vector3f value, Vector3f initRot, float weight) {
+        var dst = new Vector3f();
+        normalizeRotation(value, initRot, weight, dst);
+        return dst;
     }
 
-    public static float wrapRadians(float value) {
-        float f = value % (360.0F * DEGREES_TO_RADIANS);
-        if (f >= (180.0F * DEGREES_TO_RADIANS)) {
-            f -= (360.0F * DEGREES_TO_RADIANS);
+    public static void normalizeRotation(Vector3f value, Vector3f initRot, float weight, Vector3f dst) {
+        wrapRotation(value, dst);
+        if (dst.y <= RIGHT_ANG && dst.y >= -RIGHT_ANG) {
+            return;
+        }
+        // 这个方法错得离谱，但别无他法
+        new Quaternionf().rotateZYX(dst.z * weight + initRot.z, dst.y * weight + initRot.y, dst.x * weight + initRot.x)
+                .getEulerAnglesZYX(dst);
+        dst.sub(initRot).div(weight);
+    }
+
+    public static void wrapRotation(Vector3f value, Vector3f dst) {
+        dst.set(wrapRotation(value.x), wrapRotation(value.y), wrapRotation(value.z));
+    }
+
+    public static Vector3f wrapRotation(Vector3f value) {
+        return new Vector3f(wrapRotation(value.x), wrapRotation(value.y), wrapRotation(value.z));
+    }
+
+    public static float wrapRotation(float value) {
+        float f = value % ROUND;
+        if (f >= HALF_ROUND) {
+            f -= ROUND;
         }
 
-        if (f < (-180.0F * DEGREES_TO_RADIANS)) {
-            f += (360.0F * DEGREES_TO_RADIANS);
+        if (f < -HALF_ROUND) {
+            f += ROUND;
         }
 
         return f;
