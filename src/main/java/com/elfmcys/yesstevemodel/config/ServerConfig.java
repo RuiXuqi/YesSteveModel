@@ -25,7 +25,6 @@ public class ServerConfig {
     }
 
     private static void init(ForgeConfigSpec.Builder builder) {
-        builder.comment("Only available on dedicated servers.");
         builder.push("server_scheduler");
 
         builder.comment("Concurrent level for processing models. Value 0 means AUTO.");
