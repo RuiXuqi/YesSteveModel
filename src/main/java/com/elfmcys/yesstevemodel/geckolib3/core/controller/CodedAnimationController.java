@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.LinearBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.BeginningTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.EndingTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
@@ -153,13 +154,16 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
             }
 
             var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
+            var weight = queue.getBlendWeight();
             if (point instanceof EndingTransitionPoint endingPoint) {
                 pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
             } else {
+                if (point instanceof BeginningTransitionPoint beginningPoint) {
+                    weight = MathUtil.lerpValues(beginningPoint.getTransitionPercentProgress(), 1, weight);
+                }
                 pointValue.setEndingTransitionPercentProgressIfLess(0);
             }
 
-            var weight = queue.getBlendWeight();
             if (weight != 1) {
                 pointValue.mul(weight);
             }
@@ -175,13 +179,16 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
             }
 
             var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
+            var weight = queue.getBlendWeight();
             if (point instanceof EndingTransitionPoint endingPoint) {
                 pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
             } else {
+                if (point instanceof BeginningTransitionPoint beginningPoint) {
+                    weight = MathUtil.lerpValues(beginningPoint.getTransitionPercentProgress(), 1, weight);
+                }
                 pointValue.setEndingTransitionPercentProgressIfLess(0);
             }
 
-            var weight = queue.getBlendWeight();
             if (weight != 1) {
                 pointValue.mul(weight);
             }
@@ -197,13 +204,16 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
             }
 
             var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
+            var weight = queue.getBlendWeight();
             if (point instanceof EndingTransitionPoint endingPoint) {
                 pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
             } else {
+                if (point instanceof BeginningTransitionPoint beginningPoint) {
+                    weight = MathUtil.lerpValues(beginningPoint.getTransitionPercentProgress(), 1, weight);
+                }
                 pointValue.setEndingTransitionPercentProgressIfLess(0);
             }
 
-            var weight = queue.getBlendWeight();
             if (weight != 1) {
                 MathUtil.computeWeightedScale(pointValue, weight, pointValue);
             }

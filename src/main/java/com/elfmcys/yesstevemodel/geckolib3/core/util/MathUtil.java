@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.util;
 
 import net.minecraft.util.Mth;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class MathUtil {
@@ -68,14 +67,21 @@ public class MathUtil {
     }
 
     public static void normalizeRotation(Vector3f value, Vector3f initRot, float weight, Vector3f dst) {
-        wrapRotation(value, dst);
-        if (dst.y <= RIGHT_ANG && dst.y >= -RIGHT_ANG) {
+        var temp = wrapRotation(value)
+                .mul(weight).add(initRot);
+
+        if ((temp.y < RIGHT_ANG && temp.y > -RIGHT_ANG)
+                || (temp.z <= RIGHT_ANG && temp.z >= -RIGHT_ANG)
+                || (temp.x <= RIGHT_ANG && temp.x >= -RIGHT_ANG)) {
+            wrapRotation(value, dst);
             return;
         }
-        // 这个方法错得离谱，但别无他法
-        new Quaternionf().rotateZYX(dst.z * weight + initRot.z, dst.y * weight + initRot.y, dst.x * weight + initRot.x)
-                .getEulerAnglesZYX(dst);
-        dst.sub(initRot).div(weight);
+
+        temp.y += temp.y > RIGHT_ANG ? -RIGHT_ANG : RIGHT_ANG;
+        temp.x += temp.x >= 0 ? -HALF_ROUND : HALF_ROUND;
+        temp.z += temp.z >= 0 ? -HALF_ROUND : HALF_ROUND;
+
+        wrapRotation(temp.sub(initRot).div(weight), dst);
     }
 
     public static void wrapRotation(Vector3f value, Vector3f dst) {

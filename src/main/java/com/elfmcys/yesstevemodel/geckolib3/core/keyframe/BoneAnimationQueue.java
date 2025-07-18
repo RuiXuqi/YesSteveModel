@@ -42,7 +42,7 @@ public class BoneAnimationQueue {
         transitionOffset = new BoneSnapshot(snapshot.bone);
     }
 
-    public void setActive(BoneAnimation animation, float blendWeight) {
+    public void setActive(BoneAnimation animation) {
         if (!animation.rotationKeyFrames.isEmpty()) {
             rotationKeyFrames = new OrderedSegmentSearcher<>(animation.rotationKeyFrames, 0, BoneKeyFrame::getEndTick);
         } else {
@@ -61,7 +61,7 @@ public class BoneAnimationQueue {
         transitionOffset.copyFrom(topLevelSnapshot.bone);
         MathUtil.normalizeRotation(transitionOffset.rotation,
                 topLevelSnapshot.bone.getInitialRotation(),
-                blendWeight,
+                1,
                 transitionOffset.rotation);
         active = true;
         resetQueues();

@@ -169,7 +169,7 @@ public class AnimationPlayer {
 
         if (this.state == AnimationState.IDLE) {
             // 没有动画正在播放时，尝试切换下一个动画
-            if (!loadNextAnim(evaluator)) {
+            if (!loadNextAnim()) {
                 return;
             }
 
@@ -414,7 +414,7 @@ public class AnimationPlayer {
     /**
      * 尝试加载下个动画
      */
-    private boolean loadNextAnim(ExpressionEvaluator<MolangContext<?>> evaluator) {
+    private boolean loadNextAnim() {
         var next = this.nextAnim;
         if (next == null) {
             return false;
@@ -425,14 +425,12 @@ public class AnimationPlayer {
         this.currentLoopType = next.getFirst();
         this.currentAnimFinished = false;
 
-        animationContext.setAnimTime(0);
-        var blendWeight = currentAnim.blendWeight != null ? currentAnim.blendWeight.evalAsFloat(evaluator) : 1;
         for (BoneAnimation animation : currentAnim.boneAnimations) {
             BoneAnimationQueue queue = boneAnimQueues.get(animation.bonePooledName);
             if (queue == null) {
                 continue;
             }
-            queue.setActive(animation, blendWeight);
+            queue.setActive(animation);
             activeBoneAnimQueues.add(queue);
         }
         instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(currentAnim.customInstructionKeyframes);
