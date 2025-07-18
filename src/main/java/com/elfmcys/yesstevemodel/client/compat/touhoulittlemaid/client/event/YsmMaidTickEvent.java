@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.github.tartaricacid.touhoulittlemaid.compat.ysm.event.YsmMaidClientTickEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -14,9 +13,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class YsmMaidTickEvent {
     @SubscribeEvent
     public void onTickYsmMaid(YsmMaidClientTickEvent event) {
-        if (!YesSteveModel.isAvailable()) {
-            return;
-        }
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
