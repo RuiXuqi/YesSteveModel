@@ -45,16 +45,20 @@ public class SoundKeyframeExecutor {
     private void playSound(AnimatableEntity<?> animatable, EventKeyFrame<String> keyFrame) {
         String soundName = keyFrame.getEventData();
         SoundInstance soundInstance;
+        var targetEntity = animatable.isFakePlayer() ? Minecraft.getInstance().player : animatable.getEntity();
+        if (targetEntity == null) {
+            return;
+        }
         if (soundName.contains(":")) {
             // 如果声音名带冒号，那么大概率就是调用原版音频，因为 Windows 中冒号不是合法的文件名
             ResourceLocation soundId = new ResourceLocation(soundName);
             SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(soundId);
-            MinecraftSoundInstance instance = new MinecraftSoundInstance(soundEvent, animatable.getEntity());
+            MinecraftSoundInstance instance = new MinecraftSoundInstance(soundEvent, targetEntity);
             cachePlaySounds.add(instance);
             soundInstance = instance;
         } else {
             // 否则认为是自定义的音频文件
-            CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundName, animatable.getEntity());
+            CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundName, targetEntity);
             cachePlaySounds.add(instance);
             soundInstance = instance;
         }

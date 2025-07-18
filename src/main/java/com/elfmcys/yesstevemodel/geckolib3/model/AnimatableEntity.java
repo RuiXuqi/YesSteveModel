@@ -133,6 +133,10 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return entity;
     }
 
+    public boolean isFakePlayer() {
+        return false;
+    }
+
     @Nullable
     public IBone getBone(int boneName) {
         return animationProcessor.getBone(boneName);

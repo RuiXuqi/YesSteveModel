@@ -8,4 +8,6 @@ public interface IPreviewEntity {
     PreviewAnimationInfo getPreviewInfo();
 
     void waitForCapabilityUpdate();
+
+    void setAllowEmitting(boolean allow);
 }

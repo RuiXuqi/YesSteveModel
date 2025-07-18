@@ -18,7 +18,7 @@ public class ParticleFunction extends EntityFunction {
 
     @Override
     protected Object eval(ExecutionContext<IContext<Entity>> context, ArgumentCollection arguments) {
-        if (!context.entity().allowEmitting()) {
+        if (!context.entity().allowEmitting() || context.entity().animatableEntity().isFakePlayer()) {
             return null;
         }
         try {

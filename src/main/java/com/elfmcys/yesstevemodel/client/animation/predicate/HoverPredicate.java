@@ -12,10 +12,14 @@ import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPre
 public class HoverPredicate implements IAnimationPredicate<CustomPlayerEntity> {
     @Override
     public PlayState test(AnimationEvent<CustomPlayerEntity> event, ExpressionEvaluator<?> evaluator) {
-        String hoverAnimation = ((IPreviewEntity) event.getAnimatableEntity()).getPreviewInfo().getHover();
+        var previewEntity = (IPreviewEntity) event.getAnimatableEntity();
+        String hoverAnimation = previewEntity.getPreviewInfo().getHover();
         if (StringUtils.isNoneBlank(hoverAnimation)) {
+            previewEntity.setAllowEmitting(true);
             return playLoopAnimation(event, hoverAnimation);
         }
+        previewEntity.setAllowEmitting(false);
+        event.getCodedController().stopPlayingSounds();
         return PlayState.STOP;
     }
 }

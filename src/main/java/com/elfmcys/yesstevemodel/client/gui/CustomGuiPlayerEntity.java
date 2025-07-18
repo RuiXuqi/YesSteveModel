@@ -16,6 +16,7 @@ import java.util.UUID;
 
 public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements IPreviewEntity {
     private final PreviewAnimationInfo guiAnimationInfo;
+    private boolean allowEmitting;
 
     public CustomGuiPlayerEntity() {
         super(new FakePlayer(), false, false);
@@ -28,14 +29,23 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
+    public void setAllowEmitting(boolean value) {
+        this.allowEmitting = value;
+    }
+
+    @Override
     public boolean isActive() {
         return true;
     }
 
     @Override
     protected boolean allowEmitting() {
-        // gui 上不允许生成行为
-        return false;
+        return allowEmitting;
+    }
+
+    @Override
+    public boolean isFakePlayer() {
+        return true;
     }
 
     @Override
