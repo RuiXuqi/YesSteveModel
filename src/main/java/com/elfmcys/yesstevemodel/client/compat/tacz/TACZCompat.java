@@ -32,7 +32,7 @@ public class TACZCompat {
     @SuppressWarnings("all")
     public static void addTaczPredicate(AnimatableEntity<?> entity) {
         if (INSTALLED) {
-            entity.addAnimationController(new HybridAnimationController(entity, TACZ_FIRE_CONTROLLER, 0.1f, new GunFirePredicate()));
+            entity.addAnimationController(new HybridAnimationController(entity, TACZ_FIRE_CONTROLLER, 0f, new GunFirePredicate()));
         }
     }
 
