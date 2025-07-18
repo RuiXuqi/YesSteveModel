@@ -8,8 +8,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @OnlyIn(Dist.CLIENT)
 public class UpdateRemoteStruct {
+    /* 施工中
     @SubscribeEvent
     public void onUpdateRemote(UpdateRemoteStructEvent event) {
         event.getMaid().getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> cap.setRemoteStruct(event.getRoamingVars()));
     }
+   */
 }
