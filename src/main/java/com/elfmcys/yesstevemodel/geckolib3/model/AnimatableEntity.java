@@ -19,6 +19,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
+import com.elfmcys.yesstevemodel.util.UnsafeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -235,7 +236,15 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     public void beginAsyncUpdate(final float partialTicks) {
         waitForAsyncUpdate();
-        task = ThreadTools.submit(() -> performUpdate(partialTicks));
+        UnsafeUtil.getUnsafe().storeFence();
+        task = ThreadTools.submit(() -> {
+            UnsafeUtil.getUnsafe().loadFence();
+            try {
+                return performUpdate(partialTicks);
+            } finally {
+                UnsafeUtil.getUnsafe().storeFence();
+            }
+        });
     }
 
     public AnimationEvent<?> waitForAsyncUpdate() {
@@ -243,6 +252,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             AnimationEvent<?> result = null;
             try {
                 result = task.get();
+                UnsafeUtil.getUnsafe().loadFence();
             } catch (InterruptedException ignored) {
             } catch (Throwable e) {
                 YesSteveModel.LOGGER.error("Error updating animation.", e);
