@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.client.compat;
 
 import lain.mods.cos.api.CosArmorAPI;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 
@@ -20,7 +20,7 @@ public class CosmeticArmorCompat {
         return INSTALLED;
     }
 
-    public static Optional<ItemStack> getSkinArmorItem(AbstractClientPlayer player, EquipmentSlot slot) {
+    public static Optional<ItemStack> getSkinArmorItem(Player player, EquipmentSlot slot) {
         if (!slot.isArmor()) {
             return Optional.empty();
         }

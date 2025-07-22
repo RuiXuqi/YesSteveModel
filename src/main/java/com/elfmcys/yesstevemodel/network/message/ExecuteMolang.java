@@ -7,9 +7,9 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
@@ -57,7 +57,7 @@ public class ExecuteMolang {
         }
         for (int entityId : message.entityIds) {
             Entity entity = mc.level.getEntity(entityId);
-            if (entity instanceof AbstractClientPlayer player) {
+            if (entity instanceof Player player) {
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     try {
                         IValue value = CustomMolangParser.parseSingleExpressionUnsafe(message.molangExpression);
