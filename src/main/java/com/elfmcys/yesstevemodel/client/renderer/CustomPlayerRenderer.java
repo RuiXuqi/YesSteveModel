@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerElytraLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerItemInHandLayer;
@@ -91,6 +92,9 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
     @Override
     @SuppressWarnings("all")
     protected void renderNameTag(Player player, Component displayName, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+        if (CustomGuiPlayerEntity.isFakePlayer(player)) {
+            return;
+        }
         double distance = this.entityRenderDispatcher.distanceToSqr(player);
         poseStack.pushPose();
         if (distance < 100) {

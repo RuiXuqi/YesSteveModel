@@ -63,6 +63,10 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
         }
     }
 
+    public static boolean isFakePlayer(Player player) {
+        return player instanceof FakePlayer;
+    }
+
     private static class FakePlayer extends Player {
         @SuppressWarnings("DataFlowIssue")
         public FakePlayer() {
