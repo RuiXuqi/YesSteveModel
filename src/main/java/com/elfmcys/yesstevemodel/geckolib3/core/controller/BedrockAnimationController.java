@@ -14,6 +14,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceLists;
@@ -155,7 +156,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     @Override
-    public void updateModelBones(List<BoneTopLevelSnapshot> modelBones) {
+    public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
         var data = this.animatableEntity.getAnimationControllerData(this.name);
         if (data != null) {
             this.updateModelBones(modelBones, data);

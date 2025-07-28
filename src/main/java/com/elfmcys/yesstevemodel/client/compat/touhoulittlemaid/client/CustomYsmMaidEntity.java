@@ -33,6 +33,8 @@ import com.github.tartaricacid.touhoulittlemaid.client.resource.pojo.MaidModelIn
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntity;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -42,6 +44,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
+
+import java.util.List;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
@@ -166,6 +170,14 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     @Override
     public GeoModel getModel() {
         return ClientModelManager.getModel(modelId).map(ClientModel::mainModel).orElse(ClientModelManager.getDefaultModel().mainModel());
+    }
+
+    @Override
+    @NotNull
+    public Int2ReferenceMap<List<IValue>> getEventHandlers() {
+        return ClientModelManager.getModel(modelId)
+                .map(m -> (Int2ReferenceMap<List<IValue>>) m.eventHandlers())
+                .orElseGet(Int2ReferenceMaps::emptyMap);
     }
 
     @Nullable

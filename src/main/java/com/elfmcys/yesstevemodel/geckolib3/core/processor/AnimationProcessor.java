@@ -24,6 +24,7 @@ import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
@@ -32,6 +33,7 @@ public class AnimationProcessor<TEntity extends Entity> {
 
     private final AnimatableEntity<TEntity> animatable;
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelBones = new ReferenceArrayList<>();
+    private Int2ReferenceMap<List<IValue>> eventHandlers = Int2ReferenceMaps.emptyMap();
     private final Int2ReferenceOpenHashMap<BoneTopLevelSnapshot> modelBonesMap = new Int2ReferenceOpenHashMap<>();
     private final ReferenceArrayList<BoneTopLevelSnapshot> activeModelBonesMap = new ReferenceArrayList<>();      // 即使更新开销大也比链表更优
 
@@ -59,7 +61,7 @@ public class AnimationProcessor<TEntity extends Entity> {
         AnimationData manager = this.animatable.getAnimationData();
         for (IAnimationController<AnimatableEntity<TEntity>> controller : manager.getAnimationControllers()) {
             if (this.modelDirty) {
-                controller.updateModelBones(this.modelBones);
+                controller.updateModel(this.modelBones, eventHandlers);
             }
             // 将当前控制器设置为动画测试事件
             // 处理动画并向点队列添加新值
@@ -190,7 +192,7 @@ public class AnimationProcessor<TEntity extends Entity> {
         return bone != null ? bone.bone : null;
     }
 
-    public void registerModelBones(Int2ReferenceMap<IBone> boneMap) {
+    public void registerModel(Int2ReferenceMap<IBone> boneMap, Int2ReferenceMap<List<IValue>> eventHandlers) {
         this.modelBonesMap.clear();
         this.activeModelBonesMap.clear();
         this.modelBones.clear();
@@ -202,6 +204,7 @@ public class AnimationProcessor<TEntity extends Entity> {
         });
         this.molangMemory.initialize(null);
         this.modelDirty = true;
+        this.eventHandlers = eventHandlers;
     }
 
     public void putRemoteStruct(@Nullable Struct remoteStruct) {

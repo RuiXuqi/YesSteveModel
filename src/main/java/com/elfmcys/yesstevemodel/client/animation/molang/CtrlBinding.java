@@ -2,9 +2,7 @@ package com.elfmcys.yesstevemodel.client.animation.molang;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
-import com.elfmcys.yesstevemodel.client.animation.molang.functions.ArmorCheck;
-import com.elfmcys.yesstevemodel.client.animation.molang.functions.HandItemCheck;
-import com.elfmcys.yesstevemodel.client.animation.molang.functions.RideCheck;
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.*;
 import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
@@ -25,6 +23,16 @@ import java.util.function.Predicate;
 
 public class CtrlBinding extends ContextBinding {
     public static final CtrlBinding INSTANCE = new CtrlBinding();
+
+    public static final int STATE_CONTINUE = 2;
+    public static final int STATE_STOP = 3;
+    public static final int STATE_PAUSE = 4;
+    public static final int STATE_BYPASS = 5;
+
+    public static final int LOOP = 10;
+    public static final int PLAY_ONCE = 11;
+    public static final int HOLD_ON_LAST_FRAME = 12;
+
     private static ReferenceArrayList<Condition>[] DATA;
     private static final float MIN_SPEED = 0.05f;
 
@@ -69,6 +77,20 @@ public class CtrlBinding extends ContextBinding {
         ParCoolCompat.addBinding(this);
         SlashBladeCompat.addBinding(this);
         SophisticatedCompat.addBinding(this);
+
+        // 硬编码预测函数用
+        constValue("state_continue", STATE_CONTINUE);
+        constValue("state_stop", STATE_STOP);
+        constValue("state_pause", STATE_PAUSE);
+        constValue("state_bypass", STATE_BYPASS);
+
+        constValue("loop", LOOP);
+        constValue("play_once", PLAY_ONCE);
+        constValue("hold_on_last_frame", HOLD_ON_LAST_FRAME);
+
+        function("set_animation", new SetAnimation());
+        function("reset", new ResetController());
+        function("indicate_reload", new IndicateReload());
     }
 
     @SuppressWarnings("unchecked")

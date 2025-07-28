@@ -13,11 +13,15 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.ARROW_MAIN_CONTROLLER;
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.ARROW_PARALLEL_CONTROLLER;
@@ -48,6 +52,14 @@ public class CustomArrowEntity extends AnimatableEntity<AbstractArrow> {
     @Override
     public GeoModel getModel() {
         return ClientModelManager.getModel(modelId).map(model -> model.projectileModels().get(ProjectileType.ARROW).model()).orElse(null);
+    }
+
+    @Override
+    @NotNull
+    public Int2ReferenceMap<List<IValue>> getEventHandlers() {
+        return ClientModelManager.getModel(modelId)
+                .map(m -> (Int2ReferenceMap<List<IValue>>) m.eventHandlers())
+                .orElseGet(Int2ReferenceMaps::emptyMap);
     }
 
     @Override

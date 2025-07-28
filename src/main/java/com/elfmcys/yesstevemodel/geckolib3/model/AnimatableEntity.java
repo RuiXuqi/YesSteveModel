@@ -20,6 +20,8 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.elfmcys.yesstevemodel.util.UnsafeUtil;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -40,6 +42,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     protected final TEntity entity;
     private GeoModelState currentModel;
+    private Int2ReferenceMap<List<IValue>> eventHandlers;
 
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
     protected float lastFrameTime;
@@ -90,6 +93,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      * 在更新前未必等于 currentModel
      */
     public abstract GeoModel getModel();
+
+    @NotNull
+    public Int2ReferenceMap<List<IValue>> getEventHandlers() {
+        return Int2ReferenceMaps.emptyMap();
+    }
 
     public abstract boolean isModelPresent();
 
@@ -202,7 +210,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         }
         if (force || this.currentModel == null || model != this.currentModel.model()) {
             this.currentModel = new GeoModelState(model);
-            this.animationProcessor.registerModelBones(currentModel.boneMap());
+            this.animationProcessor.registerModel(currentModel.boneMap(), getEventHandlers());
             setupModel(this.currentModel);
             return true;
         }

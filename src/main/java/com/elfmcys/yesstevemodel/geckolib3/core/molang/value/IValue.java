@@ -11,6 +11,12 @@ public interface IValue {
     default float evalAsFloat(ExpressionEvaluator<?> evaluator) {
         return ValueConversions.asFloat(eval(evaluator));
     }
+    /**
+     * 依次执行表达式，返回最后一个表达式的值，或第一个 return 语句的值，并转换为 int 类型。
+     */
+    default int evalAsInt(ExpressionEvaluator<?> evaluator) {
+        return ValueConversions.asInt(eval(evaluator));
+    }
 
     /**
      * 依次执行表达式，返回最后一个表达式的值，或第一个 return 语句的值，并转换为 boolean 类型。

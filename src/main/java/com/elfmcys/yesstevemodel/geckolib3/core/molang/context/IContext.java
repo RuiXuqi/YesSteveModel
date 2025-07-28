@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -21,6 +22,10 @@ public interface IContext<TEntity> {
     TEntity entity();
 
     AnimatableEntity<?> animatableEntity();
+
+    // animationEvent.codedController 作用域不可控，所以要单独加一个字段
+    @Nullable
+    CodedAnimationController<?> codedAnimationController();
 
     Minecraft mc();
 

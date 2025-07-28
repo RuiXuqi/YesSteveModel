@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
@@ -9,11 +10,15 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.BeginningTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.EndingTransitionPoint;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.ControllerContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -25,6 +30,9 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     private final IAnimationPredicate<T> animationPredicate;
     private final AnimationPlayer animationPlayer;
     private final boolean blendRotation;
+    private final ControllerContext ctx;
+    @Nullable
+    private IValue molangPredict;
 
     /**
      * 实例化硬编码动画控制器，每个控制器同一时间只能播放一个动画 <br>
@@ -47,12 +55,16 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPredicate = animationPredicate;
         this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
         this.blendRotation = blendRotation;
+        this.ctx = new ControllerContext();
     }
 
     @Override
     public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
         event.setCodedAnimationController(this);
-        PlayState playState = this.animationPredicate.test(event, evaluator);
+        PlayState playState = evalMolangPredict(evaluator);
+        if (playState == null) {
+            playState = this.animationPredicate.test(event, evaluator);
+        }
 
         if (playState == PlayState.CONTINUE) {
             this.animationPlayer.process(event.renderTicks, evaluator, allowEmitting);
@@ -70,9 +82,43 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         }
     }
 
+    @Nullable
+    private PlayState evalMolangPredict(ExpressionEvaluator<MolangContext<?>> evaluator) {
+        if (this.molangPredict == null) {
+            return null;
+        }
+
+        this.ctx.setAnyAnimationFinished(this.animationPlayer.currentAnimFinished());
+        this.ctx.setAllAnimationsFinished(this.animationPlayer.currentAnimFinished());
+
+        evaluator.entity().setCodedAnimationController(this);
+        evaluator.entity().setControllerContext(this.ctx);
+        evaluator.entity().setAllowEmitting(true);
+
+        var state = this.molangPredict.evalAsInt(evaluator);
+
+        evaluator.entity().setCodedAnimationController(null);
+        evaluator.entity().setAllowEmitting(false);
+
+        return switch (state) {
+            case CtrlBinding.STATE_CONTINUE -> PlayState.CONTINUE;
+            case CtrlBinding.STATE_PAUSE -> PlayState.PAUSE;
+            case CtrlBinding.STATE_STOP -> PlayState.STOP;
+            default -> null;
+        };
+    }
+
     @Override
-    public void updateModelBones(List<BoneTopLevelSnapshot> modelRendererList) {
-        this.animationPlayer.updateModel(modelRendererList);
+    public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
+        this.animationPlayer.updateModel(modelBones);
+
+        var predictEventName = StringPool.getName(this.name.replace(".", "_ctrl_"));
+        if (predictEventName != StringPool.NONE) {
+            var handlers = eventHandlers.get(predictEventName);
+            if (handlers != null && !handlers.isEmpty()) {
+                this.molangPredict = handlers.get(0);
+            }
+        }
     }
 
     @Override

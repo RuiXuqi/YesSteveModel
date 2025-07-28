@@ -26,6 +26,8 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -181,6 +183,14 @@ public abstract class CustomPlayerEntity extends AnimatableEntity<Player> implem
     @Override
     public GeoModel getModel() {
         return ClientModelManager.getModel(modelId).map(ClientModel::mainModel).orElse(ClientModelManager.getDefaultModel().mainModel());
+    }
+
+    @Override
+    @NotNull
+    public Int2ReferenceMap<List<IValue>> getEventHandlers() {
+        return ClientModelManager.getModel(modelId)
+                .map(m -> (Int2ReferenceMap<List<IValue>>) m.eventHandlers())
+                .orElseGet(Int2ReferenceMaps::emptyMap);
     }
 
     @Nullable
