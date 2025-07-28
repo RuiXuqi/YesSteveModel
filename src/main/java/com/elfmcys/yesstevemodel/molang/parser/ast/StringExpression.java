@@ -74,9 +74,14 @@ public final class StringExpression implements Expression {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StringExpression that = (StringExpression) o;
-        return value.equals(that.value);
+        if (o == null) return false;
+        if (o instanceof String str) {
+            return value.equals(str);
+        }
+        if (o instanceof StringExpression expr) {
+            return pooledValue == expr.pooledValue;
+        }
+        return false;
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.variable.block.BlockVaria
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.variable.entity.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.variable.item.ItemStackVariable;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.variable.item.ItemVariable;
+import com.elfmcys.yesstevemodel.molang.parser.ast.StringExpression;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -46,7 +47,15 @@ public class ContextBinding implements ObjectBinding {
     }
 
     public void constValue(String name, Object value) {
-        bindings.put(name, value);
+        if (value instanceof String str) {
+            bindings.put(name, new StringExpression(str));
+        } else if (value instanceof Number num) {
+            bindings.put(name, num.floatValue());
+        } else if (value instanceof Boolean b) {
+            bindings.put(name, b ? 1f : 0f);
+        } else {
+            bindings.put(name, value);
+        }
     }
 
     public void var(String name, IValueEvaluator<?, IContext<Object>> evaluator) {

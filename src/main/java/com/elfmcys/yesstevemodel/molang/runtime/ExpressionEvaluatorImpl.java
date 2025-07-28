@@ -116,28 +116,30 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
                 Object right = b.visit(evaluator);
                 if (left == right)
                     return true;
-                if (right == null)
-                    return false;
-                if (right instanceof Number) {
+                if (right instanceof Number || left instanceof Number)
                     return ValueConversions.asFloat(right) == ValueConversions.asFloat(left);
-                } else if (right instanceof String) {
-                    return right.equals(left);
-                }
-                return false;
+                if (right == null || left == null)
+                    return false;
+                if (right instanceof StringExpression expr)
+                    return expr.equals(left);
+                if (left instanceof StringExpression expr)
+                    return expr.equals(right);
+                return left.equals(right);
             }, // eq
             (evaluator, a, b) -> {
                 Object left = a.visit(evaluator);
                 Object right = b.visit(evaluator);
                 if (left == right)
                     return false;
-                if (right == null)
-                    return true;
-                if (right instanceof Number) {
+                if (right instanceof Number || left instanceof Number)
                     return ValueConversions.asFloat(right) != ValueConversions.asFloat(left);
-                } else if (right instanceof String) {
-                    return !right.equals(left);
-                }
-                return false;
+                if (right == null || left == null)
+                    return true;
+                if (right instanceof StringExpression expr)
+                    return !expr.equals(left);
+                if (left instanceof StringExpression expr)
+                    return !expr.equals(right);
+                return !left.equals(right);
             }
     };
 
