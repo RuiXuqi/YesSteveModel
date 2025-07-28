@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 public class SetAnimation extends ContextFunction<Object> {
     @Override
     protected Object eval(ExecutionContext<IContext<Object>> ctx, ArgumentCollection arguments) {
-        var controller = ctx.entity().codedAnimationController();
+        var controller = ctx.entity().animationEvent().getCodedController();
         if (controller == null) {
             return null;
         }

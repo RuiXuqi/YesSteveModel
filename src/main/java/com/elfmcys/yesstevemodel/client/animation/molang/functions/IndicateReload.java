@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 public class IndicateReload extends ContextFunction<Object> {
     @Override
     protected Object eval(ExecutionContext<IContext<Object>> ctx, ArgumentCollection arguments) {
-        var controller = ctx.entity().codedAnimationController();
+        var controller = ctx.entity().animationEvent().getCodedController();
         if (controller == null) {
             return null;
         }

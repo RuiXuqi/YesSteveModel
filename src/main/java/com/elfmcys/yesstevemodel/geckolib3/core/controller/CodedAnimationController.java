@@ -32,7 +32,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     private final boolean blendRotation;
     private final ControllerContext ctx;
     @Nullable
-    private IValue molangPredict;
+    private IValue molangPredicate;
 
     /**
      * 实例化硬编码动画控制器，每个控制器同一时间只能播放一个动画 <br>
@@ -61,10 +61,11 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     @Override
     public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
         event.setCodedAnimationController(this);
-        PlayState playState = evalMolangPredict(evaluator);
+        PlayState playState = evalMolangPredicate(evaluator);
         if (playState == null) {
             playState = this.animationPredicate.test(event, evaluator);
         }
+        event.setCodedAnimationController(null);
 
         if (playState == PlayState.CONTINUE) {
             this.animationPlayer.process(event.renderTicks, evaluator, allowEmitting);
@@ -83,21 +84,19 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     }
 
     @Nullable
-    private PlayState evalMolangPredict(ExpressionEvaluator<MolangContext<?>> evaluator) {
-        if (this.molangPredict == null) {
+    private PlayState evalMolangPredicate(ExpressionEvaluator<MolangContext<?>> evaluator) {
+        if (this.molangPredicate == null) {
             return null;
         }
 
         this.ctx.setAnyAnimationFinished(this.animationPlayer.currentAnimFinished());
         this.ctx.setAllAnimationsFinished(this.animationPlayer.currentAnimFinished());
 
-        evaluator.entity().setCodedAnimationController(this);
         evaluator.entity().setControllerContext(this.ctx);
         evaluator.entity().setAllowEmitting(true);
 
-        var state = this.molangPredict.evalAsInt(evaluator);
+        var state = this.molangPredicate.evalAsInt(evaluator);
 
-        evaluator.entity().setCodedAnimationController(null);
         evaluator.entity().setAllowEmitting(false);
 
         return switch (state) {
@@ -112,11 +111,12 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
         this.animationPlayer.updateModel(modelBones);
 
+        this.molangPredicate = null;
         var predictEventName = StringPool.getName(this.name.replace(".", "_ctrl_"));
         if (predictEventName != StringPool.NONE) {
             var handlers = eventHandlers.get(predictEventName);
             if (handlers != null && !handlers.isEmpty()) {
-                this.molangPredict = handlers.get(0);
+                this.molangPredicate = handlers.get(0);
             }
         }
     }

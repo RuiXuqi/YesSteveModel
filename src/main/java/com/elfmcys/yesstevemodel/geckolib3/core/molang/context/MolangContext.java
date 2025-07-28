@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -31,7 +30,6 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     protected final EntityModelData data;
 
     protected AnimationContext animationContext;
-    protected CodedAnimationController<?> codedAnimationController;
     protected ControllerContext controllerContext;
     protected RandomSource random;
     protected MolangMemory memory;
@@ -73,16 +71,6 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     @Override
     public AnimatableEntity<?> animatableEntity() {
         return animatableEntity;
-    }
-
-    @Override
-    @Nullable
-    public CodedAnimationController<?> codedAnimationController() {
-        return codedAnimationController;
-    }
-
-    public void setCodedAnimationController(@Nullable CodedAnimationController<?> codedAnimationController) {
-        this.codedAnimationController = codedAnimationController;
     }
 
     @Override

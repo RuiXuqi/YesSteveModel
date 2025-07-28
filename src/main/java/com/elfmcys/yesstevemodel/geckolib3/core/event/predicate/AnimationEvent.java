@@ -18,7 +18,6 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     public float renderTicks;
     @Nullable
     private final EntityModelData extraData;
-    @Nullable
     protected CodedAnimationController<T> codedController;
 
     public AnimationEvent(T animatable, float limbSwing, float limbSwingAmount, int entityTickCount, float partialTick, boolean isMoving,
@@ -60,13 +59,11 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         return isMoving;
     }
 
-    @NotNull
     public CodedAnimationController<T> getCodedController() {
-        Objects.requireNonNull(codedController);
         return codedController;
     }
 
-    public void setCodedAnimationController(@NotNull CodedAnimationController<T> controller) {
+    public void setCodedAnimationController(CodedAnimationController<T> controller) {
         this.codedController = controller;
     }
 
