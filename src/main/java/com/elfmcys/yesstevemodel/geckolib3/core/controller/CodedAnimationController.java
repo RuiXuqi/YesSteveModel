@@ -33,6 +33,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     private final ControllerContext ctx;
     @Nullable
     private IValue molangPredicate;
+    private boolean pause;
 
     /**
      * 实例化硬编码动画控制器，每个控制器同一时间只能播放一个动画 <br>
@@ -69,6 +70,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
         if (playState == PlayState.CONTINUE) {
             this.animationPlayer.process(event.renderTicks, evaluator, allowEmitting);
+            this.pause = false;
         } else if (playState == PlayState.STOP) {
             var state = this.animationPlayer.getState();
             if (state == AnimationState.BEGINNING_TRANSITION || state == AnimationState.RUNNING) {
@@ -78,8 +80,11 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
             if (state == AnimationState.ENDING_TRANSITION) {
                 this.animationPlayer.process(event.renderTicks, evaluator, allowEmitting);
             }
-        } else {
+            this.pause = false;
+        } else if (playState == PlayState.PAUSE) {
+            this.animationPlayer.process(event.renderTicks, evaluator, false);
             this.animationPlayer.resetBoneAnimationQueues();
+            this.pause = true;
         }
     }
 
@@ -153,8 +158,10 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
     @Override
     public void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor) {
-        for (var queue : this.animationPlayer.getActiveBoneAnimQueues()) {
-            visitor.accept(new SingleBoneAnimationQueue(queue));
+        if (!this.pause) {
+            for (var queue : this.animationPlayer.getActiveBoneAnimQueues()) {
+                visitor.accept(new SingleBoneAnimationQueue(queue));
+            }
         }
     }
 
