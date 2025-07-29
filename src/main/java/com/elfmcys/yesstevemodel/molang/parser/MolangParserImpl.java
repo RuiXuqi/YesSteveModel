@@ -197,67 +197,76 @@ final class MolangParserImpl implements MolangParser {
     ) throws IOException {
         Token current = lexer.current();
 
-        switch (current.kind()) {
-            case RPAREN:
-            case EOF:
-                return left;
-            case LPAREN: { // CALL EXPRESSION: "left("
-                if (left instanceof CallExpression) {
-                    CallExpression call = (CallExpression) left;
-                    if (call.arguments() != CallExpression.PLACE_HOLDER) {
-                        throw new ParseException("Multiple '()' after function name", lexer.cursor());
-                    }
-
-                    lexer.next();
-                    final List<Expression> arguments = new ArrayList<>();
-
-                    if (lexer.current().kind() != TokenKind.RPAREN) {
-                        // start reading the arguments
-                        while (true) {
-                            arguments.add(parseCompoundExpression(lexer, 0));
-                            // update current character
-                            current = lexer.current();
-                            if (current.kind() == TokenKind.EOF) {
-                                throw new ParseException("Found EOF before closing RPAREN", null);
-                            } else if (current.kind() == TokenKind.RPAREN) {
-                                lexer.next();
-                                break;
-                            } else {
-                                if (current.kind() != TokenKind.COMMA) {
-                                    throw new ParseException("Expected a comma", lexer.cursor());
-                                }
-                                lexer.next();
-                            }
-                        }
-                    } else {
-                        lexer.next();
-                    }
-
-                    return new CallExpression(call.function(), new Function.ArgumentCollection(arguments));
-                } else {
-                    if (lastPrecedence >= BinaryExpression.Op.MUL.precedence()) {
-                        return left;
-                    }
-                    Expression right = parseCompoundExpression(lexer, BinaryExpression.Op.MUL.precedence());
-                    return new BinaryExpression(BinaryExpression.Op.MUL, left, right);
-                }
-            }
-            case QUES: {
-                // 嵌套的三元条件表达式从右往左执行
-                if (lastPrecedence > PRECEDENCE_QUES) {
-                    return left;
+        if (left instanceof CallExpression) {
+            CallExpression call = (CallExpression) left;
+            if (current.kind() == TokenKind.LPAREN) { // CALL EXPRESSION: "left("
+                if (call.arguments() != CallExpression.PLACE_HOLDER) {
+                    throw new ParseException("Multiple '()' after function name", lexer.cursor());
                 }
 
                 lexer.next();
-                final Expression trueValue = parseCompoundExpression(lexer, PRECEDENCE_QUES);
+                final List<Expression> arguments = new ArrayList<>();
 
-                if (lexer.current().kind() == TokenKind.COLON) {
-                    // then it's a ternary expression, since there is a ':', indicating the next expression
-                    lexer.next();
-                    return new TernaryConditionalExpression(left, trueValue, parseCompoundExpression(lexer, PRECEDENCE_QUES));
+                if (lexer.current().kind() != TokenKind.RPAREN) {
+                    // start reading the arguments
+                    while (true) {
+                        arguments.add(parseCompoundExpression(lexer, 0));
+                        // update current character
+                        current = lexer.current();
+                        if (current.kind() == TokenKind.EOF) {
+                            throw new ParseException("Found EOF before closing RPAREN", null);
+                        } else if (current.kind() == TokenKind.RPAREN) {
+                            lexer.next();
+                            break;
+                        } else {
+                            if (current.kind() != TokenKind.COMMA) {
+                                throw new ParseException("Expected a comma", lexer.cursor());
+                            }
+                            lexer.next();
+                        }
+                    }
                 } else {
-                    return new BinaryExpression(BinaryExpression.Op.CONDITIONAL, left, trueValue);
+                    lexer.next();
                 }
+
+                if (!call.function().validateArgumentSize(arguments.size())) {
+                    throw new ParseException("Illegal function arguments size", lexer.cursor());
+                }
+
+                return new CallExpression(call.function(), new Function.ArgumentCollection(arguments));
+            }
+
+            if (!call.function().validateArgumentSize(call.arguments().size())) {
+                throw new ParseException("Illegal function arguments size", lexer.cursor());
+            }
+        }
+
+        if (current.kind() == TokenKind.RPAREN || current.kind() == TokenKind.EOF) {
+            return left;
+        }
+
+        if (current.kind() == TokenKind.LPAREN) {
+            if (lastPrecedence >= BinaryExpression.Op.MUL.precedence()) {
+                return left;
+            }
+            Expression right = parseCompoundExpression(lexer, BinaryExpression.Op.MUL.precedence());
+            return new BinaryExpression(BinaryExpression.Op.MUL, left, right);
+        }
+
+        if (current.kind() == TokenKind.QUES) { // 嵌套的三元条件表达式从右往左执行
+            if (lastPrecedence > PRECEDENCE_QUES) {
+                return left;
+            }
+
+            lexer.next();
+            final Expression trueValue = parseCompoundExpression(lexer, PRECEDENCE_QUES);
+
+            if (lexer.current().kind() == TokenKind.COLON) {
+                // then it's a ternary expression, since there is a ':', indicating the next expression
+                lexer.next();
+                return new TernaryConditionalExpression(left, trueValue, parseCompoundExpression(lexer, PRECEDENCE_QUES));
+            } else {
+                return new BinaryExpression(BinaryExpression.Op.CONDITIONAL, left, trueValue);
             }
         }
 
