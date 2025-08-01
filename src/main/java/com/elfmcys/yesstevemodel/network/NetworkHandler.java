@@ -14,6 +14,7 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public final class NetworkHandler {
     }
 
     public static boolean isPlayerChannelPresent(ServerPlayer player) {
-        return isChannelPresent(player.connection.connection);
+        return player.connection != null && isChannelPresent(player.connection.connection);
     }
 
     public static boolean isRemoteChannelPresent() {
@@ -39,8 +40,9 @@ public final class NetworkHandler {
         return isChannelPresent(connection.getConnection());
     }
 
-    public static boolean isChannelPresent(Connection connection) {
-        return VERSION.equals(connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).get());
+    public static boolean isChannelPresent(@Nullable Connection connection) {
+        // 这里冗余的判空是为了排除服务端假人
+        return connection != null && connection.channel() != null && VERSION.equals(connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).get());
     }
 
     public static void init() {
