@@ -23,6 +23,8 @@ public final class NativeLibUtil {
     private static final String WINDOWS_LIB_NAME = "ysm-core.dll";
     private static final String LINUX_LIB_NAME = "libysm-core.so";
 
+    private static String UNSUPPORTED_PLATFORM_NAME = "";
+
     public static boolean loadCoreLibrary() throws IOException {
         String libPath = System.getenv("YSM_CORE_LIB");
         if (StringUtil.isNullOrEmpty(libPath)) {
@@ -44,25 +46,30 @@ public final class NativeLibUtil {
         String modVersion = ModList.get().getModFileById(YesSteveModel.MOD_ID).getFile().getModInfos().get(0).getVersion().toString();
         if (SystemUtils.IS_OS_WINDOWS) {
             if (!isX64) {
+                UNSUPPORTED_PLATFORM_NAME = String.format("Windows %s", SystemUtils.OS_ARCH);
                 return null;
             }
 
             libData = readEmbeddedFile(LIB_PATH + WINDOWS_LIB_NAME);
             libFileName = "ysm-core-" + modVersion + ".dll";
         } else if (SystemUtils.IS_OS_LINUX) {
-            if (!isX64) {
+            if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
+                UNSUPPORTED_PLATFORM_NAME = "Linux (MC Client)";
                 return null;
             }
-            if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
+            if (!isX64) {
+                UNSUPPORTED_PLATFORM_NAME = String.format("Linux %s", SystemUtils.OS_ARCH);
                 return null;
             }
             if (!isGLibc()) {
+                UNSUPPORTED_PLATFORM_NAME = "Linux (not based on gnu libc)";
                 return null;
             }
 
             libData = readEmbeddedFile(LIB_PATH + LINUX_LIB_NAME);
             libFileName = "libysm-core-" + modVersion + ".so";
         } else {
+            UNSUPPORTED_PLATFORM_NAME = SystemUtils.OS_NAME;
             return null;
         }
 
@@ -73,6 +80,10 @@ public final class NativeLibUtil {
                 .toAbsolutePath().toString();
         writeLibData(libPath, libData);
         return libPath;
+    }
+
+    public static String getUnsupportedPlatformName() {
+        return UNSUPPORTED_PLATFORM_NAME;
     }
 
     private static void writeLibData(String libPath, byte[] libData) throws IOException {

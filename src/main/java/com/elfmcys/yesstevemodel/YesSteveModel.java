@@ -13,13 +13,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 @Mod(YesSteveModel.MOD_ID)
+@SuppressWarnings("removal")
 public class YesSteveModel {
     public static final String MOD_ID = "yes_steve_model";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
@@ -28,6 +28,7 @@ public class YesSteveModel {
     public YesSteveModel() throws IOException {
         AVAILABLE = NativeLibUtil.loadCoreLibrary();
         if (!AVAILABLE) {
+            LOGGER.error(getUnavailableMessageString());
             return;
         }
 
@@ -51,10 +52,10 @@ public class YesSteveModel {
     }
 
     public static Component getUnavailableMessage() {
-        return Component.translatable("error.yes_steve_model.unsupported_platform", SystemUtils.OS_NAME, SystemUtils.OS_ARCH);
+        return Component.translatable("error.yes_steve_model.unsupported_platform", NativeLibUtil.getUnsupportedPlatformName());
     }
 
     public static String getUnavailableMessageString() {
-        return String.format("[YSM] Current platform is unsupported: %s - %s", SystemUtils.OS_NAME, SystemUtils.OS_ARCH);
+        return String.format("[YSM] Current platform is unsupported: %s", NativeLibUtil.getUnsupportedPlatformName());
     }
 }
