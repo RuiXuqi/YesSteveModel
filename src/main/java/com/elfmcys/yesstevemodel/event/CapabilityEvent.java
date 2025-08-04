@@ -21,6 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 @Mod.EventBusSubscriber
+@SuppressWarnings("removal")
 public final class CapabilityEvent {
     private static final ResourceLocation MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "model_id");
     private static final ResourceLocation PROJECTILE_MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "projectile_model_id");
@@ -37,7 +38,7 @@ public final class CapabilityEvent {
         }
         Entity entity = event.getObject();
         if (entity instanceof Player player) {
-            if (entity instanceof ServerPlayer && !player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).isPresent() && !event.getCapabilities().containsKey(MODEL_INFO_CAP)) {
+            if (!entity.level().isClientSide() && !player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).isPresent() && !event.getCapabilities().containsKey(MODEL_INFO_CAP)) {
                 event.addCapability(MODEL_INFO_CAP, new ModelInfoCapabilityProvider());
             }
             if (!player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).isPresent() && !event.getCapabilities().containsKey(AUTH_MODELS_CAP)) {
@@ -51,7 +52,7 @@ public final class CapabilityEvent {
                 event.addCapability(PROJECTILE_MODEL_INFO_CAP, new ProjectileModelInfoCapabilityProvider());
             }
         }
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.dist == Dist.CLIENT && entity.level().isClientSide()) {
             if (entity instanceof AbstractClientPlayer clientPlayer && !clientPlayer.getCapability(PlayerAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ANIMATABLE_CAP)) {
                 event.addCapability(ANIMATABLE_CAP, new PlayerAnimatableCapabilityProvider(clientPlayer));
             } else if (entity instanceof AbstractArrow && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {

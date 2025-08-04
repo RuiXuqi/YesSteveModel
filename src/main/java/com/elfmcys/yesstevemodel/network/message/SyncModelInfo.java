@@ -74,22 +74,9 @@ public class SyncModelInfo {
     public static void handle(SyncModelInfo message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> handlePacket(message));
+            EntityLoadEvent.executeOnEntity(message.entityId,  entity -> handleCapability(entity, message));
         }
         context.setPacketHandled(true);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static void handlePacket(SyncModelInfo message) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level != null) {
-            Entity entity = mc.level.getEntity(message.entityId);
-            if (entity == null) {
-                EntityLoadEvent.addRecoveryHandler(message.entityId, e -> handleCapability(e, message));
-            } else {
-                handleCapability(entity, message);
-            }
-        }
     }
 
     @OnlyIn(Dist.CLIENT)

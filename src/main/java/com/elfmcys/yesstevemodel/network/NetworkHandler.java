@@ -18,8 +18,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
+@SuppressWarnings("removal")
 public final class NetworkHandler {
-    public static final String VERSION = "2.4.2-s6";
+    public static final String VERSION = "2.4.2-snap13";
     public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION.replace('.', '_'));
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION, p -> true, p -> true);
     private static final AttributeKey<String> ATTRIBUTE_CHANNEL_VERSION = AttributeKey.valueOf(YesSteveModel.MOD_ID + "_channel_version");
@@ -28,6 +29,7 @@ public final class NetworkHandler {
         return connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).compareAndSet(null, channelVersion);
     }
 
+    @SuppressWarnings("ConstantValue")
     public static boolean isPlayerChannelPresent(ServerPlayer player) {
         return player.connection != null && isChannelPresent(player.connection.connection);
     }
@@ -40,6 +42,7 @@ public final class NetworkHandler {
         return isChannelPresent(connection.getConnection());
     }
 
+    @SuppressWarnings("ConstantValue")
     public static boolean isChannelPresent(@Nullable Connection connection) {
         // 这里冗余的判空是为了排除服务端假人
         return connection != null && connection.channel() != null && VERSION.equals(connection.channel().attr(ATTRIBUTE_CHANNEL_VERSION).get());

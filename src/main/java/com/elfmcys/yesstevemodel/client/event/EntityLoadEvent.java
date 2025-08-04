@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.event;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -32,11 +33,25 @@ public class EntityLoadEvent {
         CACHE.invalidate(event.getEntity().getId());
     }
 
+    public static void executeOnEntity(int entityId, Consumer<Entity> consumer) {
+        Minecraft.getInstance().execute(() -> {
+            var level = Minecraft.getInstance().level;
+            if (level != null) {
+                var entity = level.getEntity(entityId);
+                if (entity != null) {
+                    consumer.accept(entity);
+                } else {
+                    addRecoveryHandler(entityId, consumer);
+                }
+            }
+        });
+    }
+
     // 非线程安全
-    public static void addRecoveryHandler(int entityId, Consumer<Entity> consumer) {
+    private static void addRecoveryHandler(int entityId, Consumer<Entity> consumer) {
         var list = CACHE.getIfPresent(entityId);
         if (list == null) {
-            list = new ArrayList<>();
+            list = new ArrayList<>(3);
             CACHE.put(entityId, list);
         }
         list.add(consumer);

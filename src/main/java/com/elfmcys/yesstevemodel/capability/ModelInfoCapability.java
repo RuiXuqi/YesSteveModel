@@ -1,14 +1,13 @@
 package com.elfmcys.yesstevemodel.capability;
 
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
-import com.elfmcys.yesstevemodel.network.message.DispatchServerDrivenProperty;
 import com.elfmcys.yesstevemodel.network.message.SyncModelInfo;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
 
@@ -91,7 +90,7 @@ public class ModelInfoCapability {
     }
 
     // 必须在主线程上调用
-    public Optional<SyncModelInfo> buildPacketForDispatch(Entity entity) {
+    public Optional<SyncModelInfo> buildPacketForDispatch(ServerPlayer entity) {
         return ServerModelManager.getModel(modelId).map(model ->
             new SyncModelInfo(
                     entity.getId(),
@@ -102,7 +101,7 @@ public class ModelInfoCapability {
                     playAnimation,
                     molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>()),
                     null,
-                    DispatchServerDrivenProperty.full(entity))
+                    ServerDrivenPlayerPropertiesTracker.full(entity))
         );
     }
 

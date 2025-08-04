@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -33,14 +32,7 @@ public class DispatchRoamingVarsChanges {
     public static void handle(final DispatchRoamingVarsChanges msg, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> {
-                Entity entity = Minecraft.getInstance().level.getEntity(msg.changes.entityId);
-                if (entity != null) {
-                    handle(entity, msg);
-                } else {
-                    EntityLoadEvent.addRecoveryHandler(msg.changes.entityId, e -> handle(e, msg));
-                }
-            });
+            EntityLoadEvent.executeOnEntity(msg.changes.entityId, entity -> handle(entity, msg));
         }
         context.setPacketHandled(true);
     }

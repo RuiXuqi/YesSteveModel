@@ -27,30 +27,30 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
 
     public PlayerStateTracker(Player player, boolean localPlayer) {
         super(player);
-        effects = new Object2ByteOpenHashMap<>(8);
+        this.effects = new Object2ByteOpenHashMap<>(8);
         this.localPlayer = localPlayer;
     }
 
     public void updateServerDrivenProperty(DispatchServerDrivenProperty msg) {
-        if (msg.flying >= 0) {
-            remoteFlying = msg.flying != 0;
+        if (msg.variant == 0 || msg.variant == 1) {
+            remoteFlying = msg.flying;
         }
-        if (!msg.effects.isEmpty()) {
-            if (msg.full) {
+        if (msg.effects != null) {
+            if (msg.variant == 0) {
                 effects.clear();
             }
             effects.putAll(msg.effects);
         }
-        if (msg.expLevel > 0) {
+        if (msg.variant == 0 || msg.variant == 3) {
             expLevel = msg.expLevel;
         }
-        if (msg.foodLevel > 0) {
+        if (msg.variant == 0 || msg.variant == 4) {
             foodLevel = msg.foodLevel;
         }
-        if (msg.health > 0) {
+        if (msg.variant == 0 || msg.variant == 5) {
             health = msg.health;
         }
-        if (msg.maxHealth > 0) {
+        if (msg.variant == 0 || msg.variant == 6) {
             maxHealth = msg.maxHealth;
         }
     }

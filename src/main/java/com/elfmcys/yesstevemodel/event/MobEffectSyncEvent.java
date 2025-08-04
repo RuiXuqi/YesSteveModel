@@ -17,7 +17,7 @@ public class MobEffectSyncEvent {
         }
         if (event.getEntity() instanceof Player player) {
             var effectInstance = event.getEffectInstance();
-            NetworkHandler.broadcastToVisiblePlayers(DispatchServerDrivenProperty.addEffect(player.getId(), effectInstance.getEffect(), effectInstance.getAmplifier() + 1), player);
+            NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.addEffect(player.getId(), effectInstance.getEffect(), effectInstance.getAmplifier() + 1), player);
         }
     }
 
@@ -27,7 +27,7 @@ public class MobEffectSyncEvent {
             return;
         }
         if (event.getEntity() instanceof Player player) {
-            NetworkHandler.broadcastToVisiblePlayers(DispatchServerDrivenProperty.removeEffect(player.getId(), event.getEffect()), player);
+            NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.removeEffect(player.getId(), event.getEffect()), player);
         }
     }
 
@@ -37,7 +37,7 @@ public class MobEffectSyncEvent {
             return;
         }
         if (event.getEntity() instanceof Player player && event.getEffectInstance() != null) {
-            NetworkHandler.broadcastToVisiblePlayers(DispatchServerDrivenProperty.removeEffect(player.getId(), event.getEffectInstance().getEffect()), player);
+            NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.removeEffect(player.getId(), event.getEffectInstance().getEffect()), player);
         }
     }
 }

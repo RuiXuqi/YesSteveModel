@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.network.message;
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ProjectileModelInfoCapability;
 import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -40,22 +39,9 @@ public class SyncProjectileModelInfo {
     public static void handle(SyncProjectileModelInfo message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> handlePacket(message));
+            EntityLoadEvent.executeOnEntity(message.entityId, entity -> handleCapability(entity, message.capability));
         }
         context.setPacketHandled(true);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static void handlePacket(SyncProjectileModelInfo message) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level != null) {
-            Entity entity = mc.level.getEntity(message.entityId);
-            if (entity == null) {
-                EntityLoadEvent.addRecoveryHandler(message.entityId, e -> handleCapability(e, message.capability));
-            } else {
-                handleCapability(entity, message.capability);
-            }
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
