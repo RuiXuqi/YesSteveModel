@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.variable.FirstPersonMod
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.LadderFacingVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.MoveInputVariable;
 import com.elfmcys.yesstevemodel.client.animation.molang.variable.TextureNameVariable;
+import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
@@ -149,6 +150,9 @@ public class YSMBinding extends ContextBinding {
         abstractArrowVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
         abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
         abstractArrowVar("shoot_item_id", ctx -> ((IArrowExtraInfo) ctx.entity()).getShootItemId());
+
+        // 模组联动
+        CuriosCompat.addMolangBinding(this);
     }
 
     private static boolean isFishing(IContext<LivingEntity> ctx) {

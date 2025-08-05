@@ -125,6 +125,10 @@ repositories {
         // Add jitpack to repositories
         url 'https://jitpack.io'
     }
+    maven {
+        name = "Curios"
+        url = uri("https://maven.theillusivec4.top/")
+    }
 }
 
 dependencies {
@@ -143,7 +147,7 @@ dependencies {
     modRuntimeOnly "maven.modrinth:slashblade-resharped:1.1.6-1.20.1"
 
     modImplementation "curse.maven:carry-on-274259:${carry_on_id}"
-    modImplementation "curse.maven:curios-309927:${curios_id}"
+    modImplementation "top.theillusivec4.curios:curios-forge:${curios_version}"
     modImplementation "curse.maven:caelus-308989:${caelus_id}"
     modImplementation "curse.maven:cosmetic-armor-reworked-237307:${cosmetic_armor_id}"
     modImplementation "curse.maven:elytra-slot-317716:${elytra_slot_id}"

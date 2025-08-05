@@ -1,0 +1,39 @@
+package com.elfmcys.yesstevemodel.client.compat.curios.functions;
+
+import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
+import com.elfmcys.yesstevemodel.client.compat.curios.MolangCache;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.LivingEntityFunction;
+import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.LivingEntity;
+import org.apache.commons.lang3.StringUtils;
+
+public class HasAnyCuriosWithAnyTag extends LivingEntityFunction {
+    @Override
+    protected Object eval(ExecutionContext<IContext<LivingEntity>> ctx, ArgumentCollection args) {
+        var slotType = args.getAsString(ctx, 0);
+        if (StringUtils.isEmpty(slotType)) {
+            return null;
+        }
+
+        var tagList = MolangCache.TAG_LIST.get();
+        tagList.size(args.size() - 1);
+        for (var i = 1; i < args.size(); ++i) {
+            var tagId = args.getAsResourceLocation(ctx, i);
+            if (tagId == null) {
+                return null;
+            }
+            var tag = TagKey.create(Registries.ITEM, tagId);
+            tagList.set(i - 1, tag);
+        }
+
+        return CuriosCompat.hasAnyItemEquippedWithAnyTag(ctx.entity().entity(), slotType, tagList);
+    }
+
+    @Override
+    public boolean validateArgumentSize(int size) {
+        return size > 1;
+    }
+}

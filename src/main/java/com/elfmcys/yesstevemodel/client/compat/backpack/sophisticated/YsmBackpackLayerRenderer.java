@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated;
 
-import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoLayerRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -14,7 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.render.BackpackModelManager;
 import net.p3pp3rf1y.sophisticatedbackpacks.client.render.IBackpackModel;
-import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
 
 import static net.p3pp3rf1y.sophisticatedbackpacks.client.render.BackpackLayerRenderer.renderBackpack;
 
@@ -50,26 +48,16 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
             return;
         }
         Player player = animatableEntity.getEntity();
-        final ItemStack[] backpack = new ItemStack[1];
-        // 先尝试获取 curios 的背包
-        if (CuriosCompat.isInstalled()) {
-            backpack[0] = BackpackCuriosCompat.getCuriosBackpack(player);
-        }
-        // 然后才是玩家护甲栏的背包
-        if (backpack[0] == null) {
-            PlayerInventoryProvider.get().getBackpackFromRendered(player).ifPresent((backpackRenderInfo) -> {
-                backpack[0] = backpackRenderInfo.getBackpack();
-            });
-        }
+        ItemStack backpack = SophisticatedCompat.getBackpackItemStack(player);
         // 渲染
-        if (backpack[0] != null) {
+        if (backpack != null) {
             poseStack.pushPose();
-            IBackpackModel model = BackpackModelManager.getBackpackModel(backpack[0].getItem());
+            IBackpackModel model = BackpackModelManager.getBackpackModel(backpack.getItem());
             translateToBackpack(poseStack, geoModel);
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
             poseStack.mulPose(Axis.YP.rotationDegrees(180));
             poseStack.translate(0, -0.1, 0);
-            renderBackpack(this.model, player, poseStack, bufferIn, packedLightIn, backpack[0], false, model);
+            renderBackpack(this.model, player, poseStack, bufferIn, packedLightIn, backpack, false, model);
             poseStack.popPose();
         }
     }

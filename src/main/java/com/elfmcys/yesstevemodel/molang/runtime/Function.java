@@ -60,6 +60,8 @@ public interface Function {
         return true;
     }
 
+    Function PLACE_HOLDER = (context, arguments) -> null;
+
     ArgumentCollection EMPTY_ARGUMENT = new ArgumentCollection(new ArrayList<>());
 
     class ArgumentCollection {
