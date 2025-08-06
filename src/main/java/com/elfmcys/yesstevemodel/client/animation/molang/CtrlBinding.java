@@ -12,6 +12,7 @@ import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
+import com.elfmcys.yesstevemodel.util.LazyValue;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.function.Predicate;
 
 public class CtrlBinding extends ContextBinding {
-    public static final CtrlBinding INSTANCE = new CtrlBinding();
+    public static final LazyValue<CtrlBinding> INSTANCE = new LazyValue<>(CtrlBinding::new);
 
     public static final int STATE_CONTINUE = 2;
     public static final int STATE_STOP = 3;

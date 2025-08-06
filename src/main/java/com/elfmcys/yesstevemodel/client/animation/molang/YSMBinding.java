@@ -14,6 +14,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
+import com.elfmcys.yesstevemodel.util.LazyValue;
 import com.elfmcys.yesstevemodel.util.PersonView;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.Minecraft;
@@ -45,7 +46,7 @@ import java.util.Comparator;
 import java.util.Locale;
 
 public class YSMBinding extends ContextBinding {
-    public static final YSMBinding INSTANCE = new YSMBinding();
+    public static final LazyValue<YSMBinding> INSTANCE = new LazyValue<>(YSMBinding::new);
 
     @SuppressWarnings("resource")
     private YSMBinding() {

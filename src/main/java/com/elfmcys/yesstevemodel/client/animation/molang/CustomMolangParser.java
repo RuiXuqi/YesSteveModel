@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.MathBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.QueryBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,10 +46,14 @@ public class CustomMolangParser {
 
     private static MolangParser createMolangParser() {
         if (EXTRA_BINDING.isEmpty()) {
-            EXTRA_BINDING.put("ysm", YSMBinding.INSTANCE);
-            EXTRA_BINDING.put("ctrl", CtrlBinding.INSTANCE);
-            EXTRA_BINDING.put("tlm", TLMBinding.INSTANCE);
-            EXTRA_BINDING.put("args", UserFunctionArgument.INSTANCE);
+            try {
+                EXTRA_BINDING.put("ysm", YSMBinding.INSTANCE.get());
+                EXTRA_BINDING.put("ctrl", CtrlBinding.INSTANCE.get());
+                EXTRA_BINDING.put("tlm", TLMBinding.INSTANCE.get());
+                EXTRA_BINDING.put("args", UserFunctionArgument.INSTANCE);
+            } catch (ConcurrentException e) {
+                throw new RuntimeException(e);
+            }
         }
         var binding = new HashMap<>(EXTRA_BINDING);
         binding.put("fn", new UserFunctionBinding());     // Scoped 对象不能单例

@@ -45,6 +45,8 @@ public class ClientSetupEvent {
         ParCoolCompat.init();
         SlashBladeCompat.init();
         SwemCompat.init();
+
+        // 一定要放在最后
         initCoreClient();
     }
 
