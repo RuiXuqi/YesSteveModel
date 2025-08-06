@@ -381,5 +381,7 @@
   "key.yes_steve_model.extra_animation.7.desc": "Play Extra Animation 7",
   "key.yes_steve_model.debug_animation.desc": "Open Animation Debug",
   "key.yes_steve_model.open_extra_player_render.desc": "Extra Player Render Config",
-  "subtitle.yes_steve_model.custom": "YSM Custom Sound"
+  "subtitle.yes_steve_model.custom": "YSM Custom Sound",
+  "top.yes_steve_model.model_info.id": "YSM Model: ",
+  "config.jade.plugin_yes_steve_model.model_info": "Show YSM Model Info"
 }

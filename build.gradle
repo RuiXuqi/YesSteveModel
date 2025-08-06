@@ -171,6 +171,9 @@ dependencies {
     modImplementation "maven.modrinth:sophisticated-core:1.20.1-1.2.0.843-forge"
     modImplementation "maven.modrinth:sophisticated-backpacks:1.20.1-3.23.1.1184-forge"
 
+    modImplementation "curse.maven:jade-324717:5072729"
+    modCompileOnly "curse.maven:the-one-probe-245211:4629624"
+
     modRuntimeOnly "maven.modrinth:jade:11.12.3+forge"
 }
 

@@ -381,5 +381,7 @@
   "key.yes_steve_model.extra_animation.7.desc": "播放额外动画 7",
   "key.yes_steve_model.debug_animation.desc": "打开动画调试",
   "key.yes_steve_model.open_extra_player_render.desc": "打开额外玩家渲染配置",
-  "subtitle.yes_steve_model.custom": "YSM 自定义声音"
+  "subtitle.yes_steve_model.custom": "YSM 自定义声音",
+  "top.yes_steve_model.model_info.id": "YSM模型：",
+  "config.jade.plugin_yes_steve_model.model_info": "显示 YSM 模型信息"
 }
