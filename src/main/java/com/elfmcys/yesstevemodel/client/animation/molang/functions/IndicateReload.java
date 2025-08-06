@@ -18,6 +18,6 @@ public class IndicateReload extends ContextFunction<Object> {
 
     @Override
     public boolean validateArgumentSize(int size) {
-        return size > 0;
+        return size == 0;
     }
 }
