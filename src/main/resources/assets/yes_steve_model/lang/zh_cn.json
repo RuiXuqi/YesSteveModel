@@ -313,7 +313,7 @@
   "message.yes_steve_model.model.animation_roulette.play": "§6§l【§aYSM§6§l】§r播放“%s”动画",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §r动画调试模式启用",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §r动画调试模式关闭",
-  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[调试] %s",
+  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[调试] ",
   "message.yes_steve_model.model.debug_animation.parser_error": "§6§l[§aYSM§6§l] §r表达式解析失败: %s",
   "message.yes_steve_model.model.debug_animation.result": "§6§l[§aYSM§6§l] §r执行结果: %s",
   "message.yes_steve_model.client.server_not_found": "§6§l[§aYSM§6§l] §r服务端 YSM 模组版本与客户端不同，部分功能无法使用",

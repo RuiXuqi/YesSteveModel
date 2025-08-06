@@ -307,7 +307,7 @@
   "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §rアニメーション '%s' を再生",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §rアニメーションデバッグが有効",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §rアニメーションデバッグが無効",
-  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[デバッグ] %s",
+  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[デバッグ] ",
   "message.yes_steve_model.model.debug_animation.parser_error": "§6§l[§aYSM§6§l] §r式の解析に失敗しました: %s",
   "message.yes_steve_model.model.debug_animation.result": "§6§l[§aYSM§6§l] §r実行結果: %s",
   "message.yes_steve_model.client.server_not_found": "§6§l[§aYSM§6§l] §rサーバー側のYSMモッドバージョンがクライアントと異なります。一部の機能が使用できない可能性があります",

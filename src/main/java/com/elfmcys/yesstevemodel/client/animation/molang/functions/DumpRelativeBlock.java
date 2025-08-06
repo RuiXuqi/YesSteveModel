@@ -4,6 +4,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.EntityFunction;
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -23,13 +25,10 @@ public class DumpRelativeBlock extends EntityFunction {
         if (blockId == null) {
             return null;
         }
-        ctx.entity().debugPrint("Display: '%s'", block.getBlock().getName().getString(99));
-        ctx.entity().debugPrint("Name: '%s'", blockId);
-
-        ForgeRegistries.BLOCKS.tags().getReverseTag(block.getBlock()).ifPresent(tags -> {
-            tags.getTagKeys().forEach(key -> {
-                ctx.entity().debugPrint("Tag: '%s'", key);
-            });
+        ctx.entity().debugPrint(Component.literal("Display ").append(ComponentUtils.copyOnClickText(block.getBlock().getName().getString(99))));
+        ctx.entity().debugPrint(Component.literal("Name ").append(ComponentUtils.copyOnClickText(blockId.toString())));
+        block.getTags().forEach(key -> {
+            ctx.entity().debugPrint(Component.literal("Tag ").append(ComponentUtils.copyOnClickText(key.location().toString())));
         });
 
         return null;

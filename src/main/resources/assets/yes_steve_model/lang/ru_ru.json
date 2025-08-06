@@ -307,7 +307,7 @@
   "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §rВоспроизводится анимация '%s'",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §rОтладка анимации включена",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §rОтладка анимации выключена",
-  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[Отладка] %s",
+  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[Отладка] ",
   "message.yes_steve_model.model.debug_animation.parser_error": "§6§l[§aYSM§6§l] §rНе удалось проанализировать выражение: %s",
   "message.yes_steve_model.model.debug_animation.result": "§6§l[§aYSM§6§l] §rРезультат выполнения: %s",
   "message.yes_steve_model.client.server_not_found": "§6§l[§aYSM§6§l] §rВерсия мода YSM у клиента отличается от версии на стороне сервера. Некоторые функции могут быть недоступны",

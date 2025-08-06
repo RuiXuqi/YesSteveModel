@@ -22,6 +22,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -42,6 +44,7 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Locale;
 
@@ -224,7 +227,8 @@ public class YSMBinding extends ContextBinding {
         }
 
         ModList.get().getMods().stream().sorted(Comparator.comparing(IModInfo::getDisplayName)).forEach(mod -> {
-            context.debugPrint("Mod: display='%s' id='%s'", mod.getDisplayName(), mod.getModId());
+            context.debugPrint(Component.literal("Mod: display ").append(ComponentUtils.copyOnClickText(mod.getDisplayName()))
+                    .append(Component.literal("  id ").append(ComponentUtils.copyOnClickText(mod.getModId()))));
         });
         return null;
     }
@@ -234,16 +238,20 @@ public class YSMBinding extends ContextBinding {
             return null;
         }
 
+        Collection<MobEffectInstance> effects;
         if (context.entity() instanceof Arrow) {
-            for (MobEffectInstance instance : ((ArrowEntityAccessor) context.entity()).getEffects()) {
-                ResourceLocation id = ForgeRegistries.MOB_EFFECTS.getKey(instance.getEffect());
-                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier() + 1);
-            }
+            effects = ((ArrowEntityAccessor) context.entity()).getEffects();
         } else if (context.entity() instanceof LivingEntity) {
-            for (MobEffectInstance instance : ((LivingEntity) context.entity()).getActiveEffects()) {
-                ResourceLocation id = ForgeRegistries.MOB_EFFECTS.getKey(instance.getEffect());
-                context.debugPrint("Effect: display='%s' name='%s' lv=%s", instance.getEffect().getDisplayName().getString(99), id, instance.getAmplifier() + 1);
-            }
+            effects = ((LivingEntity) context.entity()).getActiveEffects();
+        } else {
+            return null;
+        }
+
+        for (MobEffectInstance instance : effects) {
+            ResourceLocation id = ForgeRegistries.MOB_EFFECTS.getKey(instance.getEffect());
+            context.debugPrint(Component.literal("Effect: display ").append(ComponentUtils.copyOnClickText(instance.getEffect().getDisplayName().getString(99)))
+                    .append(Component.literal("  name ").append(ComponentUtils.copyOnClickText(id.toString())))
+                    .append("  lv=").append(String.valueOf(instance.getAmplifier() + 1)));
         }
 
         return null;
@@ -255,12 +263,11 @@ public class YSMBinding extends ContextBinding {
         }
 
         Holder<Biome> biome = context.entity().level().getBiome(context.entity().blockPosition());
-
         biome.unwrapKey().ifPresent(p -> {
-            context.debugPrint("Name: '%s'", p.location());
+            context.debugPrint(Component.literal("Name ").append(ComponentUtils.copyOnClickText(p.location().toString())));
         });
         biome.tags().forEach(tag -> {
-            context.debugPrint("Tag: '%s'", tag.location());
+            context.debugPrint(Component.literal("Tag ").append(ComponentUtils.copyOnClickText(tag.location().toString())));
         });
 
         return null;

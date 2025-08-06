@@ -5,6 +5,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.LivingEnt
 import com.elfmcys.yesstevemodel.geckolib3.util.MolangUtils;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -36,13 +38,11 @@ public class DumpEquippedItem extends LivingEntityFunction {
         if (id == null) {
             return null;
         }
-        context.entity().debugPrint("Display: '%s'", itemStack.getItem().getName(itemStack).getString(99));
-        context.entity().debugPrint("Name: '%s'", id);
+        context.entity().debugPrint(Component.literal("Display ").append(ComponentUtils.copyOnClickText(itemStack.getItem().getName(itemStack).getString(99))));
+        context.entity().debugPrint(Component.literal("Name ").append(ComponentUtils.copyOnClickText(id.toString())));
 
-        ForgeRegistries.ITEMS.tags().getReverseTag(itemStack.getItem()).ifPresent(tags -> {
-            tags.getTagKeys().forEach(key -> {
-                context.entity().debugPrint("Tag: '%s'", key);
-            });
+        itemStack.getTags().forEach(key -> {
+            context.entity().debugPrint(Component.literal("Tag ").append(ComponentUtils.copyOnClickText(key.location().toString())));
         });
 
         for (Tag nbt : itemStack.getEnchantmentTags()) {
@@ -57,8 +57,8 @@ public class DumpEquippedItem extends LivingEntityFunction {
                     continue;
                 }
                 int level = compoundnbt.getInt("lvl");
-                context.entity().debugPrint("Enchantment: display='%s' name='%s'",
-                        enchantment.getFullname(level).getString(99), enchantmentId);
+                context.entity().debugPrint(Component.literal("Enchantment: display ").append(ComponentUtils.copyOnClickText(enchantment.getFullname(level).getString(99)))
+                                .append(Component.literal("  name ").append(ComponentUtils.copyOnClickText(enchantmentId.toString()))));
             }
         }
 

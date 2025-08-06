@@ -5,6 +5,8 @@ import com.elfmcys.yesstevemodel.client.compat.curios.functions.HasAnyCuriosWith
 import com.elfmcys.yesstevemodel.client.compat.curios.functions.HasAnyCuriosWithAnyTag;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -71,14 +73,17 @@ public class CuriosCompatInner {
         }
         CuriosApi.getCuriosInventory(ctx.entity()).ifPresent(inventory -> {
             for (var entry : inventory.getCurios().entrySet()) {
-                ctx.debugPrint("-------- Type: '%s' --------", entry.getKey());
+                ctx.debugPrint(Component.literal("-------- Type ").append(ComponentUtils.copyOnClickText(entry.getKey())).append(" --------"));
                 ctx.debugPrint("");
                 searchCuriosHandler(entry.getValue(), itemStack -> {
-                    ctx.debugPrint("Display: '%s'", itemStack.getHoverName().getString(99));
+                    ctx.debugPrint(Component.literal("Display ").append(ComponentUtils.copyOnClickText(itemStack.getHoverName().getString(99))));
 
                     var holder = itemStack.getItemHolder();
-                    holder.unwrapKey().ifPresent(key -> ctx.debugPrint("Name: '%s'", key.location()));
-                    holder.tags().forEach(tagKey -> ctx.debugPrint("Tag: '%s'", tagKey.location()));
+                    holder.unwrapKey().ifPresent(key -> ctx.debugPrint(
+                            Component.literal("Name ").append(ComponentUtils.copyOnClickText(key.location().toString()))));
+                    holder.tags().forEach(tagKey -> ctx.debugPrint(
+                            Component.literal("Tag ").append(ComponentUtils.copyOnClickText(tagKey.location().toString()))));
+
                     ctx.debugPrint("");
                     return false;
                 });

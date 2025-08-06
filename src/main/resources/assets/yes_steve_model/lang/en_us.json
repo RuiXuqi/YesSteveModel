@@ -313,7 +313,7 @@
   "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §rPlay '%s' animation",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §rAnimation debug enable",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §rAnimation debug disable",
-  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[Debug] %s",
+  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[Debug] ",
   "message.yes_steve_model.model.debug_animation.parser_error": "§6§l[§aYSM§6§l] §rFailed to parse expression: %s",
   "message.yes_steve_model.model.debug_animation.result": "§6§l[§aYSM§6§l] §rExecution result: %s",
   "message.yes_steve_model.client.server_not_found": "§6§l[§aYSM§6§l] §rThe server-side YSM mod version is different from the client-side. Some features might not be available",

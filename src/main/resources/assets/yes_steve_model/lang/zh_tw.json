@@ -307,7 +307,7 @@
   "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §r播放“%s”動畫",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §r動畫除錯模式啟用",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §r動畫除錯模式關閉",
-  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[除錯] %s",
+  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[除錯] ",
   "message.yes_steve_model.model.debug_animation.parser_error": "§6§l[§aYSM§6§l] §r表達式解析失敗: %s",
   "message.yes_steve_model.model.debug_animation.result": "§6§l[§aYSM§6§l] §r執行結果: %s",
   "message.yes_steve_model.client.server_not_found": "§6§l[§aYSM§6§l] §r伺服器 YSM 模組版本與客戶端不同，部分功能無法使用",

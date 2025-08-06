@@ -11,6 +11,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 
 import org.jetbrains.annotations.Nullable;
@@ -63,4 +64,6 @@ public interface IContext<TEntity> {
     boolean allowEmitting();
 
     void debugPrint(String message, Object... args);
+
+    void debugPrint(Component message);
 }

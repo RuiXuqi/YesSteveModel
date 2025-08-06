@@ -307,7 +307,7 @@
   "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §r'%s' 애니메이션 재생",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §r애니메이션 디버그 활성화",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §r애니메이션 디버그 비활성화",
-  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[디버그] %s",
+  "message.yes_steve_model.model.debug_animation.output": "§6§l[§aYSM§6§l] §r[디버그] ",
   "message.yes_steve_model.model.debug_animation.parser_error": "§6§l[§aYSM§6§l] §r다음 표현식을 읽지 못했습니다: %s",
   "message.yes_steve_model.model.debug_animation.result": "§6§l[§aYSM§6§l] §r실행 결과: %s",
   "message.yes_steve_model.client.server_not_found": "§6§l[§aYSM§6§l] §rThe server-side YSM mod version is different from the client-side. Some features might not be available",

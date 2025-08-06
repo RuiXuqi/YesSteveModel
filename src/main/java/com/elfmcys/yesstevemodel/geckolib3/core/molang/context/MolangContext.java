@@ -15,6 +15,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -186,6 +187,13 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     public void debugPrint(String message, Object...args) {
         if(isDebugEnabled()) {
             debugSource.print(message, args);
+        }
+    }
+
+    @Override
+    public void debugPrint(Component message) {
+        if(isDebugEnabled()) {
+            debugSource.print(message);
         }
     }
 
