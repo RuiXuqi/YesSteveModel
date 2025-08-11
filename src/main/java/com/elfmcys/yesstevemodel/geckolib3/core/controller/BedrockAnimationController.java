@@ -361,6 +361,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             boolean first = true;
             boolean isBeginningTransition = false;
             Vector3f offset = null;
+            Vector3f initRot = null;
             float transitionPercentProgress = 0f;
 
             for (var pair : this.underlyingQueues) {
@@ -384,6 +385,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                         offset = transitionPoint.getTransitionOffset();
                         transitionPercentProgress = transitionPoint.getTransitionPercentProgress();
                         target.setEndingTransitionPercentProgressIfLess(0);
+                        initRot = queue.topLevelSnapshot.bone.getInitialRotation();
                     }
                 }
 
@@ -410,6 +412,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
             if (active) {
                 if (isBeginningTransition) {
+                    MathUtil.normalizeRotation(target, initRot, 1, target);
                     MathUtil.lerpRotationValues(transitionPercentProgress, offset, target, target);
                 }
                 return Optional.of(target);

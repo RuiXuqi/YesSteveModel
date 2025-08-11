@@ -38,6 +38,21 @@ public class BeginningTransitionPoint extends AnimationPoint {
         return dst;
     }
 
+    public Vector3f getNormalizedRotationLerpPoint(ExpressionEvaluator<MolangContext<?>> evaluator, Vector3f initRot, float weight) {
+        setupAnimationContext(evaluator);
+        var dst = dstKeyframe.getTransitionDst(evaluator);
+
+        MathUtil.normalizeRotation(dst, initRot, weight, dst);
+        MathUtil.lerpRotationValues(transitionPercentProgress, offsetPoint, dst, dst);
+
+        if (lastLerpResult == null) {
+            lastLerpResult = new Vector3f(dst);
+        } else {
+            lastLerpResult.set(dst);
+        }
+        return dst;
+    }
+
     public Vector3f getTransitionDst(ExpressionEvaluator<MolangContext<?>> evaluator) {
         setupAnimationContext(evaluator);
         return dstKeyframe.getTransitionDst(evaluator);
