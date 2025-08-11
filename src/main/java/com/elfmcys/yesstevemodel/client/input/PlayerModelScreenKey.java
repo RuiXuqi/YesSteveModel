@@ -4,8 +4,9 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.gui.ConfigScreen;
 import com.elfmcys.yesstevemodel.client.gui.DisclaimerScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
-import com.elfmcys.yesstevemodel.config.DisableSwitch;
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
+import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -33,11 +34,11 @@ public class PlayerModelScreenKey {
                 YesSteveModel.sendUnavailableMessage();
                 return;
             }
-            if (!DisableSwitch.CAN_SWITCH) {
+            if (NetworkHandler.isRemoteChannelPresent() && !ServerConfig.CAN_SWITCH_MODEL.get()) {
                 Minecraft.getInstance().setScreen(new ConfigScreen(null));
                 return;
             }
-            if (GeneralConfig.DISCLAIMER_SHOW.get()) {
+            if (ClientConfig.DISCLAIMER_SHOW.get()) {
                 Minecraft.getInstance().setScreen(new DisclaimerScreen());
             } else {
                 Minecraft.getInstance().setScreen(new PlayerModelScreen());

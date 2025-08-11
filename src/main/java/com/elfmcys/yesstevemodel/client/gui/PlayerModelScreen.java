@@ -15,6 +15,7 @@ import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
 import com.elfmcys.yesstevemodel.client.gui.button.StarButton;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
+import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -64,7 +65,9 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     public PlayerModelScreen() {
         super(Component.literal("YSM Player Model GUI"));
         this.category = Category.ALL;
-        clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
+        if (NetworkHandler.isRemoteChannelPresent()) {
+            clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
+        }
         ClientModelManager.addSyncListener(this);
     }
 

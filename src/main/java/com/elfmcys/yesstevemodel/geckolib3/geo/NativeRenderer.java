@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.geo;
 
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.compat.OptifineCompat;
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -31,7 +31,7 @@ public class NativeRenderer {
             IrisCompat.setupState();
         }
 
-        var forceLegacyRenderer = OptifineCompat.isInstalled() || GeneralConfig.USE_COMPATIBILITY_RENDERER.get();
+        var forceLegacyRenderer = OptifineCompat.isInstalled() || ClientConfig.USE_COMPATIBILITY_RENDERER.get();
         RenderSystem.getProjectionMatrix().mul(RenderSystem.getModelViewMatrix(), POST_MAT);
 
         var renderOnGui = RenderUtil.isRenderingEntitiesInInventory() || RenderUtil.isRenderingEntitiesInPaperDoll();

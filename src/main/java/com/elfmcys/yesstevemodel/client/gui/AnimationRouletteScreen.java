@@ -9,7 +9,7 @@ import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatRatioBox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatSlider;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
@@ -425,7 +425,7 @@ public class AnimationRouletteScreen extends Screen {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
                     .ifPresent(cap -> cap.playExtraAnimation(selectKey));
         }
-        if (player != null && GeneralConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
+        if (player != null && ClientConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
             MutableComponent component = Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectKey);
             player.sendSystemMessage(component);
         }

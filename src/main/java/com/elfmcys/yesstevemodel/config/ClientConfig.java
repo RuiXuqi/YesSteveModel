@@ -2,15 +2,13 @@ package com.elfmcys.yesstevemodel.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class GeneralConfig {
+public class ClientConfig {
     public static ForgeConfigSpec.BooleanValue DISCLAIMER_SHOW;
     public static ForgeConfigSpec.BooleanValue PRINT_ANIMATION_ROULETTE_MSG;
     public static ForgeConfigSpec.BooleanValue DISABLE_SELF_MODEL;
     public static ForgeConfigSpec.BooleanValue DISABLE_OTHER_MODEL;
     public static ForgeConfigSpec.BooleanValue DISABLE_SELF_HANDS;
     public static ForgeConfigSpec.BooleanValue DISABLE_ARROWS_MODEL;
-    public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_ID;
-    public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_TEXTURE;
     public static ForgeConfigSpec.BooleanValue USE_COMPATIBILITY_RENDERER;
     public static ForgeConfigSpec.DoubleValue SOUND_VOLUME;
 
@@ -41,12 +39,6 @@ public class GeneralConfig {
 
         builder.comment("Prevents rendering of arrows model");
         DISABLE_ARROWS_MODEL = builder.define("DisableArrowsModel", false);
-
-        builder.comment("The default model ID when a player first enters the game");
-        DEFAULT_MODEL_ID = builder.define("DefaultModelId", "default");
-
-        builder.comment("The default model texture when a player first enters the game");
-        DEFAULT_MODEL_TEXTURE = builder.define("DefaultModelTexture", "default");
 
         builder.comment("If rendering errors occur, try turning on this.");
         USE_COMPATIBILITY_RENDERER = builder.define("UseCompatibilityRenderer", false);

@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.model;
 
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToClient;
@@ -230,8 +230,8 @@ public final class ServerModelManager {
     }
 
     public static Pair<String, String> getDefaultModelAndTexture() {
-        var modelId = GeneralConfig.DEFAULT_MODEL_ID.get();
-        var textureName = GeneralConfig.DEFAULT_MODEL_TEXTURE.get();
+        var modelId = ServerConfig.DEFAULT_MODEL_ID.get();
+        var textureName = ServerConfig.DEFAULT_MODEL_TEXTURE.get();
         if (textureName.toLowerCase().endsWith(".png") && textureName.length() > 4) {
             textureName = textureName.substring(0, textureName.length() - 4);
         }

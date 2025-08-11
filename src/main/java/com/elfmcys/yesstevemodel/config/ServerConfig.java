@@ -14,6 +14,8 @@ public class ServerConfig {
     // Native Access: 同步开始时读取
     public static ForgeConfigSpec.IntValue CLIENT_SYNC_TIMEOUT;
     public static ForgeConfigSpec.BooleanValue CAN_SWITCH_MODEL;
+    public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_ID;
+    public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_TEXTURE;
 
     // 禁止在玩家客户端 GUI 界面显示的模型 ID
     public static ForgeConfigSpec.ConfigValue<List<String>> CLIENT_NOT_DISPLAY_MODELS;
@@ -25,6 +27,19 @@ public class ServerConfig {
     }
 
     private static void init(ForgeConfigSpec.Builder builder) {
+        builder.comment("The default model ID when a player first enters the game");
+        DEFAULT_MODEL_ID = builder.define("DefaultModelId", "default");
+
+        builder.comment("The default model texture when a player first enters the game");
+        DEFAULT_MODEL_TEXTURE = builder.define("DefaultModelTexture", "default");
+
+        builder.comment("Whether or not players are allowed to switch models");
+        CAN_SWITCH_MODEL = builder.define("CanSwitchModel", true);
+
+        builder.comment("Models that are not displayed on the client model selection screen");
+        builder.comment("Example: [\"default\", \"default_boy\", \"alex\", \"steve\", \"qingluka\", \"wine_fox\", \"wine_fox_jk\"]");
+        CLIENT_NOT_DISPLAY_MODELS = builder.define("ClientNotDisplayModels", Lists.newArrayList());
+
         builder.push("server_scheduler");
 
         builder.comment("Concurrent level for processing models. Value 0 means AUTO.");
@@ -35,13 +50,6 @@ public class ServerConfig {
 
         builder.comment("Timeout for players to respond to synchronization. Value not greater than 10 means AUTO.(In seconds)");
         CLIENT_SYNC_TIMEOUT = builder.defineInRange("PlayerSyncTimeout", 0, 0, 120);
-
-        builder.comment("Whether or not players are allowed to switch models");
-        CAN_SWITCH_MODEL = builder.define("CanSwitchModel", true);
-
-        builder.comment("Models that are not displayed on the client model selection screen");
-        builder.comment("Example: [\"default\", \"default_boy\", \"alex\", \"steve\", \"qingluka\", \"wine_fox\", \"wine_fox_jk\"]");
-        CLIENT_NOT_DISPLAY_MODELS = builder.define("ClientNotDisplayModels", Lists.newArrayList());
 
         builder.pop();
     }

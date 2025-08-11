@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel;
 
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.init.ModSounds;
 import com.elfmcys.yesstevemodel.util.NativeLibUtil;
@@ -32,7 +32,7 @@ public class YesSteveModel {
             return;
         }
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GeneralConfig.init());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.init());
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.init());
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ModSounds.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());

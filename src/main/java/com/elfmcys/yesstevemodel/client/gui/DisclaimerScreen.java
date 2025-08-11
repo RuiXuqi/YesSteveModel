@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -33,11 +33,11 @@ public class DisclaimerScreen extends Screen {
 
         MutableComponent readCheckboxText = Component.translatable("gui.yes_steve_model.disclaimer.read");
         int readTextWidth = font.width(readCheckboxText);
-        readCheckbox = new Checkbox((width - readTextWidth) / 2, y + totalHeight - 50, readTextWidth, 20, readCheckboxText, !GeneralConfig.DISCLAIMER_SHOW.get());
+        readCheckbox = new Checkbox((width - readTextWidth) / 2, y + totalHeight - 50, readTextWidth, 20, readCheckboxText, !ClientConfig.DISCLAIMER_SHOW.get());
         addRenderableWidget(readCheckbox);
         addRenderableWidget(new Button.Builder(Component.translatable("gui.yes_steve_model.disclaimer.close"), b -> {
             if (readCheckbox.selected()) {
-                GeneralConfig.DISCLAIMER_SHOW.set(false);
+                ClientConfig.DISCLAIMER_SHOW.set(false);
                 Minecraft.getInstance().setScreen(new PlayerModelScreen());
             } else {
                 Minecraft.getInstance().setScreen(null);

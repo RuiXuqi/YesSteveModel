@@ -6,7 +6,7 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.CustomTranslucentRenderType;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
@@ -30,10 +30,10 @@ public class ReplacePlayerHandRenderEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
+        if (ClientConfig.DISABLE_SELF_MODEL.get()) {
             return;
         }
-        if (GeneralConfig.DISABLE_SELF_HANDS.get()) {
+        if (ClientConfig.DISABLE_SELF_HANDS.get()) {
             return;
         }
         event.setCanceled(true);

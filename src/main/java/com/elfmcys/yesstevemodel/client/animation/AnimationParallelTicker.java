@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
@@ -42,16 +42,16 @@ public class AnimationParallelTicker {
             final Entity entity = instance.getEntity();
             if (entity instanceof AbstractClientPlayer) {
                 if (entity instanceof LocalPlayer) {
-                    if (GeneralConfig.DISABLE_SELF_MODEL.get()) {
+                    if (ClientConfig.DISABLE_SELF_MODEL.get()) {
                         continue;
                     }
                 } else {
-                    if (GeneralConfig.DISABLE_OTHER_MODEL.get()) {
+                    if (ClientConfig.DISABLE_OTHER_MODEL.get()) {
                         continue;
                     }
                 }
             } else if (entity instanceof AbstractArrow) {
-                if (GeneralConfig.DISABLE_ARROWS_MODEL.get()) {
+                if (ClientConfig.DISABLE_ARROWS_MODEL.get()) {
                     continue;
                 }
             }

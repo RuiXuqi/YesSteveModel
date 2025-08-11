@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.sound;
 
-import com.elfmcys.yesstevemodel.config.GeneralConfig;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundEvent;
@@ -20,7 +20,7 @@ public class MinecraftSoundInstance extends AbstractTickableSoundInstance implem
 
     @Override
     public void tick() {
-        this.volume = GeneralConfig.SOUND_VOLUME.get().floatValue() / 100.0f;
+        this.volume = ClientConfig.SOUND_VOLUME.get().floatValue() / 100.0f;
         if (this.entity.isRemoved()) {
             this.stop();
         } else {
