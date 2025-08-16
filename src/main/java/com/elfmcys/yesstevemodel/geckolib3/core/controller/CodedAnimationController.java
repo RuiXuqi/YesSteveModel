@@ -206,19 +206,13 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
                 return Optional.empty();
             }
 
-            AnimationVec3 pointValue;
+            var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
             var weight = queue.getBlendWeight();
             if (point instanceof EndingTransitionPoint endingPoint) {
-                pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
                 pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
             } else {
                 if (point instanceof BeginningTransitionPoint beginningPoint) {
-                    pointValue = new AnimationVec3(beginningPoint.getNormalizedRotationLerpPoint(evaluator,
-                            queue.topLevelSnapshot.bone.getInitialRotation(),
-                            weight));
                     weight = MathUtil.lerpValues(beginningPoint.getTransitionPercentProgress(), 1, weight);
-                } else {
-                    pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
                 }
                 pointValue.setEndingTransitionPercentProgressIfLess(0);
             }
