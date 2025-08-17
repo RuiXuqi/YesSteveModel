@@ -22,7 +22,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
-import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.util.OrderedSegmentSearcher;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -276,7 +275,7 @@ public class AnimationPlayer {
             var animTick = getAnimTicks(renderTicks);
             for (var queue : activeBoneAnimQueues) {
                 if (queue.rotation != null && queue.rotation.lastLerpResult != null) {
-                    queue.rotationOffset = MathUtil.normalizeRotation(queue.rotation.lastLerpResult, queue.topLevelSnapshot.bone.getInitialRotation(), queue.getBlendWeight());
+                    queue.rotationOffset = new Vector3f(queue.rotation.lastLerpResult);
                 }
 
                 if (queue.position != null && queue.position.lastLerpResult != null) {
@@ -323,17 +322,17 @@ public class AnimationPlayer {
 
             // 添加即将出现的动画的初始位置，以便模型转换到新动画的初始状态
             if (boneAnimationQueue.rotationKeyFrames != null) {
-                boneAnimationQueue.rotation = getBeginningTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, true, transitionTicks, percentProgress,
+                boneAnimationQueue.rotation = getBeginningTransitionPointAtTick(boneAnimationQueue.rotationKeyFrames, transitionTicks, percentProgress,
                         transitionOffset.rotation);
             }
 
             if (boneAnimationQueue.positionKeyFrames != null) {
-                boneAnimationQueue.position = getBeginningTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, false, transitionTicks, percentProgress,
+                boneAnimationQueue.position = getBeginningTransitionPointAtTick(boneAnimationQueue.positionKeyFrames, transitionTicks, percentProgress,
                         transitionOffset.position);
             }
 
             if (boneAnimationQueue.scaleKeyFrames != null) {
-                boneAnimationQueue.scale = getBeginningTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, false, transitionTicks, percentProgress,
+                boneAnimationQueue.scale = getBeginningTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, transitionTicks, percentProgress,
                         transitionOffset.scale);
             }
         }
@@ -399,9 +398,9 @@ public class AnimationPlayer {
      * 返回起始过渡点；
      * 由于自定义过渡曲线的原因， 过渡进度需要单独传，而不能用 tick / length
      */
-    private BeginningTransitionPoint getBeginningTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, boolean isRotation, float tick, float transitionPercentProgress, Vector3f offsetPoint) {
+    private BeginningTransitionPoint getBeginningTransitionPointAtTick(OrderedSegmentSearcher<BoneKeyFrame> frames, float tick, float transitionPercentProgress, Vector3f offsetPoint) {
         var dstFrame = frames.search(0);
-        return new BeginningTransitionPoint(tick, transitionPercentProgress, this.beginningTransition.length(), offsetPoint, (TransitionKeyFrame) dstFrame, isRotation, animationContext);
+        return new BeginningTransitionPoint(tick, transitionPercentProgress, this.beginningTransition.length(), offsetPoint, (TransitionKeyFrame) dstFrame, animationContext);
     }
 
     /**

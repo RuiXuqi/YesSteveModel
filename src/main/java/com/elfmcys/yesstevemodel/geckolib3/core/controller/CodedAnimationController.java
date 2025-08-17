@@ -206,20 +206,33 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
                 return Optional.empty();
             }
 
-            var pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
-            var weight = queue.getBlendWeight();
+            AnimationVec3 pointValue;
             if (point instanceof EndingTransitionPoint endingPoint) {
+                pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
                 pointValue.setEndingTransitionPercentProgressIfLess(endingPoint.getPercentCompleted());
+                var weight = queue.getBlendWeight();
+                if (weight != 1) {
+                    pointValue.mul(weight);
+                }
+            } else if (point instanceof BeginningTransitionPoint beginningPoint) {
+                var dst = beginningPoint.getTransitionDst(evaluator)
+                        .mul(queue.getBlendWeight());
+                MathUtil.lerpRotationValues(beginningPoint.getTransitionPercentProgress(),
+                        beginningPoint.getTransitionOffset(),
+                        dst,
+                        queue.topLevelSnapshot.bone.getInitialRotation(),
+                        dst);
+                pointValue = new AnimationVec3(dst);
+                pointValue.setEndingTransitionPercentProgressIfLess(0);
             } else {
-                if (point instanceof BeginningTransitionPoint beginningPoint) {
-                    weight = MathUtil.lerpValues(beginningPoint.getTransitionPercentProgress(), 1, weight);
+                pointValue = new AnimationVec3(point.getLerpPoint(evaluator));
+                var weight = queue.getBlendWeight();
+                if (weight != 1) {
+                    pointValue.mul(weight);
                 }
                 pointValue.setEndingTransitionPercentProgressIfLess(0);
             }
 
-            if (weight != 1) {
-                pointValue.mul(weight);
-            }
             return Optional.of(pointValue);
         }
 

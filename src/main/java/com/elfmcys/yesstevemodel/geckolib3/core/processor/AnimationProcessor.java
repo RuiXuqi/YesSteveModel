@@ -35,7 +35,7 @@ public class AnimationProcessor<TEntity extends Entity> {
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelBones = new ReferenceArrayList<>();
     private Int2ReferenceMap<List<IValue>> eventHandlers = Int2ReferenceMaps.emptyMap();
     private final Int2ReferenceOpenHashMap<BoneTopLevelSnapshot> modelBonesMap = new Int2ReferenceOpenHashMap<>();
-    private final ReferenceArrayList<BoneTopLevelSnapshot> activeModelBonesMap = new ReferenceArrayList<>();      // 即使更新开销大也比链表更优
+    private final ReferenceArrayList<BoneTopLevelSnapshot> activeModelBones = new ReferenceArrayList<>();      // 即使更新开销大也比链表更优
 
     private final MolangMemory molangMemory = new MolangMemory();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
@@ -73,7 +73,7 @@ public class AnimationProcessor<TEntity extends Entity> {
                 BoneTopLevelSnapshot snapshot = boneAnimation.getSnapshot();
                 if (!snapshot.hasAnimation) {
                     snapshot.hasAnimation = true;
-                    activeModelBonesMap.add(snapshot);
+                    activeModelBones.add(snapshot);
                 }
 
                 boneAnimation.pollRotationPoint(evaluator).ifPresent(rot -> {
@@ -88,7 +88,7 @@ public class AnimationProcessor<TEntity extends Entity> {
                         pointData.add(rot);
                         snapshot.rotation.set(pointData);
                     } else {
-                        rot.apply(snapshot.rotation, true);
+                        rot.applyRotation(snapshot.rotation, boneAnimation.getSnapshot().bone.getInitialRotation());
                         pointData.set(snapshot.rotation);
                     }
                 });
@@ -99,7 +99,7 @@ public class AnimationProcessor<TEntity extends Entity> {
                         snapshot.position.set(0, 0, 0);
                     }
                     snapshot.lastPositionUpdateTime = renderTicks;
-                    position.apply(snapshot.position, false);
+                    position.apply(snapshot.position);
                 });
 
                 boneAnimation.pollScalePoint(evaluator).ifPresent(scale -> {
@@ -108,7 +108,7 @@ public class AnimationProcessor<TEntity extends Entity> {
                         snapshot.scale.set(1, 1, 1);
                     }
                     snapshot.lastScaleUpdateTime = renderTicks;
-                    scale.apply(snapshot.scale, false);
+                    scale.apply(snapshot.scale);
                 });
             });
         }
@@ -117,7 +117,7 @@ public class AnimationProcessor<TEntity extends Entity> {
 
         // 追踪哪些骨骼应用了动画，并最终将没有动画的骨骼过渡到默认值
         // 反向遍历降低更新开销
-        var activeBoneIterator = activeModelBonesMap.listIterator(activeModelBonesMap.size());
+        var activeBoneIterator = activeModelBones.listIterator(activeModelBones.size());
         while (activeBoneIterator.hasPrevious()) {
             var snapshot = activeBoneIterator.previous();
             var active = false;
@@ -129,12 +129,12 @@ public class AnimationProcessor<TEntity extends Entity> {
                 snapshot.rotationOffset = null;
             } else {
                 if (snapshot.rotationOffset == null) {
-                    snapshot.rotationOffset = MathUtil.normalizeRotation(snapshot.rotation, snapshot.bone.getInitialRotation(), 1);
+                    snapshot.rotationOffset = new Vector3f(snapshot.rotation);
                 }
                 var progress = (renderTicks - snapshot.lastRotationUpdateTime) / manager.getResetSpeed();
                 if (progress < 1f) {
                     active = true;
-                    MathUtil.lerpRotationValues(progress, snapshot.rotationOffset, MathUtil.ZERO, snapshot.rotation);
+                    MathUtil.lerpRotationValues(progress, snapshot.rotationOffset, MathUtil.ZERO, snapshot.bone.getInitialRotation(), snapshot.rotation);
                 } else {
                     snapshot.rotation.set(MathUtil.ZERO);
                 }
@@ -194,7 +194,7 @@ public class AnimationProcessor<TEntity extends Entity> {
 
     public void registerModel(Int2ReferenceMap<IBone> boneMap, Int2ReferenceMap<List<IValue>> eventHandlers) {
         this.modelBonesMap.clear();
-        this.activeModelBonesMap.clear();
+        this.activeModelBones.clear();
         this.modelBones.clear();
         this.modelBones.ensureCapacity(boneMap.size());
         Int2ReferenceMaps.fastForEach(boneMap, entry -> {

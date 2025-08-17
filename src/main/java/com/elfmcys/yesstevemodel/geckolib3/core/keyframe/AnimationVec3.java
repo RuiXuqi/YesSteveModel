@@ -23,16 +23,21 @@ public class AnimationVec3 extends Vector3f {
         }
     }
 
-    public void apply(Vector3f dst, boolean rotation) {
+    public void apply(Vector3f dst) {
         var endingTransitionPercentProgress = this.endingTransitionPercentProgress;
         if (endingTransitionPercentProgress == 0) {
             dst.set(this);
         } else {
-            if (rotation) {
-                MathUtil.lerpRotationValues(endingTransitionPercentProgress, this, dst, dst);
-            } else {
-                MathUtil.lerpValues(endingTransitionPercentProgress, this, dst, dst);
-            }
+            MathUtil.lerpValues(endingTransitionPercentProgress, this, dst, dst);
+        }
+    }
+
+    public void applyRotation(Vector3f dst, Vector3f initRot) {
+        var endingTransitionPercentProgress = this.endingTransitionPercentProgress;
+        if (endingTransitionPercentProgress == 0) {
+            dst.set(this);
+        } else {
+            MathUtil.lerpRotationValues(endingTransitionPercentProgress, this, dst, initRot, dst);
         }
     }
 }

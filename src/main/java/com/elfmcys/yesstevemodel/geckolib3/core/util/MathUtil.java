@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.util;
 
 import net.minecraft.util.Mth;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class MathUtil {
@@ -10,16 +11,38 @@ public class MathUtil {
 
     public static final float ROUND = (float) Math.toRadians(360f);
     public static final float HALF_ROUND = (float) Math.toRadians(180f);
-    public static final float RIGHT_ANG = (float) Math.toRadians(90f);
 
     public static final Vector3f ZERO = new Vector3f(0.0f, 0.0f, 0.0f);
     public static final Vector3f ONE = new Vector3f(1.0f, 1.0f, 1.0f);
 
-    public static void lerpRotationValues(float percentCompleted, Vector3f begin, Vector3f end, Vector3f dst) {
-        var temp = new Vector3f(end).sub(begin);
-        MathUtil.wrapRotation(temp, temp);
-        end.sub(temp, temp);
-        MathUtil.lerpValues(percentCompleted, temp, end, dst);
+    public static Quaternionf getQuatFromEulerZYX(Vector3f euler) {
+        return new Quaternionf().rotateZYX(euler.z, euler.y, euler.x);
+    }
+
+    /**
+     * 只能用于最终插值，不可用于中间计算
+     */
+    public static void lerpRotationValues(float percentCompleted, Vector3f begin, Vector3f end, Vector3f initRot, Vector3f dst) {
+        var temp = new Vector3f(begin).add(initRot);
+        var beginQuat = MathUtil.getQuatFromEulerZYX(temp);
+
+        end.add(initRot, temp);
+        var endQuat = MathUtil.getQuatFromEulerZYX(temp);
+
+        beginQuat.slerp(endQuat, percentCompleted, endQuat);
+
+        getEulerAnglesZYX(endQuat, temp);
+        temp.sub(initRot, dst);
+    }
+
+    /**
+     * 当前版本 joml 的这个方法有 bug，此为修复后的版本
+     */
+    public static Vector3f getEulerAnglesZYX(Quaternionf q, Vector3f eulerAngles) {
+        eulerAngles.x = org.joml.Math.atan2(q.y * q.z + q.w * q.x, 0.5f - q.x * q.x - q.y * q.y);
+        eulerAngles.y = org.joml.Math.safeAsin(-2.0f * (q.x * q.z - q.w * q.y));
+        eulerAngles.z = org.joml.Math.atan2(q.x * q.y + q.w * q.z, 0.5f - q.y * q.y - q.z * q.z);
+        return eulerAngles;
     }
 
     public static Vector3f lerpValues(float percentCompleted, Vector3f begin, Vector3f end) {
@@ -58,30 +81,6 @@ public class MathUtil {
 
     public static float radiansToDegrees(float degrees) {
         return degrees * RADIANS_TO_DEGREES;
-    }
-
-    public static Vector3f normalizeRotation(Vector3f value, Vector3f initRot, float weight) {
-        var dst = new Vector3f();
-        normalizeRotation(value, initRot, weight, dst);
-        return dst;
-    }
-
-    public static void normalizeRotation(Vector3f value, Vector3f initRot, float weight, Vector3f dst) {
-        var temp = wrapRotation(value)
-                .mul(weight).add(initRot);
-
-        if ((temp.y < RIGHT_ANG && temp.y > -RIGHT_ANG)
-                || (temp.z <= RIGHT_ANG && temp.z >= -RIGHT_ANG)
-                || (temp.x <= RIGHT_ANG && temp.x >= -RIGHT_ANG)) {
-            wrapRotation(value, dst);
-            return;
-        }
-
-        temp.y += temp.y > RIGHT_ANG ? -RIGHT_ANG : RIGHT_ANG;
-        temp.x += temp.x >= 0 ? -HALF_ROUND : HALF_ROUND;
-        temp.z += temp.z >= 0 ? -HALF_ROUND : HALF_ROUND;
-
-        wrapRotation(temp.sub(initRot).div(weight), dst);
     }
 
     public static void wrapRotation(Vector3f value, Vector3f dst) {
