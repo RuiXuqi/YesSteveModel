@@ -28,6 +28,7 @@ import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.github.tartaricacid.touhoulittlemaid.api.entity.IMaid;
 import com.github.tartaricacid.touhoulittlemaid.client.resource.pojo.MaidModelInfo;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -59,6 +60,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
     private final Vector2f headRot = new Vector2f();
 
     private final PhysicsManager physicsManager;
+    private final PhysicsManager physicsGuiManager;
 
     private boolean fireInitEvent = false;
     private IValue wrappedUpdateHandler = null;
@@ -73,6 +75,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         super(player, asyncUpdate);
         registerControllers();
         physicsManager = new PhysicsManager();
+        physicsGuiManager = new PhysicsManager();
     }
 
     @Override
@@ -326,7 +329,11 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
 
     @Override
     public PhysicsManager getPhysicsManager() {
-        return physicsManager;
+        if (NativeRenderer.isAsyncScope() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
+            return physicsManager;
+        } else {
+            return physicsGuiManager;
+        }
     }
 
     @Override
@@ -352,6 +359,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
             wrappedUpdateHandler = null;
         }
         physicsManager.reset();
+        physicsGuiManager.reset();
     }
 
     @Override

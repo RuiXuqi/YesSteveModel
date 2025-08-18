@@ -362,6 +362,7 @@ public abstract class CustomPlayerEntity extends AnimatableEntity<Player> implem
         }
         syncHandler = getEventHandler(MolangEventWrapper.SYNC);
         physicsManager.reset();
+        guiPhysicsManager.reset();
     }
 
     @Override
