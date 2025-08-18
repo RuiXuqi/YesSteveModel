@@ -31,23 +31,27 @@ public class ClientSetupEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        AnimationRegister.registerAnimationState();
-        CuriosCompat.init();
-        FirstPersonCompat.init();
-        BetterCombatCompat.init();
-        IrisCompat.init();
-        OptifineCompat.init();
-        CosmeticArmorCompat.init();
-        ElytraSlotCompat.init();
-        TACZCompat.init();
-        TlmClientCompat.init();
-        CarryOnCompat.init();
-        ParCoolCompat.init();
-        SlashBladeCompat.init();
-        SwemCompat.init();
 
-        // 一定要放在最后
-        initCoreClient();
+        AnimationRegister.registerAnimationState();
+
+        event.enqueueWork(() -> {
+            CuriosCompat.init();
+            FirstPersonCompat.init();
+            BetterCombatCompat.init();
+            IrisCompat.init();
+            OptifineCompat.init();
+            CosmeticArmorCompat.init();
+            ElytraSlotCompat.init();
+            TACZCompat.init();
+            TlmClientCompat.init();
+            CarryOnCompat.init();
+            ParCoolCompat.init();
+            SlashBladeCompat.init();
+            SwemCompat.init();
+
+            // 一定要放在最后
+            initCoreClient();
+        });
     }
 
     @SubscribeEvent

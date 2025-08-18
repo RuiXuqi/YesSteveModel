@@ -19,9 +19,11 @@ public final class CommonEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        event.enqueueWork(NetworkHandler::init);
-        event.enqueueWork(TlmCommonCompat::registerEvent);
-        initCoreCommon();
+        event.enqueueWork(() -> {
+            NetworkHandler.init();
+            TlmCommonCompat.registerEvent();
+            initCoreCommon();
+        });
     }
 
     @SubscribeEvent
