@@ -106,6 +106,16 @@ mixin {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+processResources {
+    inputs.property "mod_version", project.version
+    filteringCharset "UTF-8"
+    outputs.upToDateWhen { false }
+
+    filesMatching("META-INF/mods.toml") {
+        expand "mod_version": project.version
+    }
+}
+
 repositories {
     flatDir {
         dir 'libs'

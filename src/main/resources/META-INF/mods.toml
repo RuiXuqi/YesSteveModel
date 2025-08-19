@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/YesSteveModel/YSM-Wiki-Issues/issues"
 
 [[mods]]
     modId="yes_steve_model"
-    version="${file.jarVersion}"
+    version="${mod_version}"
     displayName="Yes Steve Model"
     displayURL="https://ysm.cfpa.team/"
     # updateJSONURL="https://change.me.example.invalid/updates.json"
