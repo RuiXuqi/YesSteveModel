@@ -9,10 +9,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber
+@SuppressWarnings("resource")
 public class MobEffectSyncEvent {
     @SubscribeEvent
     public static void onAdded(MobEffectEvent.Added event) {
-        if (!YesSteveModel.isAvailable()) {
+        if (!YesSteveModel.isAvailable() || event.getEntity().level().isClientSide()) {
             return;
         }
         if (event.getEntity() instanceof Player player) {
@@ -23,7 +24,7 @@ public class MobEffectSyncEvent {
 
     @SubscribeEvent
     public static void onRemoved(MobEffectEvent.Remove event) {
-        if (!YesSteveModel.isAvailable()) {
+        if (!YesSteveModel.isAvailable() || event.getEntity().level().isClientSide()) {
             return;
         }
         if (event.getEntity() instanceof Player player) {
@@ -33,7 +34,7 @@ public class MobEffectSyncEvent {
 
     @SubscribeEvent
     public static void onExpired(MobEffectEvent.Expired event) {
-        if (!YesSteveModel.isAvailable()) {
+        if (!YesSteveModel.isAvailable() || event.getEntity().level().isClientSide()) {
             return;
         }
         if (event.getEntity() instanceof Player player && event.getEffectInstance() != null) {
