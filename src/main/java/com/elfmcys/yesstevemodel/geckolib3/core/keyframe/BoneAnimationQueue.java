@@ -32,6 +32,8 @@ public class BoneAnimationQueue {
     public Vector3f positionOffset;
     public Vector3f scaleOffset;
 
+    public boolean disableEndingTransition;
+
     public AnimationPoint rotation;
     public AnimationPoint position;
     public AnimationPoint scale;
@@ -41,7 +43,7 @@ public class BoneAnimationQueue {
         transitionOffset = new BoneSnapshot(snapshot.bone);
     }
 
-    public void setActive(BoneAnimation animation) {
+    public void setActive(BoneAnimation animation, boolean disableEndingTransition) {
         if (!animation.rotationKeyFrames.isEmpty()) {
             rotationKeyFrames = new OrderedSegmentSearcher<>(animation.rotationKeyFrames, 0, BoneKeyFrame::getEndTick);
         } else {
@@ -59,6 +61,7 @@ public class BoneAnimationQueue {
         }
         transitionOffset.copyFrom(topLevelSnapshot.bone);
         active = true;
+        this.disableEndingTransition = disableEndingTransition;
         resetQueues();
     }
 

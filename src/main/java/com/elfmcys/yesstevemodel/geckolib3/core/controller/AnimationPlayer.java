@@ -365,15 +365,15 @@ public class AnimationPlayer {
             boneAnimationQueue.setBlendWeight(blendWeight);
 
             if (boneAnimationQueue.rotationOffset != null) {
-                boneAnimationQueue.rotation = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.rotationOffset);
+                boneAnimationQueue.rotation = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.rotationOffset, boneAnimationQueue.disableEndingTransition);
             }
 
             if (boneAnimationQueue.positionOffset != null) {
-                boneAnimationQueue.position = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.positionOffset);
+                boneAnimationQueue.position = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.positionOffset, boneAnimationQueue.disableEndingTransition);
             }
 
             if (boneAnimationQueue.scaleOffset != null) {
-                boneAnimationQueue.scale = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.scaleOffset);
+                boneAnimationQueue.scale = getEndingTransitionPointAtTick(transitionTicks, boneAnimationQueue.scaleOffset, boneAnimationQueue.disableEndingTransition);
             }
         }
     }
@@ -406,8 +406,8 @@ public class AnimationPlayer {
     /**
      * 返回结尾过渡点
      */
-    private EndingTransitionPoint getEndingTransitionPointAtTick(float tick, Vector3f offsetPoint) {
-        return new EndingTransitionPoint(tick, endingTransitionLength, offsetPoint, animationContext);
+    private EndingTransitionPoint getEndingTransitionPointAtTick(float tick, Vector3f offsetPoint, boolean disableEndingTransition) {
+        return new EndingTransitionPoint(tick, disableEndingTransition ? 0f : endingTransitionLength, offsetPoint, animationContext);
     }
 
     /**
@@ -429,7 +429,7 @@ public class AnimationPlayer {
             if (queue == null) {
                 continue;
             }
-            queue.setActive(animation);
+            queue.setActive(animation, !animation.scaleKeyFrames.isEmpty());
             activeBoneAnimQueues.add(queue);
         }
         instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(currentAnim.customInstructionKeyframes);
