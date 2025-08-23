@@ -16,39 +16,42 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class EffectLevel extends ContextFunction<Entity> {
     @Override
     public boolean validateArgumentSize(int size) {
-        return size == 1;
+        return size >= 1;
     }
 
     @Override
     protected Object eval(ExecutionContext<IContext<Entity>> context, ArgumentCollection arguments) {
-        ResourceLocation effectId = arguments.getAsResourceLocation(context, 0);
-        if (effectId == null) {
-            return null;
-        }
+        int sum = 0;
+        for (var i = 0; i < arguments.size(); ++i) {
+            ResourceLocation effectId = arguments.getAsResourceLocation(context, i);
+            if (effectId == null) {
+                continue;
+            }
 
-        MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(effectId);
-        if (effect == null) {
-            context.entity().debugPrint("Unknown effect id: %s", effectId);
-            return 0;
-        }
+            MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(effectId);
+            if (effect == null) {
+                continue;
+            }
 
-        if (context.entity().entity() instanceof Arrow) {
-            for (MobEffectInstance instance : ((ArrowEntityAccessor) context.entity().entity()).getEffects()) {
-                if (instance.getEffect() == effect) {
-                    return instance.getAmplifier() + 1;
+            if (context.entity().animatableEntity() instanceof PlayerAnimatableCapability cap) {
+                sum += cap.getStateTracker().getEffectLevel(effect);
+            } else if (context.entity().entity() instanceof LivingEntity) {
+                MobEffectInstance instance = ((LivingEntity) context.entity().entity()).getEffect(effect);
+                if (instance != null) {
+                    sum += instance.getAmplifier() + 1;
                 }
+            } else if (context.entity().entity() instanceof Arrow) {
+                for (MobEffectInstance instance : ((ArrowEntityAccessor) context.entity().entity()).getEffects()) {
+                    if (instance.getEffect() == effect) {
+                        sum += instance.getAmplifier() + 1;
+                        break;
+                    }
+                }
+            } else {
+                return null;
             }
-        } else if (context.entity().animatableEntity() instanceof PlayerAnimatableCapability cap) {
-            return cap.getStateTracker().getEffectLevel(effect);
-        } else if (context.entity().entity() instanceof LivingEntity) {
-            MobEffectInstance instance = ((LivingEntity) context.entity().entity()).getEffect(effect);
-            if (instance != null) {
-                return instance.getAmplifier() + 1;
-            }
-        } else {
-            return null;
         }
 
-        return 0;
+        return sum;
     }
 }

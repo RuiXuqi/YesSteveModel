@@ -19,27 +19,27 @@ public class EquippedEnchantmentLevel extends LivingEntityFunction {
         if (slotType == null) {
             return null;
         }
-
-        ResourceLocation id = arguments.getAsResourceLocation(context, 1);
-        if (id == null) {
-            return null;
-        }
-
-        Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(id);
-        if (enchantment == null) {
-            return 0;
-        }
-
         ItemStack itemStack = EquipmentUtil.getEquippedItem(context.entity().entity(), slotType);
         if (itemStack.isEmpty()) {
             return 0;
         }
 
-        return itemStack.getEnchantmentLevel(enchantment);
+        int sum = 0;
+        for (var i = 1; i < arguments.size(); ++i) {
+            ResourceLocation id = arguments.getAsResourceLocation(context, 1);
+            if (id != null) {
+                Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(id);
+                if (enchantment != null) {
+                    sum += itemStack.getEnchantmentLevel(enchantment);
+                }
+            }
+        }
+
+        return sum;
     }
 
     @Override
     public boolean validateArgumentSize(int size) {
-        return size == 2;
+        return size >= 2;
     }
 }

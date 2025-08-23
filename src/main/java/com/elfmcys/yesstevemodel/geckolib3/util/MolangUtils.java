@@ -50,14 +50,14 @@ public class MolangUtils {
         return entity.level().getBlockState(pos);
     }
 
+    @Nullable
     public static EquipmentSlot parseSlotType(IContext<?> context, String value) {
         if (value == null) {
             return null;
         }
         EquipmentSlot slot = SLOT_MAP.get(value.toLowerCase(Locale.ENGLISH));
         if (slot == null) {
-            context.debugPrint("Unknown slot type: %s.", value);
-            return null;
+            context.debugPrint("Illegal slot type: %s.", value);
         }
         return slot;
     }

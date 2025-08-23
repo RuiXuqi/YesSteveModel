@@ -24,6 +24,7 @@
 
 package com.elfmcys.yesstevemodel.molang.runtime;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -101,12 +102,13 @@ public interface Function {
         }
 
         @Nullable
-        public ResourceLocation getAsResourceLocation(@NotNull ExecutionContext<?> ctx, final int index) {
+        public ResourceLocation getAsResourceLocation(@NotNull ExecutionContext<? extends IContext<?>> ctx, final int index) {
             var value = getAsString(ctx, index);
-            if (value != null) {
-                return ResourceLocation.tryParse(value);
+            var resourceLocation = value != null ? ResourceLocation.tryParse(value) : null;
+            if (resourceLocation == null) {
+                ctx.entity().debugPrint("Illegal resource location: ", value);
             }
-            return null;
+            return resourceLocation;
         }
 
         @Nullable
