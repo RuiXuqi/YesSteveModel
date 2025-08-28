@@ -1,0 +1,51 @@
+{
+	"format_version": "1.19.0",
+	"animation_controllers": {
+		"player.post_main": {
+			"states": {
+				"default": {
+					"animations": ["new_idle_empty"],
+					"transitions": [
+						{"idle1": "v.next_idle == 1 && ctrl.idle"},
+						{"idle2": "v.next_idle == 2 && ctrl.idle"},
+						{"idle3": "v.next_idle == 3 && ctrl.idle"},
+						{"idle4": "v.next_idle == 4 && ctrl.idle"}
+					],
+					"blend_transition": 0.2
+				},
+				"idle1": {
+					"animations": ["new_idle_1"],
+					"on_exit": ["v.next_idle = 0;"],
+					"transitions": [
+						{"default": "q.all_animations_finished || !ctrl.idle"}
+					],
+					"blend_transition": 0.2
+				},
+				"idle2": {
+					"animations": ["new_idle_2"],
+					"on_exit": ["v.next_idle = 0;"],
+					"transitions": [
+						{"default": "q.all_animations_finished || !ctrl.idle"}
+					],
+					"blend_transition": 0.2
+				},
+				"idle3": {
+					"animations": ["new_idle_3"],
+					"on_exit": ["v.next_idle = 0;"],
+					"transitions": [
+						{"default": "q.all_animations_finished || !ctrl.idle"}
+					],
+					"blend_transition": 0.2
+				},
+				"idle4": {
+					"animations": ["new_idle_4"],
+					"on_exit": ["v.next_idle = 0;"],
+					"transitions": [
+						{"default": "q.all_animations_finished || !ctrl.idle"}
+					],
+					"blend_transition": 0.2
+				}
+			}
+		}
+	}
+}

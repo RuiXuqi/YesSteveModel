@@ -6382,7 +6382,7 @@
 				}
 			}
 		},
-		"tac:hold$tac:minigun": {
+		"tac:hold$tacz:minigun": {
 			"loop": "hold_on_last_frame",
 			"bones": {
 				"UpBody": {
@@ -6497,7 +6497,7 @@
 				}
 			}
 		},
-		"tac:hold:fire$tac:minigun": {
+		"tac:hold:fire$tacz:minigun": {
 			"loop": true,
 			"animation_length": 0.1667,
 			"bones": {
@@ -6692,7 +6692,7 @@
 				}
 			}
 		},
-		"tac:aim$tac:minigun": {
+		"tac:aim$tacz:minigun": {
 			"loop": "hold_on_last_frame",
 			"bones": {
 				"UpBody": {
@@ -6807,7 +6807,7 @@
 				}
 			}
 		},
-		"tac:aim:fire$tac:minigun": {
+		"tac:aim:fire$tacz:minigun": {
 			"loop": true,
 			"animation_length": 0.1667,
 			"bones": {
@@ -7002,7 +7002,7 @@
 				}
 			}
 		},
-		"tac:run$tac:minigun": {
+		"tac:run$tacz:minigun": {
 			"loop": true,
 			"animation_length": 0.6667,
 			"bones": {
@@ -7299,7 +7299,7 @@
 				}
 			}
 		},
-		"tac:climb$tac:minigun": {
+		"tac:climb$tacz:minigun": {
 			"loop": true,
 			"animation_length": 1,
 			"bones": {
@@ -7735,7 +7735,7 @@
 				}
 			}
 		},
-		"tac:climbing$tac:minigun": {
+		"tac:climbing$tacz:minigun": {
 			"loop": true,
 			"bones": {
 				"UpperBody": {
@@ -7917,7 +7917,7 @@
 				}
 			}
 		},
-		"tac:climbing:fire$tac:minigun": {
+		"tac:climbing:fire$tacz:minigun": {
 			"loop": true,
 			"bones": {
 				"UpperBody": {

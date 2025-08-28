@@ -81,6 +81,7 @@
       "extra7": "舞蹈"
     },
     "preview_animation": "gui",
+    "disable_preview_rotation": true,
     "free": true
   },
   "files": {
@@ -96,6 +97,9 @@
         "carryon": "animations/carryon.animation.json",
         "tlm": "animations/tlm.animation.json"
       },
+      "animation_controllers": [
+        "controller/wine_fox.animation_controllers.json"
+      ],
       "texture": [
         "textures/skin.png",
         "textures/skin_white.png"
