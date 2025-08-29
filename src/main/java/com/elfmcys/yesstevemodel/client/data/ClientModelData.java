@@ -25,11 +25,20 @@ public final class ClientModelData {
     private final Map<String, byte[]> sounds;
     private final Map<String, NativeTexture> authorAvatars;
     private final Map<String, IValue> userFunctions;
+    private final Map<String, Map<String, String>> languages;
     @NotNull
     private final ModelInfo info;
 
     // Native Access
-    public ClientModelData(GeoModel[] geoModels, AnimationFile[] animationFiles, AnimationControllerFile[] animationControllerFiles, FifoHashMap<String, NativeTexture> textures, Map<String, byte[]> sounds, Map<String, NativeTexture> authorAvatars, Map<String, IValue> userFunctions, @NotNull ModelInfo info) {
+    public ClientModelData(GeoModel[] geoModels,
+                           AnimationFile[] animationFiles,
+                           AnimationControllerFile[] animationControllerFiles,
+                           FifoHashMap<String, NativeTexture> textures,
+                           Map<String, byte[]> sounds,
+                           Map<String, NativeTexture> authorAvatars,
+                           Map<String, IValue> userFunctions,
+                           Map<String, Map<String, String>> languages,
+                           @NotNull ModelInfo info) {
         this.geoModels = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(geoModels));
         this.animationFiles = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(animationFiles));
         this.animationControllerFiles = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(animationControllerFiles));
@@ -37,6 +46,7 @@ public final class ClientModelData {
         this.sounds = Object2ObjectMaps.unmodifiable(new Object2ObjectOpenHashMap<>(sounds));
         this.authorAvatars = Object2ObjectMaps.unmodifiable(new Object2ObjectOpenHashMap<>(authorAvatars));
         this.userFunctions = userFunctions;
+        this.languages = languages;
         this.info = info;
     }
 
@@ -66,6 +76,10 @@ public final class ClientModelData {
 
     public Map<String, IValue> userFunctions() {
         return userFunctions;
+    }
+
+    public Map<String, Map<String, String>> languages() {
+        return languages;
     }
 
     @NotNull

@@ -1,5 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.google.common.collect.Lists;
 import net.minecraft.ChatFormatting;
@@ -11,23 +13,29 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 
 public class AuthorButton extends Button {
     private final ModelAuthor author;
+    private final ClientModel model;
     private final ResourceLocation avatar;
+    private final int index;
     private final List<Component> tooltips;
     private int selectedContactIndex = -1;
     private final Screen parent;
 
-    public AuthorButton(int pX, int pY, ModelAuthor author, ResourceLocation avatar, Screen parent) {
+    public AuthorButton(int pX, int pY, ModelAuthor author, ClientModel model, ResourceLocation avatar, int index, Screen parent) {
         super(pX, pY, 70, 130, Component.empty(), b -> {
         }, DEFAULT_NARRATION);
         this.author = author;
+        this.model = model;
         this.avatar = avatar;
+        this.index = index;
         this.tooltips = Lists.newArrayList();
         if (this.author != null) {
             updateTooltips(false);
@@ -36,13 +44,13 @@ public class AuthorButton extends Button {
     }
 
     public static AuthorButton empty(int pX, int pY, Screen parent) {
-        return new AuthorButton(pX, pY, null, null, parent);
+        return new AuthorButton(pX, pY, null, null, null, -1, parent);
     }
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         Font font = Minecraft.getInstance().font;
-        if (author == null || avatar == null) {
+        if (author == null || model == null || avatar == null) {
             graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x8F_434242, 0x8F_434242);
             graphics.drawCenteredString(font, Component.literal("......"), this.getX() + this.width / 2, this.getY() + this.height / 2, ChatFormatting.GRAY.getColor());
             return;
@@ -53,9 +61,25 @@ public class AuthorButton extends Button {
             graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x8F_434242, 0x8F_434242);
         }
         graphics.blit(avatar, this.getX() + 3, this.getY() + 3, 64, 64, 0, 0, 64, 64, 64, 64);
-        renderScrollingString(graphics, font, Component.literal(author.name()), this.getX() + 2, this.getY() + 72, this.getX() + width - 2, this.getY() + 82, ChatFormatting.GOLD.getColor());
-        graphics.drawCenteredString(font, author.role(), this.getX() + 35, this.getY() + 82, ChatFormatting.GREEN.getColor());
-        graphics.drawWordWrap(font, Component.literal(author.comment()), this.getX() + 3, this.getY() + 95, 64, 0xFFFFFFFF);
+
+        String authorName = LanguageManager.getI18n(model, "metadata.authors.%d.name".formatted(index), author.name());
+        String authorRole = LanguageManager.getI18n(model, "metadata.authors.%d.role".formatted(index), author.role());
+        String authorComment = LanguageManager.getI18n(model, "metadata.authors.%d.comment".formatted(index), author.comment());
+
+        renderScrollingString(graphics, font, Component.literal(authorName), this.getX() + 2, this.getY() + 72, this.getX() + width - 2, this.getY() + 82, ChatFormatting.GOLD.getColor());
+        graphics.drawCenteredString(font, authorRole, this.getX() + 35, this.getY() + 82, ChatFormatting.GREEN.getColor());
+        drawWordWrap(graphics, Component.literal(authorComment), this.getX() + 3, this.getY() + 95, 64, 0xFFFFFFFF);
+    }
+
+    public void drawWordWrap(GuiGraphics graphics, FormattedText text, int x, int y, int lineWidth, int color) {
+        Font font = Minecraft.getInstance().font;
+        for (FormattedCharSequence formattedcharsequence : font.split(text, lineWidth)) {
+            graphics.drawString(font, formattedcharsequence, x, y, color, false);
+            y += 9;
+            if (y > this.getY() + this.height) {
+                return;
+            }
+        }
     }
 
     public void renderToolTip(GuiGraphics graphics, Screen screen, int pMouseX, int pMouseY) {

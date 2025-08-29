@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.button.AuthorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.elfmcys.yesstevemodel.info.ModelInfo;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
@@ -68,7 +69,7 @@ public class ModelInfoScreen extends Screen {
             }
             ModelAuthor author = authors.get(index);
             ResourceLocation avatar = model.clientModelInfo().authorAvatars().getOrDefault(author.name(), DEFAULT_AVATAR);
-            addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, avatar, this));
+            addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, model, avatar, index, this));
         }
 
         addRenderableWidget(new FlatColorButton(x + 2, y + 25, 18, 100, Component.literal("<"), (b) -> {
@@ -117,7 +118,7 @@ public class ModelInfoScreen extends Screen {
 
         ModelMetadata metadata = this.modelInfo.metadata();
         if (metadata != null) {
-            String tips = metadata.tips();
+            String tips = LanguageManager.getI18n(model, "metadata.tips", metadata.tips());
             List<FormattedCharSequence> splitDesc = font.split(Component.literal(tips), 270);
             int offset = 0;
             for (FormattedCharSequence desc : splitDesc) {

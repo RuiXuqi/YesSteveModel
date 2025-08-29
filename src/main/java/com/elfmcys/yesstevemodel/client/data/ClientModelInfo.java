@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.data;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -8,11 +9,11 @@ import java.util.Map;
 
 public class ClientModelInfo {
     private final String name;
-    private final List<Component> displayInfo;
+    private final Map<String, List<Component>> displayInfo;
     private boolean needAuth;
     private final Map<String, ResourceLocation> authorAvatars;
 
-    public ClientModelInfo(String name, List<Component> displayInfo, boolean needAuth, Map<String, ResourceLocation> authorAvatars) {
+    public ClientModelInfo(String name, Map<String, List<Component>> displayInfo, boolean needAuth, Map<String, ResourceLocation> authorAvatars) {
         this.name = name;
         this.displayInfo = displayInfo;
         this.needAuth = needAuth;
@@ -24,7 +25,8 @@ public class ClientModelInfo {
     }
 
     public List<Component> displayInfo() {
-        return displayInfo;
+        String selected = Minecraft.getInstance().getLanguageManager().getSelected();
+        return displayInfo.getOrDefault(selected, displayInfo.get("en_us"));
     }
 
     public boolean isNeedAuth() {

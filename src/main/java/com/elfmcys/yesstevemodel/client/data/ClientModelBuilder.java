@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.data;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
@@ -9,28 +10,24 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
-import com.elfmcys.yesstevemodel.info.ModelStats;
-import com.elfmcys.yesstevemodel.info.stats.GeoModelStats;
-import com.elfmcys.yesstevemodel.info.stats.ModelTextureStats;
 import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.lib.concentus.OpusException;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.SoundDecoderUtil;
-import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class ClientModelBuilder {
     private static final int MODEL_MAIN_INDEX = 0;
@@ -60,7 +57,9 @@ public class ClientModelBuilder {
         var userFunctions = buildUserFunctionMap(data);
         var eventHandlers = buildEventHandlers(data);
 
-        var displayInfo = buildDisplayInfo(data);
+        var languages = Collections.unmodifiableMap(data.languages());
+
+        var displayInfo = LanguageManager.buildAllDisplayInfos(data);
         ModelMetadata metadata = data.info().metadata();
         String name = metadata != null ? metadata.name() : StringUtils.EMPTY;
         var info = new ClientModelInfo(name, displayInfo, isNeedAuth, authorAvatars);
@@ -98,7 +97,9 @@ public class ClientModelBuilder {
             }
         }
 
-        var model = new ClientModel(mainModel, armModel, animations, animationControllers, textures, textureIds, sounds, projectileModels, userFunctions, eventHandlers, data.info(), info, conditionManager);
+        var model = new ClientModel(mainModel, armModel, animations, animationControllers,
+                textures, textureIds, sounds, projectileModels, userFunctions, eventHandlers,
+                languages, data.info(), info, conditionManager);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
@@ -245,42 +246,6 @@ public class ClientModelBuilder {
             }
         }
         return Object2ObjectMaps.unmodifiable(map);
-    }
-
-    private static List<Component> buildDisplayInfo(ClientModelData data) {
-        List<Component> component = Lists.newArrayList();
-        var extraInfo = data.info().metadata();
-        if (extraInfo != null) {
-            if (!StringUtils.isBlank(extraInfo.name())) {
-                component.add(Component.literal(extraInfo.name()).withStyle(ChatFormatting.GOLD));
-                if (StringUtils.isNoneBlank(extraInfo.tips())) {
-                    String[] split = extraInfo.tips().replace("\r", "").split("\n");
-                    Arrays.stream(split).forEach(s -> component.add(Component.literal(s).withStyle(ChatFormatting.GRAY)));
-                }
-                if (!extraInfo.authors().isEmpty() || StringUtils.isNoneBlank(extraInfo.license().type())) {
-                    component.add(CommonComponents.space());
-                }
-                if (!extraInfo.authors().isEmpty()) {
-                    component.add(Component.translatable("gui.yes_steve_model.model.authors", StringUtils.join(
-                            extraInfo.authors().stream().map(author -> author.role().isEmpty() ? author.name() : (author.role() + ": " + author.name())).toArray(String[]::new), "丨")));
-                }
-                if (StringUtils.isNoneBlank(extraInfo.license().type())) {
-                    component.add(Component.translatable("gui.yes_steve_model.model.license", extraInfo.license().type()));
-                }
-            }
-        }
-
-        ModelStats stats = data.info().stats();
-        if (stats != null) {
-            GeoModelStats modelStats = stats.playerModel();
-            Map<String, ModelTextureStats> textures = stats.textures();
-
-            component.add(CommonComponents.space());
-            component.add(Component.translatable("gui.yes_steve_model.model.main_model_info", modelStats.bones(), modelStats.cubes(), modelStats.faces()));
-            component.add(Component.translatable("gui.yes_steve_model.model.texture_info", textures.size()));
-        }
-
-        return component;
     }
 
     @Nullable

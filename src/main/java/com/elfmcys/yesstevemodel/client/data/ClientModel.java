@@ -36,13 +36,28 @@ public class ClientModel {
 
     private final Int2ReferenceOpenHashMap<List<IValue>> eventHandlers;
 
+    private final Map<String, Map<String, String>> languages;
+
     private final ModelInfo modelInfo;
 
     private final ClientModelInfo clientModelInfo;
 
     private final ConditionManager conditionManager;
 
-    public ClientModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, GeoAnimationController> animationControllers, FifoHashMap<String, ResourceLocation> textures, List<ResourceLocation> registeredTextureIds, Map<String, SoundData> sounds, Map<ProjectileType, ProjectileModel> projectileModels, Int2ReferenceOpenHashMap<IValue> userFunctions, Int2ReferenceOpenHashMap<List<IValue>> eventHandlers, ModelInfo modelInfo, ClientModelInfo clientModelInfo, ConditionManager conditionManager) {
+    public ClientModel(GeoModel mainModel,
+                       GeoModel armModel,
+                       Map<String, Animation> animations,
+                       Map<String, GeoAnimationController> animationControllers,
+                       FifoHashMap<String, ResourceLocation> textures,
+                       List<ResourceLocation> registeredTextureIds,
+                       Map<String, SoundData> sounds,
+                       Map<ProjectileType, ProjectileModel> projectileModels,
+                       Int2ReferenceOpenHashMap<IValue> userFunctions,
+                       Int2ReferenceOpenHashMap<List<IValue>> eventHandlers,
+                       Map<String, Map<String, String>> languages,
+                       ModelInfo modelInfo,
+                       ClientModelInfo clientModelInfo,
+                       ConditionManager conditionManager) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
@@ -53,6 +68,7 @@ public class ClientModel {
         this.projectileModels = projectileModels;
         this.userFunctions = userFunctions;
         this.eventHandlers = eventHandlers;
+        this.languages = languages;
         this.modelInfo = modelInfo;
         this.clientModelInfo = clientModelInfo;
         this.conditionManager = conditionManager;
@@ -92,6 +108,10 @@ public class ClientModel {
 
     public Int2ReferenceOpenHashMap<List<IValue>> eventHandlers() {
         return eventHandlers;
+    }
+
+    public Map<String, Map<String, String>> languages() {
+        return languages;
     }
 
     public Map<ProjectileType, ProjectileModel> projectileModels() {
