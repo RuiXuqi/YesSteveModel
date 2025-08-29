@@ -4,13 +4,14 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.client.event.ClientTickEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.AnimationProcessor;
@@ -20,6 +21,7 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.elfmcys.yesstevemodel.util.UnsafeUtil;
+import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import net.minecraft.client.Minecraft;
@@ -31,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
@@ -53,6 +56,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     @Nullable
     private Future<AnimationEvent<?>> task;
+
+    /**
+     * 存储 Coded 动画控制器的动画播放状态，用于一些 molang 判断
+     */
+    protected Map<String, AnimationState> codedAnimationStates = Maps.newHashMap();
 
     protected AnimatableEntity(TEntity entity, boolean asyncUpdate) {
         this.entity = entity;
@@ -374,5 +382,13 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     public void setTacGunAnimationNeedReload(boolean needReload) {
+    }
+
+    public void setCodedAnimationStates(String controllerName, AnimationState state) {
+        this.codedAnimationStates.put(controllerName, state);
+    }
+
+    public AnimationState getCodedAnimationStates(String controllerName) {
+        return this.codedAnimationStates.getOrDefault(controllerName, AnimationState.IDLE);
     }
 }

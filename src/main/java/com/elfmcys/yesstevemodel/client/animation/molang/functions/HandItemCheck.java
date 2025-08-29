@@ -41,6 +41,13 @@ public class HandItemCheck extends LivingEntityFunction {
         });
     }
 
+    /**
+     * 和前一个 hold 基本相同，但是不检测挥动或者使用状态，一直执行
+     */
+    public static HandItemCheck hold2Check() {
+        return new HandItemCheck((entity, hand) -> true);
+    }
+
     public static HandItemCheck swingCheck() {
         return new HandItemCheck((entity, hand) -> entity.swinging && !entity.isSleeping());
     }

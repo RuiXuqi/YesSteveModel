@@ -7,7 +7,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.LinearBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.AnimationVec3;
+import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.BoneAnimationQueue;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.BeginningTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.EndingTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.ControllerContext;
@@ -86,6 +87,9 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
             this.animationPlayer.resetBoneAnimationQueues();
             this.pause = true;
         }
+
+        // 最后给 MoLang 上下文设置当前动画状态
+        event.getAnimatableEntity().setCodedAnimationStates(this.name, this.animationPlayer.getState());
     }
 
     @Nullable

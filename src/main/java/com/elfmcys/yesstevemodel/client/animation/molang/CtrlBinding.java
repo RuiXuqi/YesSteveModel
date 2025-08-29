@@ -9,9 +9,12 @@ import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
+import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
+import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
+import com.elfmcys.yesstevemodel.util.ControllerUtils;
 import com.elfmcys.yesstevemodel.util.LazyValue;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
@@ -64,8 +67,12 @@ public class CtrlBinding extends ContextBinding {
 
         register("idle", Priority.LOWEST, entity -> true);
 
+        // 轮盘动画预测
+        var("playing_extra_animation", CtrlBinding::checkExtraAnimationState);
+
         // 条件动画的
         function("hold", HandItemCheck.holdCheck());
+        function("hold2", HandItemCheck.hold2Check());
         function("swing", HandItemCheck.swingCheck());
         function("use", HandItemCheck.useCheck());
         function("armor", ArmorCheck.armorCheck());
@@ -92,6 +99,13 @@ public class CtrlBinding extends ContextBinding {
         function("set_animation", new SetAnimation());
         function("reset", new ResetController());
         function("indicate_reload", new IndicateReload());
+    }
+
+    private static boolean checkExtraAnimationState(IContext<Object> ctx) {
+        if (ctx.animatableEntity() instanceof CustomPlayerEntity entity && entity.isPlayingExtraAnimation()) {
+            return entity.getCodedAnimationStates(ControllerUtils.CAP_CONTROLLER) != AnimationState.IDLE;
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
