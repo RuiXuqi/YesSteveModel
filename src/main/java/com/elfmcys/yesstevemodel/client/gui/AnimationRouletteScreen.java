@@ -225,8 +225,14 @@ public class AnimationRouletteScreen extends Screen {
         // 动态改变单选框每行个数
         // 遍历获取最长的行的长度
         int lineMaxWidth = 0;
+        int labelsIndex = 0;
         for (String labelName : labels.keyList()) {
-            lineMaxWidth = Math.max(lineMaxWidth, font.width(labelName) + 16);
+            String labelStr = LanguageManager.getI18n(this.model,
+                    "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(
+                            this.configButtons.getId(), index[0], labelsIndex),
+                    labelName);
+            lineMaxWidth = Math.max(lineMaxWidth, font.width(labelStr) + 16);
+            labelsIndex++;
         }
         int countPerLine = Math.max(1, 115 / lineMaxWidth);
 
@@ -248,9 +254,9 @@ public class AnimationRouletteScreen extends Screen {
         int tempYOffset = yOffset[0] + 14;
         for (int i = 0; i < labels.size(); i++) {
             String labelStr = LanguageManager.getI18n(this.model,
-                    "properties.extra_animation_buttons.%s.config_forms.%d.label.%d".formatted(
+                    "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(
                             this.configButtons.getId(), index[0], i),
-                    radioForms.description());
+                    labels.getKeyAt(i));
 
             Component labelName = Component.literal(labelStr);
             String labelValue = labels.getValueAt(i);
