@@ -1,6 +1,7 @@
-package com.elfmcys.yesstevemodel.client.compat.tacz;
+package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
+import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
+import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -9,6 +10,8 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.Objects;
 
 public class GunFirePredicate implements IAnimationPredicate<AnimatableEntity<? extends LivingEntity>> {
     @Override
@@ -19,7 +22,11 @@ public class GunFirePredicate implements IAnimationPredicate<AnimatableEntity<? 
         }
         if (!entity.swinging && !entity.isUsingItem()) {
             ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
-            return TACZCompat.playGunFireAnimation(mainHandItem, event);
+            PlayState result = TACZCompat.playGunOnceAnimation(mainHandItem, event);
+            if (result == null) {
+                result = SWarfareCompat.playGunOnceAnimation(mainHandItem, event);
+            }
+            return Objects.requireNonNullElse(result, PlayState.STOP);
         }
         return PlayState.STOP;
     }

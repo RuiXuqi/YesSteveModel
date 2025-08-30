@@ -8,7 +8,6 @@ import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
-import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
@@ -98,7 +97,7 @@ public abstract class CustomPlayerEntity extends AnimatableEntity<Player> implem
         addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0.1f, new MainhandPredicate()));
         addAnimationController(new HybridAnimationController(this, POST_HOLD_CONTROLLER, 0, new EmptyPredicate()));
 
-        TACZCompat.addTaczPredicate(this);
+        addAnimationController(new HybridAnimationController(this, GUN_FIRE_CONTROLLER, 0f, new GunFirePredicate()));
 
         addAnimationController(new HybridAnimationController(this, PRE_SWING_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
@@ -112,7 +111,7 @@ public abstract class CustomPlayerEntity extends AnimatableEntity<Player> implem
         CarryOnCompat.addCarryOnPredicate(this);
 
         // 下面不需要自定义动画控制器
-        addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0.1f, new CapPredicate()));
+        addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0, new CapPredicate()));
         if (this instanceof IPreviewEntity) {
             addAnimationController(new CodedAnimationController(this, HOVER_CONTROLLER, 0, new HoverPredicate()));
             addAnimationController(new CodedAnimationController(this, FOCUS_CONTROLLER, 0, new FocusPredicate()));

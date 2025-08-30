@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
+import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
@@ -43,6 +44,7 @@ public class ClientSetupEvent {
             CosmeticArmorCompat.init();
             ElytraSlotCompat.init();
             TACZCompat.init();
+            SWarfareCompat.init();
             TlmClientCompat.init();
             CarryOnCompat.init();
             ParCoolCompat.init();

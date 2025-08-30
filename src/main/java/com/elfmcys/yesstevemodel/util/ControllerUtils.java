@@ -19,7 +19,7 @@ public final class ControllerUtils {
     public static final String POST_SWING_CONTROLLER = "player.post_swing";
 
     public static final String CARRY_ON_CONTROLLER = "player.carry_on";
-    public static final String TACZ_FIRE_CONTROLLER = "player.fire";
+    public static final String GUN_FIRE_CONTROLLER = "player.fire";
     public static final String PARCOOL_CONTROLLER = "player.parcool";
 
     public static final String ARMOR_CONTROLLER = "player.armor_";

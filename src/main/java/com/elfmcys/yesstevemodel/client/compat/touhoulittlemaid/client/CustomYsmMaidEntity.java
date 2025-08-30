@@ -1,10 +1,10 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
-import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidMiscPredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidRoulettePredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidStatuePredicate;
@@ -12,14 +12,13 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.IPhysicsEntity;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
-import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -110,7 +109,7 @@ public class CustomYsmMaidEntity extends AnimatableEntity<EntityMaid> implements
         addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0.1f, new MainhandPredicate()));
         addAnimationController(new HybridAnimationController(this, POST_HOLD_CONTROLLER, 0, new EmptyPredicate()));
 
-        TACZCompat.addTaczPredicate(this);
+        addAnimationController(new HybridAnimationController(this, GUN_FIRE_CONTROLLER, 0f, new GunFirePredicate()));
 
         addAnimationController(new HybridAnimationController(this, PRE_SWING_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));

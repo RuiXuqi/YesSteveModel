@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.condition;
 
+import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +33,10 @@ public class ConditionTAC {
         }
         ResourceLocation gunId = TACZCompat.getGunId(itemInHand);
         if (gunId == null) {
-            return EMPTY;
+            gunId = SWarfareCompat.getGunId(itemInHand);
+            if (gunId == null) {
+                return EMPTY;
+            }
         }
         if (idTest.contains(gunId)) {
             String animationName = prefix.substring(0, prefix.length() - 1) + "$" + gunId;

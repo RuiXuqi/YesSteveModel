@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.client.compat.tacz;
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -15,8 +14,6 @@ import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.TACZ_FIRE_CONTROLLER;
-
 
 public class TACZCompat {
     private static final String MOD_ID = "tacz";
@@ -26,13 +23,6 @@ public class TACZCompat {
         INSTALLED = ModList.get().isLoaded(MOD_ID);
         if (INSTALLED) {
             TacCompatInner.registerEvent();
-        }
-    }
-
-    @SuppressWarnings("all")
-    public static void addTaczPredicate(AnimatableEntity<?> entity) {
-        if (INSTALLED) {
-            entity.addAnimationController(new HybridAnimationController(entity, TACZ_FIRE_CONTROLLER, 0f, new GunFirePredicate()));
         }
     }
 
@@ -83,11 +73,11 @@ public class TACZCompat {
     }
 
     @Nullable
-    public static PlayState playGunFireAnimation(ItemStack mainHandItem, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
+    public static PlayState playGunOnceAnimation(ItemStack mainHandItem, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
         if (isInstalled() && TacCompatInner.isGun(mainHandItem)) {
             return TacCompatInner.playGunOnceAnimation(event, mainHandItem);
         }
-        return PlayState.STOP;
+        return null;
     }
 
     public static void openFlashShellRender(LivingEntity livingEntity, ItemStack mainHandItem) {

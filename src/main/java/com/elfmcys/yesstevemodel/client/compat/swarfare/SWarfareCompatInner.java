@@ -1,0 +1,190 @@
+package com.elfmcys.yesstevemodel.client.compat.swarfare;
+
+import com.atsuishio.superbwarfare.data.gun.GunData;
+import com.atsuishio.superbwarfare.event.ClientEventHandler;
+import com.atsuishio.superbwarfare.item.gun.GunItem;
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
+import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
+import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+import java.util.Optional;
+
+public class SWarfareCompatInner {
+    private static final TagKey<Item> PISTOL = TagKey.create(Registries.ITEM, ResourceLocation.parse("superbwarfare:pistol"));
+    private static final TagKey<Item> LAUNCHER = TagKey.create(Registries.ITEM, ResourceLocation.parse("superbwarfare:launcher"));
+
+    static boolean isGun(ItemStack stack) {
+        return stack.getItem() instanceof GunItem;
+    }
+
+    static void renderOffhandGun(ItemStack heldItem, GeoModelState geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
+        ItemRenderer renderer = Minecraft.getInstance().getItemRenderer();
+        if (heldItem.is(PISTOL) && !geoModel.tacPistolBones().isEmpty()) {
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.tacPistolBones());
+            poseStack.translate(0, -0.125, 0);
+            poseStack.scale(0.65f, 0.65f, 0.65f);
+            poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F));
+            MultiBufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+            renderer.renderStatic(heldItem, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), player.getId());
+        }
+        if (!heldItem.is(PISTOL) && !geoModel.tacRifleBones().isEmpty()) {
+            RenderUtils.prepMatrixForLocator(poseStack, geoModel.tacRifleBones());
+            poseStack.scale(0.65f, 0.65f, 0.65f);
+            poseStack.mulPose(Axis.YP.rotationDegrees(-180.0F));
+            MultiBufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+            renderer.renderStatic(heldItem, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), player.getId());
+        }
+    }
+
+    /**
+     * tac:idle
+     * tac:run
+     * tac:walk
+     */
+    static PlayState playGunMainAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
+        String tacName = "tac:" + animationName;
+        String modelId = event.getAnimatableEntity().getModelId();
+        Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, tacName);
+        if (playerAnimation.isPresent()) {
+            return playAnimation(event, tacName, loopType);
+        }
+        return playAnimation(event, animationName, loopType);
+    }
+
+    @NotNull
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack gun, String prefix) {
+        return getGunTypeAnimation(event, gun, prefix, LoopType.LOOP);
+    }
+
+    /**
+     * tac:hold:pistol
+     * tac:aim:pistol
+     * tac:reload:pistol
+     * tac:aim_shoot:pistol
+     * tac:hold_shoot:pistol
+     * tac:run:pistol
+     */
+    static PlayState playGunHoldAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
+        if (!(heldItem.getItem() instanceof GunItem)) {
+            return PlayState.STOP;
+        }
+        LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
+
+        if (!livingEntity.isSwimming() && livingEntity.getPose() == Pose.SWIMMING) {
+            if (Math.abs(event.getLimbSwingAmount()) > 0.05) {
+                return getGunTypeAnimation(event, heldItem, "tac:climb:");
+            } else {
+                return getGunTypeAnimation(event, heldItem, "tac:climbing:");
+            }
+        }
+
+        // zoomTime 是玩家客户端数据，需要额外判断是否是当前玩家
+        double aimProgress = ClientEventHandler.zoomTime;
+        if (!Objects.equals(Minecraft.getInstance().player, livingEntity)) {
+            aimProgress = 0;
+        }
+        if (aimProgress > 0.3) {
+            return getGunTypeAnimation(event, heldItem, "tac:aim:");
+        } else {
+            if (livingEntity.onGround() && livingEntity.isSprinting()) {
+                return getGunTypeAnimation(event, heldItem, "tac:run:");
+            }
+            return getGunTypeAnimation(event, heldItem, "tac:hold:");
+        }
+    }
+
+    /**
+     * 这些动画可能是带有后摇的动画，故需要单独分一个频道来播放，从而才能超过时长进行播放
+     */
+    static PlayState playGunOnceAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
+        if (!(heldItem.getItem() instanceof GunItem gunItem)) {
+            return PlayState.STOP;
+        }
+        LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
+        GunData gunData = GunData.from(heldItem);
+        if (!Objects.equals(Minecraft.getInstance().player, livingEntity)) {
+            return PlayState.STOP;
+        }
+
+        // 重置动画
+        if (event.getCodedController() != null && event.getCodedController().isAnimFinished()) {
+            event.getCodedController().indicateReload();
+        }
+
+        if (gunData.reloading() && gunData.reload.time() > 40) {
+            return getGunTypeAnimation(event, heldItem, "tac:reload:", LoopType.PLAY_ONCE);
+        }
+
+        int meleeTime = ClientEventHandler.gunMelee;
+        if (meleeTime > 5) {
+            return getGunTypeAnimation(event, heldItem, "tac:melee:", LoopType.PLAY_ONCE);
+        }
+
+        double fireTick = ClientEventHandler.fireRotTimer;
+        if (0 < fireTick && fireTick < 1) {
+            double aimProgress = ClientEventHandler.zoomTime;
+            boolean isClimbing = !livingEntity.isSwimming() && livingEntity.getPose() == Pose.SWIMMING && Math.abs(event.getLimbSwingAmount()) <= 0.05;
+
+            if (isClimbing) {
+                return getGunTypeAnimation(event, heldItem, "tac:climbing:fire:", LoopType.PLAY_ONCE);
+            }
+            if (aimProgress > 0.3) {
+                return getGunTypeAnimation(event, heldItem, "tac:aim:fire:", LoopType.PLAY_ONCE);
+            } else {
+                return getGunTypeAnimation(event, heldItem, "tac:hold:fire:", LoopType.PLAY_ONCE);
+            }
+        }
+        return PlayState.CONTINUE;
+    }
+
+    @NotNull
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event,
+                                                 ItemStack gun, String prefix, LoopType loopType) {
+        String modelId = event.getAnimatableEntity().getModelId();
+        ConditionTAC gunCondition = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
+        if (gunCondition != null) {
+            ItemStack stack = event.getAnimatableEntity().getEntity().getMainHandItem();
+            String name = gunCondition.doTest(stack, prefix);
+            if (StringUtils.isNoneBlank(name)) {
+                return playAnimation(event, name, loopType);
+            }
+        }
+        if (gun.is(PISTOL)) {
+            return playAnimation(event, prefix + "pistol", loopType);
+        }
+        if (gun.is(LAUNCHER)) {
+            return playAnimation(event, prefix + "rpg", loopType);
+        }
+        return playAnimation(event, prefix + "rifle", loopType);
+    }
+
+    @NotNull
+    private static PlayState playAnimation(AnimationEvent<?> event, String animationName, LoopType loopType) {
+        event.getCodedController().setAnimation(animationName, loopType);
+        return PlayState.CONTINUE;
+    }
+}

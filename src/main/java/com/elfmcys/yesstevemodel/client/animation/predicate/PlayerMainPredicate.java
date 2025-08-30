@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.client.animation.AnimationState;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
+import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
@@ -67,6 +68,10 @@ public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEnti
 
                     // 再判断 tacz 动画
                     PlayState gunMainAnimation = TACZCompat.playGunMainAnimation(player, event, animationName, loopType);
+                    // 在判断卓越前线的动画
+                    if (gunMainAnimation == null) {
+                        gunMainAnimation = SWarfareCompat.playGunMainAnimation(player, event, animationName, loopType);
+                    }
                     return Objects.requireNonNullElseGet(gunMainAnimation, () -> playAnimation(event, animationName, loopType));
                 }
             }

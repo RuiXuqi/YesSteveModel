@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.api.IExtendedBufferSource;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeRender;
+import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
@@ -65,6 +66,8 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
             poseStack.popPose();
             // TACZ 副手枪械渲染
             TACZCompat.renderOffsetHand(offhandItem, geoModel, entityLivingBaseIn, poseStack, packedLightIn, partialTicks);
+            // 卓越前线副手枪械渲染
+            SWarfareCompat.renderOffsetHand(offhandItem, geoModel, entityLivingBaseIn, poseStack, packedLightIn, partialTicks);
         }
     }
 
@@ -79,6 +82,11 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
             if (!scaleResult) {
                 poseStack.translate(0, -0.0625, -0.1);
                 poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+                // 卓越前线的枪械需要缩放一下，不然太小了
+                if (SWarfareCompat.isGun(itemStack)) {
+                    poseStack.translate(0.1, 0, 0);
+                    poseStack.scale(1.25f, 1.25f, 1.25f);
+                }
                 this.itemInHandRenderer.renderItem(livingEntity, itemStack, displayContext, isLeftHand, poseStack, bufferSource, light);
             }
             poseStack.popPose();
@@ -92,6 +100,10 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
                 if (!extraScaleResult) {
                     poseStack.translate(0, -0.0625, -0.1);
                     poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+                    // 卓越前线的枪械需要缩放一下，不然太小了
+                    if (SWarfareCompat.isGun(itemStack)) {
+                        poseStack.scale(1.25f, 1.25f, 1.25f);
+                    }
                     this.itemInHandRenderer.renderItem(livingEntity, itemStack, displayContext, isLeftHand, poseStack, bufferSource, light);
                 }
                 poseStack.popPose();

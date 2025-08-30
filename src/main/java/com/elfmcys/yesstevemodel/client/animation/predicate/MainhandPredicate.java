@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.animation.predicate;
 import com.elfmcys.yesstevemodel.api.IEntityExtraInfo;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalHold;
+import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
@@ -35,6 +36,10 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
 
         ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
         PlayState gunHoldAnimation = TACZCompat.playGunHoldAnimation(mainHandItem, event);
+        if (gunHoldAnimation != null) {
+            return gunHoldAnimation;
+        }
+        gunHoldAnimation = SWarfareCompat.playGunHoldAnimation(mainHandItem, event);
         if (gunHoldAnimation != null) {
             return gunHoldAnimation;
         }

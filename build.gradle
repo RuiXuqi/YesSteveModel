@@ -183,6 +183,9 @@ dependencies {
     modImplementation "maven.modrinth:jade:11.8.0-forge"
     modCompileOnly "curse.maven:the-one-probe-245211:4629624"
 
+    // 卓越前线
+    modImplementation "maven.modrinth:superb-warfare:0.8.7-forge,1.20.1"
+
     // 其他运行测试模组
     modRuntimeOnly "maven.modrinth:curtain:1.3.2-1.20.1"
     modRuntimeOnly "maven.modrinth:mantle:1.11.28"
