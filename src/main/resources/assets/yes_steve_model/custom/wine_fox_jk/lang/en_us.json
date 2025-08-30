@@ -15,6 +15,13 @@
   "metadata.authors.3.comment": "Happiness is often transparent, but the dedicated heart is often hidden",
   "metadata.authors.4.name": "Moran Shiyu",
   "metadata.authors.4.role": "Model",
-  "metadata.authors.4.comment": "At this point, let's slack off first"
+  "metadata.authors.4.comment": "At this point, let's slack off first",
+  "properties.extra_animation.extra0": "Headdress",
+  "properties.extra_animation.extra1": "Wave",
+  "properties.extra_animation.extra2": "Clap",
+  "properties.extra_animation.extra3": "YES",
+  "properties.extra_animation.extra4": "NO",
+  "properties.extra_animation.extra5": "Cute Pose",
+  "properties.extra_animation.extra6": "Gohei Waving",
+  "properties.extra_animation.extra7": "Dance"
 }
-

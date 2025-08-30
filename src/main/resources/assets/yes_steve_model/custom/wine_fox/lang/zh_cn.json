@@ -18,6 +18,13 @@
   "metadata.authors.4.comment": "喵喵喵喵",
   "metadata.authors.5.name": "蓝玫瑰",
   "metadata.authors.5.role": "模型",
-  "metadata.authors.5.comment": "8月24号，传奇永不落幕"
+  "metadata.authors.5.comment": "8月24号，传奇永不落幕",
+  "properties.extra_animation.extra0": "变身",
+  "properties.extra_animation.extra1": "打招呼",
+  "properties.extra_animation.extra2": "鼓掌",
+  "properties.extra_animation.extra3": "Get Down",
+  "properties.extra_animation.extra4": "乱舞",
+  "properties.extra_animation.extra5": "卖萌",
+  "properties.extra_animation.extra6": "御币摇",
+  "properties.extra_animation.extra7": "舞蹈"
 }
-

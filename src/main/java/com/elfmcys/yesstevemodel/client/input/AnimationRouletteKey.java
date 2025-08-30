@@ -40,7 +40,7 @@ public class AnimationRouletteKey {
             return;
         }
         if (event.getAction() == GLFW.GLFW_PRESS && ANIMATION_ROULETTE_KEY.matches(event.getKey(), event.getScanCode())
-                && (!NetworkHandler.isRemoteChannelPresent() || ServerConfig.CAN_SWITCH_MODEL.get())) {
+            && (!NetworkHandler.isRemoteChannelPresent() || ServerConfig.CAN_SWITCH_MODEL.get())) {
             if (TlmClientCompat.pointToMaid()) {
                 TlmClientCompat.onRouletteMainKeyPressed();
             } else if (Minecraft.getInstance().player != null) {
@@ -49,7 +49,7 @@ public class AnimationRouletteKey {
                     var model = ClientModelManager.getModels().get(modelId);
                     if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
                         if (Minecraft.getInstance().screen == null) {
-                            Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model.modelInfo().properties(), cap));
+                            Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model, cap));
                             return;
                         }
                         if (Minecraft.getInstance().screen instanceof AnimationRouletteScreen) {

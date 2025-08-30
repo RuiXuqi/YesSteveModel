@@ -3,12 +3,14 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatCheckbox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatRatioBox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatSlider;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -80,13 +82,15 @@ public class AnimationRouletteScreen extends Screen {
     private final Map<String, FifoHashMap<String, String>> classifyMap;
     private final ModelProperties modelProperties;
     private final AnimatableEntity<?> animatableEntity;
+    private final ClientModel model;
 
     public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap,
                                    Map<String, FifoHashMap<String, String>> classifyMap,
-                                   ModelProperties modelProperties,
+                                   ClientModel clientModel,
                                    AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
-        this.modelProperties = modelProperties;
+        this.model = clientModel;
+        this.modelProperties = clientModel.modelInfo().properties();
         this.animatableEntity = animatableEntity;
         this.classifyMap = classifyMap;
         this.buttonMap = buttonMap;
@@ -103,12 +107,13 @@ public class AnimationRouletteScreen extends Screen {
         }
     }
 
-    public AnimationRouletteScreen(String modelId, ModelProperties properties, AnimatableEntity<?> animatableEntity) {
+    public AnimationRouletteScreen(String modelId, ClientModel model, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
-        this.modelProperties = properties;
+        this.model = model;
+        this.modelProperties = model.modelInfo().properties();
         this.animatableEntity = animatableEntity;
-        this.classifyMap = properties.extraAnimationClassifyMap();
-        this.buttonMap = properties.extraAnimationButtonsMap();
+        this.classifyMap = this.modelProperties.extraAnimationClassifyMap();
+        this.buttonMap = this.modelProperties.extraAnimationButtonsMap();
 
         // 如果 ID 和缓存的不一致，重置轮盘缓存
         if (!MODEL_ID.equals(modelId)) {
@@ -123,7 +128,7 @@ public class AnimationRouletteScreen extends Screen {
         if (this.classifyMap.containsKey(current.getLeft())) {
             this.extraAnimationMap = this.classifyMap.get(current.getLeft());
         } else {
-            this.extraAnimationMap = properties.extraAnimationOrderMap();
+            this.extraAnimationMap = this.modelProperties.extraAnimationOrderMap();
             CACHE.clear();
             CACHE.add(MutablePair.of(StringUtils.EMPTY, this.current.getRight()));
             this.current = CACHE.peekLast();
@@ -179,39 +184,42 @@ public class AnimationRouletteScreen extends Screen {
         // 配置按钮
         if (configButtons != null) {
             final int[] yOffset = {-53};
+            final int[] index = {0};
             for (ConfigForms configForm : configButtons.getConfigForms()) {
-                this.addConfigForms(configForm, yOffset);
+                this.addConfigForms(configForm, yOffset, index);
             }
         }
     }
 
-    private void addConfigForms(ConfigForms configForm, int[] yOffset) {
+    private void addConfigForms(ConfigForms configForm, int[] yOffset, int[] index) {
         if (configForm instanceof CheckboxForms checkboxForms) {
             this.executeMolang(configForm.value(), result -> {
-                FlatCheckbox checkbox = getFlatCheckbox(checkboxForms, result, yOffset);
+                FlatCheckbox checkbox = getFlatCheckbox(checkboxForms, result, yOffset, index);
                 this.addRenderableWidget(checkbox);
                 yOffset[0] += 14;
+                index[0]++;
             });
         }
 
         if (configForm instanceof RangeForms rangeForms) {
             this.executeMolang(configForm.value(), result -> {
-                FlatSlider slider = getFlatSlider(rangeForms, result, yOffset);
+                FlatSlider slider = getFlatSlider(rangeForms, result, yOffset, index);
                 this.addRenderableWidget(slider);
                 yOffset[0] += 17;
+                index[0]++;
             });
         }
 
         if (configForm instanceof RadioForms radioForms) {
-            this.executeMolang(configForm.value(), result -> addRatioButtons(radioForms, result, yOffset));
+            this.executeMolang(configForm.value(), result -> addRatioButtons(radioForms, result, yOffset, index));
         }
     }
 
-    private void addRatioButtons(RadioForms radioForms, String result, int[] yOffset) {
-        int index = Math.round(transformNumber(result));
+    private void addRatioButtons(RadioForms radioForms, String result, int[] yOffset, int[] index) {
+        int selectedIndex = Math.round(transformNumber(result));
         var labels = radioForms.labels();
-        if (index < 0 || labels.size() < index) {
-            index = 0;
+        if (selectedIndex < 0 || labels.size() < selectedIndex) {
+            selectedIndex = 0;
         }
 
         // 动态改变单选框每行个数
@@ -222,8 +230,15 @@ public class AnimationRouletteScreen extends Screen {
         }
         int countPerLine = Math.max(1, 115 / lineMaxWidth);
 
-        Component title = Component.literal(radioForms.title());
-        Tooltip description = Tooltip.create(Component.literal(radioForms.description()));
+        String titleStr = LanguageManager.getI18n(this.model,
+                "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]),
+                radioForms.title());
+        String descStr = LanguageManager.getI18n(this.model,
+                "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]),
+                radioForms.description());
+
+        Component title = Component.literal(titleStr);
+        Tooltip description = Tooltip.create(Component.literal(descStr));
         int maxHeight = ((labels.size() - 1) / countPerLine + 1) * 14 + 14;
         FlatRatioBox ratioBox = new FlatRatioBox(this.x + 125, this.y + yOffset[0], maxHeight, title);
         ratioBox.setTooltip(description);
@@ -232,9 +247,14 @@ public class AnimationRouletteScreen extends Screen {
         // 遍历添加每个 label
         int tempYOffset = yOffset[0] + 14;
         for (int i = 0; i < labels.size(); i++) {
-            Component labelName = Component.literal(labels.getKeyAt(i));
+            String labelStr = LanguageManager.getI18n(this.model,
+                    "properties.extra_animation_buttons.%s.config_forms.%d.label.%d".formatted(
+                            this.configButtons.getId(), index[0], i),
+                    radioForms.description());
+
+            Component labelName = Component.literal(labelStr);
             String labelValue = labels.getValueAt(i);
-            boolean isSelected = index == i;
+            boolean isSelected = selectedIndex == i;
 
             int perWidth = Math.round(110f / countPerLine);
             int xOffset = this.x + 127 + perWidth * (i % countPerLine);
@@ -260,12 +280,20 @@ public class AnimationRouletteScreen extends Screen {
 
         // 最后记得换行
         yOffset[0] = yOffset[0] + maxHeight + 3;
+        index[0] = index[0] + 1;
     }
 
     @NotNull
-    private FlatSlider getFlatSlider(RangeForms rangeForms, String result, int[] yOffset) {
-        Component title = Component.literal(rangeForms.title());
-        Tooltip description = Tooltip.create(Component.literal(rangeForms.description()));
+    private FlatSlider getFlatSlider(RangeForms rangeForms, String result, int[] yOffset, int[] index) {
+        String titleStr = LanguageManager.getI18n(this.model,
+                "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]),
+                rangeForms.title());
+        String descStr = LanguageManager.getI18n(this.model,
+                "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]),
+                rangeForms.description());
+
+        Component title = Component.literal(titleStr);
+        Tooltip description = Tooltip.create(Component.literal(descStr));
         float number = transformNumber(result);
 
         FlatSlider slider = new FlatSlider(this.x + 125, this.y + yOffset[0],
@@ -276,9 +304,16 @@ public class AnimationRouletteScreen extends Screen {
     }
 
     @NotNull
-    private FlatCheckbox getFlatCheckbox(CheckboxForms checkboxForms, String result, int[] yOffset) {
-        Component title = Component.literal(checkboxForms.title());
-        Tooltip description = Tooltip.create(Component.literal(checkboxForms.description()));
+    private FlatCheckbox getFlatCheckbox(CheckboxForms checkboxForms, String result, int[] yOffset, int[] index) {
+        String titleStr = LanguageManager.getI18n(this.model,
+                "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]),
+                checkboxForms.title());
+        String descStr = LanguageManager.getI18n(this.model,
+                "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]),
+                checkboxForms.description());
+
+        Component title = Component.literal(titleStr);
+        Tooltip description = Tooltip.create(Component.literal(descStr));
 
         float number = transformNumber(result);
 
@@ -445,7 +480,7 @@ public class AnimationRouletteScreen extends Screen {
         FifoHashMap<String, String> map = classifyMap.get(key);
         if (map != null) {
             CACHE.addLast(MutablePair.of(key, 0));
-            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.animatableEntity);
+            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.model, this.animatableEntity);
             this.getMinecraft().setScreen(screen);
         }
     }
@@ -453,7 +488,7 @@ public class AnimationRouletteScreen extends Screen {
     private void clickReturn() {
         if (CACHE.size() > 1) {
             CACHE.removeLast();
-            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.modelProperties, this.animatableEntity);
+            AnimationRouletteScreen screen = new AnimationRouletteScreen(this.buttonMap, this.classifyMap, this.model, this.animatableEntity);
             this.getMinecraft().setScreen(screen);
         } else {
             this.getMinecraft().setScreen(null);
@@ -501,10 +536,16 @@ public class AnimationRouletteScreen extends Screen {
 
             // 绘制文本
             if (StringUtils.isNoneBlank(animationValue)) {
-                MutableComponent name = Component.literal(animationValue);
+                String key = LanguageManager.getI18n(this.model,
+                        "properties.extra_animation.%s".formatted(extraAnimationMap.getKeyAt(index)),
+                        animationValue);
+                MutableComponent name = Component.literal(key);
                 this.drawAnimationName(graphics, name, xPos, yPos, isClassify);
             } else {
-                MutableComponent name = Component.literal(String.valueOf(index));
+                String key = LanguageManager.getI18n(this.model,
+                        "properties.extra_animation.%s".formatted(extraAnimationMap.getKeyAt(index)),
+                        String.valueOf(index));
+                MutableComponent name = Component.literal(key);
                 graphics.drawCenteredString(font, name, xPos, yPos - 8, 0xF3EFE0);
             }
             // 只有第 0 页显示按键绑定

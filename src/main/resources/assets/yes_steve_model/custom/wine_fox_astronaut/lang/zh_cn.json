@@ -12,6 +12,13 @@
   "metadata.authors.4.name": "浅陌菌",
   "metadata.authors.4.role": "箭矢模型",
   "metadata.authors.5.name": "羊毛",
-  "metadata.authors.5.role": "轮盘动画贡献者"
+  "metadata.authors.5.role": "轮盘动画贡献者",
+  "properties.extra_animation.extra0": "变身",
+  "properties.extra_animation.extra1": "挥手",
+  "properties.extra_animation.extra2": "拍手",
+  "properties.extra_animation.extra3": "YES",
+  "properties.extra_animation.extra4": "NO",
+  "properties.extra_animation.extra5": "耶",
+  "properties.extra_animation.extra6": "摆手",
+  "properties.extra_animation.extra7": "跳舞"
 }
-

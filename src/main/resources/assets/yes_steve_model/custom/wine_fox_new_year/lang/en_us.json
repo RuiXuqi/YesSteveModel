@@ -15,6 +15,13 @@
   "metadata.authors.3.comment": "My fine and distant future, please don't be so cruel",
   "metadata.authors.4.name": "Huoyushen",
   "metadata.authors.4.role": "Animation",
-  "metadata.authors.4.comment": "50th generation mental patient"
+  "metadata.authors.4.comment": "50th generation mental patient",
+  "properties.extra_animation.extra0": "Transform",
+  "properties.extra_animation.extra1": "Wave",
+  "properties.extra_animation.extra2": "Clap",
+  "properties.extra_animation.extra3": "YES",
+  "properties.extra_animation.extra4": "NO",
+  "properties.extra_animation.extra5": "Cute Pose",
+  "properties.extra_animation.extra6": "Gohei Waving",
+  "properties.extra_animation.extra7": "Dance"
 }
-

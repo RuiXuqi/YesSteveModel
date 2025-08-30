@@ -18,6 +18,13 @@
   "metadata.authors.4.comment": "Meow meow meow meow",
   "metadata.authors.5.name": "Blue Rose",
   "metadata.authors.5.role": "Model",
-  "metadata.authors.5.comment": "August 24th, legends never fall"
+  "metadata.authors.5.comment": "August 24th, legends never fall",
+  "properties.extra_animation.extra0": "Transform",
+  "properties.extra_animation.extra1": "Wave",
+  "properties.extra_animation.extra2": "Clap",
+  "properties.extra_animation.extra3": "Get Down",
+  "properties.extra_animation.extra4": "Wild Dance",
+  "properties.extra_animation.extra5": "Cute Pose",
+  "properties.extra_animation.extra6": "Gohei Waving",
+  "properties.extra_animation.extra7": "Dance"
 }
-

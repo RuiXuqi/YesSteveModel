@@ -36,7 +36,7 @@ public class OpenRouletteScreen {
                 var model = ClientModelManager.getModels().get(modelId);
                 if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
                     if (Minecraft.getInstance().screen == null) {
-                        Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model.modelInfo().properties(), cap));
+                        Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model, cap));
                         return;
                     }
                     if (Minecraft.getInstance().screen instanceof AnimationRouletteScreen) {

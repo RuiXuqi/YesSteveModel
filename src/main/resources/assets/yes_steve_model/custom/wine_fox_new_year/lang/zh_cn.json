@@ -15,6 +15,13 @@
   "metadata.authors.3.comment": "最美好的前途，可不要对我冷酷",
   "metadata.authors.4.name": "祸御神",
   "metadata.authors.4.role": "动画",
-  "metadata.authors.4.comment": "五十代精神病人"
+  "metadata.authors.4.comment": "五十代精神病人",
+  "properties.extra_animation.extra0": "变身",
+  "properties.extra_animation.extra1": "打招呼",
+  "properties.extra_animation.extra2": "鼓掌",
+  "properties.extra_animation.extra3": "是的",
+  "properties.extra_animation.extra4": "不行",
+  "properties.extra_animation.extra5": "卖萌",
+  "properties.extra_animation.extra6": "御笔摇",
+  "properties.extra_animation.extra7": "舞蹈"
 }
-

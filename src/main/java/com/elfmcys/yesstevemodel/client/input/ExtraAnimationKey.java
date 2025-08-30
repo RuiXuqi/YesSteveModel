@@ -68,7 +68,7 @@ public class ExtraAnimationKey {
                             AnimationRouletteScreen screen = new AnimationRouletteScreen(
                                     properties.extraAnimationButtonsMap(),
                                     properties.extraAnimationClassifyMap(),
-                                    properties, cap
+                                    model, cap
                             );
                             Minecraft.getInstance().setScreen(screen);
                         } else {

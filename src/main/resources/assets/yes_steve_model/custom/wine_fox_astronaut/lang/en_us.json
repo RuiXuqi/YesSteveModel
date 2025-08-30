@@ -12,6 +12,13 @@
   "metadata.authors.4.name": "Qianmojun",
   "metadata.authors.4.role": "Arrow Model",
   "metadata.authors.5.name": "Yangmao",
-  "metadata.authors.5.role": "Roulette Animation Contributor"
+  "metadata.authors.5.role": "Roulette Animation Contributor",
+  "properties.extra_animation.extra0": "Transform",
+  "properties.extra_animation.extra1": "Wave",
+  "properties.extra_animation.extra2": "Clap",
+  "properties.extra_animation.extra3": "YES",
+  "properties.extra_animation.extra4": "NO",
+  "properties.extra_animation.extra5": "Yep",
+  "properties.extra_animation.extra6": "Swing",
+  "properties.extra_animation.extra7": "Dance"
 }
-
