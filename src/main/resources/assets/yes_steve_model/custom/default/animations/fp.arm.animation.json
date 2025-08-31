@@ -1,0 +1,26 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "fp_arm_parallel1": {
+      "loop": true
+    },
+    "fp_arm_parallel2": {
+      "loop": true
+    },
+    "fp_arm_parallel3": {
+      "loop": true
+    },
+    "fp_arm_parallel4": {
+      "loop": true
+    },
+    "fp_arm_parallel5": {
+      "loop": true
+    },
+    "fp_arm_parallel6": {
+      "loop": true
+    },
+    "fp_arm_parallel7": {
+      "loop": true
+    }
+  }
+}

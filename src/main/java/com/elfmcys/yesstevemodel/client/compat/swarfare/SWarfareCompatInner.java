@@ -33,8 +33,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class SWarfareCompatInner {
-    private static final TagKey<Item> PISTOL = TagKey.create(Registries.ITEM, ResourceLocation.parse("superbwarfare:pistol"));
-    private static final TagKey<Item> LAUNCHER = TagKey.create(Registries.ITEM, ResourceLocation.parse("superbwarfare:launcher"));
+    private static final TagKey<Item> PISTOL = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:pistol"));
+    private static final TagKey<Item> LAUNCHER = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:launcher"));
 
     static boolean isGun(ItemStack stack) {
         return stack.getItem() instanceof GunItem;

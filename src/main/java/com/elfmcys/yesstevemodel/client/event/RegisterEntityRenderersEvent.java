@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.event;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.yesstevemodel.client.renderer.CustomArrowRenderer;
+import com.elfmcys.yesstevemodel.client.renderer.CustomFirstPersonArmRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -23,6 +24,7 @@ import net.minecraftforge.fml.common.Mod;
 public class RegisterEntityRenderersEvent {
     private static CustomPlayerRenderer CUSTOM_PLAYER_RENDERER;
     private static CustomArrowRenderer CUSTOM_ARROW_RENDERER;
+    private static CustomFirstPersonArmRenderer CUSTOM_FIRST_PERSON_RENDERER;
 
     private static void init(ResourceManager resourceManager) {
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -34,6 +36,7 @@ public class RegisterEntityRenderersEvent {
         EntityRendererProvider.Context context = new EntityRendererProvider.Context(dispatcher, itemRenderer, blockRenderer, itemInHandRenderer, resourceManager, entityModels, font);
         CUSTOM_PLAYER_RENDERER = new CustomPlayerRenderer(context);
         CUSTOM_ARROW_RENDERER = new CustomArrowRenderer(context);
+        CUSTOM_FIRST_PERSON_RENDERER = new CustomFirstPersonArmRenderer();
         SophisticatedCompat.init();
     }
 
@@ -57,5 +60,12 @@ public class RegisterEntityRenderersEvent {
             init(Minecraft.getInstance().getResourceManager());
         }
         return CUSTOM_ARROW_RENDERER;
+    }
+
+    public static CustomFirstPersonArmRenderer getFirstPersonArmRenderer() {
+        if (CUSTOM_FIRST_PERSON_RENDERER == null) {
+            init(Minecraft.getInstance().getResourceManager());
+        }
+        return CUSTOM_FIRST_PERSON_RENDERER;
     }
 }

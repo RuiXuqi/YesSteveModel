@@ -41,8 +41,8 @@ import java.util.List;
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
 public abstract class CustomPlayerEntity extends AnimatableEntity<Player> implements IPhysicsEntity {
-    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
-    private String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
+    protected String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+    protected String textureName = ModelIdUtil.DEFAULT_TEXTURE_NAME;
 
     protected final boolean localPlayer;
     protected final PhysicsManager physicsManager;
