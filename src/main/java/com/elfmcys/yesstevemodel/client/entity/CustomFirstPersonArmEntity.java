@@ -5,11 +5,15 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.FP_ARM_PARALLEL_CONTROLLER;
 
 public class CustomFirstPersonArmEntity extends CustomPlayerEntity {
+    private Struct roamingStruct;
+
     public CustomFirstPersonArmEntity(Player player, boolean localPlayer, boolean asyncUpdate) {
         super(player, localPlayer, asyncUpdate);
     }
@@ -30,6 +34,15 @@ public class CustomFirstPersonArmEntity extends CustomPlayerEntity {
         return ClientModelManager.getModel(modelId)
                 .map(ClientModel::armModel)
                 .orElse(ClientModelManager.getDefaultModel().armModel());
+    }
+
+    public void setRoamingStruct(Struct roamingStruct) {
+        this.roamingStruct = roamingStruct;
+    }
+
+    @Override
+    public @Nullable Struct getRoamingStruct() {
+        return this.roamingStruct;
     }
 
     @Override

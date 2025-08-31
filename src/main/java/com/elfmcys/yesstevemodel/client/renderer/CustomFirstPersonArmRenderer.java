@@ -37,6 +37,7 @@ public class CustomFirstPersonArmRenderer {
         if (MinecraftForge.EVENT_BUS.post(renderEvent)) {
             return;
         }
+        armEntity.setRoamingStruct(cap.getRoamingStruct());
         AnimationEvent<?> event = isAsyncScope() ? armEntity.waitOrUpdate(partialTick) : armEntity.syncUpdate(partialTick);
         if (event == null) {
             return;
