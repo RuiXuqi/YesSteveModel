@@ -38,6 +38,11 @@ public class ParCoolAnimationManger {
                 return null;
             }
 
+            // 如果动画已经 shouldRemoved 了，就不播放动画了
+            if (animator.shouldRemoved(player, parkourability)) {
+                return null;
+            }
+
             // 垂挂动画
             if (animator instanceof ClingToCliffAnimator) {
                 ClingToCliff.FacingDirection direction = parkourability.get(ClingToCliff.class).getFacingDirection();
@@ -102,8 +107,8 @@ public class ParCoolAnimationManger {
             }
 
             // 墙跳
-            if (animator instanceof WallJumpAnimator wallJumpAnimator) {
-                boolean swingRightArm = ParCoolUnsafe.isSwingRightArm(wallJumpAnimator);
+            if (animator instanceof WallJumpAnimatorAccessor accessor) {
+                boolean swingRightArm = accessor.isWallRightSide();
                 return swingRightArm ? "parcool:wall_jump_right" : "parcool:wall_jump_left";
             }
 

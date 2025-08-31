@@ -41,3 +41,10 @@ issueTrackerURL="https://github.com/YesSteveModel/YSM-Wiki-Issues/issues"
     versionRange="[0.8.8,)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.yes_steve_model]]
+    modId="parcool"
+    mandatory=false
+    versionRange="[3.4.1,)"
+    ordering="NONE"
+    side="BOTH"
