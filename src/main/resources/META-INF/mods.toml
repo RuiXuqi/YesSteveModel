@@ -34,3 +34,10 @@ issueTrackerURL="https://github.com/YesSteveModel/YSM-Wiki-Issues/issues"
     versionRange="[1.0.2,)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.yes_steve_model]]
+    modId="superbwarfare"
+    mandatory=false
+    versionRange="[0.8.8,)"
+    ordering="NONE"
+    side="BOTH"

@@ -33,8 +33,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class SWarfareCompatInner {
-    private static final TagKey<Item> PISTOL = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:pistol"));
-    private static final TagKey<Item> LAUNCHER = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:launcher"));
+    private static final TagKey<Item> PISTOL = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:animated/pistol"));
+    private static final TagKey<Item> RPG = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:animated/rpg"));
 
     static boolean isGun(ItemStack stack) {
         return stack.getItem() instanceof GunItem;
@@ -46,8 +46,8 @@ public class SWarfareCompatInner {
             RenderUtils.prepMatrixForLocator(poseStack, geoModel.tacPistolBones());
             poseStack.translate(0, -0.125, 0);
             poseStack.scale(0.65f, 0.65f, 0.65f);
-            poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(90));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-90.0F));
             MultiBufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
             renderer.renderStatic(heldItem, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), player.getId());
         }
@@ -176,7 +176,7 @@ public class SWarfareCompatInner {
         if (gun.is(PISTOL)) {
             return playAnimation(event, prefix + "pistol", loopType);
         }
-        if (gun.is(LAUNCHER)) {
+        if (gun.is(RPG)) {
             return playAnimation(event, prefix + "rpg", loopType);
         }
         return playAnimation(event, prefix + "rifle", loopType);

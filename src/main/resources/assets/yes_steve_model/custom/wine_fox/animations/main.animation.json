@@ -945,6 +945,9 @@
 		"idle": {
 			"loop": true,
 			"animation_length": 30,
+			"timeline": {
+				"9.75": "v.next_idle=math.random_integer(0, 4);"
+			},
 			"bones": {
 				"UpBody": {
 					"rotation": {
@@ -1838,11 +1841,7 @@
 			}
 		},
 		"new_idle_empty": {
-			"loop": true,
-			"animation_length": 10,
-			"timeline": {
-				"9.75": "v.next_idle=math.random_integer(1, 4);"
-			}
+			"loop": true
 		},
 		"new_idle_1": {
 			"loop": true,

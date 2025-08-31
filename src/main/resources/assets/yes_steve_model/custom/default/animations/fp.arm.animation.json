@@ -1,6 +1,9 @@
 {
   "format_version": "1.8.0",
   "animations": {
+    "fp_arm_parallel0": {
+      "loop": true
+    },
     "fp_arm_parallel1": {
       "loop": true
     },

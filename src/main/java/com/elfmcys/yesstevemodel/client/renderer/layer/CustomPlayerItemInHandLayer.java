@@ -57,7 +57,10 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
                 if (SlashBladeCompat.isSlashBladeItem(offhandItem)) {
                     SlashBladeRender.renderOffhandSlashBlade(geoModel, poseStack, bufferIn, packedLightIn, offhandItem);
                 } else {
-                    this.renderArmWithItem(geoModel, entityLivingBaseIn, offhandItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+                    // 卓越前线副手枪械不用这个渲染
+                    if (!SWarfareCompat.isGun(offhandItem)) {
+                        this.renderArmWithItem(geoModel, entityLivingBaseIn, offhandItem, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, HumanoidArm.LEFT, poseStack, bufferIn, packedLightIn);
+                    }
                     if (renderLayersFirst && !offhandItem.isEmpty() && bufferIn instanceof IExtendedBufferSource bufferSource) {
                         bufferSource.endBatchFixedRenderType();
                     }

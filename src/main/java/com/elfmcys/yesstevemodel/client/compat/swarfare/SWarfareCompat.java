@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +20,9 @@ public class SWarfareCompat {
 
     public static void init() {
         INSTALLED = ModList.get().isLoaded(MOD_ID);
+        if (INSTALLED) {
+            MinecraftForge.EVENT_BUS.register(new ReplacePlayerArmRender());
+        }
     }
 
     public static boolean isGun(ItemStack stack) {
