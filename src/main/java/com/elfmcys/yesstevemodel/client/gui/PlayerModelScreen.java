@@ -368,8 +368,17 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             RenderSystem.disableScissor();
 
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                String modelId = cap.getModelId();
-                List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelId), 125);
+                String[] modelName = {""};
+                ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                    ModelMetadata metadata = model.modelInfo().metadata();
+                    if (metadata != null) {
+                        modelName[0] = LanguageManager.getI18n(model, "metadata.name", metadata.name());
+                    }
+                });
+                if (StringUtils.isBlank(modelName[0])) {
+                    modelName[0] = cap.getModelId();
+                }
+                List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName[0]), 125);
                 int lineY = y + 205;
                 for (FormattedCharSequence line : modelNameSplit) {
                     int nameWidth = font.width(line);
