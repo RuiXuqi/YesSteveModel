@@ -6,7 +6,6 @@ import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalSwing;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -36,7 +35,7 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
                 String id = event.getAnimatableEntity().getModelId();
                 return ClientModelManager.getModel(id).map(clientModel -> {
                     if (clientModel.animations().containsKey(animationName)) {
-                        return playAnimation(event, animationName, LoopType.PLAY_ONCE);
+                        return playAnimation(event, animationName);
                     }
                     return PlayState.CONTINUE;
                 }).orElse(PlayState.STOP);
@@ -54,11 +53,11 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
             if (conditionalSwing != null) {
                 String name = conditionalSwing.doTest(entity, entity.swingingArm);
                 if (StringUtils.isNoneBlank(name)) {
-                    return playAnimation(event, name, LoopType.PLAY_ONCE);
+                    return playAnimation(event, name);
                 }
             }
             String defaultSwing = (entity.swingingArm == InteractionHand.MAIN_HAND) ? "swing_hand" : "swing_offhand";
-            return playAnimation(event, defaultSwing, LoopType.PLAY_ONCE);
+            return playAnimation(event, defaultSwing);
         }
         return PlayState.CONTINUE;
     }

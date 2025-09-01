@@ -2,7 +2,9 @@ package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2ByteArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ByteMap;
+import it.unimi.dsi.fastutil.objects.Object2ByteMaps;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.effect.MobEffect;
@@ -23,6 +25,9 @@ public class DispatchServerDrivenProperty {
     public int foodLevel;
     public int health;
     public int maxHealth;
+    public float xxa;
+    public float yya;
+    public float zza;
 
     public DispatchServerDrivenProperty(int entityId, int variant) {
         this.entityId = entityId;
@@ -71,6 +76,24 @@ public class DispatchServerDrivenProperty {
         return msg;
     }
 
+    public static DispatchServerDrivenProperty xxa(int entityId, float xxa) {
+        var msg = new DispatchServerDrivenProperty(entityId, 7);
+        msg.xxa = xxa;
+        return msg;
+    }
+
+    public static DispatchServerDrivenProperty yya(int entityId, float yya) {
+        var msg = new DispatchServerDrivenProperty(entityId, 8);
+        msg.yya = yya;
+        return msg;
+    }
+
+    public static DispatchServerDrivenProperty zza(int entityId, float zza) {
+        var msg = new DispatchServerDrivenProperty(entityId, 9);
+        msg.zza = zza;
+        return msg;
+    }
+
     public static void encode(DispatchServerDrivenProperty msg, FriendlyByteBuf buf) {
         buf.writeVarInt(msg.entityId);
         buf.writeVarInt(msg.variant);
@@ -97,6 +120,15 @@ public class DispatchServerDrivenProperty {
         }
         if (variant == 0 || variant == 6) {
             buf.writeVarInt(msg.maxHealth);
+        }
+        if (variant == 0 || variant == 7) {
+            buf.writeFloat(msg.xxa);
+        }
+        if (variant == 0 || variant == 8) {
+            buf.writeFloat(msg.yya);
+        }
+        if (variant == 0 || variant == 9) {
+            buf.writeFloat(msg.zza);
         }
     }
 
@@ -137,6 +169,15 @@ public class DispatchServerDrivenProperty {
         }
         if (variant == 0 || variant == 6) {
             msg.maxHealth = buf.readVarInt();
+        }
+        if (variant == 0 || variant == 7) {
+            msg.xxa = buf.readFloat();
+        }
+        if (variant == 0 || variant == 8) {
+            msg.yya = buf.readFloat();
+        }
+        if (variant == 0 || variant == 9) {
+            msg.zza = buf.readFloat();
         }
 
         return msg;

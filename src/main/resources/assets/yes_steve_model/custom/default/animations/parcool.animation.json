@@ -8307,6 +8307,43 @@
 					}
 				}
 			}
+		},
+		"parcool:ride_zipline": {
+			"loop": true,
+			"animation_length": 3,
+			"bones": {
+				"RightHA1": {
+					"rotation": [0, 0, "-20+math.sin(-90+q.anim_time*120)*10"]
+				},
+				"LeftHA1": {
+					"rotation": [0, 0, "-20+math.sin(-90+q.anim_time*120)*10"]
+				},
+				"Root": {
+					"rotation": [0, 0, "22+math.sin(q.anim_time*120)*10"],
+					"position": [0.27184, 47.25393, 0]
+				},
+				"AllBody": {
+					"position": ["7+math.sin(q.anim_time*120)*2", "-42+math.sin(q.anim_time*120)*0.6", 0]
+				},
+				"Arm": {
+					"rotation": [0, 0, 0]
+				},
+				"LeftArm": {
+					"rotation": [0, 0, "-10+math.sin(-60+q.anim_time*120)*10"]
+				},
+				"RightArm": {
+					"rotation": [-170, 0, "-35-math.sin(q.anim_time*120)*10"]
+				},
+				"Head": {
+					"rotation": [0, 0, "10-math.sin(30+q.anim_time*120)*10"]
+				},
+				"LeftLeg": {
+					"rotation": [0, 0, "-20+math.sin(-120+q.anim_time*120)*10"]
+				},
+				"RightLeg": {
+					"rotation": [0, 0, "-5+math.sin(-90+q.anim_time*120)*10"]
+				}
+			}
 		}
 	}
 }

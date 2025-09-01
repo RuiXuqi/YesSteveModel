@@ -54,6 +54,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -84,10 +85,7 @@ public class AnimationRouletteScreen extends Screen {
     private final AnimatableEntity<?> animatableEntity;
     private final ClientModel model;
 
-    public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap,
-                                   Map<String, FifoHashMap<String, String>> classifyMap,
-                                   ClientModel clientModel,
-                                   AnimatableEntity<?> animatableEntity) {
+    public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap, Map<String, FifoHashMap<String, String>> classifyMap, ClientModel clientModel, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.model = clientModel;
         this.modelProperties = clientModel.modelInfo().properties();
@@ -150,8 +148,7 @@ public class AnimationRouletteScreen extends Screen {
 
         if (this.animatableEntity.getEntity() instanceof Player) {
             // 如果是玩家，那么添加锁定按钮
-            this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20,
-                    Component.empty(), b -> PlayerMoveEvent.switchLock()) {
+            this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20, Component.empty(), b -> PlayerMoveEvent.switchLock()) {
                 @Override
                 @NotNull
                 public Component getMessage() {
@@ -163,19 +160,15 @@ public class AnimationRouletteScreen extends Screen {
             });
         } else {
             // 否则是停止播放轮盘动画按钮
-            this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20,
-                    Component.translatable("gui.yes_steve_model.roulette.stop"),
-                    b -> {
-                        NetworkHandler.sendToServer(SetPlayAnimation.stop(this.animatableEntity.getEntity().getId()));
-                        this.onClose();
-                    }));
+            this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20, Component.translatable("gui.yes_steve_model.roulette.stop"), b -> {
+                NetworkHandler.sendToServer(SetPlayAnimation.stop(this.animatableEntity.getEntity().getId()));
+                this.onClose();
+            }));
         }
 
         // 翻页按钮
-        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 87, 15, 15,
-                Component.literal("<"), b -> this.pageUp()));
-        this.addRenderableWidget(new FlatColorButton(this.x + 225, this.y - 87, 15, 15,
-                Component.literal(">"), b -> this.pageDown()));
+        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 87, 15, 15, Component.literal("<"), b -> this.pageUp()));
+        this.addRenderableWidget(new FlatColorButton(this.x + 225, this.y - 87, 15, 15, Component.literal(">"), b -> this.pageDown()));
 
         // 添加返回按钮
         Component name = Component.translatable("gui.yes_steve_model.model.return");
@@ -227,21 +220,14 @@ public class AnimationRouletteScreen extends Screen {
         int lineMaxWidth = 0;
         int labelsIndex = 0;
         for (String labelName : labels.keyList()) {
-            String labelStr = LanguageManager.getI18n(this.model,
-                    "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(
-                            this.configButtons.getId(), index[0], labelsIndex),
-                    labelName);
+            String labelStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(this.configButtons.getId(), index[0], labelsIndex), labelName);
             lineMaxWidth = Math.max(lineMaxWidth, font.width(labelStr) + 16);
             labelsIndex++;
         }
         int countPerLine = Math.max(1, 115 / lineMaxWidth);
 
-        String titleStr = LanguageManager.getI18n(this.model,
-                "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]),
-                radioForms.title());
-        String descStr = LanguageManager.getI18n(this.model,
-                "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]),
-                radioForms.description());
+        String titleStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]), radioForms.title());
+        String descStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]), radioForms.description());
 
         Component title = Component.literal(titleStr);
         Tooltip description = Tooltip.create(Component.literal(descStr));
@@ -253,10 +239,7 @@ public class AnimationRouletteScreen extends Screen {
         // 遍历添加每个 label
         int tempYOffset = yOffset[0] + 14;
         for (int i = 0; i < labels.size(); i++) {
-            String labelStr = LanguageManager.getI18n(this.model,
-                    "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(
-                            this.configButtons.getId(), index[0], i),
-                    labels.getKeyAt(i));
+            String labelStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(this.configButtons.getId(), index[0], i), labels.getKeyAt(i));
 
             Component labelName = Component.literal(labelStr);
             String labelValue = labels.getValueAt(i);
@@ -265,8 +248,7 @@ public class AnimationRouletteScreen extends Screen {
             int perWidth = Math.round(110f / countPerLine);
             int xOffset = this.x + 127 + perWidth * (i % countPerLine);
 
-            FlatCheckbox checkbox = new FlatCheckbox(xOffset, this.y + tempYOffset, perWidth,
-                    labelName, data -> {
+            FlatCheckbox checkbox = new FlatCheckbox(xOffset, this.y + tempYOffset, perWidth, labelName, data -> {
                 executeMolang(labelValue, null);
                 if (!CustomMolangParser.hasOnlyRoamingAssignment(labelValue)) {
                     // 同步到周围的玩家
@@ -291,19 +273,14 @@ public class AnimationRouletteScreen extends Screen {
 
     @NotNull
     private FlatSlider getFlatSlider(RangeForms rangeForms, String result, int[] yOffset, int[] index) {
-        String titleStr = LanguageManager.getI18n(this.model,
-                "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]),
-                rangeForms.title());
-        String descStr = LanguageManager.getI18n(this.model,
-                "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]),
-                rangeForms.description());
+        String titleStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]), rangeForms.title());
+        String descStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]), rangeForms.description());
 
         Component title = Component.literal(titleStr);
         Tooltip description = Tooltip.create(Component.literal(descStr));
         float number = transformNumber(result);
 
-        FlatSlider slider = new FlatSlider(this.x + 125, this.y + yOffset[0],
-                title, number, this.animatableEntity, rangeForms.value(), rangeForms.step(), rangeForms.min(), rangeForms.max());
+        FlatSlider slider = new FlatSlider(this.x + 125, this.y + yOffset[0], title, number, this.animatableEntity, rangeForms.value(), rangeForms.step(), rangeForms.min(), rangeForms.max());
         slider.setTooltip(description);
 
         return slider;
@@ -311,12 +288,8 @@ public class AnimationRouletteScreen extends Screen {
 
     @NotNull
     private FlatCheckbox getFlatCheckbox(CheckboxForms checkboxForms, String result, int[] yOffset, int[] index) {
-        String titleStr = LanguageManager.getI18n(this.model,
-                "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]),
-                checkboxForms.title());
-        String descStr = LanguageManager.getI18n(this.model,
-                "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]),
-                checkboxForms.description());
+        String titleStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]), checkboxForms.title());
+        String descStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]), checkboxForms.description());
 
         Component title = Component.literal(titleStr);
         Tooltip description = Tooltip.create(Component.literal(descStr));
@@ -363,13 +336,25 @@ public class AnimationRouletteScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
         String patText = StringUtils.joinWith(" > ", CACHE.stream().map(Pair::getLeft).toArray());
-        graphics.drawCenteredString(font, Component.translatable("gui.yes_steve_model.roulette.path", patText),
-                this.x + 180, this.y - 100, 0xFFFFFF);
+        graphics.drawCenteredString(font, Component.translatable("gui.yes_steve_model.roulette.path", patText), this.x + 180, this.y - 100, 0xFFFFFF);
 
         this.drawRouletteBg(graphics.pose(), pMouseX, pMouseY);
         this.drawRouletteText(graphics);
         this.drawPageText(graphics);
         super.render(graphics, pMouseX, pMouseY, pPartialTick);
+        this.drawTooltips(graphics, pMouseX, pMouseY);
+    }
+
+    private void drawTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (-1 < selectId && selectId < extraAnimationMap.size()) {
+            String key = extraAnimationMap.getKeyAt(selectId);
+            String descKey = "properties.extra_animation.%s.desc".formatted(key);
+            String desc = LanguageManager.getI18n(this.model, descKey, StringUtils.EMPTY);
+            if (StringUtils.isNotBlank(desc)) {
+                List<FormattedCharSequence> split = font.split(Component.literal(desc), 240);
+                graphics.renderTooltip(font, split, mouseX, mouseY);
+            }
+        }
     }
 
     private void executeMolang(String molang, @Nullable Consumer<String> resultConsumer) {
@@ -463,8 +448,7 @@ public class AnimationRouletteScreen extends Screen {
                 NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId, entity.getId()));
             }
         } else if (player != null) {
-            player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                    .ifPresent(cap -> cap.playExtraAnimation(selectKey));
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> cap.playExtraAnimation(selectKey));
         }
         if (player != null && ClientConfig.PRINT_ANIMATION_ROULETTE_MSG.get()) {
             MutableComponent component = Component.translatable("message.yes_steve_model.model.animation_roulette.play", selectKey);
@@ -542,15 +526,11 @@ public class AnimationRouletteScreen extends Screen {
 
             // 绘制文本
             if (StringUtils.isNoneBlank(animationValue)) {
-                String key = LanguageManager.getI18n(this.model,
-                        "properties.extra_animation.%s".formatted(extraAnimationMap.getKeyAt(index)),
-                        animationValue);
+                String key = LanguageManager.getI18n(this.model, "properties.extra_animation.%s".formatted(extraAnimationMap.getKeyAt(index)), animationValue);
                 MutableComponent name = Component.literal(key);
                 this.drawAnimationName(graphics, name, xPos, yPos, isClassify);
             } else {
-                String key = LanguageManager.getI18n(this.model,
-                        "properties.extra_animation.%s".formatted(extraAnimationMap.getKeyAt(index)),
-                        String.valueOf(index));
+                String key = LanguageManager.getI18n(this.model, "properties.extra_animation.%s".formatted(extraAnimationMap.getKeyAt(index)), String.valueOf(index));
                 MutableComponent name = Component.literal(key);
                 graphics.drawCenteredString(font, name, xPos, yPos - 8, 0xF3EFE0);
             }

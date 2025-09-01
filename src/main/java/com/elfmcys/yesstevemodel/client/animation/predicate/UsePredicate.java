@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.animation.EntityTickStates;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalUse;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -32,20 +31,20 @@ public class UsePredicate implements IAnimationPredicate<AnimatableEntity<? exte
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(entity, InteractionHand.MAIN_HAND);
                     if (StringUtils.isNoneBlank(name)) {
-                        return playAnimation(event, name, LoopType.LOOP);
+                        return playAnimation(event, name);
                     }
                 }
-                return playAnimation(event, "use_mainhand", LoopType.LOOP);
+                return playAnimation(event, "use_mainhand");
             } else {
                 String id = event.getAnimatableEntity().getModelId();
                 ConditionalUse conditionalUse = ClientModelManager.getModel(id).map(model -> model.conditionManager().getUseOffhand()).orElse(null);
                 if (conditionalUse != null) {
                     String name = conditionalUse.doTest(entity, InteractionHand.OFF_HAND);
                     if (StringUtils.isNoneBlank(name)) {
-                        return playAnimation(event, name, LoopType.LOOP);
+                        return playAnimation(event, name);
                     }
                 }
-                return playAnimation(event, "use_offhand", LoopType.LOOP);
+                return playAnimation(event, "use_offhand");
             }
         }
         return PlayState.STOP;

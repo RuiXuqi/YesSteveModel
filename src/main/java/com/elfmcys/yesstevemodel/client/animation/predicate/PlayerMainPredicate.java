@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.client.animation.AnimationState;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
+import com.elfmcys.yesstevemodel.client.compat.create.CreateCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
@@ -52,6 +53,11 @@ public class PlayerMainPredicate implements IAnimationPredicate<CustomPlayerEnti
         Entity vehicle = player.getVehicle();
         if (vehicle != null && vehicle.isAlive()) {
             return PlayState.STOP;
+        }
+        // 机械动力悬链动画
+        if (CreateCompat.isHangingSkyhook(player)) {
+            // 复用跑酷悬链动画
+            return playAnimation(event, "parcool:ride_zipline");
         }
 
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {

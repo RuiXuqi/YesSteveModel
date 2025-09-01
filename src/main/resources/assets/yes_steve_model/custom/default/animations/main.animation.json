@@ -3155,6 +3155,7 @@
 			}
 		},
 		"ride_pig": {
+			"loop": true,
 			"animation_length": 0.375,
 			"bones": {
 				"Root": {
@@ -4854,6 +4855,7 @@
 			}
 		},
 		"sleep": {
+			"loop": true,
 			"animation_length": 0.375,
 			"bones": {
 				"Root": {
@@ -6703,7 +6705,7 @@
 					"rotation": [
 						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
 						0,
-						"ysm.second_order('头发角速度', math.clamp(-0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
 					]
 				}
 			}

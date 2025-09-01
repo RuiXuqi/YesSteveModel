@@ -37,7 +37,7 @@ public class ServerConfig {
         CAN_SWITCH_MODEL = builder.define("CanSwitchModel", true);
 
         builder.comment("Models that are not displayed on the client model selection screen");
-        builder.comment("Example: [\"default\", \"default_boy\", \"alex\", \"steve\", \"qingluka\", \"wine_fox\", \"wine_fox_jk\"]");
+        builder.comment("Example: [\"default\", \"misc_3_default_boy\", \"misc_1_alex\", \"misc_2_steve\", \"wine_fox_1_taisho_maid\", \"wine_fox_7_jk\"]");
         CLIENT_NOT_DISPLAY_MODELS = builder.define("ClientNotDisplayModels", Lists.newArrayList());
 
         builder.push("server_scheduler");

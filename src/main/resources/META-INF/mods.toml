@@ -36,13 +36,6 @@ issueTrackerURL="https://github.com/YesSteveModel/YSM-Wiki-Issues/issues"
     side="BOTH"
 
 [[dependencies.yes_steve_model]]
-    modId="superbwarfare"
-    mandatory=false
-    versionRange="[0.8.8,)"
-    ordering="NONE"
-    side="BOTH"
-
-[[dependencies.yes_steve_model]]
     modId="parcool"
     mandatory=false
     versionRange="[3.4.1,)"

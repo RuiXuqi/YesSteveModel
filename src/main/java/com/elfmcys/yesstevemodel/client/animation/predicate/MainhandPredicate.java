@@ -8,7 +8,6 @@ import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -44,12 +43,12 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
             return gunHoldAnimation;
         }
         if (mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(mainHandItem)) {
-            return playAnimation(event, "hold_mainhand:charged_crossbow", LoopType.LOOP);
+            return playAnimation(event, "hold_mainhand:charged_crossbow");
         }
         boolean playerIsFishing = entity instanceof Player player && player.fishing != null;
         boolean maidIsFishing = TlmClientCompat.isMaidFishing(entity);
         if (playerIsFishing || maidIsFishing) {
-            return playAnimation(event, "hold_mainhand:fishing", LoopType.LOOP);
+            return playAnimation(event, "hold_mainhand:fishing");
         }
 
         if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
@@ -62,7 +61,7 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
         if (conditionalHold != null) {
             String name = conditionalHold.doTest(entity, InteractionHand.MAIN_HAND);
             if (StringUtils.isNoneBlank(name)) {
-                return playAnimation(event, name, LoopType.LOOP);
+                return playAnimation(event, name);
             }
         }
 

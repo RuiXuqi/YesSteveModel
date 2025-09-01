@@ -19,6 +19,10 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
     private int maxHealth;
     private int foodLevel;
 
+    private float xxa;
+    private float yya;
+    private float zza;
+
     private ItemStack mainhandItemStack = ItemStack.EMPTY;
     private ItemStack offhandItemStack = ItemStack.EMPTY;
 
@@ -53,6 +57,15 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
         if (msg.variant == 0 || msg.variant == 6) {
             maxHealth = msg.maxHealth;
         }
+        if (msg.variant == 0 || msg.variant == 7) {
+            xxa = msg.xxa;
+        }
+        if (msg.variant == 0 || msg.variant == 8) {
+            yya = msg.yya;
+        }
+        if (msg.variant == 0 || msg.variant == 9) {
+            zza = msg.zza;
+        }
     }
 
     public boolean isFlying() {
@@ -76,6 +89,18 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
 
     public int foodLevel() {
         return foodLevel;
+    }
+
+    public float xxa() {
+        return xxa;
+    }
+
+    public float yya() {
+        return yya;
+    }
+
+    public float zza() {
+        return zza;
     }
 
     public byte getEffectLevel(MobEffect effect) {

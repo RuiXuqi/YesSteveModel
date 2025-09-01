@@ -15,7 +15,8 @@
     "client.InventoryScreenMixin",
     "client.LivingEntityAccessor",
     "client.LivingRendererMixin",
-    "client.WorldRendererMixin"
+    "client.WorldRendererMixin",
+    "client.create.PlayerSkyhookRendererAccessor"
   ],
   "mixins": [
     "AbstractArrowEntityMixin"

@@ -13,6 +13,9 @@ public class ServerDrivenPlayerPropertiesTracker {
     private int health = -1;
     private int maxHealth = -1;
     private int foodLevel = -1;
+    private float xxa = 0;
+    private float yya = 0;
+    private float zza = 0;
 
     public void tick(ServerPlayer player, boolean sync) {
         if (expLevel != player.experienceLevel) {
@@ -43,6 +46,24 @@ public class ServerDrivenPlayerPropertiesTracker {
             foodLevel = player.getFoodData().getFoodLevel();
             if (sync) {
                 NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.foodLevel(player.getId(), foodLevel), player);
+            }
+        }
+        if (xxa != player.xxa) {
+            xxa = player.xxa;
+            if (sync) {
+                NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.xxa(player.getId(), xxa), player);
+            }
+        }
+        if (yya != player.yya) {
+            yya = player.yya;
+            if (sync) {
+                NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.yya(player.getId(), yya), player);
+            }
+        }
+        if (zza != player.zza) {
+            zza = player.zza;
+            if (sync) {
+                NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.zza(player.getId(), zza), player);
             }
         }
     }
@@ -77,6 +98,10 @@ public class ServerDrivenPlayerPropertiesTracker {
         }
         msg.health = (int) player.getHealth();
         msg.maxHealth = (int) player.getMaxHealth();
+
+        msg.xxa = player.xxa;
+        msg.yya = player.yya;
+        msg.zza = player.zza;
 
         return msg;
     }

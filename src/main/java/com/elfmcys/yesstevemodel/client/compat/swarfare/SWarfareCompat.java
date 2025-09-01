@@ -10,8 +10,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.LoadingModList;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jetbrains.annotations.Nullable;
 
 public class SWarfareCompat {
@@ -19,7 +21,11 @@ public class SWarfareCompat {
     private static boolean INSTALLED = false;
 
     public static void init() {
-        INSTALLED = ModList.get().isLoaded(MOD_ID);
+        ModFileInfo modFileById = LoadingModList.get().getModFileById(MOD_ID);
+        if (modFileById != null) {
+            DefaultArtifactVersion modVersion = new DefaultArtifactVersion(modFileById.versionString());
+            INSTALLED = modVersion.compareTo(new DefaultArtifactVersion("0.8.7.1")) >= 0;
+        }
         if (INSTALLED) {
             MinecraftForge.EVENT_BUS.register(new ReplacePlayerArmRender());
         }

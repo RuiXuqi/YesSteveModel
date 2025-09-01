@@ -31,13 +31,8 @@
 					"pivot": [0, 20.65, 0]
 				},
 				{
-					"name": "MUpperBody",
-					"parent": "UpBody",
-					"pivot": [0, 20.65, 0]
-				},
-				{
 					"name": "UpperBody",
-					"parent": "MUpperBody",
+					"parent": "UpBody",
 					"pivot": [0, 20.65, 0],
 					"cubes": [
 						{"origin": [0.35, 23.82247, -2.15834], "size": [0.7, 0.7, 0.7], "pivot": [0.5, 24.42247, -1.73334], "rotation": [-7.5, 0, 0], "uv": [1, 83], "mirror": true},

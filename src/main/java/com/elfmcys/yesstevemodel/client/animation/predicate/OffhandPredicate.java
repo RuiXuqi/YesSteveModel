@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalHold;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
@@ -32,7 +31,7 @@ public class OffhandPredicate implements IAnimationPredicate<AnimatableEntity<? 
 
         ItemStack offhandItem = entity.getItemInHand(InteractionHand.OFF_HAND);
         if (offhandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(offhandItem)) {
-            return playAnimation(event, "hold_offhand:charged_crossbow", LoopType.LOOP);
+            return playAnimation(event, "hold_offhand:charged_crossbow");
         }
 
         if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(offhandItem, info, InteractionHand.OFF_HAND)) {
@@ -45,7 +44,7 @@ public class OffhandPredicate implements IAnimationPredicate<AnimatableEntity<? 
         if (conditionalHold != null) {
             String name = conditionalHold.doTest(entity, InteractionHand.OFF_HAND);
             if (StringUtils.isNoneBlank(name)) {
-                return playAnimation(event, name, LoopType.LOOP);
+                return playAnimation(event, name);
             }
         }
 

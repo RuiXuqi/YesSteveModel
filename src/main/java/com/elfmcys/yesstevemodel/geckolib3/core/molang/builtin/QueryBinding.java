@@ -2,9 +2,9 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerStateTracker;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.ControllerContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;

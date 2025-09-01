@@ -112,6 +112,10 @@ public class YSMBinding extends ContextBinding {
         // 为了兼容其他模组，只有玩家能返回这个值，其他都是满值（20）
         livingEntityVar("food_level", YSMBinding::getFoodLevel);
 
+        livingEntityVar("xxa", YSMBinding::getXxa);
+        livingEntityVar("yya", YSMBinding::getYya);
+        livingEntityVar("zza", YSMBinding::getZza);
+
         livingEntityVar("mainhand_charged_crossbow", ctx -> isChargedCrossbow(ctx, InteractionHand.MAIN_HAND));
         livingEntityVar("offhand_charged_crossbow", ctx -> isChargedCrossbow(ctx, InteractionHand.OFF_HAND));
         livingEntityVar("is_fishing", YSMBinding::isFishing);
@@ -157,6 +161,30 @@ public class YSMBinding extends ContextBinding {
 
         // 模组联动
         CuriosCompat.addMolangBinding(this);
+    }
+
+    private static Object getXxa(IContext<LivingEntity> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getStateTracker().xxa();
+        } else {
+            return ctx.entity().xxa;
+        }
+    }
+
+    private static Object getYya(IContext<LivingEntity> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getStateTracker().yya();
+        } else {
+            return ctx.entity().yya;
+        }
+    }
+
+    private static Object getZza(IContext<LivingEntity> ctx) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getStateTracker().zza();
+        } else {
+            return ctx.entity().zza;
+        }
     }
 
     private static boolean isFishing(IContext<LivingEntity> ctx) {
