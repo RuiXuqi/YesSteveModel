@@ -7,6 +7,8 @@ import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
+import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
@@ -20,6 +22,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -40,7 +43,7 @@ public class ModelButton extends Button {
     private long hoverTime = -1L;
 
     public ModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
-        super(pX, pY, 52, 90, Component.literal(animatedEntity.getModelId()), (b) -> {
+        super(pX, pY, 52, 90, getModelName(animatedEntity, model), (b) -> {
         }, DEFAULT_NARRATION);
         this.needAuth = needAuth;
         this.color = needAuth ? 0x7F_000000 : 0xFF_434242;
@@ -70,6 +73,14 @@ public class ModelButton extends Button {
         } else {
             this.focusAnimationName = AnimationRegister.EMPTY;
         }
+    }
+
+    private static MutableComponent getModelName(CustomGuiPlayerEntity animatedEntity, ClientModel model) {
+        ModelMetadata metadata = model.modelInfo().metadata();
+        if (metadata == null) {
+            return Component.literal(animatedEntity.getModelId());
+        }
+        return Component.literal(LanguageManager.getI18n(model, "metadata.name", metadata.name()));
     }
 
     @Override

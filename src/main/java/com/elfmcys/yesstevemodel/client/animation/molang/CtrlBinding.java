@@ -72,7 +72,6 @@ public class CtrlBinding extends ContextBinding {
 
         // 条件动画的
         function("hold", HandItemCheck.holdCheck());
-        function("hold2", HandItemCheck.hold2Check());
         function("swing", HandItemCheck.swingCheck());
         function("use", HandItemCheck.useCheck());
         function("armor", ArmorCheck.armorCheck());

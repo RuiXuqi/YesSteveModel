@@ -33,18 +33,6 @@ public class HandItemCheck extends LivingEntityFunction {
     }
 
     public static HandItemCheck holdCheck() {
-        return new HandItemCheck((entity, hand) -> {
-            if (entity.swinging && entity.swingingArm == hand) {
-                return false;
-            }
-            return !entity.isUsingItem() || entity.getUsedItemHand() != hand;
-        });
-    }
-
-    /**
-     * 和前一个 hold 基本相同，但是不检测挥动或者使用状态，一直执行
-     */
-    public static HandItemCheck hold2Check() {
         return new HandItemCheck((entity, hand) -> true);
     }
 

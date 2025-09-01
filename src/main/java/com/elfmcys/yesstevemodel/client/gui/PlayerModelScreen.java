@@ -14,7 +14,10 @@ import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
 import com.elfmcys.yesstevemodel.client.gui.button.StarButton;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
+import com.elfmcys.yesstevemodel.info.ModelAuthor;
+import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -113,25 +116,57 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
         String search;
         if (textField != null) {
-            search = this.textField.getValue().toLowerCase(Locale.US);
+            search = this.textField.getValue().toLowerCase(Locale.ENGLISH);
         } else {
             search = StringUtils.EMPTY;
         }
         // 依据配置文件和搜索字符串进行过滤
-        models.entrySet().removeIf(next -> {
-            String key = next.getKey();
-            if (clientNotDisplayModels.contains(key)) {
-                return true;
-            }
-            if (StringUtils.isNotBlank(search)) {
-                return !key.contains(search);
-            }
-            return false;
-        });
+        models.entrySet().removeIf(next -> doSearchFilter(next.getKey(), next.getValue(), search));
 
         this.modelOrderList = Lists.newArrayList(models.keySet());
         this.modelOrderList.sort(String::compareTo);
         this.maxPage = (models.size() - 1) / 10;
+    }
+
+    private boolean doSearchFilter(String key, ClientModel data, String search) {
+        // 滤掉黑名单
+        if (clientNotDisplayModels.contains(key)) {
+            return true;
+        }
+        // 空搜索字符串不过滤
+        if (StringUtils.isBlank(search)) {
+            return false;
+        }
+
+        // ID 不过滤
+        if (key.toLowerCase(Locale.ENGLISH).contains(search)) {
+            return false;
+        }
+
+        ModelMetadata metadata = data.modelInfo().metadata();
+        if (metadata != null) {
+            // 名称不过滤
+            String name = LanguageManager.getI18n(data, "metadata.name", metadata.name()).toLowerCase(Locale.ENGLISH);
+            if (name.contains(search)) {
+                return false;
+            }
+            // 描述文本不过滤
+            String tips = LanguageManager.getI18n(data, "metadata.tips", metadata.tips()).toLowerCase(Locale.ENGLISH);
+            if (tips.contains(search)) {
+                return false;
+            }
+            // 作者名不过滤
+            int index = 0;
+            for (ModelAuthor author : metadata.authors()) {
+                String authorName = LanguageManager.getI18n(data, "metadata.authors.%d.name".formatted(index), author.name()).toLowerCase(Locale.ENGLISH);
+                if (authorName.contains(search)) {
+                    return false;
+                }
+                index++;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -291,21 +326,26 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         switch (state.getType()) {
             case WAITING: {
                 text = Component.translatable("gui.yes_steve_model.sync_hint.waiting");
-            } break;
+            }
+            break;
             case LOADING: {
                 text = Component.translatable("gui.yes_steve_model.sync_hint.loading");
-            } break;
+            }
+            break;
             case PREPARING: {
                 text = Component.translatable("gui.yes_steve_model.sync_hint.preparing");
-            } break;
+            }
+            break;
             case SYNCING: {
                 if (state.getReceived() == 0) {
                     text = Component.translatable("gui.yes_steve_model.sync_hint.syncing");
                 } else {
                     text = Component.literal(String.format("%s/%s", state.getReceived(), state.getTotal()));
                 }
-            } break;
-            default: return;
+            }
+            break;
+            default:
+                return;
         }
 
         var x = this.x + 414 - font.width(text);
