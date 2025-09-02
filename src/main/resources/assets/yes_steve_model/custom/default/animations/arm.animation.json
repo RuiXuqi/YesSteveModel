@@ -738,7 +738,6 @@
 			}
 		},
 		"swing:fishing_rod": {
-			"loop": "hold_on_last_frame",
 			"animation_length": 0.6667,
 			"bones": {
 				"UpBody": {
@@ -981,7 +980,6 @@
 			}
 		},
 		"swing_offhand:fishing_rod": {
-			"loop": "hold_on_last_frame",
 			"animation_length": 0.6667,
 			"bones": {
 				"UpBody": {
@@ -2530,7 +2528,7 @@
 			}
 		},
 		"hold_mainhand:shield": {
-			"loop": true,
+			"loop": "hold_on_last_frame",
 			"animation_length": 1.0417,
 			"bones": {
 				"RightArm": {
@@ -2749,7 +2747,7 @@
 			}
 		},
 		"hold_offhand:shield": {
-			"loop": true,
+			"loop": "hold_on_last_frame",
 			"animation_length": 1.0417,
 			"bones": {
 				"LeftArm": {
@@ -3398,7 +3396,6 @@
 			}
 		},
 		"swing:spear": {
-			"loop": "hold_on_last_frame",
 			"animation_length": 3,
 			"bones": {
 				"RightArm": {
@@ -5344,7 +5341,7 @@
 			}
 		},
 		"hold_offhand:throwable_potion": {
-			"loop": true,
+			"loop": "hold_on_last_frame",
 			"animation_length": 1.5,
 			"bones": {
 				"LeftArm": {
@@ -5557,7 +5554,6 @@
 			}
 		},
 		"swing_offhand:throwable_potion": {
-			"loop": true,
 			"animation_length": 0.5,
 			"bones": {
 				"UpperBody": {
@@ -5821,7 +5817,6 @@
 			}
 		},
 		"swing$minecraft:mace": {
-			"loop": "hold_on_last_frame",
 			"animation_length": 1.5,
 			"bones": {
 				"UpBody": {

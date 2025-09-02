@@ -40,6 +40,7 @@ public class PlayerTextureScreen extends Screen {
     private static final int RIGHT_MOUSE_BUTTON = 1;
 
     protected final CustomGuiPlayerEntity previewEntity;
+    protected final ClientModel model;
     private final PlayerModelScreen parent;
     private final String modelId;
     private final FifoHashMap<String, ResourceLocation> textures;
@@ -72,6 +73,7 @@ public class PlayerTextureScreen extends Screen {
         this.previewEntity = new CustomGuiPlayerEntity();
         this.parent = parent;
         this.modelId = modelId;
+        this.model = model;
         this.textures = model.textures();
         this.animations = new ArrayList<>(model.animations().keySet());
         this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
@@ -79,7 +81,7 @@ public class PlayerTextureScreen extends Screen {
     }
 
     protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, int modelIndex) {
-        return new TextureButton(pX, pY, animatedEntity);
+        return new TextureButton(pX, pY, animatedEntity, model);
     }
 
     @Override

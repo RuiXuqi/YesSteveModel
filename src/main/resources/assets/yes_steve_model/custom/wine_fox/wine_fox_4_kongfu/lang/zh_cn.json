@@ -11,5 +11,11 @@
   "properties.extra_animation.extra4": "NO",
   "properties.extra_animation.extra5": "耶",
   "properties.extra_animation.extra6": "摆手",
-  "properties.extra_animation.extra7": "跳舞"
+  "properties.extra_animation.extra7": "跳舞",
+  "files.player.texture.default": "默认着装",
+  "files.player.texture.black": "黑色着装",
+  "files.player.texture.yellow": "黄色着装",
+  "files.player.texture.red": "红色着装",
+  "files.player.texture.default_red": "红脸默认着装",
+  "files.player.texture.red_more": "超红脸着装"
 }

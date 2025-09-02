@@ -22,7 +22,7 @@ public class MaidTextureScreen extends PlayerTextureScreen {
 
     @Override
     protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, int modelIndex) {
-        return new MaidTextureButton(pX, pY, animatedEntity, maid, modelIndex);
+        return new MaidTextureButton(pX, pY, animatedEntity, maid, modelIndex, model);
     }
 
     @Override

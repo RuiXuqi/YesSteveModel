@@ -1,8 +1,10 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
@@ -20,11 +22,13 @@ import java.util.List;
 
 public class TextureButton extends Button {
     protected final CustomGuiPlayerEntity animatedEntity;
+    protected final ClientModel model;
 
-    public TextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity) {
+    public TextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
         super(pX, pY, 54, 102, Component.empty(), (b) -> {
         }, DEFAULT_NARRATION);
         this.animatedEntity = animatedEntity;
+        this.model = model;
     }
 
     @Override
@@ -46,7 +50,10 @@ public class TextureButton extends Button {
         graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF_434242, 0xFF_434242);
         renderReferenceEntity(graphics, minecraft.getFrameTime());
 
-        Component message = Component.literal(animatedEntity.getTextureName());
+        String id = animatedEntity.getTextureName();
+        String textureName = LanguageManager.getI18n(this.model, "files.player.texture.%s".formatted(id), id);
+        Component message = Component.literal(textureName);
+
         List<FormattedCharSequence> split = font.split(message, 50);
         if (split.size() > 1) {
             graphics.drawCenteredString(font, split.get(0), this.getX() + this.width / 2, this.getY() + this.height - 19, 0xF3EFE0);

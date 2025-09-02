@@ -26,5 +26,7 @@
   "properties.extra_animation.extra4": "乱舞",
   "properties.extra_animation.extra5": "卖萌",
   "properties.extra_animation.extra6": "御币摇",
-  "properties.extra_animation.extra7": "舞蹈"
+  "properties.extra_animation.extra7": "舞蹈",
+  "files.player.texture.skin": "默认",
+  "files.player.texture.skin_white": "雪狐"
 }

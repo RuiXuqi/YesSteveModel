@@ -66,7 +66,9 @@
     "preview_animation": "idle",
     "default_texture": "default",
     "render_layers_first": false,
-    "free": true
+    "free": true,
+    "disable_preview_rotation": false,
+    "all_cutout": false
   },
   "files": {
     "player": {
@@ -76,13 +78,14 @@
       },
       "animation": {
         "main": "animations/main.animation.json",
-        "arm": "animations/arm.animation.json"
+        "arm": "animations/arm.animation.json",
+        "tac": "animations/tac.animation.json"
       },
-      "animation_controllers": [
-        "controller/parallel_controllers.json"
-      ],
+      "animation_controllers": ["controller/main_controllers.json"],
       "texture": [
-        "textures/texture.png"
+        {
+          "uv": "textures/texture.png"
+        }
       ]
     }
   }

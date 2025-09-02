@@ -11,5 +11,11 @@
   "properties.extra_animation.extra4": "NO",
   "properties.extra_animation.extra5": "Yep",
   "properties.extra_animation.extra6": "Swing",
-  "properties.extra_animation.extra7": "Dance"
+  "properties.extra_animation.extra7": "Dance",
+  "files.player.texture.default": "Default",
+  "files.player.texture.black": "Black",
+  "files.player.texture.yellow": "Yellow",
+  "files.player.texture.red": "Red",
+  "files.player.texture.default_red": "Default with Red",
+  "files.player.texture.red_more": "Red More"
 }

@@ -22,5 +22,7 @@
   "properties.extra_animation.extra6": "Swing",
   "properties.extra_animation.extra7": "Dance",
   "properties.extra_animation_buttons.extra_config.config_forms.0.title": "Headdress",
-  "properties.extra_animation_buttons.extra_config.config_forms.0.description": "Used to hide/show the red bow headdress"
+  "properties.extra_animation_buttons.extra_config.config_forms.0.description": "Used to hide/show the red bow headdress",
+  "files.player.texture.default": "Default",
+  "files.player.texture.blue": "Blue"
 }

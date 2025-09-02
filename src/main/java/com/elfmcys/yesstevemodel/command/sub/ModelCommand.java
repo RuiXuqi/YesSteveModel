@@ -128,6 +128,9 @@ public class ModelCommand {
         if (!queued) {
             // 有其它重载任务正在进行
             context.getSource().sendFailure(Component.translatable("message.yes_steve_model.model.reload.in_progress"));
+        } else {
+            // 成功加入队列
+            context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.start"), true);
         }
         return Command.SINGLE_SUCCESS;
     }

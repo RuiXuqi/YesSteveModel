@@ -516,12 +516,7 @@
 			}
 		},
 		"parallel1": {
-			"loop": true,
-			"bones": {
-				"Root": {
-					"scale": "v.player_size??1"
-				}
-			}
+			"loop": true
 		},
 		"parallel2": {
 			"loop": true
@@ -541,26 +536,345 @@
 		"parallel7": {
 			"loop": true
 		},
-		"hair_physics": {
+		"Hair_Physics": {
 			"loop": true,
+			"animation_length": 0.0101,
 			"bones": {
-				"FLonghair": {
-					"rotation": ["ysm.second_order('抬头头发防穿模', ysm.head_pitch>-40?ysm.head_pitch:-40, 2, 0.6, 0)", 0, 0]
+				"Right_SideDownHairM1": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"Right_SideDownHairM2": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"Right_SideDownHairM3": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"MaWei_LeftA1": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"0.5*ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"MaWei_LeftA2": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"0.5*ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairA2": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairB2": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairC2": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairD2": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"BackHairE2": {
+					"rotation": [
+						"ysm.second_order('D1x增量',ysm.bone_rot('BackHairD1').x,2,0.5,0.2)-0.3*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('D1z增量',ysm.bone_rot('BackHairD1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairA3": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairB3": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairC3": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairD3": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"BackHairE3": {
+					"rotation": [
+						"ysm.second_order('D1x增量',ysm.bone_rot('BackHairD1').x,2,0.5,0.2)-0.3*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('D1z增量',ysm.bone_rot('BackHairD1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairRightA1": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairRightB1": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairRightC1": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairLeftA1": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairLeftB1": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairLeftC1": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairLeftD1": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"BackHairRightA2": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairRightB2": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "10*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairRightC2": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairRightD2": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"BackHairLeftA2": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairLeftB2": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairLeftC2": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairLeftD2": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"BackHairRightA3": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairRightB3": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairRightC3": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairRightD3": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"BackHairLeftA3": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairLeftB3": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairLeftC3": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairLeftD3": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
 				},
 				"ElytraLocator": {
 					"rotation": [
-						"0.6*ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+0.6*ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
+						"ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)",
 						0,
-						"ysm.second_order('头发角速度', math.clamp(-0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
 					]
 				},
-				"MLonghair": {
+				"BackHairA1": {
 					"rotation": [
-						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
 						0,
-						"ysm.second_order('头发角速度', math.clamp(-0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+						"ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"BackHairB1": {
+					"rotation": ["10*ysm.second_order('A1x增量',v.HP_x,1.7,0.5,0)", 0, "5*ysm.second_order('A1z增量',v.HP_z,1.7,0.4,0)"]
+				},
+				"BackHairC1": {
+					"rotation": [
+						"ysm.second_order('B1x增量',ysm.bone_rot('BackHairB1').x,2,0.5,0.2)-1.5*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('B1z增量',ysm.bone_rot('BackHairB1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairD1": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"BackHairE1": {
+					"rotation": [
+						"ysm.second_order('D1x增量',ysm.bone_rot('BackHairD1').x,2,0.5,0.2)-0.3*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('D1z增量',ysm.bone_rot('BackHairD1').z,2,0.5,0.2)"
+					]
+				},
+				"BackHairRightD1": {
+					"rotation": [
+						"ysm.second_order('C1x增量',ysm.bone_rot('BackHairC1').x,2,0.5,0.2)-0.8*(5*ysm.second_order('A1x增量',v.HP_x,2,0.5,0))",
+						0,
+						"ysm.second_order('C1z增量',ysm.bone_rot('BackHairC1').z,2,0.4,0.2)"
+					]
+				},
+				"F_BackHairLeftB3": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairB1": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairB2": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairB3": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairRightB1": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairRightB2": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairRightB3": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairLeftB1": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"F_BackHairLeftB2": {
+					"rotation": ["ysm.second_order('抬头头发防穿模b', ysm.head_pitch>-30?0:ysm.head_pitch+30, 1, 0.6, 0)", 0, 0]
+				},
+				"MaWei_RightA1": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"0.5*ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"MaWei_RightA2": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"0.5*ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"MaWei_LeftA3": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"0.5*ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
+					]
+				},
+				"MaWei_RightA3": {
+					"rotation": [
+						"ysm.second_order('抬头头发防穿模', ysm.head_pitch>-10?ysm.head_pitch:-10, 1, 0.6, 0)+ysm.second_order('头发垂直', math.clamp(-5*q.vertical_speed+v.hv,-10,150), 1.5, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 1.5, 0.6, 0)+0.6*math.abs(ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-80,80), 1.2, 0.3, 0))",
+						0,
+						"0.5*ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"
 					]
 				}
+			},
+			"timeline": {
+				"0.0": [
+					"v.HP_x_0=ysm.bone_rot('BackHairA1').x;",
+					"v.HP_z_0=ysm.bone_rot('BackHairA1').z;",
+					"v.HP_x=v.HP_x_0-v.HP_x_1;",
+					"v.HP_z=v.HP_z_0-v.HP_z_1;"
+				],
+				"0.0101": ["v.HP_x_1=v.HP_x_0;", "v.HP_z_1=v.HP_z_0;"]
 			}
 		},
 		"pre_parallel1": {
@@ -731,9 +1045,6 @@
 			"loop": true
 		},
 		"pre_parallel4": {
-			"loop": true
-		},
-		"pre_parallel5": {
 			"loop": true
 		},
 		"pre_parallel6": {

@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.gui;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.button.TextureButton;
 import com.elfmcys.yesstevemodel.util.NameUtil;
@@ -18,8 +19,8 @@ public class MaidTextureButton extends TextureButton {
     private String textureName;
     private Component name;
 
-    public MaidTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, EntityMaid rawMaid, int modelIndex) {
-        super(pX, pY, animatedEntity);
+    public MaidTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, EntityMaid rawMaid, int modelIndex, ClientModel clientModel) {
+        super(pX, pY, animatedEntity, clientModel);
         this.renderMaid = new EntityMaid(rawMaid.level());
         this.renderMaid.setIsYsmModel(true);
         this.renderMaid.setOnGround(true);

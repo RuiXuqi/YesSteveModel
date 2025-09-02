@@ -1,7 +1,9 @@
 package com.elfmcys.yesstevemodel.client.compat.swarfare;
 
 import com.atsuishio.superbwarfare.data.gun.GunData;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
+import com.atsuishio.superbwarfare.item.LungeMine;
 import com.atsuishio.superbwarfare.item.gun.GunItem;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
@@ -23,11 +25,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +42,13 @@ public class SWarfareCompatInner {
 
     static boolean isGun(ItemStack stack) {
         return stack.getItem() instanceof GunItem;
+    }
+
+    static boolean shouldHidePlayerRender(Player player) {
+        if (player.getVehicle() instanceof VehicleEntity vehicle) {
+            return vehicle.hidePassenger(player);
+        }
+        return false;
     }
 
     static void renderOffhandGun(ItemStack heldItem, GeoModelState geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
@@ -57,6 +68,28 @@ public class SWarfareCompatInner {
             poseStack.mulPose(Axis.YP.rotationDegrees(-180.0F));
             MultiBufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
             renderer.renderStatic(heldItem, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), player.getId());
+        }
+    }
+
+    @Nullable
+    static PlayState playLungeMineAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
+        LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
+        if (!Objects.equals(Minecraft.getInstance().player, livingEntity)) {
+            return null;
+        }
+        if (!(livingEntity.getMainHandItem().getItem() instanceof LungeMine)) {
+            return null;
+        }
+        if (ClientEventHandler.lungeSprint > 0) {
+            return playAnimation(event, "superbwarfare:lunge_mine_sprint");
+        } else if (ClientEventHandler.lungeDraw > 0) {
+            return playAnimation(event, "superbwarfare:lunge_mine_draw");
+        } else if (ClientEventHandler.lungeAttack > 0) {
+            return playAnimation(event, "superbwarfare:lunge_mine_fire");
+        } else if (livingEntity.isSprinting() && livingEntity.onGround() && ClientEventHandler.lungeDraw == 0) {
+            return playAnimation(event, "superbwarfare:lunge_mine_run");
+        } else {
+            return playAnimation(event, "superbwarfare:lunge_mine_idle");
         }
     }
 
@@ -89,8 +122,14 @@ public class SWarfareCompatInner {
      * tac:run:pistol
      */
     static PlayState playGunHoldAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
+        // 先检查刺雷
+        PlayState playState = playLungeMineAnimation(event);
+        if (playState != null) {
+            return playState;
+        }
+        // 再检查枪械
         if (!(heldItem.getItem() instanceof GunItem)) {
-            return PlayState.STOP;
+            return null;
         }
         LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
 
@@ -185,6 +224,12 @@ public class SWarfareCompatInner {
     @NotNull
     private static PlayState playAnimation(AnimationEvent<?> event, String animationName, LoopType loopType) {
         event.getCodedController().setAnimation(animationName, loopType);
+        return PlayState.CONTINUE;
+    }
+
+    @NotNull
+    private static PlayState playAnimation(AnimationEvent<?> event, String animationName) {
+        event.getCodedController().setAnimation(animationName);
         return PlayState.CONTINUE;
     }
 }

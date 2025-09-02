@@ -50,7 +50,13 @@
           "uv": "textures/yellow.png"
         },
         {
+          "uv": "textures/red.png"
+        },
+        {
           "uv": "textures/default_red.png"
+        },
+        {
+          "uv": "textures/red_more.png"
         }
       ]
     }

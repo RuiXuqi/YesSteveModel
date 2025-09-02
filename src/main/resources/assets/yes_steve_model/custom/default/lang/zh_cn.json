@@ -22,5 +22,7 @@
   "properties.extra_animation.extra6": "摆手",
   "properties.extra_animation.extra7": "跳舞",
   "properties.extra_animation_buttons.extra_config.config_forms.0.title": "头饰",
-  "properties.extra_animation_buttons.extra_config.config_forms.0.description": "用来显示或开启玩家头饰"
+  "properties.extra_animation_buttons.extra_config.config_forms.0.description": "用来显示或开启玩家头饰",
+  "files.player.texture.default": "默认",
+  "files.player.texture.blue": "蓝色"
 }

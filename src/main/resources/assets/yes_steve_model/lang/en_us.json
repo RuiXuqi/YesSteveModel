@@ -304,6 +304,7 @@
   "gui.yes_steve_model.texture.button.walk": "Walk",
   "gui.yes_steve_model.texture.button.walk.desc": "Play an animation when the player walks",
   "message.yes_steve_model.compatibility_warning.tac": "YSM is incompatible with TAC mod with version below 0.3.7",
+  "message.yes_steve_model.model.reload.start": "§6§l【§aYSM§6§l】§eStarting to reload...",
   "message.yes_steve_model.model.reload.complete": "§6§l【§aYSM§6§l】§eAll models have been reloaded, use time: %.2fms",
   "message.yes_steve_model.model.reload.in_progress": "§6§l【§aYSM§6§l】§eThere is one another reloading task in progress.",
   "message.yes_steve_model.model.sync.complete": "§6§l【§aYSM§6§l】§eSuccessfully distributed models to players，use time：%.2fms",

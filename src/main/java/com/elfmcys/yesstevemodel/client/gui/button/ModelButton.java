@@ -25,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class ModelButton extends Button {
 
     private static MutableComponent getModelName(CustomGuiPlayerEntity animatedEntity, ClientModel model) {
         ModelMetadata metadata = model.modelInfo().metadata();
-        if (metadata == null) {
+        if (metadata == null || StringUtils.isBlank(metadata.name())) {
             return Component.literal(animatedEntity.getModelId());
         }
         return Component.literal(LanguageManager.getI18n(model, "metadata.name", metadata.name()));

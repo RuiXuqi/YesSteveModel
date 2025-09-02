@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.renderer;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
@@ -39,6 +40,11 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
     @Override
     @SuppressWarnings("all")
     public void render(Player player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        // 检查卓越前线的隐藏功能
+        if (SWarfareCompat.shouldHidePlayerRender(player)) {
+            return;
+        }
+
         PlayerAnimatableCapability cap = player.getCapability(PlayerAnimatableCapabilityProvider.CAP).orElse(null);
         if (cap == null) {
             return;

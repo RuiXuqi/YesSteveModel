@@ -26,5 +26,7 @@
   "properties.extra_animation.extra4": "Wild Dance",
   "properties.extra_animation.extra5": "Cute Pose",
   "properties.extra_animation.extra6": "Gohei Waving",
-  "properties.extra_animation.extra7": "Dance"
+  "properties.extra_animation.extra7": "Dance",
+  "files.player.texture.skin": "Default",
+  "files.player.texture.skin_white": "Snow Fox"
 }

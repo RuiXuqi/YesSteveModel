@@ -184,7 +184,7 @@ dependencies {
     modCompileOnly "curse.maven:the-one-probe-245211:4629624"
 
     // 卓越前线
-    modImplementation "libs:superbwarfare-1.20.1:0.8.8-b4e0ced62"
+    modImplementation "libs:superbwarfare-1.20.1:0.8.7.1-c6d401e0e"
 
     // 机械动力，兼容那个扳手
     modCompileOnly "maven.modrinth:create:1.20.1-6.0.6"

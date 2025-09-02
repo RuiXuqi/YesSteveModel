@@ -45,6 +45,7 @@ import java.util.*;
 
 public class PlayerModelScreen extends Screen implements ClientModelSyncListener {
     private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_ENTITY = new CustomGuiPlayerEntity[10];
+    private static final String AUTHOR_SEARCH_PREFIX = "@";
 
     private static int page = 0;
 
@@ -138,6 +139,16 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             return false;
         }
 
+        // 如果是 @ 开头，则仅按作者搜索
+        if (search.startsWith(AUTHOR_SEARCH_PREFIX)) {
+            String authorSearch = search.substring(AUTHOR_SEARCH_PREFIX.length());
+            ModelMetadata metadata = data.modelInfo().metadata();
+            if (metadata != null) {
+                return noneAuthorMatch(data, authorSearch, metadata);
+            }
+            return true;
+        }
+
         // ID 不过滤
         if (key.toLowerCase(Locale.ENGLISH).contains(search)) {
             return false;
@@ -156,16 +167,21 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                 return false;
             }
             // 作者名不过滤
-            int index = 0;
-            for (ModelAuthor author : metadata.authors()) {
-                String authorName = LanguageManager.getI18n(data, "metadata.authors.%d.name".formatted(index), author.name()).toLowerCase(Locale.ENGLISH);
-                if (authorName.contains(search)) {
-                    return false;
-                }
-                index++;
-            }
+            return noneAuthorMatch(data, search, metadata);
         }
 
+        return true;
+    }
+
+    private boolean noneAuthorMatch(ClientModel data, String search, ModelMetadata metadata) {
+        int index = 0;
+        for (ModelAuthor author : metadata.authors()) {
+            String authorName = LanguageManager.getI18n(data, "metadata.authors.%d.name".formatted(index), author.name()).toLowerCase(Locale.ENGLISH);
+            if (authorName.contains(search)) {
+                return false;
+            }
+            index++;
+        }
         return true;
     }
 
