@@ -67,7 +67,7 @@ public class SWarfareCompat {
     @Nullable
     public static PlayState playGunHoldAnimation(ItemStack mainHandItem,
                                                  AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
-        if (INSTALLED && SWarfareCompatInner.isGun(mainHandItem)) {
+        if (INSTALLED) {
             return SWarfareCompatInner.playGunHoldAnimation(event, mainHandItem);
         }
         return null;

@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -20,7 +21,7 @@ public class SlashBladeResharped {
         NAME_FIX.put("slashblade:combo_a4_ex", "slashblade:combo_a4ex");
     }
 
-    static String getResharpedComboStateName(ISlashBladeState bladeState, long time) {
+    static String getResharpedComboStateName(ISlashBladeState bladeState, long time, LivingEntity entity) {
         ResourceLocation id = bladeState.getComboSeq();
         ComboState comboSeq = ComboStateRegistry.REGISTRY.get().getValue(id);
         if (comboSeq == null) {
@@ -32,7 +33,15 @@ public class SlashBladeResharped {
             timeout -= 553;
         }
         if (time <= timeout) {
-            return nameFix(id.toString());
+            String name = nameFix(id.toString());
+            // 原拔刀剑没有区分空中次元斩，这里加上
+            if ("slashblade:judgement_cut".equals(name) && !entity.onGround()) {
+                name = "slashblade:judgement_cut_slash_air";
+            }
+            if ("slashblade:judgement_cut_slash_just2".equals(name) && !entity.onGround()) {
+                name = "slashblade:judgement_cut_slash_air_just2";
+            }
+            return name;
         }
         return StringUtils.EMPTY;
     }

@@ -13,7 +13,6 @@ import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,12 +25,12 @@ public class SlashBladeAnimation {
 
     static String getAnimationName(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
         LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
-        return getCombName(livingEntity.getMainHandItem(), livingEntity.level());
+        return getCombName(livingEntity.getMainHandItem(), livingEntity);
     }
 
     static String getAnimationName(IContext<? extends LivingEntity> context) {
         LivingEntity livingEntity = context.entity();
-        return getCombName(livingEntity.getMainHandItem(), livingEntity.level());
+        return getCombName(livingEntity.getMainHandItem(), livingEntity);
     }
 
     /**
@@ -50,15 +49,15 @@ public class SlashBladeAnimation {
     }
 
     @NotNull
-    private static String getCombName(ItemStack mainHandItem, Level level) {
+    private static String getCombName(ItemStack mainHandItem, LivingEntity entity) {
         if (!SlashBladeCompat.isSlashBladeItem(mainHandItem)) {
             return StringUtils.EMPTY;
         }
         return mainHandItem.getCapability(CapabilitySlashBlade.BLADESTATE).map(bladeState -> {
-            long time = (level.getGameTime() - bladeState.getLastActionTime()) * 50;
+            long time = (entity.level().getGameTime() - bladeState.getLastActionTime()) * 50;
             if (SlashBladeCompat.isResharped()) {
                 // 重锋兼容
-                return SlashBladeResharped.getResharpedComboStateName(bladeState, time);
+                return SlashBladeResharped.getResharpedComboStateName(bladeState, time, entity);
             } else if (bladeState instanceof SlashBladeState slashBladeState) {
                 // 旧版拔刀兼容
                 return SlashBladeUnsafe.getOldComboStateName(slashBladeState, time);

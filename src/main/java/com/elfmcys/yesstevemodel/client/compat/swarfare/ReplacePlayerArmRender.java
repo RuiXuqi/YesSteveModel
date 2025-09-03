@@ -60,9 +60,9 @@ public class ReplacePlayerArmRender {
             }
 
             if (useOldHandRender) {
-                poseStack.translate((bone.getPivotX() - 1) / 16f, (bone.getPivotY() - 2) / 16f, bone.getPivotZ() / 16f);
+                poseStack.translate((bone.getPivotX() + 1) / 16f, (bone.getPivotY() - 2) / 16f, bone.getPivotZ() / 16f);
             } else {
-                poseStack.translate(bone.getPivotX() / 16f, (bone.getPivotY() + 7) / 16f, bone.getPivotZ() / 16f);
+                poseStack.translate((bone.getPivotX() + 1) / 16f, (bone.getPivotY() + 7) / 16f, bone.getPivotZ() / 16f);
                 poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             }
