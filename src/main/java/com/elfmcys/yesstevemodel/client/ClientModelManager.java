@@ -183,6 +183,16 @@ public class ClientModelManager {
     }
 
     // Native Access
+    /**
+     * 每次同步开始时调用，
+     * 注意不在主线程上。
+     */
+    private static void updateModelPackInfo(ModelPackInfo[] list) {
+        // TODO: 全量更新模型包信息
+    }
+
+    // Native Access
+    // 在 model pack 同步之后调用，注意不在主线程上
     @SuppressWarnings("all")
     private static void alterModel(
             String @Nullable [] removedModelIds,
@@ -198,6 +208,7 @@ public class ClientModelManager {
                     if (removedModel != null) {
                         REMOVED_TEXTURE_QUEUE.addAll(removedModel.registeredTextureIds());
                     }
+                    // TODO: 处理模型移除
                 }
             }
 
@@ -211,6 +222,9 @@ public class ClientModelManager {
                     if (model != null) {
                         model.clientModelInfo().setNeedAuth(needAuth[i]);
                         models.put(dstModelIds[i], model);
+                    }
+                    if (!alterModelIds[i].equals(dstModelIds[i])) {
+                        // TODO: 处理模型重命名
                     }
                 }
             }
@@ -226,7 +240,7 @@ public class ClientModelManager {
 
     // Native Access
     @SuppressWarnings("unused")
-    private static void addModel(ClientModelData modelData, String modelId, boolean isDefault, boolean isNeedAuth) {
+    private static void addModel(ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
         ClientModel model;
         var textures = new ObjectArrayFIFOQueue<Pair<ResourceLocation, AbstractTexture>>(4);
         try {
@@ -235,10 +249,10 @@ public class ClientModelManager {
             if (isDefault) {
                 throw e;
             }
-            YesSteveModel.LOGGER.error(new StringFormattedMessage("Failed to process {}", modelId), e);
+            YesSteveModel.LOGGER.error(new StringFormattedMessage("Failed to process {}", modelPath), e);
             return;
         }
-        NEW_MODEL_QUEUE.add(new ImmutableTriple<>(model, modelId, textures));
+        NEW_MODEL_QUEUE.add(new ImmutableTriple<>(model, modelPath, textures));
         if (isDefault) {
             DEFAULT_MODEL = model;
             return;
@@ -299,10 +313,12 @@ public class ClientModelManager {
             return;
         }
         NEW_MODEL_QUEUE.poll();
+
         var models = new Object2ReferenceOpenHashMap<>(MODELS);
         models.put(newModelPair.getMiddle(), newModelPair.getLeft());
-        MODELS = models;
+        // TODO: 处理模型路径
 
+        MODELS = models;
         invokeListener(listener ->
                 listener.onNewModelLoaded(models, newModelPair.getMiddle(), newModelPair.getLeft()));
     }
