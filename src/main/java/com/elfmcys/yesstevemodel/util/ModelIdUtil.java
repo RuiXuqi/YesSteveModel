@@ -41,4 +41,17 @@ public final class ModelIdUtil {
             return Pair.of(modelPath.substring(lastSlash + 1), modelPath.substring(0, lastSlash + 1));
         }
     }
+
+    public static String getLastFolderName(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        String trimmed = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+        int idx = trimmed.lastIndexOf('/');
+        return idx >= 0 ? trimmed.substring(idx + 1) : trimmed;
+    }
+
+    public static ResourceLocation getModelPackIconId(String hierarchy) {
+        return new ResourceLocation(YesSteveModel.MOD_ID, "model_pack_icon/" + hierarchy.hashCode());
+    }
 }

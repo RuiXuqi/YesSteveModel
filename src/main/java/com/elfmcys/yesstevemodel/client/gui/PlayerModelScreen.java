@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.capability.AuthModelsCapability;
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
@@ -8,23 +9,24 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelSyncListener;
+import com.elfmcys.yesstevemodel.client.data.ModelPackInfo;
 import com.elfmcys.yesstevemodel.client.event.DownloadScreenInterModEvent;
-import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
-import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
-import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
-import com.elfmcys.yesstevemodel.client.gui.button.StarButton;
+import com.elfmcys.yesstevemodel.client.gui.button.*;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -36,8 +38,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,17 +50,26 @@ import java.util.*;
 public class PlayerModelScreen extends Screen implements ClientModelSyncListener {
     private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_ENTITY = new CustomGuiPlayerEntity[10];
     private static final String AUTHOR_SEARCH_PREFIX = "@";
+    private static final String PACK_SEARCH_PREFIX = "#";
 
     private static int page = 0;
+    private static String pack = "";
 
     private final HashSet<String> clientNotDisplayModels = Sets.newHashSet();
+    private final Map<String, ModelPackInfo> allPacks;
+
     private Map<String, ClientModel> models = Maps.newHashMap();
+    private Map<String, ModelPackInfo> packs = Maps.newHashMap();
+
     private List<String> modelOrderList;
+    private List<String> packOrderList;
+
+    protected int x;
+    protected int y;
+
     private int maxPage;
     private EditBox textField;
     private Category category;
-    protected int x;
-    protected int y;
 
     static {
         for (int i = 0; i < MODEL_PREVIEW_ENTITY.length; i++) {
@@ -73,6 +86,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
         }
         ClientModelManager.addSyncListener(this);
+        this.allPacks = new Object2ReferenceOpenHashMap<>(ClientModelManager.getPacks());
     }
 
     protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
@@ -87,56 +101,190 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         return new ModelInfoScreen(parent, model);
     }
 
+    private Map<String, ClientModel> getPackModels() {
+        Map<String, ClientModel> packModels = Maps.newHashMap();
+        if (StringUtils.isBlank(pack)) {
+            return Maps.newHashMap(ClientModelManager.getModels());
+        }
+        ClientModelManager.getModels().forEach((k, v) -> {
+            if (k.startsWith(pack)) {
+                packModels.put(k, v);
+            }
+            String packPath = ModelIdUtil.splitModelPath(k).right();
+            if (StringUtils.isNotBlank(packPath)) {
+                String packName = ModelIdUtil.getLastFolderName(packPath);
+                allPacks.putIfAbsent(packPath, new ModelPackInfo(packPath, packName, StringUtils.EMPTY, null, null));
+            }
+        });
+        return packModels;
+    }
+
+    private Map<String, ModelPackInfo> getPackInfos() {
+        Map<String, ModelPackInfo> packInfos = Maps.newHashMap();
+        if (StringUtils.isBlank(pack)) {
+            return Maps.newHashMap(allPacks);
+        }
+        allPacks.forEach((k, v) -> {
+            if (k.startsWith(pack)) {
+                packInfos.put(k, v);
+            }
+        });
+        return packInfos;
+    }
+
     private void calculateModelList() {
         models = Maps.newHashMap();
+        packs = Maps.newHashMap();
+
+        if (minecraft == null || minecraft.player == null) {
+            return;
+        }
+        LocalPlayer player = minecraft.player;
+
         if (this.category == Category.ALL) {
-            this.models = Maps.newHashMap(ClientModelManager.getModels());
-        }
-        if (this.category == Category.AUTH) {
-            if (minecraft != null && minecraft.player != null) {
-                minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-                    for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
-                        if (cap.containModel(entry.getKey()) || !entry.getValue().clientModelInfo().isNeedAuth()) {
-                            this.models.put(entry.getKey(), entry.getValue());
-                        }
-                    }
-                });
-            }
-        }
-        if (this.category == Category.STAR) {
-            if (minecraft != null && minecraft.player != null) {
-                minecraft.player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
-                    for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
-                        if (cap.containModel(entry.getKey())) {
-                            this.models.put(entry.getKey(), entry.getValue());
-                        }
-                    }
-                });
-            }
+            this.models = this.getPackModels();
+            this.packs = this.getPackInfos();
         }
 
+        // 授权部分不显示文件夹
+        if (this.category == Category.AUTH) {
+            player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
+                for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
+                    if (cap.containModel(entry.getKey()) || !entry.getValue().clientModelInfo().isNeedAuth()) {
+                        this.models.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            });
+        }
+
+        // 收藏部分也不显示文件夹
+        if (this.category == Category.STAR) {
+            player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
+                for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
+                    if (cap.containModel(entry.getKey())) {
+                        this.models.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            });
+        }
+
+        // 搜索框不区分大小写
         String search;
         if (textField != null) {
             search = this.textField.getValue().toLowerCase(Locale.ENGLISH);
         } else {
             search = StringUtils.EMPTY;
         }
-        // 依据配置文件和搜索字符串进行过滤
-        models.entrySet().removeIf(next -> doSearchFilter(next.getKey(), next.getValue(), search));
 
+        if (StringUtils.isBlank(search)) {
+            // 搜索框为空时，为正常文件树显示模式
+            models.entrySet().removeIf(next -> {
+                String path = next.getKey();
+                Pair<String, String> split = ModelIdUtil.splitModelPath(path);
+                // 滤掉黑名单
+                if (clientNotDisplayModels.contains(split.left())) {
+                    return true;
+                }
+                // 只保留当前文件夹下的模型
+                return !split.right().equals(pack);
+            });
+
+            packs.entrySet().removeIf(next -> {
+                String path = next.getKey();
+                // 只保留当前文件夹下的文件夹
+                return !this.shouldKeep(pack, path);
+            });
+        } else {
+            // 搜索框不为空时，为搜索模式，此时不考虑文件树，直接拉平
+            models.entrySet().removeIf(next -> {
+                String path = next.getKey();
+                String id = ModelIdUtil.splitModelPath(path).left();
+                return removeModelIf(id, next.getValue(), search);
+            });
+            packs.entrySet().removeIf(next -> {
+                String path = next.getKey();
+                String id = ModelIdUtil.splitModelPath(path).left();
+                return removePackIf(id, next.getValue(), search);
+            });
+        }
+
+        // 按照 ID 顺序排序
         this.modelOrderList = Lists.newArrayList(models.keySet());
         this.modelOrderList.sort(String::compareTo);
-        this.maxPage = (models.size() - 1) / 10;
+
+        this.packOrderList = Lists.newArrayList(packs.keySet());
+        this.packOrderList.sort(String::compareTo);
+
+        int maxCount = models.size() + packs.size();
+        this.maxPage = (maxCount - 1) / 10;
     }
 
-    private boolean doSearchFilter(String key, ClientModel data, String search) {
+
+    // path: 当前目录（如 "" 或 "dir1/dir2/"）
+    // candidate: 备选目录（如 "dir1/", "dir1/dir2/dir3/"）
+    private boolean shouldKeep(String path, String candidate) {
+        if (path.equals(candidate)) {
+            return false;
+        }
+        if (StringUtils.isBlank(path)) {
+            // 只保留一级目录
+            int first = candidate.indexOf('/');
+            return first == candidate.length() - 1 && candidate.lastIndexOf('/') == first;
+        } else {
+            if (!candidate.startsWith(path)) {
+                return false;
+            }
+            String remain = candidate.substring(path.length());
+            int first = remain.indexOf('/');
+            return first == remain.length() - 1 && remain.lastIndexOf('/') == first;
+        }
+    }
+
+    private boolean removePackIf(String id, ModelPackInfo info, String search) {
+        // 空搜索字符串不过滤
+        if (StringUtils.isBlank(search)) {
+            return false;
+        }
+        // 如果是 # 开头，则仅按文件夹搜索，需要剔除 #
+        if (search.startsWith(PACK_SEARCH_PREFIX)) {
+            search = search.substring(PACK_SEARCH_PREFIX.length());
+        }
+        // ID 匹配
+        if (id.toLowerCase(Locale.ENGLISH).contains(search)) {
+            return false;
+        }
+        if (info.lang() != null) {
+            // 名称匹配
+            String name = LanguageManager.getI18n(info, "name", info.name());
+            if (name.toLowerCase(Locale.ENGLISH).contains(search)) {
+                return false;
+            }
+            // 描述文本匹配
+            String descText = info.desc();
+            if (descText == null) {
+                return true;
+            }
+            String desc = LanguageManager.getI18n(info, "description", descText);
+            if (desc.toLowerCase(Locale.ENGLISH).contains(search)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean removeModelIf(String id, ClientModel data, String search) {
         // 滤掉黑名单
-        if (clientNotDisplayModels.contains(key)) {
+        if (clientNotDisplayModels.contains(id)) {
             return true;
         }
         // 空搜索字符串不过滤
         if (StringUtils.isBlank(search)) {
             return false;
+        }
+
+        // 如果是 # 开头，则仅按文件夹搜索
+        if (search.startsWith(PACK_SEARCH_PREFIX)) {
+            return true;
         }
 
         // 如果是 @ 开头，则仅按作者搜索
@@ -150,7 +298,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         }
 
         // ID 不过滤
-        if (key.toLowerCase(Locale.ENGLISH).contains(search)) {
+        if (id.toLowerCase(Locale.ENGLISH).contains(search)) {
             return false;
         }
 
@@ -173,6 +321,19 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         return true;
     }
 
+    public String getParentPath(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        // 去掉末尾的斜杠
+        String trimmed = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+        int idx = trimmed.lastIndexOf('/');
+        if (idx < 0) {
+            return "";
+        }
+        return trimmed.substring(0, idx + 1);
+    }
+
     private boolean noneAuthorMatch(ClientModel data, String search, ModelMetadata metadata) {
         int index = 0;
         for (ModelAuthor author : metadata.authors()) {
@@ -190,7 +351,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         this.clearWidgets();
         this.calculateModelList();
 
-        if (page * 10 >= this.models.size()) {
+        if (page > this.maxPage) {
             page = 0;
         }
 
@@ -233,6 +394,15 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             }
         }).setTooltips("gui.yes_steve_model.model.texture"));
         addRenderableWidget(new StarButton(x + 110, y + 5));
+
+        // 添加返回按钮
+        if (StringUtils.isNotBlank(pack)) {
+            addRenderableWidget(new FlatIconButton(x + 110, y + 27, 20, 20, 0, 32, (b) -> {
+                pack = this.getParentPath(pack);
+                page = 0;
+                this.init();
+            }).setTooltips("gui.back"));
+        }
 
         addRenderableWidget(new FlatIconButton(x + 328, y + 5, 18, 18, 32, 0, (b) -> {
             if (this.category != Category.ALL) {
@@ -279,27 +449,53 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             }
         }));
 
-        if (page > this.maxPage) {
-            page = 0;
+        // 先是文件夹
+        int startIndex = 0;
+        for (int i = 0; i < 10; i++) {
+            int packIndex = i + page * 10;
+            if (packIndex >= packOrderList.size()) {
+                break;
+            }
+            String id = packOrderList.get(packIndex);
+            int xStart = x + 143 + 55 * (i % 5);
+            int yStart = y + 28 + 93 * (i / 5);
+            this.getPack(id).ifPresent(packInfo -> {
+                this.addRenderableWidget(new PackButton(xStart, yStart, 52, 90, packInfo, b -> {
+                    pack = id;
+                    page = 0;
+                    this.init();
+                }));
+            });
+            startIndex++;
         }
 
-        for (int i = 0; i < 10; i++) {
+        // 满了，就不加了
+        if (startIndex >= 10) {
+            return;
+        }
+
+        if (minecraft == null || minecraft.player == null) {
+            return;
+        }
+        LazyOptional<AuthModelsCapability> authModels = minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP);
+        for (int i = 0; i < 10 - startIndex; i++) {
             int modelIndex = i + page * 10;
             if (modelIndex >= models.size()) {
                 break;
             }
             String id = modelOrderList.get(modelIndex);
-            int xStart = x + 143 + 55 * (i % 5);
-            int yStart = y + 28 + 93 * (i / 5);
-            if (minecraft != null && minecraft.player != null) {
-                final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
-                minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-                    var model = models.get(id);
-                    animatedEntity.setModelAndTexture(id, model.defaultTextureName());
-                    animatedEntity.getPreviewInfo().setPreview(model.modelInfo().properties().previewAnimation());
-                    addRenderableWidget(getModelButton(xStart, yStart, model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id), animatedEntity, model));
-                });
-            }
+            int posIndex = i + startIndex;
+            int xStart = x + 143 + 55 * (posIndex % 5);
+            int yStart = y + 28 + 93 * (posIndex / 5);
+            final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
+            authModels.ifPresent(cap -> {
+                var model = models.get(id);
+                boolean needAuth = model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id);
+
+                animatedEntity.setModelAndTexture(id, model.defaultTextureName());
+                animatedEntity.getPreviewInfo().setPreview(model.modelInfo().properties().previewAnimation());
+                addRenderableWidget(getModelButton(xStart, yStart, needAuth, animatedEntity, model));
+            });
         }
     }
 
@@ -325,6 +521,16 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         String debugInfo = String.format("%s-%s", SharedConstants.getCurrentVersion().getName(), ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString());
         graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
 
+        if (StringUtils.isNotBlank(pack)) {
+            MutableComponent path = Component.literal("\uD83D\uDCC2 " + pack).withStyle(ChatFormatting.GRAY);
+            int i = 0;
+            List<FormattedCharSequence> split = font.split(path, 270);
+            for (FormattedCharSequence sequence : split) {
+                int offset = -(split.size() - i) * 10 - 2;
+                graphics.drawString(font, sequence, x + 142, y + offset, 0xF3EFE0);
+                i++;
+            }
+        }
         drawSyncState(graphics);
 
         super.render(graphics, mouseX, mouseY, frameDeltaTime);
@@ -332,6 +538,8 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                 .forEach(r -> ((FlatIconButton) r).renderToolTip(graphics, this, mouseX, mouseY));
         this.renderables.stream().filter(r -> r instanceof ModelButton)
                 .forEach(r -> ((ModelButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
+        this.renderables.stream().filter(r -> r instanceof PackButton)
+                .forEach(r -> ((PackButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -526,6 +734,10 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     @Override
     public void onNewModelLoaded(Map<String, ClientModel> models, String newModelId, ClientModel newModel) {
         init();
+    }
+
+    private Optional<ModelPackInfo> getPack(String id) {
+        return Optional.ofNullable(this.allPacks.get(id));
     }
 
     private enum Category {

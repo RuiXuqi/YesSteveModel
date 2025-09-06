@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.data.*;
+import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.info.type.ProjectileType;
@@ -19,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -26,15 +28,22 @@ import org.apache.logging.log4j.message.StringFormattedMessage;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 // Native Access
 public class ClientModelManager {
-    // 以 Model Id 为索引
+    // 以 Model Path 为索引
     private static volatile Map<String, ClientModel> MODELS = Object2ReferenceMaps.emptyMap();
+    // 以 Pack Path 为索引
+    private static volatile Map<String, ModelPackInfo> PACKS = new Object2ReferenceOpenHashMap<>();
+
     private static ClientModel DEFAULT_MODEL;
+
     private static final ConcurrentLinkedQueue<Triple<ClientModel, String, ObjectArrayFIFOQueue<Pair<ResourceLocation, AbstractTexture>>>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<ResourceLocation> REMOVED_TEXTURE_QUEUE = new ConcurrentLinkedQueue<>();
 
@@ -50,6 +59,10 @@ public class ClientModelManager {
 
     public static Map<String, ClientModel> getModels() {
         return MODELS;
+    }
+
+    public static Map<String, ModelPackInfo> getPacks() {
+        return PACKS;
     }
 
     public static Optional<ClientModel> getModel(String modelId) {
@@ -182,13 +195,41 @@ public class ClientModelManager {
         }
     }
 
-    // Native Access
     /**
      * 每次同步开始时调用，
      * 注意不在主线程上。
      */
+    // Native Access
     private static void updateModelPackInfo(ModelPackInfo[] list) {
-        // TODO: 全量更新模型包信息
+        var packs = new Object2ReferenceOpenHashMap<String, ModelPackInfo>();
+        for (var pack : list) {
+            if (StringUtils.isBlank(pack.name())) {
+                pack = new ModelPackInfo(
+                        pack.hierarchy(),
+                        ModelIdUtil.getLastFolderName(pack.hierarchy()),
+                        pack.desc(),
+                        pack.icon(),
+                        pack.lang()
+                );
+            }
+            packs.put(pack.hierarchy(), pack);
+            final NativeTexture icon = pack.icon();
+            if (icon != null) {
+                final ResourceLocation id = ModelIdUtil.getModelPackIconId(pack.hierarchy());
+                Minecraft.getInstance().submit(() -> {
+                    Minecraft.getInstance().textureManager.register(id, icon);
+                });
+            }
+        }
+
+        for (var oldPack : PACKS.values()) {
+            if (!packs.containsKey(oldPack.hierarchy()) && oldPack.icon() != null) {
+                final ResourceLocation id = ModelIdUtil.getModelPackIconId(oldPack.hierarchy());
+                Minecraft.getInstance().submit(() -> Minecraft.getInstance().textureManager.release(id));
+            }
+        }
+
+        PACKS = packs;
     }
 
     // Native Access
@@ -232,7 +273,7 @@ public class ClientModelManager {
             MODELS = models;
 
             if ((removedModelIds != null && removedModelIds.length > 0)
-                    || (alterModelIds != null && alterModelIds.length > 0)) {
+                || (alterModelIds != null && alterModelIds.length > 0)) {
                 invokeListener(listener -> listener.onAlterModels(models));
             }
         });
@@ -315,12 +356,12 @@ public class ClientModelManager {
         NEW_MODEL_QUEUE.poll();
 
         var models = new Object2ReferenceOpenHashMap<>(MODELS);
-        models.put(newModelPair.getMiddle(), newModelPair.getLeft());
-        // TODO: 处理模型路径
+        String modelPath = newModelPair.getMiddle();
+        models.put(modelPath, newModelPair.getLeft());
 
         MODELS = models;
         invokeListener(listener ->
-                listener.onNewModelLoaded(models, newModelPair.getMiddle(), newModelPair.getLeft()));
+                listener.onNewModelLoaded(models, modelPath, newModelPair.getLeft()));
     }
 
     public static class SyncState {

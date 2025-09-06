@@ -19,11 +19,11 @@ public class ModelPackInfo {
     /**
      * 最大 260 x 450，是游戏分辨率为 2k 且界面尺寸为 5 时 ModelButton 的大小。
      */
-    private final NativeTexture icon;
-    private final Map<String, Map<String, String>> lang;
+    private final @Nullable NativeTexture icon;
+    private final @Nullable Map<String, Map<String, String>> lang;
 
     // Native Access
-    public ModelPackInfo(String hierarchy, String name, String desc, @Nullable NativeTexture icon, Map<String, Map<String, String>> lang) {
+    public ModelPackInfo(String hierarchy, String name, String desc, @Nullable NativeTexture icon, @Nullable Map<String, Map<String, String>> lang) {
         this.hierarchy = hierarchy;
         this.name = name;
         this.desc = desc;
@@ -36,14 +36,14 @@ public class ModelPackInfo {
         return hierarchy;
     }
 
-    @Nullable
-    public String desc() {
-        return desc;
+    @NotNull
+    public String name() {
+        return name;
     }
 
     @Nullable
-    public String name() {
-        return name;
+    public String desc() {
+        return desc;
     }
 
     @Nullable

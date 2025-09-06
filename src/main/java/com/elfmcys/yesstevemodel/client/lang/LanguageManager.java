@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.lang;
 
 import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.data.ClientModelData;
+import com.elfmcys.yesstevemodel.client.data.ModelPackInfo;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.elfmcys.yesstevemodel.info.ModelStats;
 import com.elfmcys.yesstevemodel.info.stats.GeoModelStats;
@@ -14,6 +15,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,24 @@ import java.util.function.Function;
  */
 public class LanguageManager {
     public static final String DEFAULT_LANGUAGE_CODE = "en_us";
+
+    public static String getI18n(ModelPackInfo info, String key, @Nullable String defaultValue) {
+        if (defaultValue == null) {
+            defaultValue = "";
+        }
+        String local = Minecraft.getInstance().getLanguageManager().getSelected();
+        Map<String, Map<String, String>> languages = info.lang();
+        if (languages == null || languages.isEmpty()) {
+            return defaultValue;
+        }
+        if (languages.containsKey(local)) {
+            return languages.get(local).getOrDefault(key, defaultValue);
+        } else if (languages.containsKey(DEFAULT_LANGUAGE_CODE)) {
+            return languages.get(DEFAULT_LANGUAGE_CODE).getOrDefault(key, defaultValue);
+        } else {
+            return defaultValue;
+        }
+    }
 
     public static String getI18n(ClientModel data, String key, String defaultValue) {
         String local = Minecraft.getInstance().getLanguageManager().getSelected();
