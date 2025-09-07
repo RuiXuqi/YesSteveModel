@@ -10,35 +10,29 @@
 		"authors": [
 			{
 				"name": "哥斯拉",
-				"avatar": "avatar/gsl.png",
+				"avatar": "avatars/gsl.png",
 				"role": "模型"
 			},
 			{
 				"name": "星屑海螺",
-				"avatar": "avatar/hl.png",
+				"avatar": "avatars/hl.png",
 				"role": "动画"
 			},
 			{
-				"name": "蓝玫瑰",
-				"avatar": "avatar/lmg.png",
-				"role": "模型"
-			},
-			{
 				"name": "祸御神",
-				"avatar": "avatar/hys.png",
+				"avatar": "avatars/hys.png",
 				"role": "gui动画"
 			},
 			{
-				"name": "浅陌菌",
-				"avatar": "avatar/nico.png",
-				"role": "箭矢模型"
-			},
-			{
-				"name": "羊毛",
-				"avatar": "avatar/wool.png",
-				"role": "轮盘动画贡献者"
+				"name": "完全冻结",
+				"avatar": "avatars/af.png",
+				"role": "模型"
 			}
-		]
+		],
+		"link": {
+			"home": "https://afdian.com/a/ysmmod",
+			"donate": "https://afdian.com/a/ysmmod"
+		}
 	},
 	"files": {
 		"player": {
@@ -71,7 +65,7 @@
 		"height_scale": 0.7,
 		"width_scale": 0.7,
 		"extra_animation": {
-			"extra0": "变身",
+			"extra0": "",
 			"extra1": "",
 			"extra2": "",
 			"extra3": "",

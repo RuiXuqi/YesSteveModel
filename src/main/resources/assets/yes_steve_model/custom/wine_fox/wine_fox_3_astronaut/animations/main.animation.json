@@ -1091,20 +1091,14 @@
 					"scale": {
 						"0.0": [8.2, 1, 1],
 						"2.88": [8.2, 1, 1],
-						"3.6": {
-							"pre": [8.2, 25.5, 1],
-							"post": [8.2, 25.5, 1],
-							"lerp_mode": "catmullrom"
-						},
-						"4.76": {
-							"post": [8.2, 25.5, 1],
-							"lerp_mode": "catmullrom"
-						},
+						"3.6": [8.2, 1, 1],
+						"4.4": [8.2, 1, 1],
 						"5.12": {
+							"pre": [8.2, 18.1, 1],
 							"post": [8.2, 18.1, 1],
 							"lerp_mode": "catmullrom"
 						},
-						"6.0": {
+						"6.2": {
 							"post": [8.2, 20.2, 1],
 							"lerp_mode": "catmullrom"
 						},
@@ -3573,44 +3567,44 @@
 			},
 			"timeline": {
 				"0.0417": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"0.1667": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"0.2917": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"0.4167": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"0.5417": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"0.6667": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"0.7917": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"0.9167": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"1.0417": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				],
 				"1.1667": [
-					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);",
-					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,-0.2,0.1,0,20);"
+					"ysm.particle('minecraft:soul_fire_flame',0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);",
+					"ysm.particle('minecraft:soul_fire_flame',-0.1,0.75,-0.3,0,-0.5,0.2,0.1,0,20);"
 				]
 			}
 		},
@@ -5621,6 +5615,105 @@
 				},
 				"MLongLeftHair": {
 					"rotation": [0, 0, 0]
+				},
+				"AllBody2": {
+					"rotation": ["-90+ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)", 0, 0]
+				},
+				"RightArm2": {
+					"rotation": {
+						"0.0": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.3333": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.6667": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.0": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.3333": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				},
+				"LeftArm2": {
+					"rotation": {
+						"0.0": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.3333": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.6667": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.0": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.3333": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				},
+				"LeftLeg2": {
+					"rotation": {
+						"0.0": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.3333": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.6667": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.0": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.3333": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				},
+				"RightLeg2": {
+					"rotation": {
+						"0.0": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.3333": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"0.6667": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.0": {
+							"post": [-27.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"1.3333": {
+							"post": [32.5, 0, 0],
+							"lerp_mode": "catmullrom"
+						}
+					}
 				}
 			}
 		},
@@ -8568,37 +8661,11 @@
 						"0.375": [0, 0, 0]
 					}
 				},
-				"FOX": {
-					"position": {
-						"0.0": {
-							"post": [0, 0, 0],
-							"lerp_mode": "catmullrom"
-						},
-						"0.0833": {
-							"post": [0, 0, 2],
-							"lerp_mode": "catmullrom"
-						},
-						"0.1667": {
-							"post": [0, 0, -2],
-							"lerp_mode": "catmullrom"
-						},
-						"0.25": {
-							"post": [0, 0, 0],
-							"lerp_mode": "catmullrom"
-						}
-					}
-				},
 				"AllBody2": {
 					"rotation": {
 						"0.0": [0, 0, 0],
 						"0.0833": [0, 25, 0],
 						"0.125": [0, -35, 0],
-						"0.25": [0, 0, 0]
-					},
-					"position": {
-						"0.0": [0, 0, 0],
-						"0.0833": [2, 0, 2],
-						"0.125": [0, 0, -2],
 						"0.25": [0, 0, 0]
 					}
 				},
@@ -8638,7 +8705,8 @@
 				"LeftForeArm": {
 					"rotation": {
 						"0.0": [0, 0, 0],
-						"0.0833": [-17.97, 0, 0],
+						"0.0417": [-17.97, 0, 0],
+						"0.0833": [-122.5, 0, 0],
 						"0.125": [-122.5, 0, 0],
 						"0.2083": [-76.22, 0, 0],
 						"0.25": [-15, 0, 0],
@@ -8646,37 +8714,11 @@
 						"0.375": [0, 0, 0]
 					}
 				},
-				"FOX": {
-					"position": {
-						"0.0": {
-							"post": [0, 0, 0],
-							"lerp_mode": "catmullrom"
-						},
-						"0.0833": {
-							"post": [0, 0, 2],
-							"lerp_mode": "catmullrom"
-						},
-						"0.1667": {
-							"post": [0, 0, -2],
-							"lerp_mode": "catmullrom"
-						},
-						"0.25": {
-							"post": [0, 0, 0],
-							"lerp_mode": "catmullrom"
-						}
-					}
-				},
 				"AllBody2": {
 					"rotation": {
 						"0.0": [0, 0, 0],
 						"0.0833": [0, -25, 0],
 						"0.125": [0, 35, 0],
-						"0.25": [0, 0, 0]
-					},
-					"position": {
-						"0.0": [0, 0, 0],
-						"0.0833": [-2, 0, 2],
-						"0.125": [0, 0, -2],
 						"0.25": [0, 0, 0]
 					}
 				},
@@ -8751,6 +8793,58 @@
 				}
 			}
 		},
+		"swing_offhand": {
+			"animation_length": 0.375,
+			"bones": {
+				"AllBody2": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0833": [0, -25, 0],
+						"0.125": [0, 35, 0],
+						"0.25": [0, 0, 0]
+					}
+				},
+				"Head2": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0833": [0, -40, 0],
+						"0.125": [0, 45, 0],
+						"0.25": [0, 0, 0]
+					}
+				},
+				"wb": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0833": [0, -60, 0],
+						"0.125": [0, -50, 0],
+						"0.1667": [0, 50, 0],
+						"0.25": [0, 0, 0]
+					}
+				},
+				"LeftArm": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0833": [3.52, -1.12, -18.13],
+						"0.125": [-7.5, 0, -35],
+						"0.2083": [-43.79, 17.87, -24.92],
+						"0.25": [-45.07, 31.77, -9.3],
+						"0.2917": [-22.62, 16.75, -3.67],
+						"0.375": [0, 0, 0]
+					}
+				},
+				"LeftForeArm": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0417": [-17.97, 0, 0],
+						"0.0833": [-122.5, 0, 0],
+						"0.2083": [-76.22, 0, 0],
+						"0.25": [-15, 0, 0],
+						"0.2917": [-0.78, 0, 0],
+						"0.375": [0, 0, 0]
+					}
+				}
+			}
+		},
 		"——物理模拟——": {
 			"loop": true
 		},
@@ -8803,7 +8897,7 @@
 					"rotation": [
 						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
 						0,
-						"ysm.second_order('头发角速度', math.clamp(-0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
 					]
 				},
 				"RightHairA1": {
@@ -8928,7 +9022,7 @@
 					"rotation": [
 						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
 						0,
-						"ysm.second_order('头发角速度', math.clamp(-0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
 					]
 				},
 				"FLongLeftHair": {
@@ -8938,7 +9032,7 @@
 					"rotation": [
 						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
 						0,
-						"ysm.second_order('头发角速度', math.clamp(-0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
 					]
 				}
 			},
@@ -9280,12 +9374,52 @@
 				},
 				"Backgrounds": {
 					"scale": 0
+				},
+				"SpaceHelmet": {
+					"scale": "v.roaming.helmet"
+				},
+				"BaseHair": {
+					"scale": "!v.roaming.helmet"
+				},
+				"RightSideHair": {
+					"scale": "!v.roaming.helmet"
+				},
+				"LeftSideHair": {
+					"scale": "!v.roaming.helmet"
+				},
+				"LongHair": {
+					"scale": "!v.roaming.helmet"
+				},
+				"LongRightHair": {
+					"scale": "!v.roaming.helmet"
+				},
+				"LongLeftHair": {
+					"scale": "!v.roaming.helmet"
+				},
+				"Ear": {
+					"scale": "!v.roaming.helmet"
 				}
 			}
 		},
 		"pre_parallel3": {
 			"loop": true,
-			"animation_length": 8
+			"animation_length": 5,
+			"bones": {
+				"Left_ear": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0417": [0, -22.5, 0],
+						"0.0833": [0, 0, 0]
+					}
+				},
+				"Right_ear": {
+					"rotation": {
+						"0.0417": [0, 0, 0],
+						"0.0833": [0, 22.5, 0],
+						"0.125": [0, 0, 0]
+					}
+				}
+			}
 		},
 		"pre_parallel4": {
 			"loop": true,
@@ -9324,17 +9458,11 @@
 				"LeftEyePublic": {
 					"position": ["ysm.head_yaw/360", "ysm.head_pitch/360", 0]
 				},
-				"SpaceHelmet": {
-					"scale": "v.roaming.helmet"
-				},
-				"RightSideHair": {
-					"scale": "!v.roaming.helmet"
-				},
-				"LeftSideHair": {
-					"scale": "!v.roaming.helmet"
-				},
 				"SpaceHelmetHair": {
 					"scale": "v.roaming.helmet"
+				},
+				"AllHead2": {
+					"rotation": ["-ysm.head_pitch", "-ysm.head_yaw", 0]
 				}
 			}
 		},
