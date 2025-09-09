@@ -186,19 +186,19 @@
 			"states": {
 				"default": {
 					"transitions": [
-						{"摘下头盔": "!ysm.has_helmet&&v.roaming.helmet"},
-						{"戴上头盔": "ysm.has_helmet&&!v.roaming.helmet"}
+						{"extra6": "!ysm.has_helmet&&v.roaming.helmet"},
+						{"extra7": "ysm.has_helmet&&!v.roaming.helmet"}
 					]
 				},
-				"摘下头盔": {
-					"animations": ["摘下头盔"],
+				"extra6": {
+					"animations": ["extra6"],
 					"on_exit": ["v.roaming.helmet=0;"],
 					"transitions": [
 						{"default": "q.all_animations_finished"}
 					]
 				},
-				"戴上头盔": {
-					"animations": ["戴上头盔"],
+				"extra7": {
+					"animations": ["extra7"],
 					"on_exit": ["v.roaming.helmet=1;"],
 					"transitions": [
 						{"default": "q.all_animations_finished"}
