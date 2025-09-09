@@ -1,13 +1,13 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.EntityTickStates;
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalSwing;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,9 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? extends LivingEntity>> {
+public class SwingPredicate implements IAnimationPredicate<CustomHumanoidEntity<?>> {
     @Override
-    public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
+    public PlayState test(AnimationEvent<CustomHumanoidEntity<?>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
@@ -32,13 +32,10 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
             }
             String animationName = SlashBladeCompat.getAnimationName(event);
             if (StringUtils.isNoneBlank(animationName)) {
-                String id = event.getAnimatableEntity().getModelId();
-                return ClientModelManager.getModel(id).map(clientModel -> {
-                    if (clientModel.animations().containsKey(animationName)) {
-                        return playAnimation(event, animationName);
-                    }
-                    return PlayState.CONTINUE;
-                }).orElse(PlayState.STOP);
+                if (event.getAnimatableEntity().getAnimation(animationName) != null) {
+                    return playAnimation(event, animationName);
+                }
+                return PlayState.CONTINUE;
             }
         }
 
@@ -48,8 +45,8 @@ public class SwingPredicate implements IAnimationPredicate<AnimatableEntity<? ex
                 // swing 开始时重置动画
                 event.getCodedController().indicateReload();
             }
-            String id = event.getAnimatableEntity().getModelId();
-            ConditionalSwing conditionalSwing = ClientModelManager.getModel(id).map(model -> (entity.swingingArm == InteractionHand.MAIN_HAND) ? model.conditionManager().getSwingMainhand() : model.conditionManager().getSwingOffhand()).orElse(null);
+            ConditionManager conditionManager = event.getAnimatableEntity().getConditionManager();
+            ConditionalSwing conditionalSwing = entity.swingingArm == InteractionHand.MAIN_HAND ? conditionManager.getSwingMainhand() : conditionManager.getSwingOffhand();
             if (conditionalSwing != null) {
                 String name = conditionalSwing.doTest(entity, entity.swingingArm);
                 if (StringUtils.isNoneBlank(name)) {

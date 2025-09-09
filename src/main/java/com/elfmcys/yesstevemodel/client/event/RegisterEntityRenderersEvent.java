@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
-import com.elfmcys.yesstevemodel.client.renderer.CustomArrowRenderer;
+import com.elfmcys.yesstevemodel.client.renderer.CustomProjectileRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomFirstPersonArmRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import net.minecraft.client.Minecraft;
@@ -23,7 +23,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class RegisterEntityRenderersEvent {
     private static CustomPlayerRenderer CUSTOM_PLAYER_RENDERER;
-    private static CustomArrowRenderer CUSTOM_ARROW_RENDERER;
+    private static CustomProjectileRenderer CUSTOM_ARROW_RENDERER;
     private static CustomFirstPersonArmRenderer CUSTOM_FIRST_PERSON_RENDERER;
 
     private static void init(ResourceManager resourceManager) {
@@ -35,7 +35,7 @@ public class RegisterEntityRenderersEvent {
         Font font = Minecraft.getInstance().font;
         EntityRendererProvider.Context context = new EntityRendererProvider.Context(dispatcher, itemRenderer, blockRenderer, itemInHandRenderer, resourceManager, entityModels, font);
         CUSTOM_PLAYER_RENDERER = new CustomPlayerRenderer(context);
-        CUSTOM_ARROW_RENDERER = new CustomArrowRenderer(context);
+        CUSTOM_ARROW_RENDERER = new CustomProjectileRenderer(context);
         CUSTOM_FIRST_PERSON_RENDERER = new CustomFirstPersonArmRenderer();
         SophisticatedCompat.init();
     }
@@ -55,7 +55,7 @@ public class RegisterEntityRenderersEvent {
         return CUSTOM_PLAYER_RENDERER;
     }
 
-    public static CustomArrowRenderer getArrowRenderer() {
+    public static CustomProjectileRenderer getArrowRenderer() {
         if (CUSTOM_ARROW_RENDERER == null) {
             init(Minecraft.getInstance().getResourceManager());
         }

@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.SyncCapability;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.event.UpdateRemoteStruct;
@@ -13,7 +12,6 @@ import com.github.tartaricacid.touhoulittlemaid.entity.item.EntitySit;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntityRenderer;
 import com.github.tartaricacid.touhoulittlemaid.item.ItemHakureiGohei;
-import com.mojang.blaze3d.audio.SoundBuffer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -21,8 +19,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class TlmClientCompatInner {
@@ -71,18 +67,6 @@ public class TlmClientCompatInner {
 
     static boolean isGohei(Item item) {
         return item instanceof ItemHakureiGohei;
-    }
-
-    static SoundBuffer getSoundBuffer(Entity entity, String soundPath) {
-        if (entity instanceof EntityMaid maid) {
-            return maid.getCapability(YsmMaidCapabilityProvider.CAP)
-                    .map(cap -> ClientModelManager.getModel(cap.getModelId())
-                            .map(model -> model.sounds().get(soundPath)))
-                    .orElse(Optional.empty())
-                    .map(data -> new SoundBuffer(data.byteBuffer(), data.audioFormat()))
-                    .orElse(null);
-        }
-        return null;
     }
 
     static CustomYsmMaidRenderer getRenderer() {

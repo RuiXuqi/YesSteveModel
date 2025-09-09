@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.command.ClientRootCommand;
 import com.elfmcys.yesstevemodel.command.RootCommand;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.brigadier.StringReader;
@@ -44,7 +43,7 @@ public final class CommandRegistry {
                 // Fixme: 应该为服务器后台也添加提示功能
                 return Suggestions.empty();
             } else {
-                var main = ClientModelManager.getModels().get(ModelIdUtil.DEFAULT_MODEL_ID).animations();
+                var main = ClientModelManager.getDefaultModel().playerModel().animations();
                 Set<String> animations = Sets.newHashSet();
                 animations.addAll(main.keySet().stream().map(CommandRegistry::filterSuggestionStr).toList());
                 animations.add("stop");
@@ -60,15 +59,14 @@ public final class CommandRegistry {
             String modelId = source.getArgument("model_id", String.class);
             if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
                 if (ServerModelManager.getModels().containsKey(modelId)) {
-                    List<String> textures = ServerModelManager.getModels().get(modelId).textures();
+                    List<String> textures = ServerModelManager.getModels().get(modelId).playerModel().textures();
                     return SharedSuggestionProvider.suggest(textures.stream()
-                                    .filter(name -> !name.equals(ModelIdUtil.ARROW_TEXTURE_NAME_PLACEHOLDER))
                                     .map(CommandRegistry::filterSuggestionStr).toList()
                             , builder);
                 }
             } else {
                 if (ClientModelManager.getModels().containsKey(modelId)) {
-                    return SharedSuggestionProvider.suggest(ClientModelManager.getModel(modelId).map(model -> model.textures().keyList().stream()
+                    return SharedSuggestionProvider.suggest(ClientModelManager.getModel(modelId).map(model -> model.playerModel().textures().keyList().stream()
                                     .map(CommandRegistry::filterSuggestionStr).toList())
                             .orElseGet(Lists::newArrayList), builder);
                 }

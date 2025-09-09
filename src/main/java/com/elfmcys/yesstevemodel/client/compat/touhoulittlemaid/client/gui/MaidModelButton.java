@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.gui;
 
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
 import com.elfmcys.yesstevemodel.util.NameUtil;
@@ -25,7 +25,6 @@ public class MaidModelButton extends ModelButton {
         }
         Component name = NameUtil.getModeName(model, animatedEntity.getModelId());
         this.maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
-            var oldModelId = cap.getModelId();
             cap.setYsmModel(animatedEntity.getModelId(), animatedEntity.getTextureName());
             // TODO: 重置 roaming 变量
             NetworkHandler.CHANNEL.sendToServer(new YsmMaidModelMessage(this.maid.getId(), animatedEntity.getModelId(), animatedEntity.getTextureName(), name));

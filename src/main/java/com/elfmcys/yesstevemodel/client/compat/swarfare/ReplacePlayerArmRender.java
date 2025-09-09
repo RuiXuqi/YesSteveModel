@@ -5,7 +5,7 @@ import com.atsuishio.superbwarfare.client.renderer.CustomGunRenderer;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.renderer.CustomFirstPersonArmRenderer;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
@@ -41,7 +41,7 @@ public class ReplacePlayerArmRender {
             String modelId = cap.getModelId();
             HumanoidArm arm = event.getArm();
             ClientModel model = ClientModelManager.getModel(modelId).orElse(null);
-            if (model == null || !hasArmBone(arm, model.armModel())) {
+            if (model == null || !hasArmBone(arm, model.playerModel().armModel())) {
                 return;
             }
             PoseStack poseStack = event.getStack();

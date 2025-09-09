@@ -21,7 +21,7 @@ public class ArrowRendererMixin {
         if (YesSteveModel.isAvailable() && !ClientConfig.DISABLE_ARROWS_MODEL.get() && pEntity instanceof IArrowExtraInfo) {
             pEntity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isInitialized() && cap.isModelPresent()) {
-                    RegisterEntityRenderersEvent.getArrowRenderer().render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
+                    RegisterEntityRenderersEvent.getArrowRenderer().render(cap, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
                     callback.cancel();
                 }
             });

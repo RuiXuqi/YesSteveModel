@@ -1,12 +1,11 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.api.IEntityExtraInfo;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalHold;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
+import com.elfmcys.yesstevemodel.client.entity.HumanoidStateTracker;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,9 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class OffhandPredicate implements IAnimationPredicate<AnimatableEntity<? extends LivingEntity>> {
+public class OffhandPredicate implements IAnimationPredicate<CustomHumanoidEntity<?>> {
     @Override
-    public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
+    public PlayState test(AnimationEvent<CustomHumanoidEntity<?>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
@@ -34,13 +33,13 @@ public class OffhandPredicate implements IAnimationPredicate<AnimatableEntity<? 
             return playAnimation(event, "hold_offhand:charged_crossbow");
         }
 
-        if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(offhandItem, info, InteractionHand.OFF_HAND)) {
-            info.setHandItem(offhandItem, InteractionHand.OFF_HAND);
+        var tracker = event.getAnimatableEntity().getStateTracker();
+        if (!isSameItem(offhandItem, tracker, InteractionHand.OFF_HAND)) {
+            tracker.setHandItem(offhandItem, InteractionHand.OFF_HAND);
             event.getCodedController().indicateReload();
         }
 
-        String id = event.getAnimatableEntity().getModelId();
-        ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldOffhand()).orElse(null);
+        ConditionalHold conditionalHold = event.getAnimatableEntity().getConditionManager().getHoldOffhand();
         if (conditionalHold != null) {
             String name = conditionalHold.doTest(entity, InteractionHand.OFF_HAND);
             if (StringUtils.isNoneBlank(name)) {
@@ -51,8 +50,8 @@ public class OffhandPredicate implements IAnimationPredicate<AnimatableEntity<? 
         return PlayState.STOP;
     }
 
-    private boolean isSameItem(ItemStack playerItem, IEntityExtraInfo info, InteractionHand hand) {
-        ItemStack preItem = info.getHandItem(hand);
+    private boolean isSameItem(ItemStack playerItem, HumanoidStateTracker<?> tracker, InteractionHand hand) {
+        ItemStack preItem = tracker.getHandItem(hand);
         if (preItem.isDamaged()) {
             return ItemStack.isSameItem(playerItem, preItem);
         }

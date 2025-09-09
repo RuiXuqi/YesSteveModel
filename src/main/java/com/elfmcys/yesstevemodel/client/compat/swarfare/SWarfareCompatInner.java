@@ -5,13 +5,10 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.atsuishio.superbwarfare.item.LungeMine;
 import com.atsuishio.superbwarfare.item.gun.GunItem;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,8 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 
+@SuppressWarnings("removal")
 public class SWarfareCompatInner {
     private static final TagKey<Item> PISTOL = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:animated/pistol"));
     private static final TagKey<Item> RPG = TagKey.create(Registries.ITEM, new ResourceLocation("superbwarfare:animated/rpg"));
@@ -72,7 +69,7 @@ public class SWarfareCompatInner {
     }
 
     @Nullable
-    static PlayState playLungeMineAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
+    static PlayState playLungeMineAnimation(AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event) {
         LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
         if (!Objects.equals(Minecraft.getInstance().player, livingEntity)) {
             return null;
@@ -98,18 +95,17 @@ public class SWarfareCompatInner {
      * tac:run
      * tac:walk
      */
-    static PlayState playGunMainAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
+    static PlayState playGunMainAnimation(AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
         String tacName = "tac:" + animationName;
-        String modelId = event.getAnimatableEntity().getModelId();
-        Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, tacName);
-        if (playerAnimation.isPresent()) {
+        var playerAnimation = event.getAnimatableEntity().getAnimation(tacName);
+        if (playerAnimation != null) {
             return playAnimation(event, tacName, loopType);
         }
         return playAnimation(event, animationName, loopType);
     }
 
     @NotNull
-    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack gun, String prefix) {
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event, ItemStack gun, String prefix) {
         return getGunTypeAnimation(event, gun, prefix, LoopType.LOOP);
     }
 
@@ -121,7 +117,7 @@ public class SWarfareCompatInner {
      * tac:hold_shoot:pistol
      * tac:run:pistol
      */
-    static PlayState playGunHoldAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
+    static PlayState playGunHoldAnimation(AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event, ItemStack heldItem) {
         // 先检查刺雷
         PlayState playState = playLungeMineAnimation(event);
         if (playState != null) {
@@ -159,7 +155,7 @@ public class SWarfareCompatInner {
     /**
      * 这些动画可能是带有后摇的动画，故需要单独分一个频道来播放，从而才能超过时长进行播放
      */
-    static PlayState playGunOnceAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
+    static PlayState playGunOnceAnimation(AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event, ItemStack heldItem) {
         if (!(heldItem.getItem() instanceof GunItem gunItem)) {
             return PlayState.STOP;
         }
@@ -201,10 +197,9 @@ public class SWarfareCompatInner {
     }
 
     @NotNull
-    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event,
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event,
                                                  ItemStack gun, String prefix, LoopType loopType) {
-        String modelId = event.getAnimatableEntity().getModelId();
-        ConditionTAC gunCondition = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
+        var gunCondition = event.getAnimatableEntity().getConditionManager().getTAC();
         if (gunCondition != null) {
             ItemStack stack = event.getAnimatableEntity().getEntity().getMainHandItem();
             String name = gunCondition.doTest(stack, prefix);

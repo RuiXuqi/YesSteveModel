@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.input;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
@@ -54,7 +53,8 @@ public class ExtraAnimationKey {
         }
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
             if (key.isDown() && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+                    var model = cap.getModelContainer();
                     int index = EXTRA_ANIMATION_KEYS.indexOf(key);
                     ModelProperties properties = model.modelInfo().properties();
                     var animationMap = properties.extraAnimationOrderMap();
@@ -75,7 +75,7 @@ public class ExtraAnimationKey {
                             NetworkHandler.sendToServer(new SetPlayAnimation(index, ""));
                         }
                     }
-                }));
+                });
                 return;
             }
         }

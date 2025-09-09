@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.input;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
@@ -46,7 +45,7 @@ public class AnimationRouletteKey {
             } else if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     String modelId = cap.getModelId();
-                    var model = ClientModelManager.getModels().get(modelId);
+                    var model = cap.getModelContainer();
                     if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
                         if (Minecraft.getInstance().screen == null) {
                             Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model, cap));

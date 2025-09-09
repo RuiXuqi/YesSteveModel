@@ -90,6 +90,7 @@ public class YSMBinding extends ContextBinding {
         entityVar("eye_in_water", ctx -> ctx.entity().isUnderWater());
         entityVar("frozen_ticks", ctx -> ctx.entity().getTicksFrozen());
         entityVar("air_supply", ctx -> ctx.entity().getAirSupply());
+        entityVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
 
         livingEntityVar("has_helmet", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.HEAD));
         livingEntityVar("has_chest_plate", ctx -> getSlotValue(ctx.entity(), EquipmentSlot.CHEST));
@@ -152,10 +153,10 @@ public class YSMBinding extends ContextBinding {
         function("perlin_noise", new PerlinNoiseFunction());
         function("sync", new Sync());
 
+        projectileVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));
+
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());
-        abstractArrowVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));
-        abstractArrowVar("delta_movement_length", ctx -> ctx.entity().getDeltaMovement().length());
         abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
         abstractArrowVar("shoot_item_id", ctx -> ((IArrowExtraInfo) ctx.entity()).getShootItemId());
 

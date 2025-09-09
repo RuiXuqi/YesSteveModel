@@ -58,7 +58,15 @@ public class SoundKeyframeExecutor {
             soundInstance = instance;
         } else {
             // 否则认为是自定义的音频文件
-            CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundName, targetEntity);
+            var soundData = animatable.getSoundData(soundName);
+            if (soundData == null) {
+                var debugSource = animatable.getDebugSource();
+                if (debugSource != null) {
+                    debugSource.print("Sound not found: " + soundName);
+                }
+                return;
+            }
+            CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundData, targetEntity);
             cachePlaySounds.add(instance);
             soundInstance = instance;
         }

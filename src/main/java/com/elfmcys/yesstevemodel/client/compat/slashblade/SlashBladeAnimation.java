@@ -1,8 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.slashblade;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
@@ -15,8 +13,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 public class SlashBladeAnimation {
     static boolean isSlashBlade(ItemStack stack) {
@@ -40,9 +36,7 @@ public class SlashBladeAnimation {
      */
     static PlayState playMainAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
         String name = "slashblade:" + animationName;
-        String modelId = event.getAnimatableEntity().getModelId();
-        Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, name);
-        if (playerAnimation.isPresent()) {
+        if (event.getAnimatableEntity().getAnimation(name) != null) {
             return playAnimation(event, name, loopType);
         }
         return playAnimation(event, animationName, loopType);

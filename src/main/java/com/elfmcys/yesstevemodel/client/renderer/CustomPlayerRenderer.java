@@ -50,12 +50,13 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
             return;
         }
 
+        var animEvent = updateAnimation(cap, partialTick);
         var event = new SpecialPlayerRenderEvent(player, cap, cap.getModelId());
         if (MinecraftForge.EVENT_BUS.post(event)) {
             return;
         }
 
-        renderAnimatableEntity(cap, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        renderAnimatableEntity(cap, animEvent, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override

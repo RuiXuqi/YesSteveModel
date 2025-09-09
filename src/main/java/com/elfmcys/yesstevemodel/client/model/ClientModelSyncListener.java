@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.data;
+package com.elfmcys.yesstevemodel.client.model;
 
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;

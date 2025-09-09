@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.command;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.command.sub.MolangCommand;
 import com.elfmcys.yesstevemodel.client.command.sub.SimpleWatchCommand;
@@ -39,7 +38,6 @@ public class ClientRootCommand {
         dispatcher.register(root);
     }
 
-    @SuppressWarnings("unchecked")
     public static final SuggestionProvider<CommandSourceStack> ALL_VARS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "vars"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider && FMLEnvironment.dist == Dist.CLIENT) {
             LocalPlayer player = Minecraft.getInstance().player;
@@ -72,11 +70,9 @@ public class ClientRootCommand {
                 });
 
                 // 自定义函数
-                ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
-                    for (var name : model.userFunctions().keySet()) {
-                        vars.add(String.format("fn.%s", StringPool.getString(name)));
-                    }
-                });
+                for (var name : cap.getModelContainer().assets().userFunctions().keySet()) {
+                    vars.add(String.format("fn.%s", StringPool.getString(name)));
+                }
             });
             return SharedSuggestionProvider.suggest(vars, builder);
         }

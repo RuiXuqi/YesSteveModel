@@ -1,12 +1,13 @@
 package com.elfmcys.yesstevemodel.geckolib3.model;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
+import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.client.event.ClientTickEvent;
+import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
@@ -23,7 +24,6 @@ import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.elfmcys.yesstevemodel.util.UnsafeUtil;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -42,10 +42,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     private final AnimationProcessor<TEntity> animationProcessor;
     private final RateLimiter rateLimiter;
     private final EntityStateTracker<TEntity> stateTracker;
+    protected final PhysicsManager physicsManager;
 
     protected final TEntity entity;
     private GeoModelState currentModel;
     private Int2ReferenceMap<List<IValue>> eventHandlers;
+
 
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
     protected float lastFrameTime;
@@ -67,6 +69,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.animationProcessor = new AnimationProcessor<>(this);
         this.rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
         this.stateTracker = createStateTracker(entity);
+        this.physicsManager = new PhysicsManager();
         if (asyncUpdate) {
             AnimationParallelTicker.register(this);
         }
@@ -92,20 +95,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return manager;
     }
 
-    public abstract String getModelId();
-
     public abstract ResourceLocation getTextureLocation();
-
-    /**
-     * 获取当前选中的模型，
-     * 在更新前未必等于 currentModel
-     */
-    public abstract GeoModel getModel();
-
-    @NotNull
-    public Int2ReferenceMap<List<IValue>> getEventHandlers() {
-        return Int2ReferenceMaps.emptyMap();
-    }
 
     public abstract boolean isModelPresent();
 
@@ -122,12 +112,21 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     @Nullable
-    public List<IValue> getEventHandler(int name) {
+    public SoundData getSoundData(String name) {
         return null;
     }
 
     @Nullable
-    public GeoAnimationController getAnimationControllerData(String animationControllerName) {
+    public final List<IValue> getEventHandler(int name) {
+        return this.eventHandlers.get(name);
+    }
+
+    public PhysicsManager getPhysicsManager() {
+        return physicsManager;
+    }
+
+    @Nullable
+    public AnimationControllerData getAnimationControllerData(String animationControllerName) {
         return null;
     }
 
@@ -159,30 +158,34 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return animationProcessor.getBone(boneName);
     }
 
-    protected abstract boolean allowEmitting();
+    protected boolean allowEmitting() {
+        // 同帧内只有第一次更新允许生成行为
+        return currentFrameRenderTimes == 1;
+    }
 
     protected boolean updateAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
         var frameTime = animationEvent.getEntityTickCount() + animationEvent.getPartialTick();
-
-        if (manager.startTick == -1) {
-            manager.startTick = frameTime;
-        } else {
-            float currentTick = frameTime - manager.startTick;
-            float deltaTicks = currentTick - manager.lastTick;
-            if (deltaTicks > 0f) {
-                manager.lastTick = currentTick;
-            } else {
-                // 目前不允许倒退，可能会影响 replay 的回放
-                deltaTicks = 0;
-            }
-            this.seekTime += deltaTicks;
-        }
 
         if (frameTime > lastFrameTime) {
             currentFrameRenderTimes = 1;
             lastFrameTime = frameTime;
         } else {
             currentFrameRenderTimes++;
+            frameTime = lastFrameTime;
+        }
+
+        if (manager.startTick == -1) {
+            manager.startTick = frameTime;
+        } else {
+            float currentTick = frameTime - manager.startTick;
+            float deltaTicks = currentTick - manager.lastTick;
+            if (deltaTicks >= 0f) {
+                manager.lastTick = currentTick;
+            } else {
+                // 目前不允许倒退，可能会影响 replay 的回放
+                deltaTicks = 0;
+            }
+            this.seekTime += deltaTicks;
         }
 
         boolean forceUpdate = this.shouldForceUpdate();
@@ -192,6 +195,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             var shouldUpdate = rateLimiter.request(seekTime / 20);
             if (forceUpdate || shouldUpdate) {
                 stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
+                physicsManager.update(this.seekTime);
                 preAnimationSetup(this.seekTime);
                 getAnimationProcessor().tickAnimation(animationEvent, ctx, allowEmitting());
                 return true;
@@ -205,37 +209,40 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     /**
-     * 检查选择的模型是否有更新并尝试更新，成功更新返回 true，未更新返回 false
+     * 设置模型
      */
-    public boolean updateCurrentModel(boolean force) {
-        GeoModel model = getModel();
-        if (model == null) {
-            if (this.currentModel != null) {
-                this.currentModel = null;
-                return true;
-            }
-            return false;
+    protected void loadGeoModel(@NotNull GeoModel model, Int2ReferenceMap<List<IValue>> eventHandlers) {
+        this.currentModel = new GeoModelState(model);
+        this.eventHandlers = eventHandlers;
+        this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
+        onLoadGeoModel(this.currentModel);
+    }
+
+    public void reloadGeoModel() {
+        if (this.currentModel != null) {
+            this.currentModel = new GeoModelState(this.currentModel.model());
+            this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
+            onLoadGeoModel(this.currentModel);
         }
-        if (force || this.currentModel == null || model != this.currentModel.model()) {
-            this.currentModel = new GeoModelState(model);
-            this.animationProcessor.registerModel(currentModel.boneMap(), getEventHandlers());
-            setupModel(this.currentModel);
-            return true;
-        }
-        return false;
+    }
+
+    protected boolean prepareForUpdate() {
+        return true;
     }
 
     /**
      * 获取当前正在使用的模型
      */
-    public GeoModelState getCurrentModel() {
+    @Nullable
+    public final GeoModelState getLoadedGeoModel() {
         return currentModel;
     }
 
     /**
      * 更新当前使用的模型后调用
      */
-    protected void setupModel(GeoModelState model) {
+    protected void onLoadGeoModel(GeoModelState model) {
+        physicsManager.reset();
     }
 
     public boolean shouldForceUpdate() {
@@ -271,7 +278,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                 UnsafeUtil.getUnsafe().loadFence();
             } catch (InterruptedException ignored) {
             } catch (Throwable e) {
-                YesSteveModel.LOGGER.error("Error updating animation.", e);
+                e.printStackTrace();
             }
             task = null;
             return result;
@@ -294,8 +301,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     @Nullable
     protected AnimationEvent<?> performUpdate(float partialTicks) {
-        this.updateCurrentModel(false);
-        if (this.currentModel == null) {
+        if (!prepareForUpdate() || this.currentModel == null) {
             return null;
         }
         final Entity entity = this.entity;
@@ -369,19 +375,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     public boolean canUpdateAsync() {
-        return false;
+        return true;
     }
 
     @SuppressWarnings("resource")
     public boolean isActive() {
         return Minecraft.getInstance().level == entity.level() && !entity.isRemoved();
-    }
-
-    public boolean isTacGunAnimationNeedReload() {
-        return false;
-    }
-
-    public void setTacGunAnimationNeedReload(boolean needReload) {
     }
 
     public void setCodedAnimationStates(String controllerName, AnimationState state) {

@@ -1,9 +1,9 @@
 package com.elfmcys.yesstevemodel.client.compat.swarfare;
 
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +56,7 @@ public class SWarfareCompat {
 
     @Nullable
     public static PlayState playGunMainAnimation(LivingEntity livingEntity,
-                                                 AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event,
+                                                 AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event,
                                                  String animationName, LoopType loopType) {
         if (INSTALLED && SWarfareCompatInner.isGun(livingEntity.getMainHandItem())) {
             return SWarfareCompatInner.playGunMainAnimation(event, animationName, loopType);
@@ -66,7 +66,7 @@ public class SWarfareCompat {
 
     @Nullable
     public static PlayState playGunHoldAnimation(ItemStack mainHandItem,
-                                                 AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
+                                                 AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event) {
         if (INSTALLED) {
             return SWarfareCompatInner.playGunHoldAnimation(event, mainHandItem);
         }
@@ -74,7 +74,7 @@ public class SWarfareCompat {
     }
 
     @Nullable
-    public static PlayState playGunOnceAnimation(ItemStack mainHandItem, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
+    public static PlayState playGunOnceAnimation(ItemStack mainHandItem, AnimationEvent<? extends CustomHumanoidEntity<? extends LivingEntity>> event) {
         if (INSTALLED && SWarfareCompatInner.isGun(mainHandItem)) {
             return SWarfareCompatInner.playGunOnceAnimation(event, mainHandItem);
         }

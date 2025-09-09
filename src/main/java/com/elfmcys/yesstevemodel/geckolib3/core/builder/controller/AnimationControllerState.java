@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 // Native Access
-public class GeoAnimationControllerState {
+public class AnimationControllerState {
     private final List<Pair<String, @Nullable IValue>> animations;
     private final List<Pair<String, IValue>> transitions;
     private final List<IValue> onEntry;
@@ -19,7 +19,7 @@ public class GeoAnimationControllerState {
     private final boolean blendViaShortestPath;
 
     // Native Access
-    public GeoAnimationControllerState(Pair<String, IValue>[] animations, Pair<String, IValue>[] transitions, IValue[] onEntry, IValue[] onExit, IBlendTransition blendTransition, boolean blendViaShortestPath) {
+    public AnimationControllerState(Pair<String, IValue>[] animations, Pair<String, IValue>[] transitions, IValue[] onEntry, IValue[] onExit, IBlendTransition blendTransition, boolean blendViaShortestPath) {
         this.animations = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(animations));
         this.transitions = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(transitions));
         this.onEntry = ReferenceLists.unmodifiable(ReferenceArrayList.wrap(onEntry));

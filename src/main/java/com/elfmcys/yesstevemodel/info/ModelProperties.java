@@ -62,6 +62,7 @@ public class ModelProperties {
         return heightScale;
     }
 
+    // 清单的原始值可能有错，应该用 modelContainer.playerModel().defaultTextureName()
     public String defaultTexture() {
         return defaultTexture;
     }

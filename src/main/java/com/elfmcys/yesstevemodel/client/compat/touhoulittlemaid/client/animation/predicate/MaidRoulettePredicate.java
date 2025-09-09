@@ -21,7 +21,7 @@ public class MaidRoulettePredicate implements IAnimationPredicate<CustomYsmMaidE
         }
 
         if (animatable.isRouletteAnimPlaying()) {
-            if (animatable.isRouletteAnimDirty()) {
+            if (animatable.shouldResetRouletteAnim()) {
                 animatable.clearRouletteAnimDirty();
                 event.getCodedController().indicateReload();
             }

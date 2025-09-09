@@ -1,18 +1,15 @@
 package com.elfmcys.yesstevemodel.client;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.client.data.*;
+import com.elfmcys.yesstevemodel.client.model.*;
+import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
 import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
-import com.elfmcys.yesstevemodel.info.type.ProjectileType;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToServer;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.Connection;
@@ -28,10 +25,7 @@ import org.apache.logging.log4j.message.StringFormattedMessage;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
@@ -44,7 +38,7 @@ public class ClientModelManager {
 
     private static ClientModel DEFAULT_MODEL;
 
-    private static final ConcurrentLinkedQueue<Triple<ClientModel, String, ObjectArrayFIFOQueue<Pair<ResourceLocation, AbstractTexture>>>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<Triple<ClientModel, String, List<Pair<ResourceLocation, AbstractTexture>>>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
     private static final ConcurrentLinkedQueue<ResourceLocation> REMOVED_TEXTURE_QUEUE = new ConcurrentLinkedQueue<>();
 
     private static final WeakHashMap<ClientModelSyncListener, Object> LISTENERS = new WeakHashMap<>();
@@ -71,38 +65,6 @@ public class ClientModelManager {
 
     public static ClientModel getDefaultModel() {
         return DEFAULT_MODEL;
-    }
-
-    public static Optional<Animation> getPlayerAnimation(String modelId, String animationName) {
-        var model = MODELS.get(modelId);
-        if (model == null) {
-            return Optional.ofNullable(DEFAULT_MODEL.animations().get(animationName));
-        }
-        return Optional.ofNullable(model.animations().get(animationName));
-    }
-
-    public static @Nullable IValue getUserFunction(String modelId, int functionName) {
-        return getModel(modelId).map(m -> m.userFunctions().get(functionName)).orElse(null);
-    }
-
-    public static @Nullable List<IValue> getMolangEventHandler(String modelId, int eventName) {
-        return getModel(modelId).map(m -> m.eventHandlers().get(eventName)).orElse(null);
-    }
-
-    public static Optional<ProjectileModel> getProjectileModel(String modelId, ProjectileType type) {
-        var model = MODELS.get(modelId);
-        if (model == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(model.projectileModels().get(type));
-    }
-
-    public static Optional<ResourceLocation> getPlayerTextureLocation(String modelId, String textureName) {
-        var model = MODELS.get(modelId);
-        if (model == null) {
-            return Optional.of(ModelIdUtil.DEFAULT_TEXTURE_LOCATION);
-        }
-        return Optional.ofNullable(model.textures().get(textureName));
     }
 
     // listener 以弱引用的方式存储，需要自己 hold 一个强引用防止被回收
@@ -200,6 +162,7 @@ public class ClientModelManager {
      * 注意不在主线程上。
      */
     // Native Access
+    @SuppressWarnings("unused")
     private static void updateModelPackInfo(ModelPackInfo[] list) {
         var packs = new Object2ReferenceOpenHashMap<String, ModelPackInfo>();
         for (var pack : list) {
@@ -249,7 +212,6 @@ public class ClientModelManager {
                     if (removedModel != null) {
                         REMOVED_TEXTURE_QUEUE.addAll(removedModel.registeredTextureIds());
                     }
-                    // TODO: 处理模型移除
                 }
             }
 
@@ -265,7 +227,6 @@ public class ClientModelManager {
                         models.put(dstModelIds[i], model);
                     }
                     if (!alterModelIds[i].equals(dstModelIds[i])) {
-                        // TODO: 处理模型重命名
                     }
                 }
             }
@@ -283,7 +244,7 @@ public class ClientModelManager {
     @SuppressWarnings("unused")
     private static void addModel(ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
         ClientModel model;
-        var textures = new ObjectArrayFIFOQueue<Pair<ResourceLocation, AbstractTexture>>(4);
+        var textures = new ArrayList<Pair<ResourceLocation, AbstractTexture>>(4);
         try {
             model = ClientModelBuilder.build(modelData, isDefault, isNeedAuth, textures);
         } catch (Exception e) {
@@ -320,7 +281,7 @@ public class ClientModelManager {
     }
 
     // Native Access
-    @SuppressWarnings({"unused", "DataFlowIssue"})
+    @SuppressWarnings("unused")
     private static void syncFailed(@Nullable Object msg) {
         Minecraft.getInstance().execute(() -> {
             SYNC_STATE.setType(SyncStateType.IDLE);
@@ -349,7 +310,8 @@ public class ClientModelManager {
         }
 
         if (!newModelPair.getRight().isEmpty()) {
-            var texturePair = newModelPair.getRight().dequeue();
+            var textureList = newModelPair.getRight();
+            var texturePair = textureList.remove(textureList.size() - 1);
             Minecraft.getInstance().getTextureManager().register(texturePair.getLeft(), texturePair.getRight());
             return;
         }

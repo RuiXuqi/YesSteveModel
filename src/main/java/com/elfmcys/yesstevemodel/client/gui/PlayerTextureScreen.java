@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatIconButton;
@@ -74,8 +74,8 @@ public class PlayerTextureScreen extends Screen {
         this.parent = parent;
         this.modelId = modelId;
         this.model = model;
-        this.textures = model.textures();
-        this.animations = new ArrayList<>(model.animations().keySet());
+        this.textures = model.playerModel().textures();
+        this.animations = new ArrayList<>(model.playerModel().animations().keySet());
         this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
         this.animations.sort(String::compareTo);
     }
@@ -173,7 +173,7 @@ public class PlayerTextureScreen extends Screen {
             int xStart = x + 306 + 56 * (i % 2);
             int yStart = y + 5 + 104 * (i / 2);
             CustomGuiPlayerEntity animatedEntity = TEXTURE_BUTTON_ENTITY[i];
-            animatedEntity.setModelAndTexture(modelId, textures.getKeyAt(modelIndex));
+            animatedEntity.updateModelAndTexture(modelId, textures.getKeyAt(modelIndex));
             addRenderableWidget(getTextureButton(xStart, yStart, animatedEntity, modelIndex));
         }
     }
@@ -216,7 +216,7 @@ public class PlayerTextureScreen extends Screen {
     protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY, int scissorW, int scissorH, float partialTicks) {
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
         minecraft.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            previewEntity.setModelAndTexture(modelId, cap.getTextureName());
+            previewEntity.updateModelAndTexture(modelId, cap.getTextureName());
             RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, partialTicks, previewEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), showGround);
         });
         RenderSystem.disableScissor();

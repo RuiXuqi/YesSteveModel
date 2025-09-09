@@ -1,15 +1,14 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.api.IEntityExtraInfo;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalHold;
 import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
+import com.elfmcys.yesstevemodel.client.entity.HumanoidStateTracker;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,9 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<? extends LivingEntity>> {
+public class MainhandPredicate implements IAnimationPredicate<CustomHumanoidEntity<?>> {
     @Override
-    public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
+    public PlayState test(AnimationEvent<CustomHumanoidEntity<?>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
@@ -51,13 +50,13 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
             return playAnimation(event, "hold_mainhand:fishing");
         }
 
-        if (event.getAnimatableEntity().getStateTracker() instanceof IEntityExtraInfo info && !isSameItem(mainHandItem, info, InteractionHand.MAIN_HAND)) {
-            info.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
+        var tracker = event.getAnimatableEntity().getStateTracker();
+        if (!isSameItem(mainHandItem, tracker, InteractionHand.MAIN_HAND)) {
+            tracker.setHandItem(mainHandItem, InteractionHand.MAIN_HAND);
             event.getCodedController().indicateReload();
         }
 
-        String id = event.getAnimatableEntity().getModelId();
-        ConditionalHold conditionalHold = ClientModelManager.getModel(id).map(model -> model.conditionManager().getHoldMainhand()).orElse(null);
+        ConditionalHold conditionalHold = event.getAnimatableEntity().getConditionManager().getHoldMainhand();
         if (conditionalHold != null) {
             String name = conditionalHold.doTest(entity, InteractionHand.MAIN_HAND);
             if (StringUtils.isNoneBlank(name)) {
@@ -68,8 +67,8 @@ public class MainhandPredicate implements IAnimationPredicate<AnimatableEntity<?
         return PlayState.STOP;
     }
 
-    private boolean isSameItem(ItemStack playerItem, IEntityExtraInfo info, InteractionHand hand) {
-        ItemStack preItem = info.getHandItem(hand);
+    private boolean isSameItem(ItemStack playerItem, HumanoidStateTracker<?> tracker, InteractionHand hand) {
+        ItemStack preItem = tracker.getHandItem(hand);
         if (preItem.isDamaged()) {
             return ItemStack.isSameItem(playerItem, preItem);
         }

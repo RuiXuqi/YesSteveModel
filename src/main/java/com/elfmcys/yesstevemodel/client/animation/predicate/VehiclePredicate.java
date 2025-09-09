@@ -1,17 +1,16 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalChair;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalVehicle;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,19 +22,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? extends LivingEntity>> {
+public class VehiclePredicate implements IAnimationPredicate<CustomHumanoidEntity<?>> {
     @Override
-    public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
+    public PlayState test(AnimationEvent<CustomHumanoidEntity<?>> event, ExpressionEvaluator<?> evaluator) {
         PlayState vehicleAnimation = getVehicleAnimation(event);
         return Objects.requireNonNullElse(vehicleAnimation, PlayState.STOP);
     }
 
     @Nullable
-    public PlayState getVehicleAnimation(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event) {
+    public PlayState getVehicleAnimation(AnimationEvent<CustomHumanoidEntity<?>> event) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return null;
@@ -50,12 +48,10 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
             return playAnimation(event, swemAnimation, LoopType.LOOP);
         }
 
-        String id = event.getAnimatableEntity().getModelId();
-        Optional<ClientModel> clientModel = ClientModelManager.getModel(id);
-
         // 优先判断 chair
+        ConditionManager conditionManager = event.getAnimatableEntity().getConditionManager();
         if (TlmClientCompat.isInstalled()) {
-            ConditionalChair conditionalChair = clientModel.map(model -> model.conditionManager().getChair()).orElse(null);
+            ConditionalChair conditionalChair = conditionManager.getChair();
             if (conditionalChair != null) {
                 String name = conditionalChair.doTest(entity);
                 if (StringUtils.isNoneBlank(name)) {
@@ -65,7 +61,7 @@ public class VehiclePredicate implements IAnimationPredicate<AnimatableEntity<? 
         }
 
         // 然后才是普通载具
-        ConditionalVehicle vehicleCondition = clientModel.map(model -> model.conditionManager().getVehicle()).orElse(null);
+        ConditionalVehicle vehicleCondition = conditionManager.getVehicle();
         if (vehicleCondition != null) {
             String name = vehicleCondition.doTest(entity);
             if (StringUtils.isNoneBlank(name)) {

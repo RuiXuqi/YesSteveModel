@@ -1,12 +1,10 @@
 package com.elfmcys.yesstevemodel.client.lang;
 
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.data.ClientModelData;
-import com.elfmcys.yesstevemodel.client.data.ModelPackInfo;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
+import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
-import com.elfmcys.yesstevemodel.info.ModelStats;
-import com.elfmcys.yesstevemodel.info.stats.GeoModelStats;
-import com.elfmcys.yesstevemodel.info.stats.ModelTextureStats;
+import com.elfmcys.yesstevemodel.info.stats.PlayerMainModelStats;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.ChatFormatting;
@@ -48,7 +46,7 @@ public class LanguageManager {
 
     public static String getI18n(ClientModel data, String key, String defaultValue) {
         String local = Minecraft.getInstance().getLanguageManager().getSelected();
-        Map<String, Map<String, String>> languages = data.languages();
+        Map<String, Map<String, String>> languages = data.assets().languageFiles();
         if (languages.isEmpty()) {
             return defaultValue;
         }
@@ -62,7 +60,7 @@ public class LanguageManager {
     }
 
     public static String getI18n(ClientModelData data, String local, String key, String defaultValue) {
-        Map<String, Map<String, String>> languages = data.languages();
+        Map<String, Map<String, String>> languages = data.assets().languageFiles();
         if (languages.isEmpty()) {
             return defaultValue;
         }
@@ -77,7 +75,7 @@ public class LanguageManager {
 
     public static Map<String, List<Component>> buildAllDisplayInfos(ClientModelData data) {
         Map<String, List<Component>> displayInfos = Maps.newHashMap();
-        data.languages().keySet().forEach(language -> displayInfos.put(language, buildDisplayInfo(data, language)));
+        data.assets().languageFiles().keySet().forEach(language -> displayInfos.put(language, buildDisplayInfo(data, language)));
         if (!displayInfos.containsKey(DEFAULT_LANGUAGE_CODE)) {
             displayInfos.put(DEFAULT_LANGUAGE_CODE, buildDisplayInfo(data, DEFAULT_LANGUAGE_CODE));
         }
@@ -126,15 +124,12 @@ public class LanguageManager {
             }
         }
 
-        ModelStats stats = data.info().stats();
+        PlayerMainModelStats stats = data.info().stats();
         if (stats != null) {
-            GeoModelStats modelStats = stats.playerModel();
-            Map<String, ModelTextureStats> textures = stats.textures();
-
             component.add(CommonComponents.space());
-            component.add(Component.translatable("gui.yes_steve_model.model.main_model_info", modelStats.bones(), modelStats.cubes(), modelStats.faces())
+            component.add(Component.translatable("gui.yes_steve_model.model.main_model_info", stats.bones(), stats.cubes(), stats.faces())
                     .withStyle(ChatFormatting.GRAY));
-            component.add(Component.translatable("gui.yes_steve_model.model.texture_info", textures.size())
+            component.add(Component.translatable("gui.yes_steve_model.model.texture_info", data.playerModel().textures().size())
                     .withStyle(ChatFormatting.GRAY));
         }
 

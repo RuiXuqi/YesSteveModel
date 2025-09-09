@@ -43,7 +43,7 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity,
                        float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        GeoModelState geoModel = animatableEntity.getCurrentModel();
+        GeoModelState geoModel = animatableEntity.getLoadedGeoModel();
         if (geoModel == null || geoModel.backpackBones().isEmpty()) {
             return;
         }

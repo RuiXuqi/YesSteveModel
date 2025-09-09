@@ -1,22 +1,20 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
+import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.RemoteRoamingStruct;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
-import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
+import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SubmitRoamingVarsChanges;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatMaps;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
@@ -32,7 +30,8 @@ import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
 public final class PlayerAnimatableCapability extends CustomPlayerEntity {
-    private final Int2ReferenceOpenHashMap<RemoteStorage> storageMap = new Int2ReferenceOpenHashMap<>(8);
+    private final Int2ReferenceOpenHashMap<RemoteStorage> storageMap;
+    private final PhysicsManager guiPhysicsManager;
     private final DebugInfo debugInfo;
 
     private int currentHashShort;
@@ -40,6 +39,8 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     public PlayerAnimatableCapability(Player player) {
         super(player, player instanceof LocalPlayer, true);
+        storageMap = new Int2ReferenceOpenHashMap<>(8);
+        guiPhysicsManager = new PhysicsManager();
         debugInfo = localPlayer ? new DebugInfo() : null;
     }
 
@@ -50,15 +51,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     public PlayerStateTracker getStateTracker() {
         return (PlayerStateTracker) super.getStateTracker();
-    }
-
-    @Override
-    public DebugSource getDebugSource() {
-        if (DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
-            return CustomDebugSource.INSTANCE;
-        } else {
-            return null;
-        }
     }
 
     private boolean isFirstPersonModActive() {
@@ -79,15 +71,18 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     @Override
-    protected boolean allowEmitting() {
-        // 同一帧内只有第一次更新允许生成行为
-        return currentFrameRenderTimes == 1;
+    public PhysicsManager getPhysicsManager() {
+        if (NativeRenderer.isAsyncScope() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
+            return physicsManager;
+        } else {
+            return guiPhysicsManager;
+        }
     }
 
     @Override
-    public void setupModel(GeoModelState model) {
-        super.setupModel(model);
-        var hashShort = ClientModelManager.getModel(getModelId()).map(ClientModel::modelInfo).orElseThrow().hashShort();
+    public void onLoadGeoModel(GeoModelState model) {
+        super.onLoadGeoModel(model);
+        var hashShort = getModelContainer().modelInfo().hashShort();
         currentHashShort = hashShort;
         // 切换模型后如果没有本地缓存，在服务端 roaming 下发之前需要丢弃本地更改
         var storage = storageMap.get(hashShort);
@@ -100,11 +95,16 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         } else {
             roamingStruct = null;
         }
+        guiPhysicsManager.reset();
     }
 
     @Override
     protected void preAnimationSetup(float seekTime) {
         super.preAnimationSetup(seekTime);
+
+        if (getPhysicsManager() == guiPhysicsManager) {
+            guiPhysicsManager.update(seekTime);
+        }
 
         // 更新调试信息
         if (debugInfo != null && debugInfo.isEnabled()) {
@@ -135,7 +135,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
                 if (modelHashShort == currentHashShort) {
                     // 如果成功初始化，强制重新加载模型
                     roamingStruct = new LocalRoamingStruct(modelHashShort, vars);
-                    updateCurrentModel(true);
+                    reloadGeoModel();
                 }
             }
         } else {
@@ -146,6 +146,10 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
                 roamingStruct = new RemoteRoamingStruct(vars);
             }
         }
+    }
+
+    public boolean hasRoamingStorage(int hashShort) {
+        return storageMap.containsKey(hashShort);
     }
 
     public void updateRemoteRoamingVars(int modelHashShort, Int2FloatArrayMap vars) {

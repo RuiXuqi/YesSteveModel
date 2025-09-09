@@ -7,9 +7,9 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
-import com.elfmcys.yesstevemodel.client.data.ClientModelSyncListener;
-import com.elfmcys.yesstevemodel.client.data.ModelPackInfo;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModelSyncListener;
+import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.client.event.DownloadScreenInterModEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.*;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
@@ -375,11 +375,10 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
-                        if (model.modelInfo().metadata() != null) {
-                            Minecraft.getInstance().setScreen(getModelInfoScreen(this, model));
-                        }
-                    });
+                    var model = cap.getModelContainer();
+                    if (model.modelInfo().metadata() != null) {
+                        Minecraft.getInstance().setScreen(getModelInfoScreen(this, model));
+                    }
                 });
             }
         })).setTooltips("gui.yes_steve_model.model.info");
@@ -387,9 +386,8 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             if (Minecraft.getInstance().player != null) {
                 LocalPlayer player = Minecraft.getInstance().player;
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
-                        Minecraft.getInstance().setScreen(getTextureScreen(this, cap.getModelId(), model));
-                    });
+                    var model = cap.getModelContainer();
+                    Minecraft.getInstance().setScreen(getTextureScreen(this, cap.getModelId(), model));
                 });
             }
         }).setTooltips("gui.yes_steve_model.model.texture"));
@@ -492,7 +490,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                 var model = models.get(id);
                 boolean needAuth = model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id);
 
-                animatedEntity.setModelAndTexture(id, model.defaultTextureName());
+                animatedEntity.updateModelAndTexture(id, model.playerModel().defaultTextureName());
                 animatedEntity.getPreviewInfo().setPreview(model.modelInfo().properties().previewAnimation());
                 addRenderableWidget(getModelButton(xStart, yStart, needAuth, animatedEntity, model));
             });

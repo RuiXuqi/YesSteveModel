@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -82,7 +81,7 @@ public class SyncModelInfo {
     @OnlyIn(Dist.CLIENT)
     private static void handleCapability(Entity entity, SyncModelInfo msg) {
         entity.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.setModelAndTexture(msg.modelId, msg.selectTexture);
+            cap.updateModelAndTexture(msg.modelId, msg.selectTexture);
             cap.resetRoamingVars(msg.modelHashShort, msg.molangVarsClientBound);
             DispatchServerDrivenProperty.handle(entity, msg.properties);
             if (msg.playAnimation) {

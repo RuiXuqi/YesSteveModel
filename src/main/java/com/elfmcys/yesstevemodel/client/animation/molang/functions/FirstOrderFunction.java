@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.animation.molang.functions;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.FirstOrder;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.IPhysics;
-import com.elfmcys.yesstevemodel.client.entity.IPhysicsEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.EntityFunction;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -24,19 +23,15 @@ public class FirstOrderFunction extends EntityFunction {
             response = arguments.getAsFloat(context, 2);
         }
 
-        if (context.entity().animatableEntity() instanceof IPhysicsEntity physicsEntity) {
-            var manager = physicsEntity.getPhysicsManager();
-            IPhysics physicsValue = manager.get(key);
-            if (physicsValue == null) {
-                FirstOrder firstOrder = new FirstOrder(input, response);
-                manager.put(key, firstOrder);
-                return input;
-            }
-            physicsValue.setArgs(input, response, 0, 0);
-            return physicsValue.getValue();
+        var manager = context.entity().animatableEntity().getPhysicsManager();
+        IPhysics physicsValue = manager.get(key);
+        if (physicsValue == null) {
+            FirstOrder firstOrder = new FirstOrder(input, response);
+            manager.put(key, firstOrder);
+            return input;
         }
-
-        return null;
+        physicsValue.setArgs(input, response, 0, 0);
+        return physicsValue.getValue();
     }
 
     @Override

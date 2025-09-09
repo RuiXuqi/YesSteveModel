@@ -1,9 +1,8 @@
 package com.elfmcys.yesstevemodel.client.compat.tacz;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionTAC;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -93,9 +92,7 @@ class TacCompatInner {
      */
     static PlayState playGunMainAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
         String tacName = "tac:" + animationName;
-        String modelId = event.getAnimatableEntity().getModelId();
-        Optional<Animation> playerAnimation = ClientModelManager.getPlayerAnimation(modelId, tacName);
-        if (playerAnimation.isPresent()) {
+        if (event.getAnimatableEntity().getAnimation(tacName) != null) {
             return playAnimation(event, tacName, loopType);
         }
         return playAnimation(event, animationName, loopType);
@@ -109,7 +106,7 @@ class TacCompatInner {
      * tac:hold_shoot:pistol
      * tac:run:pistol
      */
-    static PlayState playGunHoldAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
+    static PlayState playGunHoldAnimation(AnimationEvent<? extends CustomHumanoidEntity<?>> event, ItemStack heldItem) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return PlayState.STOP;
@@ -145,7 +142,7 @@ class TacCompatInner {
     /**
      * 这些动画可能是带有后摇的动画，故需要单独分一个频道来播放，从而才能超过时长进行播放
      */
-    static PlayState playGunOnceAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, ItemStack heldItem) {
+    static PlayState playGunOnceAnimation(AnimationEvent<? extends CustomHumanoidEntity<?>> event, ItemStack heldItem) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return PlayState.STOP;
@@ -215,14 +212,13 @@ class TacCompatInner {
     }
 
     @NotNull
-    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String weaponType, String prefix) {
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends CustomHumanoidEntity<?>> event, String weaponType, String prefix) {
         return getGunTypeAnimation(event, weaponType, prefix, LoopType.LOOP);
     }
 
     @NotNull
-    private static PlayState getGunTypeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String weaponType, String prefix, LoopType loopType) {
-        String modelId = event.getAnimatableEntity().getModelId();
-        ConditionTAC conditionTAC = ClientModelManager.getModel(modelId).map(model -> model.conditionManager().getTAC()).orElse(null);
+    private static PlayState getGunTypeAnimation(AnimationEvent<? extends CustomHumanoidEntity<?>> event, String weaponType, String prefix, LoopType loopType) {
+        ConditionTAC conditionTAC = event.getAnimatableEntity().getConditionManager().getTAC();
         if (conditionTAC != null) {
             ItemStack stack = event.getAnimatableEntity().getEntity().getMainHandItem();
             String name = conditionTAC.doTest(stack, prefix);

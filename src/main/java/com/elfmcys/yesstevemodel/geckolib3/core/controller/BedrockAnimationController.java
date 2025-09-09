@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.GeoAnimationControllerState;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.BeginningTransitionPoint;
@@ -39,9 +39,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     @Nullable
     private List<BoneTopLevelSnapshot> modelBones;
     @Nullable
-    private GeoAnimationController data;
+    private AnimationControllerData data;
     @Nullable
-    private GeoAnimationControllerState state;
+    private AnimationControllerState state;
     @Nullable
     private String stateName;
 
@@ -165,7 +165,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
     }
 
-    public void updateModelBones(List<BoneTopLevelSnapshot> modelBones, @NotNull GeoAnimationController animationControllerData) {
+    public void updateModelBones(List<BoneTopLevelSnapshot> modelBones, @NotNull AnimationControllerData animationControllerData) {
         clearModelBones();
 
         this.data = animationControllerData;
@@ -188,7 +188,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     @SuppressWarnings("DataFlowIssue")
-    private void updateState(GeoAnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
+    private void updateState(AnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
         evaluator.entity().setAllowEmitting(true);
         if (this.state != null) {
             for (var exp : this.state.onExit()) {

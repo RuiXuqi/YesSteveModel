@@ -1,33 +1,20 @@
 package com.elfmcys.yesstevemodel.client.sound;
 
-import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.mojang.blaze3d.audio.SoundBuffer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public class CustomSoundInstance extends MinecraftSoundInstance {
-    private final String soundPath;
+    private final SoundData soundData;
 
-    public CustomSoundInstance(SoundEvent soundEvent, String soundPath, Entity entity) {
+    public CustomSoundInstance(SoundEvent soundEvent, SoundData soundData, Entity entity) {
         super(soundEvent, entity);
-        this.soundPath = soundPath;
+        this.soundData = soundData;
     }
 
     @Nullable
     public SoundBuffer getSoundBuffer() {
-        if (TlmClientCompat.isMaid(entity)) {
-            return TlmClientCompat.getSoundBuffer(entity, soundPath);
-        }
-        return entity.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                .map(cap -> ClientModelManager.getModel(cap.getModelId())
-                        .map(model -> model.sounds().get(soundPath)))
-                .orElse(Optional.empty())
-                .map(data -> new SoundBuffer(data.byteBuffer(), data.audioFormat()))
-                .orElse(null);
+        return new SoundBuffer(soundData.byteBuffer(), soundData.audioFormat());
     }
 }

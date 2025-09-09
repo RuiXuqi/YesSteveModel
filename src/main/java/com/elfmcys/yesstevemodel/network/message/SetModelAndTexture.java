@@ -51,7 +51,7 @@ public class SetModelAndTexture {
             String modelId = message.modelId;
             if (!ServerModelManager.getModels().containsKey(modelId)
                     || (ServerModelManager.getAuthModels().contains(modelId) && !ownModelsCap.containModel(message.modelId))
-                    || !ServerModelManager.getModels().get(modelId).textures().contains(message.selectTexture)) {
+                    || !ServerModelManager.getModels().get(modelId).playerModel().textures().contains(message.selectTexture)) {
                 modelIdCap.setDefault();
             } else {
                 modelIdCap.setModelAndTexture(message.modelId, message.selectTexture);

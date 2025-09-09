@@ -1,13 +1,13 @@
 package com.elfmcys.yesstevemodel.info.stats;
 
 // Native Access
-public class GeoModelStats {
+public class PlayerMainModelStats {
     public final int bones;
     public final int cubes;
     public final int faces;
 
     // Native Access
-    public GeoModelStats(int bones, int cubes, int faces) {
+    public PlayerMainModelStats(int bones, int cubes, int faces) {
         this.bones = bones;
         this.cubes = cubes;
         this.faces = faces;

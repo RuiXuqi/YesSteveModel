@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.renderer.layer;
 
 import com.elfmcys.yesstevemodel.api.IExtendedBufferSource;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeRender;
 import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
@@ -32,7 +31,7 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         LivingEntity entityLivingBaseIn = animatableEntity.getEntity();
-        GeoModelState geoModel = animatableEntity.getCurrentModel();
+        GeoModelState geoModel = animatableEntity.getLoadedGeoModel();
         if (geoModel == null) {
             return;
         }
@@ -40,7 +39,7 @@ public class CustomPlayerItemInHandLayer extends GeoLayerRenderer<CustomPlayerEn
         ItemStack mainHandItem = entityLivingBaseIn.getMainHandItem();
         if (!offhandItem.isEmpty() || !mainHandItem.isEmpty()) {
             poseStack.pushPose();
-            boolean renderLayersFirst = ClientModelManager.getModel(animatableEntity.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
+            boolean renderLayersFirst = animatableEntity.renderLayersFirst();
             if (!geoModel.rightHandBones().isEmpty()) {
                 if (SlashBladeCompat.isSlashBladeItem(mainHandItem)) {
                     SlashBladeRender.renderMainhandSlashBlade(entityLivingBaseIn, geoModel, poseStack, bufferIn, packedLightIn, mainHandItem, partialTicks);

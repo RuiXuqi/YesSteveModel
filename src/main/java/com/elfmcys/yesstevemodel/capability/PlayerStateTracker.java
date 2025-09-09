@@ -1,15 +1,12 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.api.IEntityExtraInfo;
-import com.elfmcys.yesstevemodel.geckolib3.model.EntityStateTracker;
+import com.elfmcys.yesstevemodel.client.entity.HumanoidStateTracker;
 import com.elfmcys.yesstevemodel.network.message.DispatchServerDrivenProperty;
 import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
-public class PlayerStateTracker extends EntityStateTracker<Player> implements IEntityExtraInfo {
+public class PlayerStateTracker extends HumanoidStateTracker<Player> {
     private final Object2ByteOpenHashMap<MobEffect> effects;
     private final boolean localPlayer;
 
@@ -22,9 +19,6 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
     private float xxa;
     private float yya;
     private float zza;
-
-    private ItemStack mainhandItemStack = ItemStack.EMPTY;
-    private ItemStack offhandItemStack = ItemStack.EMPTY;
 
     private static float YAW_SPEED;
     private static float LAST_YAW;
@@ -118,22 +112,6 @@ public class PlayerStateTracker extends EntityStateTracker<Player> implements IE
             updateLocalPlayerYawSpeed(entity, currentRenderTick, lastRenderTick);
         }
         super.updateEntityTickData(currentRenderTick, lastRenderTick);
-    }
-
-    public ItemStack getHandItem(InteractionHand hand) {
-        if (hand == InteractionHand.MAIN_HAND) {
-            return mainhandItemStack;
-        } else {
-            return offhandItemStack;
-        }
-    }
-
-    public void setHandItem(ItemStack stack, InteractionHand hand) {
-        if (hand == InteractionHand.MAIN_HAND) {
-            this.mainhandItemStack = stack;
-        } else {
-            this.offhandItemStack = stack;
-        }
     }
 
     private static void updateLocalPlayerYawSpeed(Player entity, int currentRenderTick, int lastRenderTick) {

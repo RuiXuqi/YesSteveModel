@@ -1,8 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.gui;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.button.TextureButton;
 import com.elfmcys.yesstevemodel.util.NameUtil;
@@ -27,12 +26,11 @@ public class MaidTextureButton extends TextureButton {
         this.maidId = rawMaid.getId();
         rawMaid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
             this.modelId = cap.getModelId();
-            ClientModelManager.getModel(modelId).ifPresent(model -> {
-                this.name = NameUtil.getModeName(model, modelId);
-                this.textureName = model.textures().getKeyAt(modelIndex);
-                this.renderMaid.setYsmModel(modelId, this.textureName, name);
-                animatedEntity.setModelAndTexture(modelId, textureName);
-            });
+            var model = cap.getModelContainer();
+            this.name = NameUtil.getModeName(model, modelId);
+            this.textureName = model.playerModel().textures().getKeyAt(modelIndex);
+            this.renderMaid.setYsmModel(modelId, this.textureName, name);
+            animatedEntity.updateModelAndTexture(modelId, textureName);
         });
     }
 

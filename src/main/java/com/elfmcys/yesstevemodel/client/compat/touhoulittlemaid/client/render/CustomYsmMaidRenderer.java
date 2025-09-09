@@ -46,7 +46,7 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
     @Override
     public void geoRender(EntityMaid entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         entity.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(customGeoMaidEntity -> {
-            renderAnimatableEntity(customGeoMaidEntity, null, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+            renderAnimatableEntity(customGeoMaidEntity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         });
     }
 

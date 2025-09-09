@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
+@SuppressWarnings("removal")
 public class ModelButton extends Button {
     private final static ResourceLocation ICON = new ResourceLocation(YesSteveModel.MOD_ID, "texture/icon.png");
     protected final boolean needAuth;
@@ -52,7 +53,7 @@ public class ModelButton extends Button {
         this.animatedEntity = animatedEntity;
         this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
 
-        var animations = model.animations();
+        var animations = model.playerModel().animations();
         // 如果有 hover 动画
         if (animations.containsKey(AnimationRegister.HOVER)) {
             this.hoverAnimationName = AnimationRegister.HOVER;
@@ -92,8 +93,16 @@ public class ModelButton extends Button {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.setModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName());
-                NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName()));
+                if (NetworkHandler.isRemoteChannelPresent()) {
+                    if (cap.hasRoamingStorage(animatedEntity.getModelContainer().modelInfo().hashShort())) {
+                        cap.updateModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName());
+                        NetworkHandler.sendToServer(new SetModelAndTexture(cap.getModelId(), cap.getTextureName()));
+                    } else {
+                        NetworkHandler.sendToServer(new SetModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName()));
+                    }
+                } else {
+                    cap.updateModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName());
+                }
             });
         }
     }

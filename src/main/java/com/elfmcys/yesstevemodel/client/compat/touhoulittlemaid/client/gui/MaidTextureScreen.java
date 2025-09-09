@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.gui;
 
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
@@ -29,7 +29,7 @@ public class MaidTextureScreen extends PlayerTextureScreen {
     protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY, int scissorW, int scissorH, float partialTicks) {
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
         maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
-            previewEntity.setModelAndTexture(cap.getModelId(), cap.getTextureName());
+            previewEntity.updateModelAndTexture(cap.getModelId(), cap.getTextureName());
             RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, partialTicks, previewEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), showGround);
         });
         RenderSystem.disableScissor();

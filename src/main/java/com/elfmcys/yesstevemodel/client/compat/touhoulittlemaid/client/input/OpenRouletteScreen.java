@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.input;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -32,11 +31,10 @@ public class OpenRouletteScreen {
         }
         if (result.getEntity() instanceof EntityMaid maid) {
             maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
-                String modelId = cap.getModelId();
-                var model = ClientModelManager.getModels().get(modelId);
+                var model = cap.getModelContainer();
                 if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
                     if (Minecraft.getInstance().screen == null) {
-                        Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model, cap));
+                        Minecraft.getInstance().setScreen(new AnimationRouletteScreen(cap.getModelId(), model, cap));
                         return;
                     }
                     if (Minecraft.getInstance().screen instanceof AnimationRouletteScreen) {

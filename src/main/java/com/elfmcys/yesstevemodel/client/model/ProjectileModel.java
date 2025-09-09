@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.data;
+package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;

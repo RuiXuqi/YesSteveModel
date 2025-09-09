@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -65,6 +66,11 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
 
     public static boolean isFakePlayer(Player player) {
         return player instanceof FakePlayer;
+    }
+
+    @Override
+    public DebugSource getDebugSource() {
+        return null;
     }
 
     private static class FakePlayer extends Player {

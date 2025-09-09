@@ -1,12 +1,11 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionArmor;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -16,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class ArmorPredicate implements IAnimationPredicate<AnimatableEntity<? extends LivingEntity>> {
+public class ArmorPredicate implements IAnimationPredicate<CustomHumanoidEntity<?>> {
     private final EquipmentSlot slot;
 
     public ArmorPredicate(EquipmentSlot slot) {
@@ -24,7 +23,7 @@ public class ArmorPredicate implements IAnimationPredicate<AnimatableEntity<? ex
     }
 
     @Override
-    public PlayState test(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, ExpressionEvaluator<?> evaluator) {
+    public PlayState test(AnimationEvent<CustomHumanoidEntity<?>> event, ExpressionEvaluator<?> evaluator) {
         LivingEntity entity = event.getAnimatableEntity().getEntity();
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
@@ -34,8 +33,7 @@ public class ArmorPredicate implements IAnimationPredicate<AnimatableEntity<? ex
             return PlayState.STOP;
         }
 
-        String id = event.getAnimatableEntity().getModelId();
-        ConditionArmor conditionArmor = ClientModelManager.getModel(id).map(model -> model.conditionManager().getArmor()).orElse(null);
+        ConditionArmor conditionArmor = event.getAnimatableEntity().getConditionManager().getArmor();
         if (conditionArmor != null) {
             String name = conditionArmor.doTest(entity, slot);
             if (StringUtils.isNoneBlank(name)) {
@@ -43,9 +41,8 @@ public class ArmorPredicate implements IAnimationPredicate<AnimatableEntity<? ex
             }
         }
 
-        String modelId = event.getAnimatableEntity().getModelId();
         String defaultName = slot.getName() + ":default";
-        if (ClientModelManager.getPlayerAnimation(modelId, defaultName).isPresent()) {
+        if (event.getAnimatableEntity().getAnimation(defaultName) != null) {
             return playAnimation(event, defaultName, LoopType.LOOP);
         }
         return PlayState.STOP;

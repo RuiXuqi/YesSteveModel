@@ -1,28 +1,28 @@
 package com.elfmcys.yesstevemodel.client.animation.predicate;
 
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
-import com.elfmcys.yesstevemodel.client.entity.CustomArrowEntity;
+import com.elfmcys.yesstevemodel.client.entity.CustomProjectileEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class ArrowMainPredicate implements IAnimationPredicate<CustomArrowEntity> {
+public class ProjectileMainPredicate implements IAnimationPredicate<CustomProjectileEntity> {
     @Override
-    public PlayState test(AnimationEvent<CustomArrowEntity> event, ExpressionEvaluator<?> evaluator) {
-        AbstractArrow arrowEntity = event.getAnimatableEntity().getEntity();
-        if (arrowEntity == null) {
+    public PlayState test(AnimationEvent<CustomProjectileEntity> event, ExpressionEvaluator<?> evaluator) {
+        Projectile projectile = event.getAnimatableEntity().getEntity();
+        if (projectile == null) {
             return PlayState.STOP;
         }
-        if (arrowEntity.isInWater()) {
+        if (projectile.isInWater()) {
             return playAnimation(event, "water");
         }
-        if (arrowEntity.isOnFire()) {
+        if (projectile.isOnFire()) {
             return playAnimation(event, "fire");
         }
-        if (((IArrowExtraInfo) arrowEntity).isInGround()) {
+        if (projectile instanceof IArrowExtraInfo info && info.isInGround()) {
             return playAnimation(event, "ground");
         } else {
             return playAnimation(event, "air");

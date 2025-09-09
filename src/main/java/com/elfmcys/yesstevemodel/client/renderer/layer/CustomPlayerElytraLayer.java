@@ -33,7 +33,7 @@ public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerEntity
     public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
         var player = animatableEntity.getEntity();
         ItemStack stack = EquipmentUtil.getEquippedElytraItem(player);
-        GeoModelState geoModel = animatableEntity.getCurrentModel();
+        GeoModelState geoModel = animatableEntity.getLoadedGeoModel();
         if (!stack.isEmpty() && geoModel != null && !geoModel.elytraBones().isEmpty() && player instanceof AbstractClientPlayer clientPlayer) {
             ResourceLocation texture;
             if (clientPlayer.isElytraLoaded() && clientPlayer.getElytraTextureLocation() != null) {

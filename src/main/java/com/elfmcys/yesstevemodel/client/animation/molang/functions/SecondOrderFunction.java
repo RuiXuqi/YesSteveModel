@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.animation.molang.functions;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.IPhysics;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.SecondOrder;
-import com.elfmcys.yesstevemodel.client.entity.IPhysicsEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.EntityFunction;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -30,19 +29,15 @@ public class SecondOrderFunction extends EntityFunction {
             response = arguments.getAsFloat(context, 4);
         }
 
-        if (context.entity().animatableEntity() instanceof IPhysicsEntity physicsEntity) {
-            var manager = physicsEntity.getPhysicsManager();
-            IPhysics physicsValue = manager.get(key);
-            if (physicsValue == null) {
-                SecondOrder secondOrder = new SecondOrder(input, frequency, coefficient, response);
-                manager.put(key, secondOrder);
-                return input;
-            }
-            physicsValue.setArgs(input, frequency, coefficient, response);
-            return physicsValue.getValue();
+        var manager = context.entity().animatableEntity().getPhysicsManager();
+        IPhysics physicsValue = manager.get(key);
+        if (physicsValue == null) {
+            SecondOrder secondOrder = new SecondOrder(input, frequency, coefficient, response);
+            manager.put(key, secondOrder);
+            return input;
         }
-
-        return null;
+        physicsValue.setArgs(input, frequency, coefficient, response);
+        return physicsValue.getValue();
     }
 
     @Override

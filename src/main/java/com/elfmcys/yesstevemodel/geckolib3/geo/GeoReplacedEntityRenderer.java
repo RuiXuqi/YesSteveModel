@@ -1,10 +1,9 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
 import com.elfmcys.yesstevemodel.api.ILivingRenderer;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.geckolib3.util.EModelRenderCycle;
@@ -34,7 +33,7 @@ import org.joml.Matrix4f;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T extends AnimatableEntity<TEntity>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<T> {
+public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T extends CustomHumanoidEntity<TEntity>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<T> {
     protected final List<GeoLayerRenderer<T>> layerRenderers = new ObjectArrayList<>();
     protected Matrix4f dispatchedMat = new Matrix4f();
     protected Matrix4f renderEarlyMat = new Matrix4f();
@@ -68,10 +67,17 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
         IGeoRenderer.super.renderEarly(animatableEntity, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
     }
 
-    public void renderAnimatableEntity(T animatableEntity, @Nullable ResourceLocation textureLocationOverride, float entityYaw, float partialTick, PoseStack poseStack,
-                                          MultiBufferSource bufferSource, int packedLight) {
-        AnimationEvent<?> event = isAsyncScope() ? animatableEntity.waitOrUpdate(partialTick) : animatableEntity.syncUpdate(partialTick);
+    protected AnimationEvent<?> updateAnimation(T animatable, float partialTick) {
+        return isAsyncScope() ? animatable.waitOrUpdate(partialTick) : animatable.syncUpdate(partialTick);
+    }
 
+    public void renderAnimatableEntity(T animatableEntity, float entityYaw, float partialTick,
+                                       PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        renderAnimatableEntity(animatableEntity, updateAnimation(animatableEntity, partialTick), null,  entityYaw, partialTick, poseStack, bufferSource, packedLight);
+    }
+
+    public void renderAnimatableEntity(T animatableEntity, AnimationEvent<?> event, @Nullable ResourceLocation textureOverride, float entityYaw, float partialTick,
+                                       PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(animatableEntity.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
         final TEntity entity = animatableEntity.getEntity();
@@ -95,11 +101,11 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
             poseStack.translate(0, 0.01f, 0);
 
             Color renderColor = getRenderColor(animatableEntity, partialTick, poseStack, bufferSource, null, packedLight);
-            var renderType = getRenderType(textureLocationOverride != null ? textureLocationOverride : animatableEntity.getTextureLocation());
-            var textureIndex = textureLocationOverride == null ? animatableEntity.getTextureIndex() : 0;
+            var renderType = getRenderType(textureOverride == null ? animatableEntity.getTextureLocation() : textureOverride);
+            var textureIndex = textureOverride == null ? animatableEntity.getTextureIndex() : 0;
 
-            GeoModelState model = animatableEntity.getCurrentModel();
-            boolean renderLayersFirst = ClientModelManager.getModel(animatableEntity.getModelId()).map(m -> m.modelInfo().properties().renderLayersFirst()).orElse(false);
+            GeoModelState model = animatableEntity.getLoadedGeoModel();
+            boolean renderLayersFirst = animatableEntity.renderLayersFirst();
             if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
                 preRender(model, animatableEntity, partialTick, renderType, poseStack, bufferSource, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),

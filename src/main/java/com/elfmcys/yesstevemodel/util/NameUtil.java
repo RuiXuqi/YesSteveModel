@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.util;
 
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.StringUtils;
 

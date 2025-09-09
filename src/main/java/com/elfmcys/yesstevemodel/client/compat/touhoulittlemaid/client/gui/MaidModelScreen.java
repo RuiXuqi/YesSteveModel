@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.gui;
 
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.entity.CustomEntity;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.ModelInfoScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
@@ -34,19 +34,17 @@ public class MaidModelScreen extends PlayerModelScreen {
     }
 
     @Override
-    @SuppressWarnings("DataFlowIssue")
     protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
-        ClientModel maidModel = this.maid.getCapability(YsmMaidCapabilityProvider.CAP).map(cap ->
-                ClientModelManager.getModel(cap.getModelId()).orElse(null)).orElse(null);
+        ClientModel maidModel = this.maid.getCapability(YsmMaidCapabilityProvider.CAP)
+                .map(CustomEntity::getModelContainer)
+                .orElse(null);
         model = Objects.requireNonNullElse(maidModel, model);
         return new MaidTextureScreen(parent, modelId, model, maid);
     }
 
     @Override
-    @SuppressWarnings("DataFlowIssue")
     protected ModelInfoScreen getModelInfoScreen(PlayerModelScreen parent, ClientModel model) {
-        ClientModel maidModel = this.maid.getCapability(YsmMaidCapabilityProvider.CAP).map(cap ->
-                ClientModelManager.getModel(cap.getModelId()).orElse(null)).orElse(null);
+        ClientModel maidModel = this.maid.getCapability(YsmMaidCapabilityProvider.CAP).map(CustomEntity::getModelContainer).orElse(null);
         model = Objects.requireNonNullElse(maidModel, model);
         return new ModelInfoScreen(parent, model);
     }

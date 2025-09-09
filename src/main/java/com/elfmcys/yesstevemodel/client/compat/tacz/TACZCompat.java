@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.compat.tacz;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -57,7 +58,7 @@ public class TACZCompat {
     }
 
     @Nullable
-    public static PlayState playGunMainAnimation(LivingEntity livingEntity, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, String animationName, LoopType loopType) {
+    public static PlayState playGunMainAnimation(LivingEntity livingEntity, AnimationEvent<? extends CustomHumanoidEntity<?>> event, String animationName, LoopType loopType) {
         if (isInstalled() && TacCompatInner.isGun(livingEntity.getMainHandItem())) {
             return TacCompatInner.playGunMainAnimation(event, animationName, loopType);
         }
@@ -65,7 +66,7 @@ public class TACZCompat {
     }
 
     @Nullable
-    public static PlayState playGunHoldAnimation(ItemStack mainHandItem, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
+    public static PlayState playGunHoldAnimation(ItemStack mainHandItem, AnimationEvent<? extends CustomHumanoidEntity<?>> event) {
         if (isInstalled() && TacCompatInner.isGun(mainHandItem)) {
             return TacCompatInner.playGunHoldAnimation(event, mainHandItem);
         }
@@ -73,7 +74,7 @@ public class TACZCompat {
     }
 
     @Nullable
-    public static PlayState playGunOnceAnimation(ItemStack mainHandItem, AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event) {
+    public static PlayState playGunOnceAnimation(ItemStack mainHandItem, AnimationEvent<? extends CustomHumanoidEntity<?>> event) {
         if (isInstalled() && TacCompatInner.isGun(mainHandItem)) {
             return TacCompatInner.playGunOnceAnimation(event, mainHandItem);
         }

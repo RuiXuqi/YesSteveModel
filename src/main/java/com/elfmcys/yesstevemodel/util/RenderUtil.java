@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.util;
 
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -124,7 +125,7 @@ public final class RenderUtil {
             }
             renderGround(pScale, pitch, yaw, bufferSource);
             bufferSource.endBatch();
-            renderer.renderAnimatableEntity(entity, null, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
+            renderer.renderAnimatableEntity(entity, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
         dispatcher.setRenderShadow(true);
@@ -213,7 +214,7 @@ public final class RenderUtil {
         poseStack.popPose();
     }
 
-    public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T>> void renderModelInGui(
+    public static <T extends LivingEntity, TAnimatable extends CustomHumanoidEntity<T>> void renderModelInGui(
             float pPosX,
             float pPosY,
             float pScale,
@@ -296,7 +297,7 @@ public final class RenderUtil {
         dispatcher.setRenderShadow(false);
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         RenderSystem.runAsFancy(() -> {
-            renderer.renderAnimatableEntity(animatableEntity, null, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
+            renderer.renderAnimatableEntity(animatableEntity, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
         });
         bufferSource.endBatch();
         dispatcher.setRenderShadow(true);

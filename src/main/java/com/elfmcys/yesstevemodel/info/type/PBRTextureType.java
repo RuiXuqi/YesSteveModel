@@ -7,6 +7,8 @@ public enum PBRTextureType {
     NORMAL("_n"),
     SPECULAR("_s");
 
+    static final PBRTextureType[] VALUES = values();
+
     private final String suffix;
 
     PBRTextureType(String suffix) {

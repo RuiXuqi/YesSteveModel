@@ -71,7 +71,7 @@ public class ModelCommand {
         }
 
         ServerModel info = ServerModelManager.getModels().get(modelId);
-        if (info.textures().isEmpty()) {
+        if (info.playerModel().textures().isEmpty()) {
             return Command.SINGLE_SUCCESS;
         }
 

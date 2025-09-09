@@ -6,10 +6,9 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidVehiclePredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.input.OpenRouletteScreen;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.render.CustomYsmMaidRenderer;
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
-import com.mojang.blaze3d.audio.SoundBuffer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -115,7 +114,7 @@ public class TlmClientCompat {
     }
 
     @Nullable
-    public static PlayState getMaidVehicleAnimation(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, LivingEntity entity, Entity vehicle) {
+    public static PlayState getMaidVehicleAnimation(AnimationEvent<CustomHumanoidEntity<?>> event, LivingEntity entity, Entity vehicle) {
         if (isInstalled()) {
             return MaidVehiclePredicate.getMaidVehicleAnimation(event, entity, vehicle);
         }
@@ -126,13 +125,6 @@ public class TlmClientCompat {
         if (isInstalled()) {
             TlmClientCompatInner.markTacGunAnimationNeedReload(entity);
         }
-    }
-
-    public static SoundBuffer getSoundBuffer(Entity maid, String soundPath) {
-        if (isInstalled()) {
-            return TlmClientCompatInner.getSoundBuffer(maid, soundPath);
-        }
-        return null;
     }
 
     public static CustomYsmMaidRenderer getRenderer() {

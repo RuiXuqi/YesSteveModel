@@ -192,7 +192,7 @@ public class AnimationProcessor<TEntity extends Entity> {
         return bone != null ? bone.bone : null;
     }
 
-    public void registerModel(Int2ReferenceMap<IBone> boneMap, Int2ReferenceMap<List<IValue>> eventHandlers) {
+    public void loadModel(Int2ReferenceMap<IBone> boneMap, Int2ReferenceMap<List<IValue>> eventHandlers) {
         this.modelBonesMap.clear();
         this.activeModelBones.clear();
         this.modelBones.clear();

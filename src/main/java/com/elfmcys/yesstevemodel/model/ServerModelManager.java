@@ -245,11 +245,11 @@ public final class ServerModelManager {
             return Pair.of(ModelIdUtil.DEFAULT_MODEL_ID, ModelIdUtil.DEFAULT_TEXTURE_NAME);
         }
 
-        if (!model.textures().contains(textureName)) {
-            if (model.textures().contains(model.info().properties().defaultTexture())) {
+        if (!model.playerModel().textures().contains(textureName)) {
+            if (model.playerModel().textures().contains(model.info().properties().defaultTexture())) {
                 textureName = model.info().properties().defaultTexture();
             } else {
-                textureName = model.textures().get(0);
+                textureName = model.playerModel().textures().get(0);
             }
         }
 
@@ -282,7 +282,7 @@ public final class ServerModelManager {
                         String modelId = modelIdCap.getModelId();
                         if (!ServerModelManager.getModels().containsKey(modelId)
                                 || (AUTH_MODELS.contains(modelId) && !authModelCap.containModel(modelIdCap.getModelId()))
-                                || !MODELS.get(modelId).textures().contains(modelIdCap.getSelectTexture())) {
+                                || !MODELS.get(modelId).playerModel().textures().contains(modelIdCap.getSelectTexture())) {
                             modelIdCap.setDefault();
                         }
                     });

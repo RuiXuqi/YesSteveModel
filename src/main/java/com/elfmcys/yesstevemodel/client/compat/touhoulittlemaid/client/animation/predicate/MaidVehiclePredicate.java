@@ -1,9 +1,9 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate;
 
+import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.github.tartaricacid.touhoulittlemaid.entity.favorability.Type;
 import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityBroom;
 import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityChair;
@@ -16,7 +16,7 @@ import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPre
 
 public class MaidVehiclePredicate {
     @Nullable
-    public static PlayState getMaidVehicleAnimation(AnimationEvent<AnimatableEntity<? extends LivingEntity>> event, LivingEntity entity, Entity vehicle) {
+    public static PlayState getMaidVehicleAnimation(AnimationEvent<CustomHumanoidEntity<?>> event, LivingEntity entity, Entity vehicle) {
         if (event.getAnimatableEntity() instanceof IPreviewEntity) {
             return null;
         }

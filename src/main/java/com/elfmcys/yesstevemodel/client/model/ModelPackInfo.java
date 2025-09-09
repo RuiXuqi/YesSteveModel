@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.data;
+package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
 import org.jetbrains.annotations.NotNull;

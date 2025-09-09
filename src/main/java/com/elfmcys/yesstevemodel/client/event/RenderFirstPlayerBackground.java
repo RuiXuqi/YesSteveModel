@@ -2,8 +2,7 @@ package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.ClientModelManager;
-import com.elfmcys.yesstevemodel.client.data.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
@@ -61,8 +60,8 @@ public class RenderFirstPlayerBackground {
         ALREADY_RENDERED = true;
         player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             String modelId = cap.getModelId();
-            ClientModel model = ClientModelManager.getModel(modelId).orElse(null);
-            if (model == null || !model.armModel().hasFirstPersonBackground) {
+            ClientModel model = cap.getModelContainer();
+            if (model == null || !model.playerModel().armModel().hasFirstPersonBackground) {
                 return;
             }
             CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
@@ -83,7 +82,7 @@ public class RenderFirstPlayerBackground {
                     bobView(poseStack, event.getPartialTick(), player);
                 }
                 poseStack.translate(0, -1.5, 0);
-                NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.armModel(), model.armModel().getInitialState(), null, textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.playerModel().armModel(), model.playerModel().armModel().getInitialState(), null, textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                 poseStack.popPose();
             }
         });
