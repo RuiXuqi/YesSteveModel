@@ -94,6 +94,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         setInitialized();
         this.textureName = textureName;
         updateModelId(modelId);
+        updateTexture();
     }
 
     @Override
@@ -139,15 +140,17 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     private void updateTexture() {
-        var textures = getModelContainer().playerModel().textures();
-        var texture = textures.get(textureName);
-        if (texture != null) {
-            this.textureLocation = texture;
-            this.textureIndex = textures.valueList().indexOf(texture);
-        } else if (isModelPresent()) {
-            this.textureName = textures.getKeyAt(0);
-            this.textureLocation = textures.getValueAt(0);
-            this.textureIndex = 0;
+        if (isModelPresent()) {
+            var textures = getModelContainer().playerModel().textures();
+            var texture = textures.get(textureName);
+            if (texture != null) {
+                this.textureLocation = texture;
+                this.textureIndex = textures.valueList().indexOf(texture);
+            } else {
+                this.textureName = textures.getKeyAt(0);
+                this.textureLocation = textures.getValueAt(0);
+                this.textureIndex = 0;
+            }
         }
     }
 
