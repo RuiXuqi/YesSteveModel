@@ -22,6 +22,8 @@ public class CustomFirstPersonArmRenderer {
     public void render(LocalPlayer player, ClientModel model, PlayerAnimatableCapability cap, HumanoidArm arm,
                        PoseStack poseStack, MultiBufferSource bufferSource,
                        int packedLight, float partialTick) {
+        cap.waitForAsyncUpdate();
+
         if (armEntity == null || armEntity.getEntity() == null) {
             armEntity = new CustomFirstPersonArmEntity(player);
         }
