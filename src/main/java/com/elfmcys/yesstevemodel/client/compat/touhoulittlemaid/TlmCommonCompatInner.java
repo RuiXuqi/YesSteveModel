@@ -13,6 +13,7 @@ import com.elfmcys.yesstevemodel.network.message.SyncProjectileModelInfo;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.api.distmarker.Dist;
@@ -51,7 +52,8 @@ public class TlmCommonCompatInner {
         }
         if (maid.isYsmModel()) {
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.init(maid.getYsmModelId());
+                // TODO: 实现女仆的 roaming 变量
+                cap.init(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());
                 SyncProjectileModelInfo info = new SyncProjectileModelInfo(projectile.getId(), cap);
                 NetworkHandler.broadcastToVisiblePlayers(info, projectile);
             });

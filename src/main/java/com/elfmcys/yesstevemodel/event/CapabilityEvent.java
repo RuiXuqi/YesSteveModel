@@ -171,7 +171,7 @@ public final class CapabilityEvent {
                 return;
             }
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.init(ownerCap.getModelId());
+                cap.init(ownerCap.getModelId(), ownerCap.getMolangVarsServerBound());
                 NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(projectile.getId(), cap), projectile);
             });
         });

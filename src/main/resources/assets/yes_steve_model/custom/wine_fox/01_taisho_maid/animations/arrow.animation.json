@@ -47,6 +47,14 @@
 					"rotation": [3.8413, 0.75188, -139.19595]
 				}
 			}
+		},
+		"parallel1": {
+			"loop": true,
+			"bones": {
+				"Board": {
+					"scale": "!v.roaming.a"
+				}
+			}
 		}
 	}
 }

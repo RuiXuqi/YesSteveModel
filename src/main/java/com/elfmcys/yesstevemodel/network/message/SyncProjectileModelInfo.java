@@ -3,6 +3,8 @@ package com.elfmcys.yesstevemodel.network.message;
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ProjectileModelInfoCapability;
 import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -15,10 +17,16 @@ import java.util.function.Supplier;
 public class SyncProjectileModelInfo {
     private final int entityId;
     private final ProjectileModelInfoCapability capability;
+    private final Int2FloatOpenHashMap molangVarsClientBound;
 
-    public SyncProjectileModelInfo(int entityId, ProjectileModelInfoCapability capability) {
+    public SyncProjectileModelInfo(int entityId, ProjectileModelInfoCapability capability, Int2FloatOpenHashMap molangVarsClientBound) {
         this.entityId = entityId;
         this.capability = capability;
+        this.molangVarsClientBound = molangVarsClientBound;
+    }
+
+    public SyncProjectileModelInfo(int entityId, ProjectileModelInfoCapability capability) {
+        this(entityId, capability, new Int2FloatOpenHashMap());
     }
 
     public static void encode(SyncProjectileModelInfo message, FriendlyByteBuf buf) {
@@ -33,21 +41,28 @@ public class SyncProjectileModelInfo {
         if (compoundTag != null) {
             cap.deserializeNBT(compoundTag);
         }
-        return new SyncProjectileModelInfo(entityId, cap);
+        var molangVarsServerBound = cap.getMolangVarsServerBound();
+        Int2FloatOpenHashMap molangVarsClientBound = new Int2FloatOpenHashMap();
+        molangVarsServerBound.object2FloatEntrySet().fastForEach(entry -> {
+            int key = StringPool.computeIfAbsent(entry.getKey());
+            molangVarsClientBound.put(key, entry.getFloatValue());
+        });
+        return new SyncProjectileModelInfo(entityId, cap, molangVarsClientBound);
     }
 
     public static void handle(SyncProjectileModelInfo message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
-            EntityLoadEvent.executeOnEntity(message.entityId, entity -> handleCapability(entity, message.capability));
+            EntityLoadEvent.executeOnEntity(message.entityId, entity -> handleCapability(entity, message.capability, message.molangVarsClientBound));
         }
         context.setPacketHandled(true);
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void handleCapability(Entity entity, ProjectileModelInfoCapability newCap) {
+    private static void handleCapability(Entity entity, ProjectileModelInfoCapability newCap, Int2FloatOpenHashMap vars) {
         entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             cap.init(newCap.getOwnerModelId());
+            cap.initRoamingVars(vars);
         });
     }
 }

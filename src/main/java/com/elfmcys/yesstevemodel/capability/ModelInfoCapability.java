@@ -92,16 +92,16 @@ public class ModelInfoCapability {
     // 必须在主线程上调用
     public Optional<SyncModelInfo> buildPacketForDispatch(ServerPlayer entity) {
         return ServerModelManager.getModel(modelId).map(model ->
-            new SyncModelInfo(
-                    entity.getId(),
-                    modelId,
-                    model.info().hashShort(),
-                    selectTexture,
-                    animation,
-                    playAnimation,
-                    molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>()),
-                    null,
-                    ServerDrivenPlayerPropertiesTracker.full(entity))
+                new SyncModelInfo(
+                        entity.getId(),
+                        modelId,
+                        model.info().hashShort(),
+                        selectTexture,
+                        animation,
+                        playAnimation,
+                        molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>()),
+                        null,
+                        ServerDrivenPlayerPropertiesTracker.full(entity))
         );
     }
 
@@ -146,6 +146,13 @@ public class ModelInfoCapability {
 
     public boolean isMandatory() {
         return mandatory;
+    }
+
+    public Object2FloatOpenHashMap<String> getMolangVarsServerBound() {
+        return ServerModelManager.getModel(modelId).map(model -> {
+            int index = model.info().hashShort();
+            return molangStorage.computeIfAbsent(index, hash -> new Object2FloatOpenHashMap<>());
+        }).orElse(new Object2FloatOpenHashMap<>());
     }
 
     public CompoundTag serializeNBT() {
