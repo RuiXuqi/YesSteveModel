@@ -115,8 +115,12 @@
         "texture": "textures/trident.png"
       },
       "minecraft:fishing_bobber": {
-        "model": "models/arrow.json",
-        "texture": "textures/arrow.png"
+        "model": "models/fishing_bobber.json",
+        "texture": "textures/fishing_bobber.png"
+      },
+      "minecraft:firework_rocket": {
+        "model": "models/firework_rocket.json",
+        "texture": "textures/firework_rocket.png"
       }
     },
     "sound_path": "sounds"

@@ -1,16 +1,20 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.capability.ProjectileModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
+import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.network.message.SyncProjectileModelInfo;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +43,19 @@ public class TlmCommonCompatInner {
                 YesSteveModel.LOGGER.error("Failed to execute molang " + molangExpression, e);
             }
         });
+    }
+
+    static void onProjectileSetOwner(Projectile projectile, Entity entity) {
+        if (!(entity instanceof EntityMaid maid)) {
+            return;
+        }
+        if (maid.isYsmModel()) {
+            projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+                cap.init(maid.getYsmModelId());
+                SyncProjectileModelInfo info = new SyncProjectileModelInfo(projectile.getId(), cap);
+                NetworkHandler.broadcastToVisiblePlayers(info, projectile);
+            });
+        }
     }
 
     static void setRouletteAnima(Entity entity, String classifyId, int extraAnimIndex) {

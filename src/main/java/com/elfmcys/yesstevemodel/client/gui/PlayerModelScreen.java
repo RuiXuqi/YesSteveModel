@@ -7,13 +7,13 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
-import com.elfmcys.yesstevemodel.client.model.ClientModel;
-import com.elfmcys.yesstevemodel.client.model.ClientModelSyncListener;
-import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.client.event.DownloadScreenInterModEvent;
 import com.elfmcys.yesstevemodel.client.gui.button.*;
 import com.elfmcys.yesstevemodel.client.input.PlayerModelScreenKey;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModelSyncListener;
+import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
@@ -104,7 +104,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     private Map<String, ClientModel> getPackModels() {
         Map<String, ClientModel> packModels = Maps.newHashMap();
         if (StringUtils.isBlank(pack)) {
-            return Maps.newHashMap(ClientModelManager.getModels());
+            packModels.putAll(ClientModelManager.getModels());
         }
         ClientModelManager.getModels().forEach((k, v) -> {
             if (k.startsWith(pack)) {

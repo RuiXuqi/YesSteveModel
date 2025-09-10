@@ -11,9 +11,11 @@
   "client": [
     "client.ArrowEntityAccessor", "client.BufferSourceMixin", "client.InventoryScreenMixin",
     "client.LivingEntityAccessor", "client.LivingRendererMixin", "client.WorldRendererMixin",
-    "client.create.PlayerSkyhookRendererAccessor", "client.projectile.ArrowRendererMixin",
-    "client.projectile.FireworkEntityRendererMixin", "client.projectile.FishingHookRendererMixin",
-    "client.projectile.ThrownItemRendererMixin", "client.projectile.ThrownTridentRendererMixin"
+    "client.projectile.ArrowRendererMixin",
+    "client.projectile.FireworkEntityRendererMixin",
+    "client.projectile.FishingHookRendererMixin",
+    "client.projectile.ThrownItemRendererMixin",
+    "client.projectile.ThrownTridentRendererMixin"
   ],
   "mixins": [
     "AbstractArrowEntityMixin", "ProjectileEntityMixin"

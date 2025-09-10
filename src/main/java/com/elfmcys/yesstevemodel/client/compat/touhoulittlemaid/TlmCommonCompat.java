@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.event.CopyYsmModelEvent;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -29,6 +30,12 @@ public class TlmCommonCompat {
             return TlmCommonCompatInner.isMaid(entity);
         }
         return false;
+    }
+
+    public static void onProjectileSetOwner(Projectile projectile, Entity entity) {
+        if (isInstalled()) {
+            TlmCommonCompatInner.onProjectileSetOwner(projectile, entity);
+        }
     }
 
     public static void setRouletteAnim(Entity entity, String classifyId, int extraAnimIndex) {

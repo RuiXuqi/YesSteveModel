@@ -27,15 +27,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class FishingHookRendererMixin {
     @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
     public void render(FishingHook entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-        CustomProjectileRenderer.renderInMixin(entity, entityYaw, partialTicks, poseStack, buffer, packedLight,
-                () -> {
-                    Player player = entity.getPlayerOwner();
-                    if (player != null) {
-                        poseStack.pushPose();
-                        this.ysm$renderFishingLine(entity, partialTicks, poseStack, buffer, player);
-                        poseStack.popPose();
-                    }
-                }, ci);
+        CustomProjectileRenderer.renderInFishingHookMixin(entity, entityYaw, partialTicks, poseStack, buffer, packedLight, () -> {
+            Player player = entity.getPlayerOwner();
+            if (player != null) {
+                poseStack.pushPose();
+                this.ysm$renderFishingLine(entity, partialTicks, poseStack, buffer, player);
+                poseStack.popPose();
+            }
+        }, ci);
     }
 
     @Unique

@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.mixin;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.yesstevemodel.event.CapabilityEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +21,8 @@ public class ProjectileEntityMixin {
         // 仅在服务端执行
         if (owner instanceof ServerPlayer) {
             CapabilityEvent.onProjectileSetOwner((Projectile) (Object) this, (ServerPlayer) owner);
+        } else if (TlmCommonCompat.isMaid(owner)) {
+            TlmCommonCompat.onProjectileSetOwner((Projectile) (Object) this, owner);
         }
     }
 }

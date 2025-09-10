@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.mixin.plugin;
 
+import com.elfmcys.yesstevemodel.client.compat.create.CreateCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.util.Keep;
 import com.google.common.collect.Lists;
@@ -15,6 +16,7 @@ import java.util.Set;
 public class MixinTweaker implements IMixinConfigPlugin {
     public MixinTweaker() {
         ParCoolCompat.init();
+        CreateCompat.init();
     }
 
     @Keep
@@ -42,17 +44,30 @@ public class MixinTweaker implements IMixinConfigPlugin {
     @Keep
     @Override
     public List<String> getMixins() {
-        if (ParCoolCompat.isInstalled() && FMLEnvironment.dist == Dist.CLIENT) {
-            return Lists.newArrayList("client.parcool.AnimationAccessor",
-                    "client.parcool.DodgeAnimatorAccessor",
-                    "client.parcool.FlippingAnimatorAccessor",
-                    "client.parcool.HorizontalWallRunAnimatorAccessor",
-                    "client.parcool.RollAnimatorAccessor",
-                    "client.parcool.SpeedVaultAnimatorAccessor",
-                    "client.parcool.WallJumpAnimatorAccessor");
-        } else {
-            return null;
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            List<String> list = Lists.newArrayList();
+
+            if (ParCoolCompat.isInstalled()) {
+                list.add("client.parcool.AnimationAccessor");
+                list.add("client.parcool.DodgeAnimatorAccessor");
+                list.add("client.parcool.FlippingAnimatorAccessor");
+                list.add("client.parcool.HorizontalWallRunAnimatorAccessor");
+                list.add("client.parcool.RollAnimatorAccessor");
+                list.add("client.parcool.SpeedVaultAnimatorAccessor");
+                list.add("client.parcool.WallJumpAnimatorAccessor");
+            }
+
+            if (CreateCompat.isInstalled()) {
+                list.add("client.create.PlayerSkyhookRendererAccessor");
+            }
+
+            if (list.isEmpty()) {
+                return null;
+            } else {
+                return list;
+            }
         }
+        return null;
     }
 
     @Keep
