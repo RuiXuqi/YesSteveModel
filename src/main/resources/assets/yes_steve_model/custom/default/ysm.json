@@ -102,13 +102,15 @@
       "texture": [
         "textures/default.png",
         "textures/blue.png"
-      ],
-      "sound_path": "sounds"
+      ]
     },
-    "arrow": {
-      "model": "models/arrow.json",
-      "animation": "animations/arrow.animation.json",
-      "texture": "textures/arrow.png"
-    }
+    "projectiles": {
+      "arrow": {
+        "model": "models/arrow.json",
+        "animation": "animations/arrow.animation.json",
+        "texture": "textures/arrow.png"
+      }
+    },
+    "sound_path": "sounds"
   }
 }
