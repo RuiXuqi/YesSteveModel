@@ -17,6 +17,7 @@
 -keep class com.elfmcys.yesstevemodel.mixin.client.*
 -keep class com.elfmcys.yesstevemodel.mixin.client.parcool.*
 -keep class com.elfmcys.yesstevemodel.mixin.client.create.*
+-keep class com.elfmcys.yesstevemodel.mixin.client.projectile.*
 -keep class com.elfmcys.yesstevemodel.mixin.plugin.*
 
 # 保留部分枚举类属性

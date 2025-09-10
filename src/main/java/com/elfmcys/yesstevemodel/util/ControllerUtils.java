@@ -30,8 +30,8 @@ public final class ControllerUtils {
     public static final String HOVER_CONTROLLER = "player.gui_hover";
     public static final String FOCUS_CONTROLLER = "player.gui_focus";
 
-    public static final String ARROW_MAIN_CONTROLLER = "arrow.main";
-    public static final String ARROW_PARALLEL_CONTROLLER = "arrow.parallel_";
+    public static final String PROJECTILE_MAIN_CONTROLLER = "projectile.main";
+    public static final String PROJECTILE_PARALLEL_CONTROLLER = "projectile.parallel_";
 
     public static final String MAID_MISC = "maid.misc";
     public static final String MAID_STATUE = "maid.statue";

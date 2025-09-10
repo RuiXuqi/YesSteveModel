@@ -2,9 +2,7 @@ package com.elfmcys.yesstevemodel.mixin;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.api.IArrowExtraInfo;
-import com.elfmcys.yesstevemodel.event.CapabilityEvent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -48,10 +46,6 @@ public class AbstractArrowEntityMixin implements IArrowExtraInfo {
     private void setOwner(Entity owner, CallbackInfo callbackInfo) {
         if (!YesSteveModel.isAvailable()) {
             return;
-        }
-        // 仅在服务端执行
-        if (owner instanceof ServerPlayer) {
-            CapabilityEvent.onArrowSetOwner((AbstractArrow) (Object) this, (ServerPlayer) owner);
         }
         // 设置 owner 时，缓存一下射击时主手物品 ID，用于 molang
         if (owner instanceof LivingEntity livingEntity) {

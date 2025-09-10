@@ -3,13 +3,16 @@ package com.elfmcys.yesstevemodel.event;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.*;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
-import com.elfmcys.yesstevemodel.network.message.*;
+import com.elfmcys.yesstevemodel.network.message.ServerInfo;
+import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
+import com.elfmcys.yesstevemodel.network.message.SyncProjectileModelInfo;
+import com.elfmcys.yesstevemodel.network.message.SyncStarModels;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -47,7 +50,7 @@ public final class CapabilityEvent {
             if (!player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).isPresent() && !event.getCapabilities().containsKey(STAR_MODELS_CAP)) {
                 event.addCapability(STAR_MODELS_CAP, new StarModelsCapabilityProvider());
             }
-        } else if (entity instanceof AbstractArrow) {
+        } else if (entity instanceof Projectile) {
             if (!entity.level().isClientSide() && !entity.getCapability(ProjectileModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_MODEL_INFO_CAP)) {
                 event.addCapability(PROJECTILE_MODEL_INFO_CAP, new ProjectileModelInfoCapabilityProvider());
             }
@@ -55,8 +58,8 @@ public final class CapabilityEvent {
         if (FMLEnvironment.dist == Dist.CLIENT && entity.level().isClientSide()) {
             if (entity instanceof AbstractClientPlayer clientPlayer && !clientPlayer.getCapability(PlayerAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ANIMATABLE_CAP)) {
                 event.addCapability(ANIMATABLE_CAP, new PlayerAnimatableCapabilityProvider(clientPlayer));
-            } else if (entity instanceof AbstractArrow && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
-                event.addCapability(PROJECTILE_ANIMATABLE_CAP, new ProjectileAnimatableCapabilityProvider((AbstractArrow) entity));
+            } else if (entity instanceof Projectile projectile && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
+                event.addCapability(PROJECTILE_ANIMATABLE_CAP, new ProjectileAnimatableCapabilityProvider(projectile));
             }
         }
     }
@@ -96,10 +99,10 @@ public final class CapabilityEvent {
                     NetworkHandler.sendToClientPlayer(packet, player);
                 }, cap::markDirty);
             });
-        } else if (event.getTarget() instanceof AbstractArrow arrow) {
-            arrow.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+        } else if (event.getTarget() instanceof Projectile projectile) {
+            projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isInitialized()) {
-                    NetworkHandler.sendToClientPlayer(new SyncProjectileModelInfo(arrow.getId(), cap), event.getEntity());
+                    NetworkHandler.sendToClientPlayer(new SyncProjectileModelInfo(projectile.getId(), cap), event.getEntity());
                 }
             });
         }
@@ -141,7 +144,7 @@ public final class CapabilityEvent {
             return;
         }
         if (event.phase == TickEvent.Phase.END
-                && event.player instanceof ServerPlayer player) {
+            && event.player instanceof ServerPlayer player) {
             getModelInfoCap(player).ifPresent(cap -> {
                 if (!NetworkHandler.isPlayerChannelPresent(player) && !cap.isMandatory()) {
                     if (player.tickCount == 200 || player.tickCount == 600 || player.tickCount == 1800) {
@@ -162,14 +165,14 @@ public final class CapabilityEvent {
         }
     }
 
-    public static void onArrowSetOwner(AbstractArrow arrow, ServerPlayer owner) {
+    public static void onProjectileSetOwner(Projectile projectile, ServerPlayer owner) {
         owner.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(ownerCap -> {
             if (!NetworkHandler.isPlayerChannelPresent(owner) && !ownerCap.isMandatory()) {
                 return;
             }
-            arrow.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(arrowCap -> {
-                arrowCap.init(ownerCap.getModelId());
-                NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(arrow.getId(), arrowCap), arrow);
+            projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+                cap.init(ownerCap.getModelId());
+                NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(projectile.getId(), cap), projectile);
             });
         });
     }

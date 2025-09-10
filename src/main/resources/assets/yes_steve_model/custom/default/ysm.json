@@ -102,13 +102,23 @@
       "texture": [
         "textures/default.png",
         "textures/blue.png"
-      ],
-      "sound_path": "sounds"
+      ]
     },
-    "arrow": {
-      "model": "models/arrow.json",
-      "animation": "animations/arrow.animation.json",
-      "texture": "textures/arrow.png"
-    }
+    "projectiles": {
+      "minecraft:arrow": {
+        "model": "models/arrow.json",
+        "animation": "animations/arrow.animation.json",
+        "texture": "textures/arrow.png"
+      },
+      "minecraft:trident": {
+        "model": "models/trident.json",
+        "texture": "textures/trident.png"
+      },
+      "minecraft:fishing_bobber": {
+        "model": "models/arrow.json",
+        "texture": "textures/arrow.png"
+      }
+    },
+    "sound_path": "sounds"
   }
 }

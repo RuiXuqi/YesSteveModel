@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.capability;
 
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
@@ -17,10 +17,10 @@ public class ProjectileAnimatableCapabilityProvider implements ICapabilityProvid
     public static Capability<ProjectileAnimatableCapability> CAP = CapabilityManager.get(new CapabilityToken<>() {
     });
     private ProjectileAnimatableCapability instance;
-    private AbstractArrow arrow;
+    private Projectile projectile;
 
-    public ProjectileAnimatableCapabilityProvider(AbstractArrow arrow) {
-        this.arrow = arrow;
+    public ProjectileAnimatableCapabilityProvider(Projectile projectile) {
+        this.projectile = projectile;
     }
 
     @Override
@@ -31,8 +31,8 @@ public class ProjectileAnimatableCapabilityProvider implements ICapabilityProvid
     @NotNull
     private ProjectileAnimatableCapability createCapability() {
         if (instance == null) {
-            this.instance = new ProjectileAnimatableCapability(arrow);
-            arrow = null;
+            this.instance = new ProjectileAnimatableCapability(projectile);
+            projectile = null;
         }
         return instance;
     }

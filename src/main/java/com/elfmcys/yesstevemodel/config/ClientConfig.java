@@ -8,7 +8,7 @@ public class ClientConfig {
     public static ForgeConfigSpec.BooleanValue DISABLE_SELF_MODEL;
     public static ForgeConfigSpec.BooleanValue DISABLE_OTHER_MODEL;
     public static ForgeConfigSpec.BooleanValue DISABLE_SELF_HANDS;
-    public static ForgeConfigSpec.BooleanValue DISABLE_ARROWS_MODEL;
+    public static ForgeConfigSpec.BooleanValue DISABLE_PROJECTILE_MODEL;
     public static ForgeConfigSpec.BooleanValue USE_COMPATIBILITY_RENDERER;
     public static ForgeConfigSpec.DoubleValue SOUND_VOLUME;
 
@@ -37,8 +37,8 @@ public class ClientConfig {
         builder.comment("Prevents rendering of self player's hand");
         DISABLE_SELF_HANDS = builder.define("DisableSelfHands", false);
 
-        builder.comment("Prevents rendering of arrows model");
-        DISABLE_ARROWS_MODEL = builder.define("DisableArrowsModel", false);
+        builder.comment("Prevents rendering of projectile model");
+        DISABLE_PROJECTILE_MODEL = builder.define("DisableProjectileModel", false);
 
         builder.comment("If rendering errors occur, try turning on this.");
         USE_COMPATIBILITY_RENDERER = builder.define("UseCompatibilityRenderer", false);

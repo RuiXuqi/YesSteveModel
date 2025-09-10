@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
-import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -17,9 +17,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -53,12 +52,12 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
         this.animationContext = animationContext;
         this.random = random;
         this.memory = memory;
-        if (entity instanceof Player) {
-            ((Entity) entity).getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+        if (entity instanceof Player player) {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 foreignStorage = cap.getPublicVariableStorage();
             });
-        } else if (entity instanceof AbstractArrow) {
-            ((AbstractArrow) entity).getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+        } else if (entity instanceof Projectile projectile) {
+            projectile.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 foreignStorage = cap.getPublicVariableStorage();
             });
         }
@@ -184,15 +183,15 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     }
 
     @Override
-    public void debugPrint(String message, Object...args) {
-        if(isDebugEnabled()) {
+    public void debugPrint(String message, Object... args) {
+        if (isDebugEnabled()) {
             debugSource.print(message, args);
         }
     }
 
     @Override
     public void debugPrint(Component message) {
-        if(isDebugEnabled()) {
+        if (isDebugEnabled()) {
             debugSource.print(message);
         }
     }

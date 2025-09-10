@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
-import com.elfmcys.yesstevemodel.client.animation.predicate.ProjectileMainPredicate;
 import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
+import com.elfmcys.yesstevemodel.client.animation.predicate.ProjectileMainPredicate;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.ProjectileModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
@@ -11,8 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.NotNull;
 
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.ARROW_MAIN_CONTROLLER;
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.ARROW_PARALLEL_CONTROLLER;
+import static com.elfmcys.yesstevemodel.util.ControllerUtils.PROJECTILE_MAIN_CONTROLLER;
+import static com.elfmcys.yesstevemodel.util.ControllerUtils.PROJECTILE_PARALLEL_CONTROLLER;
 
 public class CustomProjectileEntity extends CustomEntity<Projectile> {
     private ProjectileModel projectileModel;
@@ -24,9 +24,9 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
 
     @SuppressWarnings("unchecked,rawtypes,deprecation")
     private void registerControllers() {
-        addAnimationController(new HybridAnimationController(this, ARROW_MAIN_CONTROLLER, 0.1f, new ProjectileMainPredicate()));
+        addAnimationController(new HybridAnimationController(this, PROJECTILE_MAIN_CONTROLLER, 0.1f, new ProjectileMainPredicate()));
         for (int i = 0; i < 8; i++) {
-            String controllerName = ARROW_PARALLEL_CONTROLLER + i;
+            String controllerName = PROJECTILE_PARALLEL_CONTROLLER + i;
             String animationName = String.format("parallel%d", i);
             addAnimationController(new HybridAnimationController<>(this, controllerName, 0,
                     new ParallelPredicate<>(animationName), true));

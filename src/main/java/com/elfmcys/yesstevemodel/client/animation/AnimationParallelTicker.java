@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
@@ -50,8 +50,8 @@ public class AnimationParallelTicker {
                         continue;
                     }
                 }
-            } else if (entity instanceof AbstractArrow) {
-                if (ClientConfig.DISABLE_ARROWS_MODEL.get()) {
+            } else if (entity instanceof Projectile) {
+                if (ClientConfig.DISABLE_PROJECTILE_MODEL.get()) {
                     continue;
                 }
             }

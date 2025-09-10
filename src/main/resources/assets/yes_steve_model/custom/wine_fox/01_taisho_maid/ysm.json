@@ -105,10 +105,16 @@
         "textures/skin_white.png"
       ]
     },
-    "arrow": {
-      "model": "models/arrow.json",
-      "texture": "textures/arrow.png",
-      "animation": "animations/arrow.animation.json"
+    "projectiles": {
+      "minecraft:arrow": {
+        "model": "models/arrow.json",
+        "animation": "animations/arrow.animation.json",
+        "texture": "textures/arrow.png"
+      },
+      "minecraft:trident": {
+        "model": "models/trident.json",
+        "texture": "textures/trident.png"
+      }
     }
   }
 }

@@ -39,7 +39,7 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 89, "print_animation_roulette_msg", ClientConfig.PRINT_ANIMATION_ROULETTE_MSG));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 111, "disable_self_hands", ClientConfig.DISABLE_SELF_HANDS));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 133, "disable_player_render", ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER));
-        addRenderableWidget(new ConfigCheckBox(x + 5, y + 155, "disable_arrows_model", ClientConfig.DISABLE_ARROWS_MODEL));
+        addRenderableWidget(new ConfigCheckBox(x + 5, y + 155, "disable_projectile_model", ClientConfig.DISABLE_PROJECTILE_MODEL));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 177, "use_compatibility_renderer", ClientConfig.USE_COMPATIBILITY_RENDERER));
     }
 
