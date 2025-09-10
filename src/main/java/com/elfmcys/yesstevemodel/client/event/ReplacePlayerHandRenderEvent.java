@@ -35,7 +35,6 @@ public class ReplacePlayerHandRenderEvent {
         event.setCanceled(true);
 
         player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            String modelId = cap.getModelId();
             HumanoidArm arm = event.getArm();
             ClientModel model = cap.getModelContainer();
             if (model == null || !hasArmBone(arm, model.playerModel().armModel())) {
