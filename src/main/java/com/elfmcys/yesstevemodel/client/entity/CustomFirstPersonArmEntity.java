@@ -12,21 +12,13 @@ import org.jetbrains.annotations.Nullable;
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.FP_ARM_PARALLEL_CONTROLLER;
 
 public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
-    private PlayerAnimatableCapability mainModelEntity;
+    private final PlayerAnimatableCapability mainModelEntity;
 
-    public CustomFirstPersonArmEntity(LocalPlayer player) {
+    public CustomFirstPersonArmEntity(LocalPlayer player, PlayerAnimatableCapability mainModelEntity) {
         super(player, false);
+        this.mainModelEntity = mainModelEntity;
         registerControllers();
-    }
-
-    public void setMainModelEntity(PlayerAnimatableCapability mainModelEntity) {
-        if (!mainModelEntity.isLocalPlayer()) {
-            throw new IllegalArgumentException();
-        }
-        if (this.mainModelEntity != mainModelEntity) {
-            this.mainModelEntity = mainModelEntity;
-            updateModelId(mainModelEntity.getModelId());
-        }
+        updateModelId(mainModelEntity.getModelId());
     }
 
     public PlayerAnimatableCapability getMainModelEntity() {
@@ -45,7 +37,7 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
 
     @Override
     protected boolean prepareForUpdate() {
-        if (mainModelEntity != null && mainModelEntity.getModelContainer() != getModelContainer()) {
+        if (mainModelEntity.getModelContainer() != getModelContainer()) {
             updateModelId(mainModelEntity.getModelId());
             return true;
         }
@@ -54,7 +46,7 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
 
     @Override
     public ResourceLocation getTextureLocation() {
-        return mainModelEntity != null ? mainModelEntity.getTextureLocation() : getModelContainer().playerModel().defaultTexture();
+        return mainModelEntity.getTextureLocation();
     }
 
     @Override
@@ -75,5 +67,11 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     @Override
     protected GeoModel getYsmGeoModel() {
         return getModelContainer().playerModel().armModel();
+    }
+
+    @Override
+    protected void preAnimationSetup(float seekTime) {
+        // 设置 roaming 变量
+        getAnimationProcessor().putRemoteStruct(mainModelEntity.getRoamingStruct());
     }
 }

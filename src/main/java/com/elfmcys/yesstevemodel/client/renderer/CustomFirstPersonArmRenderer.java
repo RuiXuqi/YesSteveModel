@@ -24,10 +24,9 @@ public class CustomFirstPersonArmRenderer {
                        int packedLight, float partialTick) {
         cap.waitForAsyncUpdate();
 
-        if (armEntity == null || armEntity.getEntity() == null) {
-            armEntity = new CustomFirstPersonArmEntity(player);
+        if (armEntity == null || armEntity.getEntity() != player) {
+            armEntity = new CustomFirstPersonArmEntity(player, cap);
         }
-        armEntity.setMainModelEntity(cap);
 
         AnimationEvent<?> event = armEntity.syncUpdate(partialTick);
         if (event == null) {
