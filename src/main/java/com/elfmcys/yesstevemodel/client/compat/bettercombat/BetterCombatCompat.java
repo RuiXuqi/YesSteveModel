@@ -1,8 +1,10 @@
 package com.elfmcys.yesstevemodel.client.compat.bettercombat;
 
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.util.PersonView;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraftforge.fml.loading.LoadingModList;
 
 public class BetterCombatCompat {
@@ -18,6 +20,6 @@ public class BetterCombatCompat {
     }
 
     public static boolean shouldHideHead(CustomPlayerEntity entity) {
-        return INSTALLED && PersonView.isFirstPersonView(entity) && !RenderUtil.isRenderingEntitiesInPaperDoll();
+        return INSTALLED && PersonView.isFirstPersonView(entity) && NativeRenderer.isAsyncScope() && RenderSystem.isOnRenderThread();
     }
 }
