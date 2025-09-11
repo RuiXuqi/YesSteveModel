@@ -20,9 +20,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Arrow;
-import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -95,6 +93,14 @@ public class ContextBinding implements ObjectBinding {
         bindings.put(name, new ProjectileVariable(evaluator));
     }
 
+    public void throwableItemProjectileVar(String name, IValueEvaluator<?, IContext<ThrowableItemProjectile>> evaluator) {
+        bindings.put(name, new ThrowableItemProjectileVariable(evaluator));
+    }
+
+    public void fishingHookVar(String name, IValueEvaluator<?, IContext<FishingHook>> evaluator) {
+        bindings.put(name, new FishingHookVariable(evaluator));
+    }
+
     public void abstractArrowVar(String name, IValueEvaluator<?, IContext<AbstractArrow>> evaluator) {
         bindings.put(name, new AbstractArrowVariable(evaluator));
     }
@@ -119,7 +125,7 @@ public class ContextBinding implements ObjectBinding {
         bindings.put(name, new BlockVariable(evaluator));
     }
 
-    public void AbstractBlockVar(String name, IValueEvaluator<?, IContext<BlockBehaviour>> evaluator) {
+    public void abstractBlockVar(String name, IValueEvaluator<?, IContext<BlockBehaviour>> evaluator) {
         bindings.put(name, new AbstractBlockVariable(evaluator));
     }
 }

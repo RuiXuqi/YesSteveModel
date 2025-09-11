@@ -28,6 +28,7 @@ public class DispatchServerDrivenProperty {
     public float xxa;
     public float yya;
     public float zza;
+    public boolean inShieldBlockCooldown;
 
     public DispatchServerDrivenProperty(int entityId, int variant) {
         this.entityId = entityId;
@@ -94,6 +95,12 @@ public class DispatchServerDrivenProperty {
         return msg;
     }
 
+    public static DispatchServerDrivenProperty inShieldBlockCooldown(int entityId, boolean inShieldBlockCooldown) {
+        var msg = new DispatchServerDrivenProperty(entityId, 10);
+        msg.inShieldBlockCooldown = inShieldBlockCooldown;
+        return msg;
+    }
+
     public static void encode(DispatchServerDrivenProperty msg, FriendlyByteBuf buf) {
         buf.writeVarInt(msg.entityId);
         buf.writeVarInt(msg.variant);
@@ -129,6 +136,9 @@ public class DispatchServerDrivenProperty {
         }
         if (variant == 0 || variant == 9) {
             buf.writeFloat(msg.zza);
+        }
+        if (variant == 0 || variant == 10) {
+            buf.writeBoolean(msg.inShieldBlockCooldown);
         }
     }
 
@@ -178,6 +188,9 @@ public class DispatchServerDrivenProperty {
         }
         if (variant == 0 || variant == 9) {
             msg.zza = buf.readFloat();
+        }
+        if (variant == 0 || variant == 10) {
+            msg.inShieldBlockCooldown = buf.readBoolean();
         }
 
         return msg;

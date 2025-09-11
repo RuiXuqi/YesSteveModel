@@ -13,6 +13,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.mixin.client.ArrowEntityAccessor;
+import com.elfmcys.yesstevemodel.mixin.client.FishingHookAccessor;
+import com.elfmcys.yesstevemodel.mixin.client.ThrowableItemProjectileAccessor;
 import com.elfmcys.yesstevemodel.util.EquipmentUtil;
 import com.elfmcys.yesstevemodel.util.LazyValue;
 import com.elfmcys.yesstevemodel.util.PersonView;
@@ -32,8 +34,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.projectile.SpectralArrow;
+import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.biome.Biome;
@@ -141,6 +146,7 @@ public class YSMBinding extends ContextBinding {
         playerVar("entity_gravity", ctx -> ctx.entity().getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()));
         playerVar("step_height_addition", ctx -> ctx.entity().getAttributeValue(ForgeMod.STEP_HEIGHT_ADDITION.get()));
         playerVar("nametag_distance", ctx -> ctx.entity().getAttributeValue(ForgeMod.NAMETAG_DISTANCE.get()));
+        playerVar("in_shield_block_cooldown", YSMBinding::inShieldBlockCooldown);
 
         clientPlayerVar("elytra_rot_x", ctx -> Math.toDegrees(ctx.entity().elytraRotX));
         clientPlayerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
@@ -155,6 +161,11 @@ public class YSMBinding extends ContextBinding {
 
         projectileVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));
 
+        throwableItemProjectileVar("throwable_item", YSMBinding::getThrowableItem);
+
+        fishingHookVar("hooked_in", YSMBinding::getHookedIn);
+        fishingHookVar("is_biting", ctx -> ((FishingHookAccessor) ctx.entity()).ysm$IsBiting());
+
         abstractArrowVar("on_ground_time", ctx -> ((IArrowExtraInfo) ctx.entity()).inGroundTime());
         abstractArrowVar("in_ground", ctx -> ((IArrowExtraInfo) ctx.entity()).isInGround());
         abstractArrowVar("is_spectral_arrow", ctx -> ctx.entity() instanceof SpectralArrow);
@@ -164,7 +175,30 @@ public class YSMBinding extends ContextBinding {
         CuriosCompat.addMolangBinding(this);
     }
 
-    private static Object getXxa(IContext<LivingEntity> ctx) {
+    private static String getHookedIn(IContext<FishingHook> ctx) {
+        Entity hooked = ((FishingHookAccessor) ctx.entity()).ysm$GetHookedIn();
+        if (hooked != null) {
+            ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(hooked.getType());
+            if (id != null) {
+                return id.toString();
+            }
+        }
+        return "";
+    }
+
+    private static String getThrowableItem(IContext<ThrowableItemProjectile> ctx) {
+        ThrowableItemProjectile entity = ctx.entity();
+        if (entity instanceof ThrowableItemProjectileAccessor accessor) {
+            Item item = accessor.ysm$GetDefaultItem();
+            ResourceLocation id = ForgeRegistries.ITEMS.getKey(item);
+            if (id != null) {
+                return id.toString();
+            }
+        }
+        return "";
+    }
+
+    private static float getXxa(IContext<LivingEntity> ctx) {
         if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
             return cap.getStateTracker().xxa();
         } else {
@@ -172,7 +206,7 @@ public class YSMBinding extends ContextBinding {
         }
     }
 
-    private static Object getYya(IContext<LivingEntity> ctx) {
+    private static float getYya(IContext<LivingEntity> ctx) {
         if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
             return cap.getStateTracker().yya();
         } else {
@@ -180,11 +214,19 @@ public class YSMBinding extends ContextBinding {
         }
     }
 
-    private static Object getZza(IContext<LivingEntity> ctx) {
+    private static float getZza(IContext<LivingEntity> ctx) {
         if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
             return cap.getStateTracker().zza();
         } else {
             return ctx.entity().zza;
+        }
+    }
+
+    private static boolean inShieldBlockCooldown(IContext<Player> context) {
+        if (context.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            return cap.getStateTracker().inShieldBlockCooldown();
+        } else {
+            return false;
         }
     }
 

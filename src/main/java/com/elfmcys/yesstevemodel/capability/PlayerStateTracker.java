@@ -20,6 +20,8 @@ public class PlayerStateTracker extends HumanoidStateTracker<Player> {
     private float yya;
     private float zza;
 
+    private boolean inShieldBlockCooldown;
+
     private static float YAW_SPEED;
     private static float LAST_YAW;
 
@@ -60,6 +62,9 @@ public class PlayerStateTracker extends HumanoidStateTracker<Player> {
         if (msg.variant == 0 || msg.variant == 9) {
             zza = msg.zza;
         }
+        if (msg.variant == 0 || msg.variant == 10) {
+            inShieldBlockCooldown = msg.inShieldBlockCooldown;
+        }
     }
 
     public boolean isFlying() {
@@ -95,6 +100,10 @@ public class PlayerStateTracker extends HumanoidStateTracker<Player> {
 
     public float zza() {
         return zza;
+    }
+
+    public boolean inShieldBlockCooldown() {
+        return inShieldBlockCooldown;
     }
 
     public byte getEffectLevel(MobEffect effect) {

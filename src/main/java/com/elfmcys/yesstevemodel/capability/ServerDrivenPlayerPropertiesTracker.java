@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.capability;
 
+import com.elfmcys.yesstevemodel.event.LivingShieldBlockEvent;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.DispatchServerDrivenProperty;
 import it.unimi.dsi.fastutil.objects.Object2ByteArrayMap;
@@ -16,6 +17,7 @@ public class ServerDrivenPlayerPropertiesTracker {
     private float xxa = 0;
     private float yya = 0;
     private float zza = 0;
+    private boolean inShieldBlockCooldown = false;
 
     public void tick(ServerPlayer player, boolean sync) {
         if (expLevel != player.experienceLevel) {
@@ -66,6 +68,13 @@ public class ServerDrivenPlayerPropertiesTracker {
                 NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.zza(player.getId(), zza), player);
             }
         }
+        boolean playerCooldown = LivingShieldBlockEvent.inShieldBlockCooldown(player);
+        if (this.inShieldBlockCooldown != playerCooldown) {
+            this.inShieldBlockCooldown = playerCooldown;
+            if (sync) {
+                NetworkHandler.broadcastToVisiblePlayersAndSelf(DispatchServerDrivenProperty.inShieldBlockCooldown(player.getId(), inShieldBlockCooldown), player);
+            }
+        }
     }
 
     /**
@@ -102,6 +111,8 @@ public class ServerDrivenPlayerPropertiesTracker {
         msg.xxa = player.xxa;
         msg.yya = player.yya;
         msg.zza = player.zza;
+
+        msg.inShieldBlockCooldown = LivingShieldBlockEvent.inShieldBlockCooldown(player);
 
         return msg;
     }

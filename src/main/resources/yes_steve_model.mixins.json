@@ -11,6 +11,7 @@
   "client": [
     "client.ArrowEntityAccessor", "client.BufferSourceMixin", "client.InventoryScreenMixin",
     "client.LivingEntityAccessor", "client.LivingRendererMixin", "client.WorldRendererMixin",
+    "client.ThrowableItemProjectileAccessor", "client.FishingHookAccessor",
     "client.projectile.ArrowRendererMixin",
     "client.projectile.FireworkEntityRendererMixin",
     "client.projectile.FishingHookRendererMixin",
