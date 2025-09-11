@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.model;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -12,12 +13,15 @@ public class ClientModelInfo {
     private final Map<String, List<Component>> displayInfo;
     private boolean needAuth;
     private final Map<String, ResourceLocation> authorAvatars;
+    private final Map<String, ResourceLocation> guiImages;
 
-    public ClientModelInfo(String name, Map<String, List<Component>> displayInfo, boolean needAuth, Map<String, ResourceLocation> authorAvatars) {
+    public ClientModelInfo(String name, Map<String, List<Component>> displayInfo, boolean needAuth,
+                           Map<String, ResourceLocation> authorAvatars, Map<String, ResourceLocation> guiImages) {
         this.name = name;
         this.displayInfo = displayInfo;
         this.needAuth = needAuth;
         this.authorAvatars = authorAvatars;
+        this.guiImages = guiImages;
     }
 
     public String name() {
@@ -39,5 +43,15 @@ public class ClientModelInfo {
 
     public Map<String, ResourceLocation> authorAvatars() {
         return authorAvatars;
+    }
+
+    @Nullable
+    public ResourceLocation guiForeground() {
+        return guiImages.get("gui_foreground");
+    }
+
+    @Nullable
+    public ResourceLocation guiBackground() {
+        return guiImages.get("gui_background");
     }
 }

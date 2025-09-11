@@ -4,10 +4,10 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
-import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
@@ -26,6 +26,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -42,6 +43,9 @@ public class ModelButton extends Button {
     private final double fadeoutTime;
     private final boolean disablePreviewRotation;
 
+    private @Nullable ResourceLocation background = null;
+    private @Nullable ResourceLocation foreground = null;
+
     private long hoverTime = -1L;
 
     public ModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
@@ -52,6 +56,10 @@ public class ModelButton extends Button {
         this.model = model;
         this.animatedEntity = animatedEntity;
         this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
+
+        // 获取模型信息中的 GUI 图片
+        this.background = model.clientModelInfo().guiBackground();
+        this.foreground = model.clientModelInfo().guiForeground();
 
         var animations = model.playerModel().animations();
         // 如果有 hover 动画
@@ -109,6 +117,7 @@ public class ModelButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float frameDeltaTime) {
+        // 计算悬停、fade 动画
         var animInfo = animatedEntity.getPreviewInfo();
         if (isHovered()) {
             hoverTime = Util.getMillis();
@@ -126,45 +135,73 @@ public class ModelButton extends Button {
             animInfo.setFocus(AnimationRegister.EMPTY);
         }
 
+        // 渲染背景
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
+        int x = this.getX();
+        int y = this.getY();
 
-        graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, this.color, this.color);
+        // 灰色底色背景
+        graphics.fillGradient(x, y, x + this.width, y + this.height, this.color, this.color);
+
+        // 如果有背景图片，渲染背景图片
+        if (this.background != null) {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            graphics.blit(this.background, x, y, 0, 0, this.width, this.height - 20, this.width, this.height - 20);
+            RenderSystem.disableBlend();
+        }
+
+        // 渲染模型
         Window window = Minecraft.getInstance().getWindow();
         double scale = window.getGuiScale();
-        int scissorX = (int) (this.getX() * scale);
-        int scissorY = (int) (window.getHeight() - ((this.getY() + this.height - 20) * scale));
+        int scissorX = (int) (x * scale);
+        int scissorY = (int) (window.getHeight() - ((y + this.height - 20) * scale));
         int scissorW = (int) (this.width * scale);
         int scissorH = (int) ((this.height - 20) * scale);
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        RenderUtil.renderModelInGui(this.getX() + this.width / 2f, this.getY() + this.height / 2f + 20f, 30f, minecraft.getFrameTime(), animatedEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), disablePreviewRotation, true);
+        RenderUtil.renderModelInGui(x + this.width / 2f, y + this.height / 2f + 20f, 30f, minecraft.getFrameTime(), animatedEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), disablePreviewRotation, true);
         RenderSystem.disableScissor();
 
+        int z = 3500;
+        // 如果有前景图片，渲染前景图片
+        if (this.foreground != null) {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            graphics.blit(this.foreground, x, y, z, 0, 0, this.width, this.height - 20, this.width, this.height - 20);
+            RenderSystem.disableBlend();
+        }
+
+        // 渲染模型文本
         Component message = this.getMessage();
         List<FormattedCharSequence> split = font.split(message, 45);
         if (split.size() > 1) {
-            graphics.drawCenteredString(font, split.get(0), this.getX() + this.width / 2, this.getY() + this.height - 19, 0xF3EFE0);
-            graphics.drawCenteredString(font, split.get(1), this.getX() + this.width / 2, this.getY() + this.height - 10, 0xF3EFE0);
+            graphics.drawCenteredString(font, split.get(0), x + this.width / 2, y + this.height - 19, 0xF3EFE0);
+            graphics.drawCenteredString(font, split.get(1), x + this.width / 2, y + this.height - 10, 0xF3EFE0);
         } else {
-            graphics.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2, this.getY() + this.height - 15, 0xF3EFE0);
-        }
-        if (!this.needAuth && this.isHoveredOrFocused()) {
-            graphics.fillGradient(this.getX(), this.getY() + 1, this.getX() + 1, this.getY() + this.height - 1, 0xff_F3EFE0, 0xff_F3EFE0);
-            graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + 1, 0xff_F3EFE0, 0xff_F3EFE0);
-            graphics.fillGradient(this.getX() + this.width - 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height - 1, 0xff_F3EFE0, 0xff_F3EFE0);
-            graphics.fillGradient(this.getX(), this.getY() + this.height - 1, this.getX() + this.width, this.getY() + this.height, 0xff_F3EFE0, 0xff_F3EFE0);
+            graphics.drawCenteredString(font, this.getMessage(), x + this.width / 2, y + this.height - 15, 0xF3EFE0);
         }
 
+        // 渲染悬停效果
+        if (!this.needAuth && this.isHoveredOrFocused()) {
+            graphics.fillGradient(x, y + 1, x + 1, y + this.height - 1, z, 0xff_F3EFE0, 0xff_F3EFE0);
+            graphics.fillGradient(x, y, x + this.width, y + 1, z, 0xff_F3EFE0, 0xff_F3EFE0);
+            graphics.fillGradient(x + this.width - 1, y + 1, x + this.width, y + this.height - 1, z, 0xff_F3EFE0, 0xff_F3EFE0);
+            graphics.fillGradient(x, y + this.height - 1, x + this.width, y + this.height, z, 0xff_F3EFE0, 0xff_F3EFE0);
+        }
+
+        // 未授权模型，渲染黑色遮罩
+        if (needAuth) {
+            graphics.fillGradient(x, y, x + this.width, y + this.height, z, 0x9f_222222, 0x9f_222222);
+        }
+
+        // 如果是 start 模型，渲染星标
         if (minecraft.player != null) {
             minecraft.player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
                 if (cap.containModel(animatedEntity.getModelId())) {
-                    graphics.blit(ICON, this.getX() + this.width - 14, this.getY(), 3000, 16, 0, 16, 16, 256, 256);
+                    graphics.blit(ICON, x + this.width - 14, y, z, 16, 0, 16, 16, 256, 256);
                 }
             });
-        }
-
-        if (needAuth) {
-            graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x9f_222222, 0x9f_222222);
         }
     }
 

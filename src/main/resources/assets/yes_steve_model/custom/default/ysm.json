@@ -73,9 +73,11 @@
       }
     ],
     "extra_animation_classify": [],
-    "preview_animation": "idle",
-    "disable_preview_rotation": false,
+    "preview_animation": "gui",
+    "disable_preview_rotation": true,
     "gui_no_lighting": false,
+    "gui_foreground": "textures/gui/foreground.png",
+    "gui_background": "textures/gui/background.png",
     "default_texture": "default",
     "render_layers_first": false,
     "free": true

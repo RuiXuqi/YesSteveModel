@@ -22,7 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("removal")
 public class ClientModelBuilder {
@@ -119,12 +120,13 @@ public class ClientModelBuilder {
     }
 
     private static ClientModelInfo buildClientModelInfo(ClientModelData data, boolean isNeedAuth, List<Pair<ResourceLocation, AbstractTexture>> textureQueue) {
+        var guiImages = buildGuiImages(data, textureQueue);
         var authorAvatars = buildAuthorAvatarMap(data, textureQueue);
         var displayInfo = LanguageManager.buildAllDisplayInfos(data);
 
         ModelMetadata metadata = data.info().metadata();
         String name = metadata != null ? metadata.name() : StringUtils.EMPTY;
-        return new ClientModelInfo(name, displayInfo, isNeedAuth, authorAvatars);
+        return new ClientModelInfo(name, displayInfo, isNeedAuth, authorAvatars, guiImages);
     }
 
     private static Int2ReferenceOpenHashMap<IValue> buildUserFunctionMap(ClientModelData data) {
@@ -189,6 +191,22 @@ public class ClientModelBuilder {
                     var id = new ResourceLocation(YesSteveModel.MOD_ID, data.info().hash() + "/author/" + counter++);
                     textureQueue.add(Pair.of(id, texture));
                     map.put(author.name(), id);
+                }
+            }
+        }
+        return Object2ObjectMaps.unmodifiable(map);
+    }
+
+    public static Map<String, ResourceLocation> buildGuiImages(ClientModelData data, List<Pair<ResourceLocation, AbstractTexture>> textureQueue) {
+        Object2ObjectOpenHashMap<String, ResourceLocation> map = new Object2ObjectOpenHashMap<>();
+        if (data.info().properties() != null) {
+            int counter = 0;
+            for (var entry : data.guiImages().entrySet()) {
+                var texture = entry.getValue();
+                if (texture != null) {
+                    var id = new ResourceLocation(YesSteveModel.MOD_ID, data.info().hash() + "/gui_image/" + counter++);
+                    textureQueue.add(Pair.of(id, texture));
+                    map.put(entry.getKey(), id);
                 }
             }
         }
