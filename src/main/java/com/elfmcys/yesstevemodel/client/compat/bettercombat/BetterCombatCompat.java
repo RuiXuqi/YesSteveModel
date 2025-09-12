@@ -20,6 +20,6 @@ public class BetterCombatCompat {
     }
 
     public static boolean shouldHideHead(CustomPlayerEntity entity) {
-        return INSTALLED && PersonView.isFirstPersonView(entity) && NativeRenderer.isAsyncScope() && RenderSystem.isOnRenderThread();
+        return INSTALLED && PersonView.isFirstPersonView(entity) && NativeRenderer.isAsyncScope();
     }
 }

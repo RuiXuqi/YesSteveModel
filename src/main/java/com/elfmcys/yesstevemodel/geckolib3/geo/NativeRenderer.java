@@ -20,7 +20,7 @@ public class NativeRenderer {
     public static final int RENDER_MODE_RIGHT_ARM = 2;
     public static final int RENDER_MODE_BACKGROUND = 3;
 
-    private static boolean IS_ASYNC_SCOPE = false;
+    private static volatile boolean IS_ASYNC_SCOPE = false;
 
     private static final Matrix4f POST_MAT = new Matrix4f();
 
