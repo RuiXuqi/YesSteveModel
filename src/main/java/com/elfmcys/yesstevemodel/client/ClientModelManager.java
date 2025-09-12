@@ -223,10 +223,8 @@ public class ClientModelManager {
                 for (var i = 0; i < alterModels.length; i++) {
                     var model = alterModels[i];
                     if (model != null) {
-                        model.clientModelInfo().setNeedAuth(needAuth[i]);
+                        model.clientInfo().setNeedAuth(needAuth[i]);
                         models.put(dstModelIds[i], model);
-                    }
-                    if (!alterModelIds[i].equals(dstModelIds[i])) {
                     }
                 }
             }

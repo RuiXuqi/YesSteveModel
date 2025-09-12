@@ -12,6 +12,7 @@ import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("removal")
 public class ModelButton extends Button {
@@ -46,6 +48,10 @@ public class ModelButton extends Button {
     private @Nullable ResourceLocation background = null;
     private @Nullable ResourceLocation foreground = null;
 
+    private @Nullable String locale;
+    private @Nullable List<Component> displayInfo = null;
+    private @Nullable List<Component> detailedDisplayInfo = null;
+
     private long hoverTime = -1L;
 
     public ModelButton(int pX, int pY, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
@@ -55,11 +61,11 @@ public class ModelButton extends Button {
         this.color = needAuth ? 0x7F_000000 : 0xFF_434242;
         this.model = model;
         this.animatedEntity = animatedEntity;
-        this.disablePreviewRotation = model.modelInfo().properties().disablePreviewRotation();
+        this.disablePreviewRotation = model.info().properties().disablePreviewRotation();
 
         // 获取模型信息中的 GUI 图片
-        this.background = model.clientModelInfo().guiBackground();
-        this.foreground = model.clientModelInfo().guiForeground();
+        this.background = model.clientInfo().guiBackground();
+        this.foreground = model.clientInfo().guiForeground();
 
         var animations = model.playerModel().animations();
         // 如果有 hover 动画
@@ -86,9 +92,13 @@ public class ModelButton extends Button {
     }
 
     private static MutableComponent getModelName(CustomGuiPlayerEntity animatedEntity, ClientModel model) {
-        ModelMetadata metadata = model.modelInfo().metadata();
+        ModelMetadata metadata = model.info().metadata();
         if (metadata == null || StringUtils.isBlank(metadata.name())) {
-            return Component.literal(animatedEntity.getModelId());
+            if (animatedEntity.getModelId().endsWith(".ysm") || animatedEntity.getModelId().endsWith(".zip")) {
+                return Component.literal(animatedEntity.getModelId().substring(0, animatedEntity.getModelId().length() - 4));
+            } else {
+                return Component.literal(animatedEntity.getModelId());
+            }
         }
         return Component.literal(LanguageManager.getI18n(model, "metadata.name", metadata.name()));
     }
@@ -102,7 +112,7 @@ public class ModelButton extends Button {
         if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 if (NetworkHandler.isRemoteChannelPresent()) {
-                    if (cap.hasRoamingStorage(animatedEntity.getModelContainer().modelInfo().hashShort())) {
+                    if (cap.hasRoamingStorage(animatedEntity.getModelContainer().info().hashShort())) {
                         cap.updateModelAndTexture(animatedEntity.getModelId(), animatedEntity.getTextureName());
                         NetworkHandler.sendToServer(new SetModelAndTexture(cap.getModelId(), cap.getTextureName()));
                     } else {
@@ -209,7 +219,24 @@ public class ModelButton extends Button {
         if (this.isHovered()) {
             graphics.pose().pushPose();
             graphics.pose().translate(0f, 0f, 4000);
-            graphics.renderComponentTooltip(screen.getMinecraft().font, model.clientModelInfo().displayInfo(), pMouseX, pMouseY);
+            var currentLocale = Minecraft.getInstance().getLanguageManager().getSelected();
+            if (!Objects.equals(this.locale, currentLocale)) {
+                this.locale = currentLocale;
+                this.detailedDisplayInfo = null;
+                this.displayInfo = null;
+            }
+            if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LSHIFT) ||
+                    InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_RSHIFT)) {
+                if (this.detailedDisplayInfo == null) {
+                    this.detailedDisplayInfo = LanguageManager.buildDisplayInfo(model, currentLocale, animatedEntity.getModelId(), true);
+                }
+                graphics.renderComponentTooltip(screen.getMinecraft().font, this.detailedDisplayInfo, pMouseX, pMouseY);
+            } else {
+                if (this.displayInfo == null) {
+                    this.displayInfo = LanguageManager.buildDisplayInfo(model, currentLocale, animatedEntity.getModelId(), false);
+                }
+                graphics.renderComponentTooltip(screen.getMinecraft().font, this.displayInfo, pMouseX, pMouseY);
+            }
             graphics.pose().popPose();
         }
     }

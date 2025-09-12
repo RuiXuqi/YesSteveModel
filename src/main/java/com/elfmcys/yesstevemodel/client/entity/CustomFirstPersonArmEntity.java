@@ -51,12 +51,12 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
 
     @Override
     public float getWidthScale() {
-        return getModelContainer().modelInfo().properties().widthScale();
+        return getModelContainer().info().properties().widthScale();
     }
 
     @Override
     public float getHeightScale() {
-        return getModelContainer().modelInfo().properties().heightScale();
+        return getModelContainer().info().properties().heightScale();
     }
 
     @Override

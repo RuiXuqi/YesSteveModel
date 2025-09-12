@@ -88,7 +88,7 @@ public class AnimationRouletteScreen extends Screen {
     public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap, Map<String, FifoHashMap<String, String>> classifyMap, ClientModel clientModel, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.model = clientModel;
-        this.modelProperties = clientModel.modelInfo().properties();
+        this.modelProperties = clientModel.info().properties();
         this.animatableEntity = animatableEntity;
         this.classifyMap = classifyMap;
         this.buttonMap = buttonMap;
@@ -108,7 +108,7 @@ public class AnimationRouletteScreen extends Screen {
     public AnimationRouletteScreen(String modelId, ClientModel model, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.model = model;
-        this.modelProperties = model.modelInfo().properties();
+        this.modelProperties = model.info().properties();
         this.animatableEntity = animatableEntity;
         this.classifyMap = this.modelProperties.extraAnimationClassifyMap();
         this.buttonMap = this.modelProperties.extraAnimationButtonsMap();

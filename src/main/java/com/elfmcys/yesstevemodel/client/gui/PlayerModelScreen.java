@@ -150,7 +150,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         if (this.category == Category.AUTH) {
             player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                 for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
-                    if (cap.containModel(entry.getKey()) || !entry.getValue().clientModelInfo().isNeedAuth()) {
+                    if (cap.containModel(entry.getKey()) || !entry.getValue().clientInfo().isNeedAuth()) {
                         this.models.put(entry.getKey(), entry.getValue());
                     }
                 }
@@ -290,7 +290,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         // 如果是 @ 开头，则仅按作者搜索
         if (search.startsWith(AUTHOR_SEARCH_PREFIX)) {
             String authorSearch = search.substring(AUTHOR_SEARCH_PREFIX.length());
-            ModelMetadata metadata = data.modelInfo().metadata();
+            ModelMetadata metadata = data.info().metadata();
             if (metadata != null) {
                 return noneAuthorMatch(data, authorSearch, metadata);
             }
@@ -302,7 +302,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             return false;
         }
 
-        ModelMetadata metadata = data.modelInfo().metadata();
+        ModelMetadata metadata = data.info().metadata();
         if (metadata != null) {
             // 名称不过滤
             String name = LanguageManager.getI18n(data, "metadata.name", metadata.name()).toLowerCase(Locale.ENGLISH);
@@ -376,7 +376,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                 LocalPlayer player = Minecraft.getInstance().player;
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     var model = cap.getModelContainer();
-                    if (model.modelInfo().metadata() != null) {
+                    if (model.info().metadata() != null) {
                         Minecraft.getInstance().setScreen(getModelInfoScreen(this, model));
                     }
                 });
@@ -488,10 +488,10 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
             authModels.ifPresent(cap -> {
                 var model = models.get(id);
-                boolean needAuth = model.clientModelInfo().isNeedAuth() && !cap.getAuthModels().contains(id);
+                boolean needAuth = model.clientInfo().isNeedAuth() && !cap.getAuthModels().contains(id);
 
                 animatedEntity.updateModelAndTexture(id, model.playerModel().defaultTextureName());
-                animatedEntity.getPreviewInfo().setPreview(model.modelInfo().properties().previewAnimation());
+                animatedEntity.getPreviewInfo().setPreview(model.info().properties().previewAnimation());
                 addRenderableWidget(getModelButton(xStart, yStart, needAuth, animatedEntity, model));
             });
         }
@@ -592,7 +592,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 String[] modelName = {""};
                 ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
-                    ModelMetadata metadata = model.modelInfo().metadata();
+                    ModelMetadata metadata = model.info().metadata();
                     if (metadata != null) {
                         modelName[0] = LanguageManager.getI18n(model, "metadata.name", metadata.name());
                     }

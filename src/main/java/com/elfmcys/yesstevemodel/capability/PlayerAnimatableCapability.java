@@ -82,7 +82,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     @Override
     public void onLoadGeoModel(GeoModelState model) {
         super.onLoadGeoModel(model);
-        var hashShort = getModelContainer().modelInfo().hashShort();
+        var hashShort = getModelContainer().info().hashShort();
         currentHashShort = hashShort;
         // 切换模型后如果没有本地缓存，在服务端 roaming 下发之前需要丢弃本地更改
         var storage = storageMap.get(hashShort);

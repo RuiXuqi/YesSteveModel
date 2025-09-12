@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("removal")
 public class ModelInfoScreen extends Screen {
     private final static ResourceLocation DEFAULT_AVATAR = new ResourceLocation(YesSteveModel.MOD_ID, "texture/default_avatar.png");
     private final static Map<String, Component> LINK_TYPE_PRESET = ImmutableMap.of(
@@ -40,7 +41,7 @@ public class ModelInfoScreen extends Screen {
         super(Component.literal("Model Info GUI"));
         this.parent = parent;
         this.model = model;
-        this.modelInfo = model.modelInfo();
+        this.modelInfo = model.info();
     }
 
     @Override
@@ -68,7 +69,7 @@ public class ModelInfoScreen extends Screen {
                 continue;
             }
             ModelAuthor author = authors.get(index);
-            ResourceLocation avatar = model.clientModelInfo().authorAvatars().getOrDefault(author.name(), DEFAULT_AVATAR);
+            ResourceLocation avatar = model.clientInfo().authorAvatars().getOrDefault(author.name(), DEFAULT_AVATAR);
             addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, model, avatar, index, this));
         }
 

@@ -188,16 +188,16 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
 
     @Override
     public float getHeightScale() {
-        return getModelContainer().modelInfo().properties().heightScale();
+        return getModelContainer().info().properties().heightScale();
     }
 
     @Override
     public float getWidthScale() {
-        return getModelContainer().modelInfo().properties().widthScale();
+        return getModelContainer().info().properties().widthScale();
     }
 
     public boolean renderLayersFirst() {
-        return getModelContainer().modelInfo().properties().renderLayersFirst();
+        return getModelContainer().info().properties().renderLayersFirst();
     }
 
     public boolean isTacGunAnimationNeedReload() {

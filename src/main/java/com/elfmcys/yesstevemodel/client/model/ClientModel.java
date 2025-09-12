@@ -40,11 +40,11 @@ public class ClientModel {
         return projectileModels;
     }
 
-    public ModelInfo modelInfo() {
+    public ModelInfo info() {
         return modelInfo;
     }
 
-    public ClientModelInfo clientModelInfo() {
+    public ClientModelInfo clientInfo() {
         return clientModelInfo;
     }
 }

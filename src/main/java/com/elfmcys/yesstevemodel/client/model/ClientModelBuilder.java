@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
-import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
@@ -122,11 +121,10 @@ public class ClientModelBuilder {
     private static ClientModelInfo buildClientModelInfo(ClientModelData data, boolean isNeedAuth, List<Pair<ResourceLocation, AbstractTexture>> textureQueue) {
         var guiImages = buildGuiImages(data, textureQueue);
         var authorAvatars = buildAuthorAvatarMap(data, textureQueue);
-        var displayInfo = LanguageManager.buildAllDisplayInfos(data);
 
         ModelMetadata metadata = data.info().metadata();
         String name = metadata != null ? metadata.name() : StringUtils.EMPTY;
-        return new ClientModelInfo(name, displayInfo, isNeedAuth, authorAvatars, guiImages);
+        return new ClientModelInfo(name, isNeedAuth, authorAvatars, guiImages);
     }
 
     private static Int2ReferenceOpenHashMap<IValue> buildUserFunctionMap(ClientModelData data) {

@@ -56,7 +56,7 @@ public class ExtraAnimationKey {
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     var model = cap.getModelContainer();
                     int index = EXTRA_ANIMATION_KEYS.indexOf(key);
-                    ModelProperties properties = model.modelInfo().properties();
+                    ModelProperties properties = model.info().properties();
                     var animationMap = properties.extraAnimationOrderMap();
                     if (animationMap.size() > index) {
                         String keyName = animationMap.getKeyAt(index);

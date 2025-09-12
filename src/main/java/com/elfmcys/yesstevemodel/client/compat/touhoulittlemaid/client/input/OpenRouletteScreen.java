@@ -32,7 +32,7 @@ public class OpenRouletteScreen {
         if (result.getEntity() instanceof EntityMaid maid) {
             maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
                 var model = cap.getModelContainer();
-                if (model != null && !model.modelInfo().properties().extraAnimationOrderMap().isEmpty()) {
+                if (model != null && !model.info().properties().extraAnimationOrderMap().isEmpty()) {
                     if (Minecraft.getInstance().screen == null) {
                         Minecraft.getInstance().setScreen(new AnimationRouletteScreen(cap.getModelId(), model, cap));
                         return;
