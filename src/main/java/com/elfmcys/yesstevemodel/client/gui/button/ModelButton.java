@@ -158,7 +158,7 @@ public class ModelButton extends Button {
         if (this.background != null) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            graphics.blit(this.background, x, y, 0, 0, this.width, this.height - 20, this.width, this.height - 20);
+            graphics.blit(this.background, x, y, 0, 0, this.width, this.height, this.width, this.height);
             RenderSystem.disableBlend();
         }
 
@@ -178,7 +178,7 @@ public class ModelButton extends Button {
         if (this.foreground != null) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            graphics.blit(this.foreground, x, y, z, 0, 0, this.width, this.height - 20, this.width, this.height - 20);
+            graphics.blit(this.foreground, x, y, z, 0, 0, this.width, this.height, this.width, this.height);
             RenderSystem.disableBlend();
         }
 
@@ -226,7 +226,7 @@ public class ModelButton extends Button {
                 this.displayInfo = null;
             }
             if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_LSHIFT) ||
-                    InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_RSHIFT)) {
+                InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), InputConstants.KEY_RSHIFT)) {
                 if (this.detailedDisplayInfo == null) {
                     this.detailedDisplayInfo = LanguageManager.buildDisplayInfo(model, currentLocale, animatedEntity.getModelId(), true);
                 }

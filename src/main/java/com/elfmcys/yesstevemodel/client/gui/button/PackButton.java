@@ -44,20 +44,20 @@ public class PackButton extends Button {
         RenderSystem.defaultBlendFunc();
         if (texture == MissingTextureAtlasSprite.getTexture()) {
             graphics.blit(ICON, this.getX(), this.getY(), 0, 0, this.width,
-                    this.height - 20, 52, 70);
+                    this.height, this.width, this.height);
         } else {
             graphics.blit(icon, this.getX(), this.getY(), 0, 0, this.width,
-                    this.height - 20, 52, 70);
+                    this.height, this.width, this.height);
         }
         RenderSystem.disableBlend();
 
         Component message = this.getMessage();
         List<FormattedCharSequence> split = font.split(message, 45);
         if (split.size() > 1) {
-            graphics.drawCenteredString(font, split.get(0), this.getX() + this.width / 2, this.getY() + this.height - 19, 0xF3EFE0);
-            graphics.drawCenteredString(font, split.get(1), this.getX() + this.width / 2, this.getY() + this.height - 10, 0xF3EFE0);
+            drawCenteredString(graphics, font, split.get(0), this.getX() + this.width / 2, this.getY() + this.height - 19, 0x555555);
+            drawCenteredString(graphics, font, split.get(1), this.getX() + this.width / 2, this.getY() + this.height - 10, 0x555555);
         } else {
-            graphics.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2, this.getY() + this.height - 15, 0xF3EFE0);
+            drawCenteredString(graphics, font, this.getMessage(), this.getX() + this.width / 2, this.getY() + this.height - 15, 0x555555);
         }
 
         if (this.isHoveredOrFocused()) {
@@ -81,5 +81,13 @@ public class PackButton extends Button {
             graphics.renderComponentTooltip(screen.getMinecraft().font, mutableComponents, pMouseX, pMouseY);
             graphics.pose().popPose();
         }
+    }
+
+    private static void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color) {
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, false);
+    }
+
+    private static void drawCenteredString(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int color) {
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, false);
     }
 }
