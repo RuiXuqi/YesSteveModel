@@ -1,10 +1,7 @@
 package com.elfmcys.yesstevemodel.client.renderer;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomProjectileEntity;
-import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
-import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoProjectilesRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -14,48 +11,10 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 public class CustomProjectileRenderer extends GeoProjectilesRenderer<Projectile, CustomProjectileEntity> {
     public CustomProjectileRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-    }
-
-    /**
-     * 将所有 mixin 里的渲染方法集中到此处执行
-     */
-    public static void renderInMixin(Projectile entity, float yaw, float partialTick, PoseStack poseStack,
-                                     MultiBufferSource bufferSource, int packedLight, CallbackInfo callback) {
-        if (!YesSteveModel.isAvailable() || ClientConfig.DISABLE_PROJECTILE_MODEL.get()) {
-            return;
-        }
-        entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            if (cap.isInitialized() && cap.isModelPresent()) {
-                RegisterEntityRenderersEvent.getProjectRenderer().render(cap, yaw, partialTick, poseStack, bufferSource, packedLight);
-                callback.cancel();
-            }
-        });
-    }
-
-    /**
-     * 鱼漂，比较特殊
-     */
-    public static void renderInFishingHookMixin(Projectile entity, float yaw, float partialTick, PoseStack poseStack,
-                                                MultiBufferSource bufferSource, int packedLight, Runnable runnable,
-                                                CallbackInfo callback) {
-        if (!YesSteveModel.isAvailable() || ClientConfig.DISABLE_PROJECTILE_MODEL.get()) {
-            return;
-        }
-        entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            if (cap.isInitialized() && cap.isModelPresent()) {
-                // 鱼漂会上下乱串，这里强制归0
-                entity.setXRot(0);
-                entity.xRotO = 0;
-                RegisterEntityRenderersEvent.getProjectRenderer().render(cap, yaw, partialTick, poseStack, bufferSource, packedLight);
-                runnable.run();
-                callback.cancel();
-            }
-        });
     }
 
     @Override

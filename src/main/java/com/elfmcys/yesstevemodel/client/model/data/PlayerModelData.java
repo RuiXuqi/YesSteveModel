@@ -8,23 +8,24 @@ import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.List;
+import java.util.Map;
 
 // Native Access
 public class PlayerModelData {
     private final List<GeoModel> geoModels;
-    private final List<AnimationFile> animationFiles;
+    private final Map<String, AnimationFile> animationFiles;
     private final List<AnimationControllerFile> animationControllerFiles;
     private final FifoHashMap<String, NativeTexture> textures;
 
     // Native Access
-    public PlayerModelData(GeoModel[] geoModels, AnimationFile[] animationFiles, AnimationControllerFile[] animationControllerFiles, FifoHashMap<String, NativeTexture> textures) {
+    public PlayerModelData(GeoModel[] geoModels, Map<String, AnimationFile> animationFiles, AnimationControllerFile[] animationControllerFiles, FifoHashMap<String, NativeTexture> textures) {
         this.geoModels = ObjectArrayList.wrap(geoModels);
-        this.animationFiles = ObjectArrayList.wrap(animationFiles);
+        this.animationFiles = animationFiles;
         this.animationControllerFiles = ObjectArrayList.wrap(animationControllerFiles);
         this.textures = textures;
     }
 
-    public List<AnimationFile> animationFiles() {
+    public Map<String, AnimationFile> animationFiles() {
         return animationFiles;
     }
 

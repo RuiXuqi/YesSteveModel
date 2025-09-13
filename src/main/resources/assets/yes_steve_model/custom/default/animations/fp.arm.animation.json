@@ -1,28 +1,28 @@
 {
   "format_version": "1.8.0",
   "animations": {
-    "fp_arm_parallel0": {
+    "parallel0": {
       "loop": true
     },
-    "fp_arm_parallel1": {
+    "parallel1": {
       "loop": true
     },
-    "fp_arm_parallel2": {
+    "parallel2": {
       "loop": true
     },
-    "fp_arm_parallel3": {
+    "parallel3": {
       "loop": true
     },
-    "fp_arm_parallel4": {
+    "parallel4": {
       "loop": true
     },
-    "fp_arm_parallel5": {
+    "parallel5": {
       "loop": true
     },
-    "fp_arm_parallel6": {
+    "parallel6": {
       "loop": true
     },
-    "fp_arm_parallel7": {
+    "parallel7": {
       "loop": true
     }
   }

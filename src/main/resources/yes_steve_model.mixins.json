@@ -9,14 +9,9 @@
     "defaultRequire": 1
   },
   "client": [
-    "client.ArrowEntityAccessor", "client.BufferSourceMixin", "client.InventoryScreenMixin",
-    "client.LivingEntityAccessor", "client.LivingRendererMixin", "client.WorldRendererMixin",
-    "client.ThrowableItemProjectileAccessor", "client.FishingHookAccessor",
-    "client.projectile.ArrowRendererMixin",
-    "client.projectile.FireworkEntityRendererMixin",
-    "client.projectile.FishingHookRendererMixin",
-    "client.projectile.ThrownItemRendererMixin",
-    "client.projectile.ThrownTridentRendererMixin"
+    "client.ArrowEntityAccessor", "client.BufferSourceMixin", "client.EntityRenderDispatcherMixin",
+    "client.FishingHookAccessor", "client.InventoryScreenMixin", "client.LivingEntityAccessor",
+    "client.LivingRendererMixin", "client.ThrowableItemProjectileAccessor", "client.WorldRendererMixin"
   ],
   "mixins": [
     "AbstractArrowEntityMixin", "ProjectileEntityMixin"

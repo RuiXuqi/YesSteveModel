@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"fp_arm_parallel0": {
+		"parallel0": {
 			"loop": true,
 			"bones": {
 				"fox1": {

@@ -37,4 +37,5 @@ public final class ControllerUtils {
     public static final String MAID_STATUE = "maid.statue";
 
     public static final String FP_ARM_PARALLEL_CONTROLLER = "fp.arm.parallel_";
+    public static final String FP_ARM_ARMOR_CONTROLLER = "fp.arm.armor_";
 }

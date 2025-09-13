@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 @SuppressWarnings("removal")
 public class ClientModelBuilder {
+    private static final String FP_ARM_ANIMATION = "fp_arm";
     private static ClientModel DEFAULT_MODEL;
 
     public static ClientModel build(ClientModelData data, boolean isDefault, boolean isNeedAuth, List<Pair<ResourceLocation, AbstractTexture>> textureQueue) {
@@ -50,17 +52,29 @@ public class ClientModelBuilder {
         var armModel = player.geoModels().get(1);
 
         var animations = new Object2ReferenceOpenHashMap<String, Animation>();
-        for (var file : player.animationFiles()) {
-            animations.putAll(file.animations());
+        var fpArmAnimations = new Object2ReferenceOpenHashMap<String, Animation>();
+        for (var name : player.animationFiles().keySet()) {
+            var file = player.animationFiles().get(name);
+            if (FP_ARM_ANIMATION.equals(name)) {
+                fpArmAnimations.putAll(file.animations());
+            } else {
+                animations.putAll(file.animations());
+            }
         }
         if (!isDefault) {
             for (var entry : DEFAULT_MODEL.playerModel().animations().entrySet()) {
                 animations.computeIfAbsent(entry.getKey(), key -> entry.getValue());
             }
+            for (var entry : DEFAULT_MODEL.playerModel().fpArmAnimations().entrySet()) {
+                fpArmAnimations.computeIfAbsent(entry.getKey(), key -> entry.getValue());
+            }
         }
 
         var conditionManager = new ConditionManager();
         animations.keySet().forEach(conditionManager::addTest);
+
+        var fpArmConditionManager = new FPArmConditionManager();
+        fpArmAnimations.keySet().forEach(fpArmConditionManager::addTest);
 
         var animationControllers = new Object2ReferenceOpenHashMap<String, AnimationControllerData>();
         for (var file : player.animationControllerFiles()) {
@@ -81,7 +95,8 @@ public class ClientModelBuilder {
         var defaultTexture = !StringUtils.isEmpty(data.info().properties().defaultTexture()) && textures.containsKey(data.info().properties().defaultTexture())
                 ? data.info().properties().defaultTexture() : textures.getKeyAt(0);
 
-        return new PlayerModel(mainModel, armModel, animations, conditionManager, animationControllers, textures, defaultTexture, textures.get(defaultTexture));
+        return new PlayerModel(mainModel, armModel, animations, fpArmAnimations, conditionManager, fpArmConditionManager,
+                animationControllers, textures, defaultTexture, textures.get(defaultTexture));
     }
 
     private static Map<ResourceLocation, ProjectileModel> buildProjectileModels(ClientModelData data, boolean isDefault, List<Pair<ResourceLocation, AbstractTexture>> textureQueue) {

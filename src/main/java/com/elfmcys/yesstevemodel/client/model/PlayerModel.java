@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
+import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -13,18 +14,24 @@ public class PlayerModel {
     private final GeoModel mainModel;
     private final GeoModel armModel;
     private final Map<String, Animation> animations;
+    private final Map<String, Animation> fpArmAnimations;
     private final ConditionManager conditionManager;
+    private final FPArmConditionManager fpArmConditionManager;
     private final Map<String, AnimationControllerData> animationControllers;
     private final FifoHashMap<String, ResourceLocation> textures;
     private final String defaultTextureName;
     private final ResourceLocation defaultTexture;
 
-    public PlayerModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, ConditionManager conditionManager, Map<String, AnimationControllerData> animationControllers, FifoHashMap<String, ResourceLocation> textures, String defaultTextureName, ResourceLocation defaultTexture) {
+    public PlayerModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, Animation> fpArmAnimations,
+                       ConditionManager conditionManager, FPArmConditionManager fpArmConditionManager, Map<String, AnimationControllerData> animationControllers,
+                       FifoHashMap<String, ResourceLocation> textures, String defaultTextureName, ResourceLocation defaultTexture) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
+        this.fpArmAnimations = fpArmAnimations;
         this.conditionManager = conditionManager;
         this.animationControllers = animationControllers;
+        this.fpArmConditionManager = fpArmConditionManager;
         this.textures = textures;
         this.defaultTextureName = defaultTextureName;
         this.defaultTexture = defaultTexture;
@@ -42,8 +49,16 @@ public class PlayerModel {
         return animations;
     }
 
+    public Map<String, Animation> fpArmAnimations() {
+        return fpArmAnimations;
+    }
+
     public ConditionManager conditionManager() {
         return conditionManager;
+    }
+
+    public FPArmConditionManager fpArmConditionManager() {
+        return fpArmConditionManager;
     }
 
     public Map<String, AnimationControllerData> animationControllers() {

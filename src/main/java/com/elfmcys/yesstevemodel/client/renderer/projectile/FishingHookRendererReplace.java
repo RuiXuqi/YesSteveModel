@@ -1,7 +1,10 @@
-package com.elfmcys.yesstevemodel.mixin.client.projectile;
+package com.elfmcys.yesstevemodel.client.renderer.projectile;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
-import com.elfmcys.yesstevemodel.client.renderer.CustomProjectileRenderer;
+import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -9,7 +12,6 @@ import net.minecraft.client.Options;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.FishingHookRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
@@ -17,29 +19,35 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ToolActions;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(FishingHookRenderer.class)
-public class FishingHookRendererMixin {
-    @Inject(at = @At("HEAD"), method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", cancellable = true)
-    public void render(FishingHook entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
-        CustomProjectileRenderer.renderInFishingHookMixin(entity, entityYaw, partialTicks, poseStack, buffer, packedLight, () -> {
-            Player player = entity.getPlayerOwner();
-            if (player != null) {
-                poseStack.pushPose();
-                this.ysm$renderFishingLine(entity, partialTicks, poseStack, buffer, player);
-                poseStack.popPose();
+public class FishingHookRendererReplace {
+    public static boolean renderInMixin(FishingHook entity, float yaw, float partialTick, PoseStack poseStack,
+                                        MultiBufferSource bufferSource, int packedLight) {
+        return entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).map(cap -> {
+            if (cap.isInitialized() && cap.isModelPresent()) {
+                // 鱼漂会上下乱串，这里强制归0
+                entity.setXRot(0);
+                entity.xRotO = 0;
+
+                // 渲染鱼漂
+                RegisterEntityRenderersEvent.getProjectRenderer().render(cap, yaw, partialTick, poseStack, bufferSource, packedLight);
+
+                // 渲染鱼线
+                Player player = entity.getPlayerOwner();
+                if (player != null) {
+                    poseStack.pushPose();
+                    renderFishingLine(entity, partialTick, poseStack, bufferSource, player);
+                    poseStack.popPose();
+                }
+                return false;
             }
-        }, ci);
+            return true;
+        }).orElse(true);
     }
 
-    @Unique
     @SuppressWarnings("all")
-    protected void ysm$renderFishingLine(FishingHook hook, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, Player player) {
+    private static void renderFishingLine(FishingHook hook, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, Player player) {
         // 确定钓竿持握方向
         int handDirection = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
         ItemStack mainHandItem = player.getMainHandItem();
@@ -93,14 +101,14 @@ public class FishingHookRendererMixin {
         float z = (float) (playerZ - hookZ);
 
         // 获取钓线颜色
-        float[] color = ysm$getLineColor(hook);
+        float[] color = getLineColor(hook);
 
         // 渲染钓线
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.lineStrip());
         PoseStack.Pose last = poseStack.last();
         for (int i = 0; i <= 16; ++i) {
-            ysm$stringVertex(x, y, z, buffer, last,
-                    ysm$fraction(i), ysm$fraction(i + 1),
+            stringVertex(x, y, z, buffer, last,
+                    fraction(i), fraction(i + 1),
                     color[0], color[1], color[2]);
         }
 
@@ -111,17 +119,17 @@ public class FishingHookRendererMixin {
     }
 
     @Unique
-    protected float[] ysm$getLineColor(FishingHook fishingHook) {
+    private static float[] getLineColor(FishingHook fishingHook) {
         return new float[]{0f, 0f, 0f};
     }
 
     @Unique
-    protected float ysm$fraction(int numerator) {
+    private static float fraction(int numerator) {
         return (float) numerator / (float) 16;
     }
 
     @Unique
-    protected void ysm$stringVertex(float pX, float pY, float pZ, VertexConsumer consumer, PoseStack.Pose pose, float fraction1, float fraction2, float r, float g, float b) {
+    private static void stringVertex(float pX, float pY, float pZ, VertexConsumer consumer, PoseStack.Pose pose, float fraction1, float fraction2, float r, float g, float b) {
         float x = pX * fraction1;
         float y = pY * (fraction1 * fraction1 + fraction1) * 0.5F + 0.25F;
         float z = pZ * fraction1;

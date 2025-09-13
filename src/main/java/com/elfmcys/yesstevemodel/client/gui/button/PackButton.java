@@ -1,9 +1,10 @@
 package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
+import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -34,10 +35,13 @@ public class PackButton extends Button {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
 
-        graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0xFF_434242, 0xFF_434242);
+        int backgroundColor = 0xFF_9B51E0;
+        graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, backgroundColor, backgroundColor);
 
         ResourceLocation icon = ModelIdUtil.getModelPackIconId(this.pack.hierarchy());
         AbstractTexture texture = minecraft.textureManager.getTexture(icon, MissingTextureAtlasSprite.getTexture());
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         if (texture == MissingTextureAtlasSprite.getTexture()) {
             graphics.blit(ICON, this.getX(), this.getY(), 0, 0, this.width,
                     this.height - 20, 52, 70);
@@ -45,6 +49,7 @@ public class PackButton extends Button {
             graphics.blit(icon, this.getX(), this.getY(), 0, 0, this.width,
                     this.height - 20, 52, 70);
         }
+        RenderSystem.disableBlend();
 
         Component message = this.getMessage();
         List<FormattedCharSequence> split = font.split(message, 45);
@@ -56,10 +61,11 @@ public class PackButton extends Button {
         }
 
         if (this.isHoveredOrFocused()) {
-            graphics.fillGradient(this.getX(), this.getY() + 1, this.getX() + 1, this.getY() + this.height - 1, 0xff_F3EFE0, 0xff_F3EFE0);
-            graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + 1, 0xff_F3EFE0, 0xff_F3EFE0);
-            graphics.fillGradient(this.getX() + this.width - 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height - 1, 0xff_F3EFE0, 0xff_F3EFE0);
-            graphics.fillGradient(this.getX(), this.getY() + this.height - 1, this.getX() + this.width, this.getY() + this.height, 0xff_F3EFE0, 0xff_F3EFE0);
+            int sideColor = 0xFF_E1BEE7;
+            graphics.fillGradient(this.getX(), this.getY() + 1, this.getX() + 1, this.getY() + this.height - 1, sideColor, sideColor);
+            graphics.fillGradient(this.getX(), this.getY(), this.getX() + this.width, this.getY() + 1, sideColor, sideColor);
+            graphics.fillGradient(this.getX() + this.width - 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height - 1, sideColor, sideColor);
+            graphics.fillGradient(this.getX(), this.getY() + this.height - 1, this.getX() + this.width, this.getY() + this.height, sideColor, sideColor);
         }
     }
 
