@@ -134,6 +134,18 @@
         "texture": "textures/firework_rocket.png"
       }
     },
+    "vehicles": {
+      "minecraft:boat": {
+        "model": "models/boat.json",
+        "animation": "animations/boat.animation.json",
+        "texture": "textures/boat.png"
+      },
+      "minecraft:horse": {
+        "model": "models/boat.json",
+        "animation": "animations/boat.animation.json",
+        "texture": "textures/boat.png"
+      }
+    },
     "sound_path": "sounds"
   }
 }

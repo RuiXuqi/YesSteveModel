@@ -33,11 +33,13 @@ public final class CommonEvent {
         }
         event.register(ModelInfoCapability.class);
         event.register(ProjectileModelInfoCapability.class);
+        event.register(VehicleModelInfoCapability.class);
         event.register(AuthModelsCapability.class);
         event.register(StarModelsCapability.class);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             event.register(PlayerAnimatableCapability.class);
             event.register(ProjectileAnimatableCapability.class);
+            event.register(VehicleAnimatableCapability.class);
         }
     }
 

@@ -87,6 +87,8 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(21, DispatchServerDrivenProperty.class, DispatchServerDrivenProperty::encode, DispatchServerDrivenProperty::decode, DispatchServerDrivenProperty::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(22, SyncVehicleModelInfo.class, SyncVehicleModelInfo::encode, SyncVehicleModelInfo::decode, SyncVehicleModelInfo::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
         CHANNEL.registerMessage(51, ServerInfo.class, ServerInfo::encode, ServerInfo::decode, ServerInfo::handleOnClient,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));

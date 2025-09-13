@@ -9,6 +9,7 @@ public class ClientConfig {
     public static ForgeConfigSpec.BooleanValue DISABLE_OTHER_MODEL;
     public static ForgeConfigSpec.BooleanValue DISABLE_SELF_HANDS;
     public static ForgeConfigSpec.BooleanValue DISABLE_PROJECTILE_MODEL;
+    public static ForgeConfigSpec.BooleanValue DISABLE_VEHICLE_MODEL;
     public static ForgeConfigSpec.BooleanValue USE_COMPATIBILITY_RENDERER;
     public static ForgeConfigSpec.DoubleValue SOUND_VOLUME;
 
@@ -39,6 +40,9 @@ public class ClientConfig {
 
         builder.comment("Prevents rendering of projectile model");
         DISABLE_PROJECTILE_MODEL = builder.define("DisableProjectileModel", false);
+
+        builder.comment("Prevents rendering of vehicle model");
+        DISABLE_VEHICLE_MODEL = builder.define("DisableVehicleModel", false);
 
         builder.comment("If rendering errors occur, try turning on this.");
         USE_COMPATIBILITY_RENDERER = builder.define("UseCompatibilityRenderer", false);

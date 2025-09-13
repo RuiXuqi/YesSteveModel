@@ -10,6 +10,7 @@ import java.util.Map;
 public final class ClientModelData {
     private final PlayerModelData playerModel;
     private final Map<String, ProjectileModelData> projectileModel;
+    private final Map<String, VehicleModelData> vehicleModel;
     private final CommonAssetData assets;
 
     @NotNull
@@ -18,10 +19,11 @@ public final class ClientModelData {
     private final Map<String, NativeTexture> guiImages;
 
     // Native Access
-    public ClientModelData(PlayerModelData playerModel, Map<String, ProjectileModelData> projectileModel, CommonAssetData assets, @NotNull ModelInfo info,
-                           Map<String, NativeTexture> authorAvatars, Map<String, NativeTexture> guiImages) {
+    public ClientModelData(PlayerModelData playerModel, Map<String, ProjectileModelData> projectileModel, Map<String, VehicleModelData> vehicleModel,
+                           CommonAssetData assets, @NotNull ModelInfo info, Map<String, NativeTexture> authorAvatars, Map<String, NativeTexture> guiImages) {
         this.playerModel = playerModel;
         this.projectileModel = projectileModel;
+        this.vehicleModel = vehicleModel;
         this.assets = assets;
         this.info = info;
         this.authorAvatars = authorAvatars;
@@ -34,6 +36,10 @@ public final class ClientModelData {
 
     public Map<String, ProjectileModelData> projectileModel() {
         return projectileModel;
+    }
+
+    public Map<String, VehicleModelData> vehicleModel() {
+        return vehicleModel;
     }
 
     public CommonAssetData assets() {

@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.ProjectileModelInfoCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.VehicleModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -10,6 +11,7 @@ import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncProjectileModelInfo;
+import com.elfmcys.yesstevemodel.network.message.SyncVehicleModelInfo;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -56,6 +58,20 @@ public class TlmCommonCompatInner {
                 cap.init(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());
                 SyncProjectileModelInfo info = new SyncProjectileModelInfo(projectile.getId(), cap);
                 NetworkHandler.broadcastToVisiblePlayers(info, projectile);
+            });
+        }
+    }
+
+    static void onVehicleSetModel(Entity vehicle, Entity entity) {
+        if (!(entity instanceof EntityMaid maid)) {
+            return;
+        }
+        if (maid.isYsmModel()) {
+            vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+                // TODO: 实现女仆的 roaming 变量
+                cap.init(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());
+                SyncVehicleModelInfo info = new SyncVehicleModelInfo(vehicle.getId(), cap);
+                NetworkHandler.broadcastToVisiblePlayers(info, vehicle);
             });
         }
     }

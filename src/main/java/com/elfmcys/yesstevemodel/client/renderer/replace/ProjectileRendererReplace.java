@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.renderer.projectile;
+package com.elfmcys.yesstevemodel.client.renderer.replace;
 
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;

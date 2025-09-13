@@ -54,6 +54,10 @@ public class AnimationParallelTicker {
                 if (ClientConfig.DISABLE_PROJECTILE_MODEL.get()) {
                     continue;
                 }
+            } else {
+                if (ClientConfig.DISABLE_VEHICLE_MODEL.get()) {
+                    continue;
+                }
             }
 
             instance.beginAsyncUpdate(partialTick);

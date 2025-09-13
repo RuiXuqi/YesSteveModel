@@ -14,7 +14,7 @@
     "client.LivingRendererMixin", "client.ThrowableItemProjectileAccessor", "client.WorldRendererMixin"
   ],
   "mixins": [
-    "AbstractArrowEntityMixin", "ProjectileEntityMixin"
+    "AbstractArrowEntityMixin", "ProjectileEntityMixin", "ServerPlayerMixin"
   ]
 }
   

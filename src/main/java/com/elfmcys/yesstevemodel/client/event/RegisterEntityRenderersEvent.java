@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.Sophistica
 import com.elfmcys.yesstevemodel.client.renderer.CustomFirstPersonArmRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.client.renderer.CustomProjectileRenderer;
+import com.elfmcys.yesstevemodel.client.renderer.CustomVehicleRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -25,6 +26,7 @@ public class RegisterEntityRenderersEvent {
     private static CustomPlayerRenderer CUSTOM_PLAYER_RENDERER;
     private static CustomProjectileRenderer CUSTOM_PROJECTILE_RENDERER;
     private static CustomFirstPersonArmRenderer CUSTOM_FIRST_PERSON_RENDERER;
+    private static CustomVehicleRenderer CUSTOM_VEHICLE_RENDERER;
 
     private static void init(ResourceManager resourceManager) {
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -34,9 +36,12 @@ public class RegisterEntityRenderersEvent {
         EntityModelSet entityModels = Minecraft.getInstance().getEntityModels();
         Font font = Minecraft.getInstance().font;
         EntityRendererProvider.Context context = new EntityRendererProvider.Context(dispatcher, itemRenderer, blockRenderer, itemInHandRenderer, resourceManager, entityModels, font);
+
         CUSTOM_PLAYER_RENDERER = new CustomPlayerRenderer(context);
         CUSTOM_PROJECTILE_RENDERER = new CustomProjectileRenderer(context);
         CUSTOM_FIRST_PERSON_RENDERER = new CustomFirstPersonArmRenderer();
+        CUSTOM_VEHICLE_RENDERER = new CustomVehicleRenderer(context);
+
         SophisticatedCompat.init();
     }
 
@@ -67,5 +72,12 @@ public class RegisterEntityRenderersEvent {
             init(Minecraft.getInstance().getResourceManager());
         }
         return CUSTOM_FIRST_PERSON_RENDERER;
+    }
+
+    public static CustomVehicleRenderer getVehicleRenderer() {
+        if (CUSTOM_VEHICLE_RENDERER == null) {
+            init(Minecraft.getInstance().getResourceManager());
+        }
+        return CUSTOM_VEHICLE_RENDERER;
     }
 }

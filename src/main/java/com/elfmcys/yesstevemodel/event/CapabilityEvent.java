@@ -3,10 +3,7 @@ package com.elfmcys.yesstevemodel.event;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.*;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
-import com.elfmcys.yesstevemodel.network.message.ServerInfo;
-import com.elfmcys.yesstevemodel.network.message.SyncAuthModels;
-import com.elfmcys.yesstevemodel.network.message.SyncProjectileModelInfo;
-import com.elfmcys.yesstevemodel.network.message.SyncStarModels;
+import com.elfmcys.yesstevemodel.network.message.*;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,10 +25,12 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 public final class CapabilityEvent {
     private static final ResourceLocation MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "model_id");
     private static final ResourceLocation PROJECTILE_MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "projectile_model_id");
+    private static final ResourceLocation VEHICLE_MODEL_INFO_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "vehicle_model_id");
     private static final ResourceLocation AUTH_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "own_models");
     private static final ResourceLocation STAR_MODELS_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "star_models");
     private static final ResourceLocation ANIMATABLE_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "animatable");
     private static final ResourceLocation PROJECTILE_ANIMATABLE_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "projectile_animatable");
+    private static final ResourceLocation VEHICLE_ANIMATABLE_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "vehicle_animatable");
 
     @SubscribeEvent
     @SuppressWarnings("resource")
@@ -39,6 +38,7 @@ public final class CapabilityEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
+
         Entity entity = event.getObject();
         if (entity instanceof Player player) {
             if (!entity.level().isClientSide() && !player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).isPresent() && !event.getCapabilities().containsKey(MODEL_INFO_CAP)) {
@@ -54,12 +54,32 @@ public final class CapabilityEvent {
             if (!entity.level().isClientSide() && !entity.getCapability(ProjectileModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_MODEL_INFO_CAP)) {
                 event.addCapability(PROJECTILE_MODEL_INFO_CAP, new ProjectileModelInfoCapabilityProvider());
             }
+        } else {
+            if (!entity.level().isClientSide() && !entity.getCapability(VehicleModelInfoCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(VEHICLE_MODEL_INFO_CAP)) {
+                event.addCapability(VEHICLE_MODEL_INFO_CAP, new VehicleModelInfoCapabilityProvider());
+            }
         }
+
         if (FMLEnvironment.dist == Dist.CLIENT && entity.level().isClientSide()) {
-            if (entity instanceof AbstractClientPlayer clientPlayer && !clientPlayer.getCapability(PlayerAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(ANIMATABLE_CAP)) {
+            // 客户端玩家
+            if (entity instanceof AbstractClientPlayer clientPlayer
+                && !clientPlayer.getCapability(PlayerAnimatableCapabilityProvider.CAP).isPresent()
+                && !event.getCapabilities().containsKey(ANIMATABLE_CAP)) {
                 event.addCapability(ANIMATABLE_CAP, new PlayerAnimatableCapabilityProvider(clientPlayer));
-            } else if (entity instanceof Projectile projectile && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent() && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
+                return;
+            }
+
+            // 投掷物
+            if (entity instanceof Projectile projectile
+                && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent()
+                && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
                 event.addCapability(PROJECTILE_ANIMATABLE_CAP, new ProjectileAnimatableCapabilityProvider(projectile));
+            }
+
+            // 其他载具
+            if (!entity.getCapability(VehicleAnimatableCapabilityProvider.CAP).isPresent()
+                && !event.getCapabilities().containsKey(VEHICLE_ANIMATABLE_CAP)) {
+                event.addCapability(VEHICLE_ANIMATABLE_CAP, new VehicleAnimatableCapabilityProvider(entity));
             }
         }
     }
@@ -103,6 +123,12 @@ public final class CapabilityEvent {
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isInitialized()) {
                     NetworkHandler.sendToClientPlayer(new SyncProjectileModelInfo(projectile.getId(), cap), event.getEntity());
+                }
+            });
+        } else if (event.getTarget() != null) {
+            event.getTarget().getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+                if (cap.isInitialized()) {
+                    NetworkHandler.sendToClientPlayer(new SyncVehicleModelInfo(event.getTarget().getId(), cap), event.getEntity());
                 }
             });
         }
@@ -173,6 +199,18 @@ public final class CapabilityEvent {
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 cap.init(ownerCap.getModelId(), ownerCap.getMolangVarsServerBound());
                 NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(projectile.getId(), cap), projectile);
+            });
+        });
+    }
+
+    public static void onVehicleSetModel(Entity vehicle, ServerPlayer owner) {
+        owner.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(ownerCap -> {
+            if (!NetworkHandler.isPlayerChannelPresent(owner) && !ownerCap.isMandatory()) {
+                return;
+            }
+            vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
+                cap.init(ownerCap.getModelId(), ownerCap.getMolangVarsServerBound());
+                NetworkHandler.broadcastToVisiblePlayers(new SyncVehicleModelInfo(vehicle.getId(), cap), vehicle);
             });
         });
     }

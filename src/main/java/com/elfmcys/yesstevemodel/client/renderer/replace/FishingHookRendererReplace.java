@@ -1,10 +1,8 @@
-package com.elfmcys.yesstevemodel.client.renderer.projectile;
+package com.elfmcys.yesstevemodel.client.renderer.replace;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
-import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;

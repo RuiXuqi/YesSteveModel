@@ -14,19 +14,17 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
-public abstract class GeoProjectilesRenderer<TEntity extends Projectile, T extends AnimatableEntity<TEntity>> extends EntityRenderer<TEntity> implements IGeoRenderer<T> {
+public abstract class GeoEntityRenderer<TEntity extends Entity, T extends AnimatableEntity<TEntity>> extends EntityRenderer<TEntity> implements IGeoRenderer<T> {
     protected Matrix4f dispatchedMat = new Matrix4f();
     protected Matrix4f renderEarlyMat = new Matrix4f();
     private IRenderCycle currentModelRenderCycle = EModelRenderCycle.INITIAL;
     protected MultiBufferSource rtb = null;
 
-    public GeoProjectilesRenderer(EntityRendererProvider.Context context) {
+    public GeoEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
@@ -37,8 +35,7 @@ public abstract class GeoProjectilesRenderer<TEntity extends Projectile, T exten
             this.dispatchedMat = new Matrix4f(poseStack.last().pose());
             setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
             poseStack.pushPose();
-            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
+            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - yaw));
             Color renderColor = getRenderColor(instance, partialTick, poseStack, bufferSource, null, packedLight);
             RenderType renderType = getRenderType(instance.getTextureLocation());
             GeoModelState model = instance.getLoadedGeoModel();

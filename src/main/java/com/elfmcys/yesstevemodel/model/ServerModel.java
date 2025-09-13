@@ -13,15 +13,18 @@ public class ServerModel {
     private final String name;
     private final ServerPlayerModel playerModel;
     private final Set<ResourceLocation> projectileModels;
+    private final Set<ResourceLocation> vehicleModels;
     private final ModelInfo info;
     private final boolean isDefault;
     private final boolean isNeedAuth;
 
     // Native Access
-    public ServerModel(String name, ServerPlayerModel playerModel, String[] projectileModels, ModelInfo info, boolean isDefault, boolean isNeedAuth) {
+    public ServerModel(String name, ServerPlayerModel playerModel, String[] projectileModels, String[] vehicleModels,
+                       ModelInfo info, boolean isDefault, boolean isNeedAuth) {
         this.name = name;
         this.playerModel = playerModel;
         this.projectileModels = Arrays.stream(projectileModels).map(ResourceLocation::new).collect(Collectors.toSet());
+        this.vehicleModels = Arrays.stream(vehicleModels).map(ResourceLocation::new).collect(Collectors.toSet());
         this.info = info;
         this.isDefault = isDefault;
         this.isNeedAuth = isNeedAuth;
@@ -37,6 +40,10 @@ public class ServerModel {
 
     public Set<ResourceLocation> projectileModels() {
         return projectileModels;
+    }
+
+    public Set<ResourceLocation> vehicleModels() {
+        return vehicleModels;
     }
 
     public ModelInfo info() {

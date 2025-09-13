@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -17,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.Nullable;
@@ -58,6 +60,10 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
             });
         } else if (entity instanceof Projectile projectile) {
             projectile.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+                foreignStorage = cap.getPublicVariableStorage();
+            });
+        } else if (entity instanceof Entity e) {
+            e.getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 foreignStorage = cap.getPublicVariableStorage();
             });
         }

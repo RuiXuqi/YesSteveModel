@@ -1,8 +1,9 @@
 package com.elfmcys.yesstevemodel.mixin.client;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.client.renderer.projectile.FishingHookRendererReplace;
-import com.elfmcys.yesstevemodel.client.renderer.projectile.ProjectileRendererReplace;
+import com.elfmcys.yesstevemodel.client.renderer.replace.EntityRendererReplace;
+import com.elfmcys.yesstevemodel.client.renderer.replace.FishingHookRendererReplace;
+import com.elfmcys.yesstevemodel.client.renderer.replace.ProjectileRendererReplace;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -28,10 +29,11 @@ public class EntityRenderDispatcherMixin {
     )
     private boolean replaceRender(EntityRenderer<?> renderer, Entity entity, float rotationYaw, float partialTicks,
                                   PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
-        if (entity instanceof Projectile projectile) {
-            if (!YesSteveModel.isAvailable() || ClientConfig.DISABLE_PROJECTILE_MODEL.get()) {
-                return true;
-            }
+        if (!YesSteveModel.isAvailable()) {
+            return true;
+        }
+
+        if (entity instanceof Projectile projectile && !ClientConfig.DISABLE_PROJECTILE_MODEL.get()) {
             // 鱼漂比较特殊
             if (projectile instanceof FishingHook hook) {
                 return FishingHookRendererReplace.renderInMixin(hook, rotationYaw, partialTicks, poseStack, buffer, packedLight);
@@ -39,6 +41,11 @@ public class EntityRenderDispatcherMixin {
                 return ProjectileRendererReplace.renderInMixin(projectile, rotationYaw, partialTicks, poseStack, buffer, packedLight);
             }
         }
+
+        if (!ClientConfig.DISABLE_VEHICLE_MODEL.get()) {
+            return EntityRendererReplace.renderInMixin(entity, rotationYaw, partialTicks, poseStack, buffer, packedLight);
+        }
+
         return true;
     }
 }

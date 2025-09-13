@@ -38,4 +38,7 @@ public final class ControllerUtils {
 
     public static final String FP_ARM_PARALLEL_CONTROLLER = "fp.arm.parallel_";
     public static final String FP_ARM_ARMOR_CONTROLLER = "fp.arm.armor_";
+
+    public static final String VEHICLE_MAIN_CONTROLLER = "vehicle.main";
+    public static final String VEHICLE_PARALLEL_CONTROLLER = "vehicle.parallel_";
 }

@@ -4,11 +4,14 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
+import com.elfmcys.yesstevemodel.client.model.data.ProjectileModelData;
+import com.elfmcys.yesstevemodel.client.model.data.VehicleModelData;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
+import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.lib.concentus.OpusException;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
@@ -17,7 +20,6 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -28,17 +30,20 @@ import java.util.Map;
 @SuppressWarnings("removal")
 public class ClientModelBuilder {
     private static final String FP_ARM_ANIMATION = "fp_arm";
+    private static final ResourceLocation ARROW = new ResourceLocation("minecraft:arrow");
+    private static final ResourceLocation BOAT = new ResourceLocation("minecraft:boat");
     private static ClientModel DEFAULT_MODEL;
 
     public static ClientModel build(ClientModelData data, boolean isDefault, boolean isNeedAuth, List<Pair<ResourceLocation, AbstractTexture>> textureQueue) {
         var playerModel = buildPlayerModel(data, isDefault, textureQueue);
         var projectileModels = buildProjectileModels(data, isDefault, textureQueue);
+        var vehicleModels = buildVehicleModels(data, isDefault, textureQueue);
         var assets = buildCommonAssets(data);
 
         var clientModelInfo = buildClientModelInfo(data, isNeedAuth, textureQueue);
         var registeredTextureIds = textureQueue.stream().map(Pair::getKey).toList();
 
-        var model = new ClientModel(playerModel, projectileModels, assets, data.info(), clientModelInfo, registeredTextureIds);
+        var model = new ClientModel(playerModel, projectileModels, vehicleModels, assets, data.info(), clientModelInfo, registeredTextureIds);
         if (isDefault) {
             DEFAULT_MODEL = model;
         }
@@ -104,22 +109,51 @@ public class ClientModelBuilder {
 
         int counter = 0;
         for (var entry : data.projectileModel().entrySet()) {
-            var model = entry.getValue().geoModel();
+            ProjectileModelData value = entry.getValue();
+            var model = value.geoModel();
+            AnimationFile animationFile = value.animationFile();
 
-            var animations = new Object2ReferenceOpenHashMap<>(entry.getValue().animationFile() != null ? entry.getValue().animationFile().animations() : Object2ReferenceMaps.emptyMap());
+            var animations = new Object2ReferenceOpenHashMap<>(animationFile != null ? animationFile.animations() : Object2ReferenceMaps.emptyMap());
             if (!isDefault) {
-                for (var animEntry : DEFAULT_MODEL.projectileModels().get(EntityType.ARROW.builtInRegistryHolder().key().location()).animations().entrySet()) {
+                for (var animEntry : DEFAULT_MODEL.projectileModels().get(ARROW).animations().entrySet()) {
                     animations.computeIfAbsent(animEntry.getKey(), key -> animEntry.getValue());
                 }
             }
 
             var textureId = new ResourceLocation(YesSteveModel.MOD_ID, (isDefault ? "default" : data.info().hash()) + "/p/" + counter++);
-            textureQueue.add(Pair.of(textureId, entry.getValue().texture()));
-            for (var pbrEntry : entry.getValue().texture().getPBRTextures().entrySet()) {
+            textureQueue.add(Pair.of(textureId, value.texture()));
+            for (var pbrEntry : value.texture().getPBRTextures().entrySet()) {
                 textureQueue.add(Pair.of(pbrEntry.getKey().getId(textureId), pbrEntry.getValue()));
             }
 
             map.put(new ResourceLocation(entry.getKey()), new ProjectileModel(model, animations, textureId));
+        }
+
+        return map;
+    }
+
+    private static Map<ResourceLocation, VehicleModel> buildVehicleModels(ClientModelData data, boolean isDefault, List<Pair<ResourceLocation, AbstractTexture>> textureQueue) {
+        Object2ReferenceOpenHashMap<ResourceLocation, VehicleModel> map = new Object2ReferenceOpenHashMap<>();
+
+        int counter = 0;
+        for (var entry : data.vehicleModel().entrySet()) {
+            VehicleModelData value = entry.getValue();
+            var model = value.geoModel();
+
+            var animations = new Object2ReferenceOpenHashMap<>(value.animationFile() != null ? value.animationFile().animations() : Object2ReferenceMaps.emptyMap());
+            if (!isDefault) {
+                for (var animEntry : DEFAULT_MODEL.vehicleModels().get(BOAT).animations().entrySet()) {
+                    animations.computeIfAbsent(animEntry.getKey(), key -> animEntry.getValue());
+                }
+            }
+
+            var textureId = new ResourceLocation(YesSteveModel.MOD_ID, (isDefault ? "default" : data.info().hash()) + "/v/" + counter++);
+            textureQueue.add(Pair.of(textureId, value.texture()));
+            for (var pbrEntry : value.texture().getPBRTextures().entrySet()) {
+                textureQueue.add(Pair.of(pbrEntry.getKey().getId(textureId), pbrEntry.getValue()));
+            }
+
+            map.put(new ResourceLocation(entry.getKey()), new VehicleModel(model, animations, textureId));
         }
 
         return map;
