@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.scores.Objective;
@@ -79,7 +80,8 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
                 if (bone == null) {
                     return;
                 }
-                float vehicleYaw = EntityRendererReplace.getYaw(vehicle, entityYaw, partialTick);
+                float rawVehicleYaw = Mth.lerp(partialTick, vehicle.yRotO, vehicle.getYRot());
+                float vehicleYaw = EntityRendererReplace.getYaw(vehicle, rawVehicleYaw, partialTick);
                 poseStack.mulPose(Axis.YP.rotationDegrees(180 - vehicleYaw));
                 RenderUtils.prepMatrixForLocator(poseStack, bone);
                 poseStack.mulPose(Axis.YN.rotationDegrees(180 - vehicleYaw));

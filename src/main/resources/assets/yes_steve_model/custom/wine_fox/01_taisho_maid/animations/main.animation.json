@@ -10867,151 +10867,82 @@
 			"loop": true,
 			"bones": {
 				"Root": {
-					"position": [0, 2, 2]
+					"rotation": [0, 0, 0],
+					"position": [0, 0, 0],
+					"scale": 1
 				},
 				"UpBody": {
-					"rotation": [20, 0, 0]
+					"rotation": [10, 0, 0],
+					"position": [0, 0, 0]
 				},
 				"LeftArm": {
-					"rotation": [-22.81484, 67.44549, -15.48236],
+					"rotation": [-51.7641, -33.13439, -61.73719],
 					"position": [0, 0, 0]
 				},
 				"LeftForeArm": {
-					"rotation": [-82.66733, 53.26745, -137.6027],
+					"rotation": [-32.5, 0, 0],
 					"position": [0, 0, 0]
 				},
 				"RightArm": {
-					"rotation": [-22.81484, -67.44549, 15.48236],
+					"rotation": [-51.28237, 33.10447, 60.60176],
 					"position": [0, 0, 0]
 				},
 				"RightForeArm": {
-					"rotation": [-82.66733, -53.26745, 137.6027],
+					"rotation": [-32.5, 0, 0],
 					"position": [0, 0, 0]
 				},
 				"LeftLeg": {
-					"rotation": [-62.5, 0, 0],
-					"position": [0, 0, 0]
+					"rotation": [-82.67316, -38.89629, 2.95966],
+					"position": [0, -1, 0]
 				},
 				"LeftLowerLeg": {
-					"rotation": [165, 0, 0],
+					"rotation": [72.5, 0, 0],
 					"position": [0, 0, 0]
 				},
 				"LeftFoot": {
-					"rotation": [35, 0, 0],
+					"rotation": [20, 0, 0],
 					"position": [0, 0, 0]
 				},
 				"RightLeg": {
-					"rotation": [-62.5, 0, 0],
-					"position": [0, 0, 0]
+					"rotation": [-82.67316, 38.89629, -2.95966],
+					"position": [0, -1, 0]
 				},
 				"RightLowerLeg": {
-					"rotation": [165, 0, 0],
+					"rotation": [72.5, 0, 0],
 					"position": [0, 0, 0]
 				},
 				"RightFoot": {
-					"rotation": [40, 0, 0],
+					"rotation": [20, 0, 0],
 					"position": [0, 0, 0]
 				},
 				"AllBody": {
 					"rotation": [0, 0, 0],
+					"position": [0, -4, 0],
 					"scale": 1
-				},
-				"Head": {
-					"rotation": [0, 0, 0],
-					"position": [0, 0, 0]
-				},
-				"DownBody": {
-					"rotation": [-10, 0, 0]
-				},
-				"LongHair": {
-					"rotation": [12.5, 0, 0]
 				},
 				"AllHead": {
 					"rotation": [0, 0, 0],
 					"position": [0, 0, 0]
 				},
-				"LeftClothe": {
-					"rotation": [-92.62116, 17.48281, -8.28795],
-					"position": [1, -2.5, 2.25],
-					"scale": [1, 0.8, 0.8]
+				"Head": {
+					"rotation": [-10, 0, 0],
+					"position": [0, 0, 0]
 				},
-				"RightClothe": {
-					"rotation": [-92.62116, -17.48281, 8.28795],
-					"position": [-1, -2.5, 2.25],
-					"scale": [1, 0.8, 0.8]
+				"LongHair": {
+					"rotation": ["12.5-(q.ground_speed>0?math.sin(-120+query.anim_time*720)*3)", 0, 0]
 				},
-				"BackClothe": {
-					"rotation": [-12.5, 0, 0],
-					"scale": [1, 0.8, 1]
+				"molang": {
+					"rotation": ["v.bv=q.ground_speed>0?math.cos(2*query.anim_time*360/(24/24))*5", 0, 0]
 				},
-				"FrontClothe": {
-					"rotation": [-65, 0, 0],
-					"scale": [1, 0.7, 1]
+				"MRoot": {
+					"position": [0, -11, 0]
 				},
-				"LeftClothe2": {
-					"rotation": [-74.04092, 35.30916, -104.09001],
-					"scale": [1, 0.8, 0.5]
-				},
-				"RightClothe2": {
-					"rotation": [-73.52401, -37.70973, 103.22139],
-					"scale": [1, 0.8, 0.5]
-				},
-				"UpperBody": {
-					"rotation": [-20, 0, 0]
-				},
-				"BR2": {
-					"rotation": [-90, 0, 0]
-				},
-				"BL2": {
-					"rotation": [-90, 0, 0]
-				},
-				"BM2": {
-					"rotation": [-90, 0, 0]
-				},
-				"LeftHand": {
-					"rotation": [0, -85, 15]
-				},
-				"RightHand": {
-					"rotation": [0, 85, -15]
-				},
-				"LF2": {
-					"rotation": [7.5, 0, 0]
-				},
-				"LF3": {
-					"rotation": [15, 0, 0]
-				},
-				"LB2": {
-					"rotation": [-7.5, 0, 0]
-				},
-				"LM3": {
-					"scale": [1, 1, 0.7]
-				},
-				"RM3": {
-					"scale": [1, 1, 0.7]
-				},
-				"RB": {
-					"rotation": [-7.5, 0, 0]
-				},
-				"RF": {
-					"rotation": [7.5, 0, 0]
-				},
-				"RF3": {
-					"rotation": [15, 0, 0]
-				},
-				"FL2": {
-					"rotation": [62.5, 0, 0]
-				},
-				"FR2": {
-					"rotation": [62.5, 0, 0]
-				},
-				"FM2": {
-					"rotation": [62.5, 0, 0]
-				},
-				"Mouth_smile2": {
-					"position": [0, 0, -1]
+				"clothe": {
+					"rotation": [-32.5, 0, 0]
 				},
 				"FOX": {
-					"position": [0, 15, 0]
+					"rotation": [-10, 0, 0],
+					"position": [0, 4, 0]
 				}
 			}
 		},

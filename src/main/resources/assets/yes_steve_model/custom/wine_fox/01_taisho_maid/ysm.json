@@ -125,6 +125,10 @@
       "minecraft:minecart": {
         "model": "models/minecart.json",
         "texture": "textures/minecart.png"
+      },
+      "minecraft:boat": {
+        "model": "models/boat.json",
+        "texture": "textures/boat.png"
       }
     }
   }
