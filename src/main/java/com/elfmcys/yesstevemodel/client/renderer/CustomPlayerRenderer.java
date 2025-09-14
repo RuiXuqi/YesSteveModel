@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.renderer;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
@@ -9,9 +10,13 @@ import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerElytraLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerItemInHandLayer;
+import com.elfmcys.yesstevemodel.client.renderer.replace.EntityRendererReplace;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
+import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
+import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -54,6 +59,32 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
         var event = new SpecialPlayerRenderEvent(player, cap, cap.getModelId());
         if (MinecraftForge.EVENT_BUS.post(event)) {
             return;
+        }
+
+        Entity vehicle = player.getVehicle();
+        if (vehicle != null) {
+            vehicle.getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(vehicleCap -> {
+                if (!vehicleCap.isInitialized() || !vehicleCap.isModelPresent()) {
+                    return;
+                }
+                int index = vehicle.getPassengers().indexOf(player);
+                if (index < 0) {
+                    return;
+                }
+                GeoModelState loadedGeoModel = vehicleCap.getLoadedGeoModel();
+                if (loadedGeoModel == null || loadedGeoModel.passengerBones().isEmpty() || index >= loadedGeoModel.passengerBones().size()) {
+                    return;
+                }
+                var bone = loadedGeoModel.passengerBones().get(index);
+                if (bone == null) {
+                    return;
+                }
+                float vehicleYaw = EntityRendererReplace.getYaw(vehicle, entityYaw, partialTick);
+                poseStack.mulPose(Axis.YP.rotationDegrees(180 - vehicleYaw));
+                RenderUtils.prepMatrixForLocator(poseStack, bone);
+                poseStack.mulPose(Axis.YN.rotationDegrees(180 - vehicleYaw));
+                poseStack.translate(0, -vehicle.getPassengersRidingOffset() - player.getMyRidingOffset(), 0);
+            });
         }
 
         renderAnimatableEntity(cap, animEvent, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);

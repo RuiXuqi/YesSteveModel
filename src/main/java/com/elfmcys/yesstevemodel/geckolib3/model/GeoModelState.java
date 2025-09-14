@@ -39,6 +39,8 @@ public class GeoModelState {
     @NotNull
     private final List<List<IBone>> extraRightHandBones = new ReferenceArrayList<>();
     @NotNull
+    private final List<List<IBone>> passengerBones = new ReferenceArrayList<>();
+    @NotNull
     private final List<IBone> elytraBones;
     @NotNull
     private final List<IBone> tacPistolBones;
@@ -104,6 +106,7 @@ public class GeoModelState {
 
         model.extraLeftHandBones.forEach(list -> extraLeftHandBones.add(findBones(list)));
         model.extraRightHandBones.forEach(list -> extraRightHandBones.add(findBones(list)));
+        model.passengerBones.forEach(list -> passengerBones.add(findBones(list)));
     }
 
     @NotNull
@@ -145,6 +148,10 @@ public class GeoModelState {
 
     public @NotNull List<List<IBone>> extraRightHandBones() {
         return extraRightHandBones;
+    }
+
+    public @NotNull List<List<IBone>> passengerBones() {
+        return passengerBones;
     }
 
     @NotNull

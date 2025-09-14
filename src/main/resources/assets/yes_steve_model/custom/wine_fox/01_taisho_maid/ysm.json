@@ -116,6 +116,16 @@
         "model": "models/trident.json",
         "texture": "textures/trident.png"
       }
+    },
+    "vehicles": {
+      "minecraft:horse": {
+        "model": "models/horse.json",
+        "texture": "textures/horse.png"
+      },
+      "minecraft:minecart": {
+        "model": "models/minecart.json",
+        "texture": "textures/minecart.png"
+      }
     }
   }
 }

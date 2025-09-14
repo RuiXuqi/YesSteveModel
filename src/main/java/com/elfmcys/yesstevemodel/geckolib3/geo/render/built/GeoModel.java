@@ -28,6 +28,8 @@ public class GeoModel {
     @NotNull
     public final List<IntList> extraRightHandBones = new ObjectArrayList<>();
     @NotNull
+    public final List<IntList> passengerBones = new ObjectArrayList<>();
+    @NotNull
     public final IntList elytraBones;
     @NotNull
     public final IntList tacPistolBones;
@@ -98,6 +100,14 @@ public class GeoModel {
             String[] extraLocators = locatorHierarchy[i];
             if (extraLocators.length > 0) {
                 extraRightHandBones.add(buildLocatorHierarchy(extraLocators));
+            }
+        }
+
+        // 27-34 是乘客点位
+        for (int i = 27; i <= 34; i++) {
+            String[] extraLocators = locatorHierarchy[i];
+            if (extraLocators.length > 0) {
+                passengerBones.add(buildLocatorHierarchy(extraLocators));
             }
         }
 

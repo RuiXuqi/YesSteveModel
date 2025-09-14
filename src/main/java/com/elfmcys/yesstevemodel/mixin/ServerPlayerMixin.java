@@ -24,7 +24,7 @@ public abstract class ServerPlayerMixin {
             return;
         }
         ServerPlayer serverPlayer = (ServerPlayer) (Object) this;
-        if (vehicle.getControllingPassenger() == serverPlayer) {
+        if (vehicle.getFirstPassenger() == serverPlayer) {
             CapabilityEvent.onVehicleSetModel(vehicle, serverPlayer);
         }
     }

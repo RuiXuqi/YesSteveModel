@@ -204,6 +204,7 @@ dependencies {
     modRuntimeOnly "maven.modrinth:curtain:1.3.2-1.20.1"
     modRuntimeOnly "maven.modrinth:mantle:1.11.28"
     modRuntimeOnly "maven.modrinth:tinkers-construct:3.9.0.6"
+    modImplementation "curse.maven:shoulder-surfing-reloaded-243190:6543482"
 
     // modRuntimeOnly "maven.modrinth:cloth-config:11.1.136+forge"
     // modRuntimeOnly "maven.modrinth:better-combat:1.8.6+1.20.1-forge"
