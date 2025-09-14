@@ -120,7 +120,8 @@
     "vehicles": {
       "minecraft:horse": {
         "model": "models/horse.json",
-        "texture": "textures/horse.png"
+        "texture": "textures/horse.png",
+        "animation": "animations/vehicle/horse.animation.json"
       },
       "minecraft:minecart": {
         "model": "models/minecart.json",

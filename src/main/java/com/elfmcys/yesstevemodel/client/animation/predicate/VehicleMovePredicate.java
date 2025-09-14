@@ -8,19 +8,18 @@ import net.minecraft.world.entity.Entity;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class VehicleMainPredicate implements IAnimationPredicate<CustomVehicleEntity> {
+public class VehicleMovePredicate implements IAnimationPredicate<CustomVehicleEntity> {
     @Override
     public PlayState test(AnimationEvent<CustomVehicleEntity> event, ExpressionEvaluator<?> evaluator) {
         Entity entity = event.getAnimatableEntity().getEntity();
         if (entity == null) {
             return PlayState.STOP;
         }
-        if (entity.isInWater()) {
-            return playAnimation(event, "water");
+        var motion = entity.getDeltaMovement();
+        double speed = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
+        if (speed > 0.05) {
+            return playAnimation(event, "forward");
         }
-        if (entity.onGround()) {
-            return playAnimation(event, "ground");
-        }
-        return playAnimation(event, "fly");
+        return playAnimation(event, "idle");
     }
 }

@@ -4,13 +4,46 @@
     "water": {
       "loop": true
     },
-    "fire": {
-      "loop": true
-    },
     "ground": {
       "loop": true
     },
-    "air": {
+    "fly": {
+      "loop": true
+    },
+    "forward": {
+      "loop": true
+    },
+    "idle": {
+      "loop": true
+    },
+    "has_ride": {
+      "loop": true
+    },
+    "not_ride": {
+      "loop": true
+    },
+    "pre_parallel0": {
+      "loop": true
+    },
+    "pre_parallel1": {
+      "loop": true
+    },
+    "pre_parallel2": {
+      "loop": true
+    },
+    "pre_parallel3": {
+      "loop": true
+    },
+    "pre_parallel4": {
+      "loop": true
+    },
+    "pre_parallel5": {
+      "loop": true
+    },
+    "pre_parallel6": {
+      "loop": true
+    },
+    "pre_parallel7": {
       "loop": true
     },
     "parallel0": {

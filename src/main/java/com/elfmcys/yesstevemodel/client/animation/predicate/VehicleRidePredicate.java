@@ -8,19 +8,16 @@ import net.minecraft.world.entity.Entity;
 
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
-public class VehicleMainPredicate implements IAnimationPredicate<CustomVehicleEntity> {
+public class VehicleRidePredicate implements IAnimationPredicate<CustomVehicleEntity> {
     @Override
     public PlayState test(AnimationEvent<CustomVehicleEntity> event, ExpressionEvaluator<?> evaluator) {
         Entity entity = event.getAnimatableEntity().getEntity();
         if (entity == null) {
             return PlayState.STOP;
         }
-        if (entity.isInWater()) {
-            return playAnimation(event, "water");
+        if (!entity.getPassengers().isEmpty()) {
+            return playAnimation(event, "has_ride");
         }
-        if (entity.onGround()) {
-            return playAnimation(event, "ground");
-        }
-        return playAnimation(event, "fly");
+        return playAnimation(event, "not_ride");
     }
 }

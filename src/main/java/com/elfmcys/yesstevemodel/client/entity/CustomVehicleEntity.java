@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
-import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
-import com.elfmcys.yesstevemodel.client.animation.predicate.VehicleMainPredicate;
+import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.VehicleModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
@@ -11,8 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.VEHICLE_MAIN_CONTROLLER;
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.VEHICLE_PARALLEL_CONTROLLER;
+import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
 public class CustomVehicleEntity extends CustomEntity<Entity> {
     private VehicleModel vehicleModel;
@@ -24,7 +22,19 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
 
     @SuppressWarnings("unchecked,rawtypes,deprecation")
     private void registerControllers() {
+        for (int i = 0; i < 8; i++) {
+            String controllerName = VEHICLE_PRE_PARALLEL_CONTROLLER + i;
+            String animationName = String.format("pre_parallel%d", i);
+            addAnimationController(new HybridAnimationController<>(this, controllerName, 0,
+                    new ParallelPredicate<>(animationName), true));
+        }
+
+        addAnimationController(new HybridAnimationController(this, VEHICLE_PRE_PARALLEL_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, VEHICLE_MAIN_CONTROLLER, 0.1f, new VehicleMainPredicate()));
+        addAnimationController(new HybridAnimationController(this, VEHICLE_MOVE_CONTROLLER, 0.1f, new VehicleMovePredicate()));
+        addAnimationController(new HybridAnimationController(this, VEHICLE_RIDE_CONTROLLER, 0.1f, new VehicleRidePredicate()));
+        addAnimationController(new HybridAnimationController(this, VEHICLE_POST_MAIN_CONTROLLER, 0, new EmptyPredicate()));
+
         for (int i = 0; i < 8; i++) {
             String controllerName = VEHICLE_PARALLEL_CONTROLLER + i;
             String animationName = String.format("parallel%d", i);
