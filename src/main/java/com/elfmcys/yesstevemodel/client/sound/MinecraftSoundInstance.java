@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 
 public class MinecraftSoundInstance extends AbstractTickableSoundInstance implements ICanStopSound {
     protected final Entity entity;
+    protected float configuredVolume = 1.0f;
 
     public MinecraftSoundInstance(SoundEvent soundEvent, Entity entity) {
         super(soundEvent, SoundSource.PLAYERS, SoundInstance.createUnseededRandom());
@@ -20,7 +21,7 @@ public class MinecraftSoundInstance extends AbstractTickableSoundInstance implem
 
     @Override
     public void tick() {
-        this.volume = ClientConfig.SOUND_VOLUME.get().floatValue() / 100.0f;
+        this.volume = this.configuredVolume * ClientConfig.SOUND_VOLUME.get().floatValue() / 100.0f;
         if (this.entity.isRemoved()) {
             this.stop();
         } else {
@@ -28,6 +29,19 @@ public class MinecraftSoundInstance extends AbstractTickableSoundInstance implem
             this.y = this.entity.getY();
             this.z = this.entity.getZ();
         }
+    }
+
+    public void setConfiguredVolume(float volume) {
+        this.configuredVolume = volume;
+    }
+
+    public void setPitch(float pitch) {
+        this.pitch = pitch;
+    }
+
+    public void setAsUI() {
+        this.attenuation = Attenuation.NONE;
+        this.relative = true;
     }
 
     @Override

@@ -1,5 +1,6 @@
-package com.elfmcys.yesstevemodel.client.gui;
+package com.elfmcys.yesstevemodel.client.gui.overlay;
 
+import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerConfigScreen;
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.Minecraft;

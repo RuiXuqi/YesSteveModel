@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.gui;
+package com.elfmcys.yesstevemodel.client.gui.overlay;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;

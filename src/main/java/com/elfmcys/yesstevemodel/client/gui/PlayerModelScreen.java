@@ -447,53 +447,42 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             }
         }));
 
-        // 先是文件夹
-        int startIndex = 0;
-        for (int i = 0; i < 10; i++) {
-            int packIndex = i + page * 10;
-            if (packIndex >= packOrderList.size()) {
-                break;
-            }
-            String id = packOrderList.get(packIndex);
-            int xStart = x + 143 + 55 * (i % 5);
-            int yStart = y + 28 + 93 * (i / 5);
-            this.getPack(id).ifPresent(packInfo -> {
-                this.addRenderableWidget(new PackButton(xStart, yStart, 52, 90, packInfo, b -> {
-                    pack = id;
-                    page = 0;
-                    this.init();
-                }));
-            });
-            startIndex++;
-        }
-
-        // 满了，就不加了
-        if (startIndex >= 10) {
-            return;
-        }
-
         if (minecraft == null || minecraft.player == null) {
             return;
         }
         LazyOptional<AuthModelsCapability> authModels = minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP);
-        for (int i = 0; i < 10 - startIndex; i++) {
-            int modelIndex = i + page * 10;
-            if (modelIndex >= models.size()) {
-                break;
-            }
-            String id = modelOrderList.get(modelIndex);
-            int posIndex = i + startIndex;
-            int xStart = x + 143 + 55 * (posIndex % 5);
-            int yStart = y + 28 + 93 * (posIndex / 5);
-            final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
-            authModels.ifPresent(cap -> {
-                var model = models.get(id);
-                boolean needAuth = model.clientInfo().isNeedAuth() && !cap.getAuthModels().contains(id);
 
-                animatedEntity.updateModelAndTexture(id, model.playerModel().defaultTextureName());
-                animatedEntity.getPreviewInfo().setPreview(model.info().properties().previewAnimation());
-                addRenderableWidget(getModelButton(xStart, yStart, needAuth, animatedEntity, model));
-            });
+        for (int i = 0; i < 10; i++) {
+            int index = i + page * 10;
+            int xStart = x + 143 + 55 * (i % 5);
+            int yStart = y + 28 + 93 * (i / 5);
+
+            // 先是文件夹
+            if (index < packOrderList.size()) {
+                String id = packOrderList.get(index);
+                this.getPack(id).ifPresent(packInfo -> {
+                    this.addRenderableWidget(new PackButton(xStart, yStart, 52, 90, packInfo, b -> {
+                        pack = id;
+                        page = 0;
+                        this.init();
+                    }));
+                });
+            }
+
+            // 然后是模型
+            index = index - packOrderList.size();
+            if (0 <= index && index < modelOrderList.size()) {
+                String id = modelOrderList.get(index);
+                final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
+                authModels.ifPresent(cap -> {
+                    var model = models.get(id);
+                    boolean needAuth = model.clientInfo().isNeedAuth() && !cap.getAuthModels().contains(id);
+
+                    animatedEntity.updateModelAndTexture(id, model.playerModel().defaultTextureName());
+                    animatedEntity.getPreviewInfo().setPreview(model.info().properties().previewAnimation());
+                    addRenderableWidget(getModelButton(xStart, yStart, needAuth, animatedEntity, model));
+                });
+            }
         }
     }
 

@@ -41,6 +41,7 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.common.ForgeMod;
@@ -86,6 +87,8 @@ public class YSMBinding extends ContextBinding {
         entityVar("person_view", PersonView::getPersonView);
         entityVar("rendering_in_paperdoll", ctx -> RenderUtil.isRenderingEntitiesInPaperDoll());
         entityVar("rendering_in_inventory", PersonView::isInInventory);
+        entityVar("block_light", ctx -> ctx.level().getBrightness(LightLayer.BLOCK, ctx.entity().blockPosition()));
+        entityVar("sky_light", ctx -> ctx.level().getBrightness(LightLayer.SKY, ctx.entity().blockPosition()));
 
         entityVar("is_passenger", ctx -> ctx.entity().isPassenger());
         entityVar("is_sleep", ctx -> ctx.entity().getPose() == Pose.SLEEPING);
@@ -157,6 +160,9 @@ public class YSMBinding extends ContextBinding {
         function("particle", new ParticleFunction(false));
         function("abs_particle", new ParticleFunction(true));
         function("perlin_noise", new PerlinNoiseFunction());
+        function("play_sound", new SoundFunction.Play());
+        function("stop_sound", new SoundFunction.Stop());
+        function("stop_all_sounds", new SoundFunction.StopAll());
         function("sync", new Sync());
 
         projectileVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));

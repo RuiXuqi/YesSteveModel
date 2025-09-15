@@ -33,6 +33,7 @@
   "gui.yes_steve_model.model.ground": "Show/Hide Ground",
   "gui.yes_steve_model.model.reset": "Reset View",
   "gui.yes_steve_model.model.stop": "Stop Animation",
+  "gui.yes_steve_model.sync_hint.title": "YSM Model Sync State: ",
   "gui.yes_steve_model.sync_hint.loading": "Loading",
   "gui.yes_steve_model.sync_hint.waiting": "Waiting",
   "gui.yes_steve_model.sync_hint.preparing": "Preparing",

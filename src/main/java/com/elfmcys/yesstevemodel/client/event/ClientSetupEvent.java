@@ -13,8 +13,9 @@ import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
-import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
-import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerScreen;
+import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
+import com.elfmcys.yesstevemodel.client.gui.overlay.ExtraPlayerScreen;
+import com.elfmcys.yesstevemodel.client.gui.overlay.LoadingStateScreen;
 import com.elfmcys.yesstevemodel.client.input.*;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -80,6 +81,7 @@ public class ClientSetupEvent {
         }
         event.registerAbove(DEBUG_TEXT.id(), "ysm_debug_info", new DebugAnimationScreen());
         event.registerAbove(DEBUG_TEXT.id(), "ysm_extra_player", new ExtraPlayerScreen());
+        event.registerAbove(DEBUG_TEXT.id(), "ysm_loading_state", new LoadingStateScreen());
     }
 
     private static void initCoreClient() {

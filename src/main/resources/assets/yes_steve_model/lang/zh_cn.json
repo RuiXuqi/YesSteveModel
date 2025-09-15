@@ -33,6 +33,7 @@
   "gui.yes_steve_model.model.ground": "显示/隐藏地面",
   "gui.yes_steve_model.model.reset": "重置视角",
   "gui.yes_steve_model.model.stop": "停止播放动画",
+  "gui.yes_steve_model.sync_hint.title": "YSM 模型同步状态：",
   "gui.yes_steve_model.sync_hint.loading": "加载中",
   "gui.yes_steve_model.sync_hint.waiting": "等待中",
   "gui.yes_steve_model.sync_hint.preparing": "准备中",

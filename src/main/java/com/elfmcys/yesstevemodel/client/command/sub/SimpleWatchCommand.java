@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.command.sub;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
-import com.elfmcys.yesstevemodel.client.gui.DebugAnimationScreen;
+import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
