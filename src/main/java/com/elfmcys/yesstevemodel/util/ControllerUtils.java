@@ -31,11 +31,14 @@ public final class ControllerUtils {
     public static final String FOCUS_CONTROLLER = "player.gui_focus";
 
     public static final String PROJECTILE_MAIN_CONTROLLER = "projectile.main";
+    public static final String PROJECTILE_PRE_MAIN_CONTROLLER = "projectile.pre_main";
+    public static final String PROJECTILE_POST_MAIN_CONTROLLER = "projectile.post_main";
     public static final String PROJECTILE_PARALLEL_CONTROLLER = "projectile.parallel_";
 
     public static final String MAID_MISC = "maid.misc";
     public static final String MAID_STATUE = "maid.statue";
 
+    public static final String FP_ARM_MISC_CONTROLLER = "fp.arm.misc";
     public static final String FP_ARM_PARALLEL_CONTROLLER = "fp.arm.parallel_";
     public static final String FP_ARM_ARMOR_CONTROLLER = "fp.arm.armor_";
 

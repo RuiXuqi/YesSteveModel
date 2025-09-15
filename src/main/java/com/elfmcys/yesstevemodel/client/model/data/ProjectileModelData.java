@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.model.data;
 
 import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
+import com.elfmcys.yesstevemodel.geckolib3.file.AnimationControllerFile;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 
@@ -8,12 +9,14 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 public class ProjectileModelData {
     private final GeoModel geoModel;
     private final AnimationFile animationFile;
+    private final AnimationControllerFile controllerFile;
     private final NativeTexture texture;
 
     // Native Access
-    public ProjectileModelData(GeoModel geoModel, AnimationFile animationFile, NativeTexture texture) {
+    public ProjectileModelData(GeoModel geoModel, AnimationFile animationFile, AnimationControllerFile controllerFile, NativeTexture texture) {
         this.geoModel = geoModel;
         this.animationFile = animationFile;
+        this.controllerFile = controllerFile;
         this.texture = texture;
     }
 
@@ -23,6 +26,10 @@ public class ProjectileModelData {
 
     public AnimationFile animationFile() {
         return animationFile;
+    }
+
+    public AnimationControllerFile controllerFile() {
+        return controllerFile;
     }
 
     public NativeTexture texture() {

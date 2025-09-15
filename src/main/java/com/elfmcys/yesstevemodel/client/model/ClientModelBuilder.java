@@ -11,6 +11,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
+import com.elfmcys.yesstevemodel.geckolib3.file.AnimationControllerFile;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.lib.concentus.OpusException;
@@ -112,6 +113,7 @@ public class ClientModelBuilder {
             ProjectileModelData value = entry.getValue();
             var model = value.geoModel();
             AnimationFile animationFile = value.animationFile();
+            AnimationControllerFile controllerFile = value.controllerFile();
 
             var animations = new Object2ReferenceOpenHashMap<>(animationFile != null ? animationFile.animations() : Object2ReferenceMaps.emptyMap());
             if (!isDefault) {
@@ -120,13 +122,18 @@ public class ClientModelBuilder {
                 }
             }
 
+            Map<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
+            if (controllerFile != null) {
+                controllers = new Object2ReferenceOpenHashMap<>(controllerFile.animationControllers());
+            }
+
             var textureId = new ResourceLocation(YesSteveModel.MOD_ID, (isDefault ? "default" : data.info().hash()) + "/p/" + counter++);
             textureQueue.add(Pair.of(textureId, value.texture()));
             for (var pbrEntry : value.texture().getPBRTextures().entrySet()) {
                 textureQueue.add(Pair.of(pbrEntry.getKey().getId(textureId), pbrEntry.getValue()));
             }
 
-            map.put(new ResourceLocation(entry.getKey()), new ProjectileModel(model, animations, textureId));
+            map.put(new ResourceLocation(entry.getKey()), new ProjectileModel(model, animations, controllers, textureId));
         }
 
         return map;
@@ -139,12 +146,19 @@ public class ClientModelBuilder {
         for (var entry : data.vehicleModel().entrySet()) {
             VehicleModelData value = entry.getValue();
             var model = value.geoModel();
+            var animationFile = value.animationFile();
+            var controllerFile = value.controllerFile();
 
-            var animations = new Object2ReferenceOpenHashMap<>(value.animationFile() != null ? value.animationFile().animations() : Object2ReferenceMaps.emptyMap());
+            var animations = new Object2ReferenceOpenHashMap<>(animationFile != null ? animationFile.animations() : Object2ReferenceMaps.emptyMap());
             if (!isDefault) {
                 for (var animEntry : DEFAULT_MODEL.vehicleModels().get(BOAT).animations().entrySet()) {
                     animations.computeIfAbsent(animEntry.getKey(), key -> animEntry.getValue());
                 }
+            }
+
+            Map<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
+            if (controllerFile != null) {
+                controllers = new Object2ReferenceOpenHashMap<>(controllerFile.animationControllers());
             }
 
             var textureId = new ResourceLocation(YesSteveModel.MOD_ID, (isDefault ? "default" : data.info().hash()) + "/v/" + counter++);
@@ -153,7 +167,7 @@ public class ClientModelBuilder {
                 textureQueue.add(Pair.of(pbrEntry.getKey().getId(textureId), pbrEntry.getValue()));
             }
 
-            map.put(new ResourceLocation(entry.getKey()), new VehicleModel(model, animations, textureId));
+            map.put(new ResourceLocation(entry.getKey()), new VehicleModel(model, animations, controllers, textureId));
         }
 
         return map;

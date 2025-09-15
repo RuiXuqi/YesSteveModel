@@ -4,11 +4,13 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.VehicleModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
@@ -29,7 +31,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
                     new ParallelPredicate<>(animationName), true));
         }
 
-        addAnimationController(new HybridAnimationController(this, VEHICLE_PRE_PARALLEL_CONTROLLER, 0, new EmptyPredicate()));
+        addAnimationController(new HybridAnimationController(this, VEHICLE_PRE_MAIN_CONTROLLER, 0, new EmptyPredicate()));
         addAnimationController(new HybridAnimationController(this, VEHICLE_MAIN_CONTROLLER, 0.1f, new VehicleMainPredicate()));
         addAnimationController(new HybridAnimationController(this, VEHICLE_MOVE_CONTROLLER, 0.1f, new VehicleMovePredicate()));
         addAnimationController(new HybridAnimationController(this, VEHICLE_RIDE_CONTROLLER, 0.1f, new VehicleRidePredicate()));
@@ -72,6 +74,11 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     @Override
     public Animation getAnimation(String name) {
         return vehicleModel.animations().get(name);
+    }
+
+    @Override
+    public @Nullable AnimationControllerData getAnimationControllerData(String animationControllerName) {
+        return vehicleModel.controllers().get(animationControllerName);
     }
 
     @Override

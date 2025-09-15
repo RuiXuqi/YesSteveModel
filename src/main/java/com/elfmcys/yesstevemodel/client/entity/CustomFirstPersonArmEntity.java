@@ -2,9 +2,11 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
+import com.elfmcys.yesstevemodel.client.animation.predicate.EmptyPredicate;
 import com.elfmcys.yesstevemodel.client.animation.predicate.FPArmArmorPredicate;
 import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import net.minecraft.client.player.LocalPlayer;
@@ -12,8 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.FP_ARM_ARMOR_CONTROLLER;
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.FP_ARM_PARALLEL_CONTROLLER;
+import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
 public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     private final PlayerAnimatableCapability mainModelEntity;
@@ -31,6 +32,7 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
 
     @SuppressWarnings("all")
     private void registerControllers() {
+        addAnimationController(new HybridAnimationController(this, FP_ARM_MISC_CONTROLLER, 0, new EmptyPredicate()));
         for (int i = 0; i < 8; i++) {
             String controllerName = FP_ARM_PARALLEL_CONTROLLER + i;
             String animationName = String.format("parallel%d", i);
@@ -52,6 +54,11 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
             return true;
         }
         return super.prepareForUpdate();
+    }
+
+    @Override
+    public @Nullable AnimationControllerData getAnimationControllerData(String animationControllerName) {
+        return getModelContainer().playerModel().animationControllers().get(animationControllerName);
     }
 
     @Override
