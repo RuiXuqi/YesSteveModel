@@ -98,6 +98,7 @@ public class CtrlBinding extends ContextBinding {
         constValue("hold_on_last_frame", HOLD_ON_LAST_FRAME);
 
         function("set_animation", new SetAnimation());
+        function("set_beginning_transition_length", new SetBeginningTransitionLength());
         function("reset", new ResetController());
         function("indicate_reload", new IndicateReload());
     }
