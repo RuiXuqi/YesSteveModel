@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.util.InputCheckUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -29,7 +30,10 @@ public class PlayerModelScreenKey {
 
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.Key event) {
-        if (PLAYER_MODEL_KEY.isDown()) {
+        if (!InputCheckUtil.isInGame()) {
+            return;
+        }
+        if (event.getAction() == GLFW.GLFW_PRESS && InputCheckUtil.keyIsMatch(event, PLAYER_MODEL_KEY)) {
             if (!YesSteveModel.isAvailable()) {
                 YesSteveModel.sendUnavailableMessage();
                 return;

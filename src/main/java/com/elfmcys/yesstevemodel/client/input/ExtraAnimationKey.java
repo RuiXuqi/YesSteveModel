@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
+import com.elfmcys.yesstevemodel.util.InputCheckUtil;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
@@ -51,8 +52,12 @@ public class ExtraAnimationKey {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
+        if (!InputCheckUtil.isInGame()) {
+            return;
+        }
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
-            if (key.isDown() && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
+            if (event.getAction() == GLFW.GLFW_PRESS && InputCheckUtil.keyIsMatch(event, key)
+                && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     var model = cap.getModelContainer();
                     int index = EXTRA_ANIMATION_KEYS.indexOf(key);

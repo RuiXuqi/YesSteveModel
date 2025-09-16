@@ -163,6 +163,8 @@ public class YSMBinding extends ContextBinding {
         function("play_sound", new SoundFunction.Play());
         function("stop_sound", new SoundFunction.Stop());
         function("stop_all_sounds", new SoundFunction.StopAll());
+        function("keyboard", new InputCheck.Keyboard());
+        function("mouse", new InputCheck.Mouse());
         function("sync", new Sync());
 
         projectileVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));

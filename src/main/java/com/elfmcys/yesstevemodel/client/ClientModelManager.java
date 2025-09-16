@@ -1,7 +1,10 @@
 package com.elfmcys.yesstevemodel.client;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.client.model.*;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
+import com.elfmcys.yesstevemodel.client.model.ClientModelBuilder;
+import com.elfmcys.yesstevemodel.client.model.ClientModelSyncListener;
+import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
 import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -322,6 +325,14 @@ public class ClientModelManager {
         MODELS = models;
         invokeListener(listener ->
                 listener.onNewModelLoaded(models, modelPath, newModelPair.getLeft()));
+    }
+
+    public static int getNewModelQueueSize() {
+        return NEW_MODEL_QUEUE.size();
+    }
+
+    public static int getRemovedTextureQueueSize() {
+        return REMOVED_TEXTURE_QUEUE.size();
     }
 
     public static class SyncState {

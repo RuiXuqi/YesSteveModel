@@ -6,6 +6,7 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClient
 import com.elfmcys.yesstevemodel.client.gui.AnimationRouletteScreen;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.util.InputCheckUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -38,7 +39,10 @@ public class AnimationRouletteKey {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        if (event.getAction() == GLFW.GLFW_PRESS && ANIMATION_ROULETTE_KEY.matches(event.getKey(), event.getScanCode())
+        if (!InputCheckUtil.isInGame()) {
+            return;
+        }
+        if (event.getAction() == GLFW.GLFW_PRESS && InputCheckUtil.keyIsMatch(event, ANIMATION_ROULETTE_KEY)
             && (!NetworkHandler.isRemoteChannelPresent() || ServerConfig.CAN_SWITCH_MODEL.get())) {
             if (TlmClientCompat.pointToMaid()) {
                 TlmClientCompat.onRouletteMainKeyPressed();

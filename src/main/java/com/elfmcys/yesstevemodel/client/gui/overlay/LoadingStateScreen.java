@@ -13,6 +13,24 @@ public class LoadingStateScreen implements IGuiOverlay {
     public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
         var state = ClientModelManager.getSyncState();
         if (state.getType() == ClientModelManager.SyncStateType.IDLE) {
+            int removedTextureQueueSize = ClientModelManager.getRemovedTextureQueueSize();
+            int newModelQueueSize = ClientModelManager.getNewModelQueueSize();
+
+            if (removedTextureQueueSize > 0) {
+                MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title")
+                        .append(Component.translatable("gui.yes_steve_model.sync_hint.clearing", removedTextureQueueSize)
+                                .withStyle(ChatFormatting.RED));
+                int x = screenWidth / 2;
+                int y = 10;
+                guiGraphics.drawCenteredString(gui.getFont(), text, x, y, 0xFFFFFF);
+            } else if (newModelQueueSize > 0) {
+                MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title")
+                        .append(Component.translatable("gui.yes_steve_model.sync_hint.loading_models", newModelQueueSize)
+                                .withStyle(ChatFormatting.YELLOW));
+                int x = screenWidth / 2;
+                int y = 10;
+                guiGraphics.drawCenteredString(gui.getFont(), text, x, y, 0xFFFFFF);
+            }
             return;
         }
 

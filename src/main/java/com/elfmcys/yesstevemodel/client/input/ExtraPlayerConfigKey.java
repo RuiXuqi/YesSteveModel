@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.input;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.gui.ExtraPlayerConfigScreen;
+import com.elfmcys.yesstevemodel.util.InputCheckUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -27,7 +28,10 @@ public class ExtraPlayerConfigKey {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        if (EXTRA_PLAYER_RENDER_KEY.isDown()) {
+        if (!InputCheckUtil.isInGame()) {
+            return;
+        }
+        if (event.getAction() == GLFW.GLFW_PRESS && InputCheckUtil.keyIsMatch(event, EXTRA_PLAYER_RENDER_KEY)) {
             Minecraft.getInstance().setScreen(new ExtraPlayerConfigScreen());
         }
     }

@@ -44,6 +44,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
@@ -112,11 +113,27 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             }
             String packPath = ModelIdUtil.splitModelPath(k).right();
             if (StringUtils.isNotBlank(packPath)) {
-                String packName = ModelIdUtil.getLastFolderName(packPath);
-                allPacks.putIfAbsent(packPath, new ModelPackInfo(packPath, packName, StringUtils.EMPTY, null, null));
+                splitFolderPath(packPath, this.allPacks);
             }
         });
         return packModels;
+    }
+
+    private static void splitFolderPath(String path, Map<String, ModelPackInfo> allPacks) {
+        if (StringUtils.isBlank(path) || !path.contains("/")) {
+            return;
+        }
+        String[] parts = path.split("/");
+        StringBuilder current = new StringBuilder();
+        for (String part : parts) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            current.append(part).append("/");
+            String packPath = current.toString();
+            String packName = ModelIdUtil.getLastFolderName(packPath);
+            allPacks.putIfAbsent(packPath, new ModelPackInfo(packPath, packName, StringUtils.EMPTY, null, null));
+        }
     }
 
     private Map<String, ModelPackInfo> getPackInfos() {
@@ -221,7 +238,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
 
     // path: 当前目录（如 "" 或 "dir1/dir2/"）
-    // candidate: 备选目录（如 "dir1/", "dir1/dir2/dir3/"）
+    // candidate: 备选目录（如 "dir1/", "dir1/dir2/dir3/", "dir1/dir2/dir3/dir4/dir5/"）
     private boolean shouldKeep(String path, String candidate) {
         if (path.equals(candidate)) {
             return false;
@@ -395,11 +412,8 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
         // 添加返回按钮
         if (StringUtils.isNotBlank(pack)) {
-            addRenderableWidget(new FlatIconButton(x + 110, y + 27, 20, 20, 0, 32, (b) -> {
-                pack = this.getParentPath(pack);
-                page = 0;
-                this.init();
-            }).setTooltips("gui.back"));
+            addRenderableWidget(new FlatIconButton(x + 110, y + 27, 20, 20, 0, 32, b -> this.backToParent())
+                    .setTooltips("gui.back"));
         }
 
         addRenderableWidget(new FlatIconButton(x + 328, y + 5, 18, 18, 32, 0, (b) -> {
@@ -527,6 +541,14 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                 .forEach(r -> ((ModelButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
         this.renderables.stream().filter(r -> r instanceof PackButton)
                 .forEach(r -> ((PackButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
+
+        if (this.textField.isHovered()) {
+            Component tip = Component.translatable("gui.yes_steve_model.search.tip").withStyle(ChatFormatting.GRAY);
+            graphics.pose().pushPose();
+            graphics.pose().translate(0f, 0f, 4000);
+            graphics.renderTooltip(font, font.split(tip, 320), mouseX, mouseY);
+            graphics.pose().popPose();
+        }
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -620,7 +642,15 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         } else if (this.textField.isFocused()) {
             this.textField.setFocused(false);
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        boolean result = super.mouseClicked(mouseX, mouseY, button);
+        // 最后判断鼠标右键，返回上一级
+        if (!result && button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && StringUtils.isNotBlank(pack)) {
+            SimpleSoundInstance sound = SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F);
+            Minecraft.getInstance().getSoundManager().play(sound);
+            this.backToParent();
+            result = true;
+        }
+        return result;
     }
 
     @Override
@@ -692,6 +722,15 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         boolean isInWidthRange = (x + 143) < mouseX && mouseX < (x + 430);
         boolean isInHeightRange = (y + 25) < mouseY && mouseY < (y + 235);
         return isInWidthRange && isInHeightRange;
+    }
+
+    private void backToParent() {
+        String parentPath = this.getParentPath(pack);
+        if (!pack.equals(parentPath)) {
+            pack = parentPath;
+            page = 0;
+            this.init();
+        }
     }
 
     private boolean scrollPage(double delta) {

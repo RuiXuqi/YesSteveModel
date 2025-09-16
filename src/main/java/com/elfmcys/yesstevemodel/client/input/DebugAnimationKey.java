@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.input;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.util.InputCheckUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -30,7 +31,10 @@ public class DebugAnimationKey {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        if (DEBUG_ANIMATION_KEY.isDown()) {
+        if (!InputCheckUtil.isInGame()) {
+            return;
+        }
+        if (event.getAction() == GLFW.GLFW_PRESS && InputCheckUtil.keyIsMatch(event, DEBUG_ANIMATION_KEY)) {
             switch (TYPE) {
                 case NONE:
                     TYPE = DebugType.CUSTOM;
