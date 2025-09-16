@@ -47,4 +47,9 @@ public class NativeUtil {
     public static UUID getLocalPlayerId() {
         return Minecraft.getInstance().getUser().getProfileId();
     }
+
+    // Native Access
+    public static int getAvailableCpuCoreCount() {
+        return Runtime.getRuntime().availableProcessors();
+    }
 }
