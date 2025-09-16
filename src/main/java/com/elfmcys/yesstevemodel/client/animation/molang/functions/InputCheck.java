@@ -15,7 +15,10 @@ public class InputCheck {
                 return false;
             }
             int keyCode = arguments.getAsInt(context, 0);
-            return GLFW.glfwGetKey(GLFW.glfwGetCurrentContext(), keyCode) == GLFW.GLFW_PRESS;
+            if (GLFW.GLFW_KEY_SPACE <= keyCode && keyCode <= GLFW.GLFW_KEY_LAST) {
+                return GLFW.glfwGetKey(GLFW.glfwGetCurrentContext(), keyCode) == GLFW.GLFW_PRESS;
+            }
+            return false;
         }
 
         @Override
@@ -31,7 +34,10 @@ public class InputCheck {
                 return false;
             }
             int button = arguments.getAsInt(context, 0);
-            return GLFW.glfwGetMouseButton(GLFW.glfwGetCurrentContext(), button) == GLFW.GLFW_PRESS;
+            if (GLFW.GLFW_MOUSE_BUTTON_1 <= button && button <= GLFW.GLFW_MOUSE_BUTTON_LAST) {
+                return GLFW.glfwGetMouseButton(GLFW.glfwGetCurrentContext(), button) == GLFW.GLFW_PRESS;
+            }
+            return false;
         }
 
         @Override
