@@ -305,7 +305,7 @@
   "error.yes_steve_model.read_file": "無法讀取檔案 %s",
   "error.yes_steve_model.write_file": "無法寫入檔案 %s",
   "error.yes_steve_model.decode_texture": "無法解析材質檔案 %s",
-  "error.yes_steve_model.texture_too_large": "材質檔案寬高不能大於 ",
+  "error.yes_steve_model.texture_too_large": "材質檔案寬高不能大於 %s",
   "error.yes_steve_model.parse_ysm_model": "無法解析ysm模型檔案 %s",
   "error.yes_steve_model.parse_geo_model": "無法解析模型檔案 %s",
   "error.yes_steve_model.parse_animation": "無法解析動畫檔案 %s",

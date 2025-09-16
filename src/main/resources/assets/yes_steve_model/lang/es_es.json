@@ -207,7 +207,7 @@
   "error.yes_steve_model.read_file": "Error al leer el archivo %s",
   "error.yes_steve_model.write_file": "Error al escribir el archivo %s",
   "error.yes_steve_model.decode_texture": "Error al decodificar el archivo de textura %s",
-  "error.yes_steve_model.texture_too_large": "Texture width and height must be smaller than ",
+  "error.yes_steve_model.texture_too_large": "Texture size must be smaller than %s",
   "error.yes_steve_model.empty_model": "Modelo vacío",
   "commands.yes_steve_model.auth_model.remove.info": "Eliminar el modelo '%1$s' del jugador '%2$s'",
   "commands.yes_steve_model.auth_model.clear.info": "Remover todos los modelos del jugador '%s'",

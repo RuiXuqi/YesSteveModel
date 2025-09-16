@@ -16,5 +16,5 @@
   "gui.yes_steve_model.config.disable_player_render": "Désactiver le rendu supplémentaire du joueur",
   "gui.yes_steve_model.disclaimer.read": "J'ai lu et j'accepte les conditions d'utilisation",
   "gui.yes_steve_model.disclaimer.close": "Fermer",
-  "error.yes_steve_model.texture_too_large": "Texture width and height must be smaller than "
+  "error.yes_steve_model.texture_too_large": "Texture size must be smaller than %s"
 }
