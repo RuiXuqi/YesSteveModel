@@ -24,12 +24,24 @@ public class LoadingStateScreen implements IGuiOverlay {
                 int y = 10;
                 guiGraphics.drawCenteredString(gui.getFont(), text, x, y, 0xFFFFFF);
             } else if (newModelQueueSize > 0) {
+                int loadedModelSize = ClientModelManager.getModels().size();
+                int totalModelSize = loadedModelSize + newModelQueueSize;
+
                 MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title")
-                        .append(Component.translatable("gui.yes_steve_model.sync_hint.loading_models", newModelQueueSize)
+                        .append(Component.translatable("gui.yes_steve_model.sync_hint.loading_models", newModelQueueSize, totalModelSize)
                                 .withStyle(ChatFormatting.YELLOW));
                 int x = screenWidth / 2;
                 int y = 10;
                 guiGraphics.drawCenteredString(gui.getFont(), text, x, y, 0xFFFFFF);
+
+                // 渲染一个 150 长度的进度条
+                int barWidth = 150;
+                int barHeight = 10;
+                int barX = (screenWidth - barWidth) / 2;
+                int barY = 22;
+                float progress = (float) loadedModelSize / totalModelSize;
+                guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
+                guiGraphics.fill(barX, barY, barX + (int) (barWidth * progress), barY + barHeight, 0xFFFFFF00);
             }
             return;
         }

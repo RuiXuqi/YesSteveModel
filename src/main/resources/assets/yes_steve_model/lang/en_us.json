@@ -40,7 +40,7 @@
   "gui.yes_steve_model.sync_hint.preparing": "Preparing",
   "gui.yes_steve_model.sync_hint.syncing": "Syncing",
   "gui.yes_steve_model.sync_hint.clearing": "Clearing Textures: %d",
-  "gui.yes_steve_model.sync_hint.loading_models": "Loading Models: %d",
+  "gui.yes_steve_model.sync_hint.loading_models": "Loading Models: %d/%d",
   "gui.yes_steve_model.config.disable_self_model": "Prevents rendering of self player's model",
   "gui.yes_steve_model.config.disable_other_model": "Prevents rendering of other player's model",
   "gui.yes_steve_model.config.print_animation_roulette_msg": "Whether to print animation roulette play message",

@@ -40,7 +40,7 @@
   "gui.yes_steve_model.sync_hint.preparing": "准备中",
   "gui.yes_steve_model.sync_hint.syncing": "同步中",
   "gui.yes_steve_model.sync_hint.clearing": "清除材质：%d",
-  "gui.yes_steve_model.sync_hint.loading_models": "加载模型：%d",
+  "gui.yes_steve_model.sync_hint.loading_models": "加载模型：%d/%d",
   "gui.yes_steve_model.config.disable_self_model": "阻止渲染自身玩家模型",
   "gui.yes_steve_model.config.disable_other_model": "阻止渲染其他玩家模型",
   "gui.yes_steve_model.config.print_animation_roulette_msg": "是否显示轮盘动画播放信息",
