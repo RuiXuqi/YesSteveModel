@@ -318,7 +318,6 @@
   "error.yes_steve_model.read_file": "ファイルの読み込みに失敗しました: %s",
   "error.yes_steve_model.write_file": "ファイルの書き込みに失敗しました: %s",
   "error.yes_steve_model.decode_texture": "テクスチャファイルのデコードに失敗しました: %s",
-  "error.yes_steve_model.texture_too_large": "テクスチャの幅と高さは4096未満である必要があります",
   "error.yes_steve_model.parse_ysm_model": "YSMモデルファイルの解析に失敗しました: %s",
   "error.yes_steve_model.parse_geo_model": "モデルファイルの解析に失敗しました: %s",
   "error.yes_steve_model.parse_animation": "アニメーションファイルの解析に失敗しました: %s",

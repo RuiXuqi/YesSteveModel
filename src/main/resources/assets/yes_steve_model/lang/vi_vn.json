@@ -318,7 +318,7 @@
   "error.yes_steve_model.read_file": "Không đọc được tệp %s",
   "error.yes_steve_model.write_file": "Không ghi được tệp %s",
   "error.yes_steve_model.decode_texture": "Không giải mã được tệp tin kết cấu %s",
-  "error.yes_steve_model.texture_too_large": "Chiều dài và chiều rộng của kết cấu phải nhỏ hơn 4096",
+  "error.yes_steve_model.texture_too_large": "Chiều dài và chiều rộng của kết cấu phải nhỏ hơn ",
   "error.yes_steve_model.parse_ysm_model": "Không thể phân tích tệp model ysm %s",
   "error.yes_steve_model.parse_geo_model": "Không thể phân tích tệp model %s",
   "error.yes_steve_model.parse_animation": "Không thể phân tích tệp hoạt ảnh %s",

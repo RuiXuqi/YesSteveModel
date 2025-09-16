@@ -10,7 +10,7 @@
       {
         "name": "星屑海螺",
         "role": "动画",
-        "avatar": "avatar/星屑海螺.png",
+        "avatar": "avatar/星屑海螺.avif",
         "contact": {
           "qq": "741330261"
         },
@@ -19,13 +19,13 @@
       {
         "name": "雒仁",
         "role": "模型",
-        "avatar": "avatar/雒仁.png",
+        "avatar": "avatar/雒仁.avif",
         "comment": "doro doro"
       },
       {
         "name": "纸板",
         "role": "模型",
-        "avatar": "avatar/zb.png",
+        "avatar": "avatar/zb.avif",
         "contact": {
           "qq": "1535492940"
         },
@@ -34,7 +34,7 @@
       {
         "name": "白帆小喵",
         "role": "纹理",
-        "avatar": "avatar/白帆小喵.png",
+        "avatar": "avatar/白帆小喵.avif",
         "comment": "meow"
       }
     ],

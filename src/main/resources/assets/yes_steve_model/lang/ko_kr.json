@@ -318,7 +318,6 @@
   "error.yes_steve_model.read_file": "파일 %s 읽기에 실패했습니다.",
   "error.yes_steve_model.write_file": "파일 %s 을(를) 쓰지 못했습니다...",
   "error.yes_steve_model.decode_texture": "텍스쳐 파일 %s 을(를) 읽는데 실패했습니다.",
-  "error.yes_steve_model.texture_too_large": "텍스처의 높이와 너비는 4096픽셀보다 작아야 합니다",
   "error.yes_steve_model.parse_ysm_model": "Ysm 모델 파일 %s 을(를) 읽어오는데 실패했습니다",
   "error.yes_steve_model.parse_geo_model": "모델 파일 %s 을(를) 읽어오는데 실패했습니다",
   "error.yes_steve_model.parse_animation": "애니메이션 파일 %s 을(를) 읽어오는데 실패했습니다",

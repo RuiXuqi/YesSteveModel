@@ -318,7 +318,7 @@
   "error.yes_steve_model.read_file": "Не удалось прочитать файл %s",
   "error.yes_steve_model.write_file": "Не удалось записать файл %s",
   "error.yes_steve_model.decode_texture": "Не удалось декодировать файл текстуры %s",
-  "error.yes_steve_model.texture_too_large": "Ширина и высота текстуры должна быть меньше 4096",
+  "error.yes_steve_model.texture_too_large": "Ширина и высота текстуры должна быть меньше ",
   "error.yes_steve_model.parse_ysm_model": "Не удалось проанализировать файл модели ysm %s",
   "error.yes_steve_model.parse_geo_model": "Не удалось проанализировать файл модели %s",
   "error.yes_steve_model.parse_animation": "Не удалось проанализировать файл анимации %s",
