@@ -48,6 +48,8 @@
   "gui.yes_steve_model.config.disable_player_render": "Disable extra player render",
   "gui.yes_steve_model.config.disable_projectile_model": "Prevents rendering of projectile model",
   "gui.yes_steve_model.config.disable_vehicle_model": "Prevents rendering of vehicle model",
+  "gui.yes_steve_model.config.disable_loading_state_screen": "Disable loading state screen",
+  "gui.yes_steve_model.config.loading_state_position": "Loading state screen position",
   "gui.yes_steve_model.config.use_compatibility_renderer": "Use compatibility renderer",
   "gui.yes_steve_model.config.sound_volume": "Animation Sound Volume: ",
   "gui.yes_steve_model.disclaimer.text": "Thank you for using the mod, please be sure to read the relevant terms carefully and agree to the terms:\n\n\n1. The download and use of the mod is completely free, and the confidentiality of the model is not guaranteed in any form\n\n2. The dev team does not participate in the relevant model transactions, please bear the responsibility for the transaction disputes arising\n\n3. The creator enjoys the copyright of the model created, and also bears corresponding responsibilities, which has nothing to do with the dev team\n\n4. Please do not create any models that violate laws and regulations. This production team is also opposed to any form of R18/NSFW content creation! We have never participated in any related content creation!",

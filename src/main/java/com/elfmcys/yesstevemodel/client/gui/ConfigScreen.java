@@ -2,8 +2,10 @@ package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.client.gui.button.ConfigCheckBox;
 import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
-import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
+import com.elfmcys.yesstevemodel.client.gui.button.PositionButton;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
+import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
+import com.elfmcys.yesstevemodel.config.LoadingStateScreenConfig;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -22,7 +24,7 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         int x = (width - 420) / 2;
-        int y = (height - 235) / 2;
+        int y = (height - 265) / 2;
 
         addRenderableWidget(new FlatColorButton(x + 5, y + 2, 80, 18, Component.translatable("gui.yes_steve_model.model.return"), (b) -> this.getMinecraft().setScreen(parent)));
 
@@ -41,7 +43,10 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 133, "disable_player_render", ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 155, "disable_projectile_model", ClientConfig.DISABLE_PROJECTILE_MODEL));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 177, "disable_vehicle_model", ClientConfig.DISABLE_VEHICLE_MODEL));
-        addRenderableWidget(new ConfigCheckBox(x + 5, y + 199, "use_compatibility_renderer", ClientConfig.USE_COMPATIBILITY_RENDERER));
+        addRenderableWidget(new ConfigCheckBox(x + 5, y + 199, "disable_loading_state_screen", LoadingStateScreenConfig.DISABLE_LOADING_STATE_SCREEN));
+        addRenderableWidget(new ConfigCheckBox(x + 5, y + 221, "use_compatibility_renderer", ClientConfig.USE_COMPATIBILITY_RENDERER));
+
+        addRenderableWidget(new PositionButton(x + 5, y + 243));
     }
 
     @Override

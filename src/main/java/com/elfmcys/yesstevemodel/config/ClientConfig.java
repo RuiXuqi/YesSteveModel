@@ -17,6 +17,7 @@ public class ClientConfig {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         init(builder);
         ExtraPlayerScreenConfig.init(builder);
+        LoadingStateScreenConfig.init(builder);
         return builder.build();
     }
 
