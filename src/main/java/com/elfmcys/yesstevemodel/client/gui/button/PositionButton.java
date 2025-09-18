@@ -25,7 +25,6 @@ public class PositionButton extends Button {
 
     @Override
     public Component getMessage() {
-        Component.translatable("gui.yes_steve_model.config.loading_state_position");
         LoadingStateScreenConfig.Position position = LoadingStateScreenConfig.LOADING_STATE_POSITION.get();
         return Component.literal(position.name());
     }
