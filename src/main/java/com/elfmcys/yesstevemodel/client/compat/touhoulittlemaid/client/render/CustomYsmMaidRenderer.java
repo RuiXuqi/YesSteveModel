@@ -76,7 +76,7 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
                     poseStack.mulPose(Axis.YP.rotationDegrees(180 - vehicleYaw));
                     RenderUtils.prepMatrixForLocator(poseStack, bone);
                     poseStack.mulPose(Axis.YN.rotationDegrees(180 - vehicleYaw));
-                    poseStack.translate(0, -vehicle.getPassengersRidingOffset() - entity.getMyRidingOffset(), 0);
+                    poseStack.translate(0, -entity.getMyRidingOffset() - 0.5, 0);
                 });
             }
 

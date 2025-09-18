@@ -10934,9 +10934,6 @@
 				"molang": {
 					"rotation": ["v.bv=q.ground_speed>0?math.cos(2*query.anim_time*360/(24/24))*5", 0, 0]
 				},
-				"MRoot": {
-					"position": [0, -11, 0]
-				},
 				"clothe": {
 					"rotation": [-32.5, 0, 0]
 				},
@@ -14261,14 +14258,14 @@
 		"vehicle$minecraft:minecart": {
 			"loop": true,
 			"bones": {
-				"MRoot": {
-					"position": [0, -2, 0]
-				},
 				"LeftForeArm": {
 					"rotation": [-82.5, 0, 0]
 				},
 				"RightForeArm": {
 					"rotation": [-82.5, 0, 0]
+				},
+				"Root": {
+					"position": [0, 8, 0]
 				}
 			}
 		},
@@ -14452,7 +14449,7 @@
 			"loop": true,
 			"bones": {
 				"Root": {
-					"position": [0, -11, 8]
+					"position": [0, 0, 8]
 				},
 				"UpBody": {
 					"rotation": [20, 0, 0]

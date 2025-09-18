@@ -85,7 +85,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
                 poseStack.mulPose(Axis.YP.rotationDegrees(180 - vehicleYaw));
                 RenderUtils.prepMatrixForLocator(poseStack, bone);
                 poseStack.mulPose(Axis.YN.rotationDegrees(180 - vehicleYaw));
-                poseStack.translate(0, -vehicle.getPassengersRidingOffset() - player.getMyRidingOffset(), 0);
+                poseStack.translate(0, -vehicle.getPassengersRidingOffset() - player.getMyRidingOffset() - 0.5, 0);
             });
         }
 
