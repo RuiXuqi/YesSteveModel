@@ -14,7 +14,8 @@ import java.util.Locale;
 
 public class MolangUtils {
     private static final HashMap<String, EquipmentSlot> SLOT_MAP;
-    private static final int MAX_RELATIVE_BLOCK_POS = 8;
+    // 改成 -5 ~ 5 之间，防止有人传入过大的值有人用此做矿透
+    private static final int MAX_RELATIVE_BLOCK_POS = 5;
 
     static {
         SLOT_MAP = new HashMap<>();
