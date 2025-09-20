@@ -8,24 +8,13 @@
     },
     "authors": [
       {
-        "name": "哥斯拉",
+        "name": "伊蕾娜家的咸鱼",
         "role": "模型",
-        "avatar": "avatar/gsl.png",
+        "avatar": "avatar/xy.png",
+        "comment": "幸福往往是摸得透彻，而敬业的心却常常隐藏",
         "contact": {
-          "Afdian": "https://afdian.com/a/6TGESILA",
-          "Bilibili": "https://space.bilibili.com/17798027"
-        },
-        "comment": "一个MC模型/YSM作者，想法很多，时间很少"
-      },
-      {
-        "name": "星屑海螺",
-        "role": "动画",
-        "avatar": "avatar/hl.png",
-        "contact": {
-          "Afdian": "https://afdian.com/a/lucia2048",
-          "Bilibili": "https://space.bilibili.com/14975572"
-        },
-        "comment": "漂泊于群星之中"
+          "Bilibili": "https://space.bilibili.com/20682514"
+        }
       },
       {
         "name": "浅陌菌",
@@ -37,13 +26,14 @@
         }
       },
       {
-        "name": "伊蕾娜家的咸鱼",
-        "role": "模型",
-        "avatar": "avatar/xy.png",
-        "comment": "幸福往往是摸得透彻，而敬业的心却常常隐藏",
+        "name": "星屑海螺",
+        "role": "动画",
+        "avatar": "avatar/hl.png",
         "contact": {
-          "Bilibili": "https://space.bilibili.com/20682514"
-        }
+          "Afdian": "https://afdian.com/a/lucia2048",
+          "Bilibili": "https://space.bilibili.com/14975572"
+        },
+        "comment": "漂泊于群星之中"
       },
       {
         "name": "墨染逝羽",

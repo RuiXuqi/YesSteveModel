@@ -15,6 +15,15 @@
           "Bilibili": "https://space.bilibili.com/66634439"
         },
         "comment": "繁星凝望着海洋，海洋拥抱着风帆。"
+      },
+      {
+        "name": "伊蕾娜教代行教皇",
+        "role": "帽子模型",
+        "avatar": "avatar/yll.jpg",
+        "contact": {
+          "Bilibili": "https://space.bilibili.com/519088494"
+        },
+        "comment": "OwO"
       }
     ],
     "link": {
@@ -84,12 +93,16 @@
       "texture": [
         {
           "uv": "textures/skin_spell.png"
-        },
-        {
+        }, {
           "uv": "textures/skin_fox.png"
-        },
-        {
+        }, {
           "uv": "textures/skin_ice.png"
+        }, {
+          "uv": "textures/skin_blood.png"
+        }, {
+          "uv": "textures/skin_flower.png"
+        }, {
+          "uv": "textures/skin_water.png"
         }
       ]
     },

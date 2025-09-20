@@ -9,23 +9,12 @@
     "authors": [
       {
         "name": "就叫纸板",
-        "role": "模型作者和上色",
+        "role": "模型",
         "avatar": "avatar/zb.avif",
         "contact": {
-          "donate": "https://afdian.com/a/lucia2048",
           "Bilibili": "https://space.bilibili.com/29208164"
         },
         "comment": "杂鱼~杂鱼~"
-      },
-      {
-        "name": "哥斯拉",
-        "role": "模型",
-        "avatar": "avatar/gsl.png",
-        "contact": {
-          "Afdian": "https://afdian.com/a/6TGESILA",
-          "Bilibili": "https://space.bilibili.com/17798027"
-        },
-        "comment": "一个MC模型/YSM作者，想法很多，时间很少"
       },
       {
         "name": "星屑海螺",
@@ -36,24 +25,6 @@
           "Bilibili": "https://space.bilibili.com/14975572"
         },
         "comment": "漂泊于群星之中"
-      },
-      {
-        "name": "浅陌菌",
-        "role": "模型",
-        "avatar": "avatar/nico.png",
-        "comment": "最美好的前途，可不要对我冷酷",
-        "contact": {
-          "Bilibili": "https://space.bilibili.com/14975572"
-        }
-      },
-      {
-        "name": "祸御神",
-        "role": "动画",
-        "avatar": "avatar/hys.png",
-        "comment": "五十代精神病人",
-        "contact": {
-          "Bilibili": "https://space.bilibili.com/164557734"
-        }
       }
     ],
     "link": {

@@ -9,8 +9,8 @@
 		},
 		"authors": [
 			{
-				"name": "哥斯拉",
-				"avatar": "avatars/gsl.png",
+				"name": "完全冻结",
+				"avatar": "avatars/af.avif",
 				"role": "模型"
 			},
 			{
@@ -19,14 +19,14 @@
 				"role": "动画"
 			},
 			{
-				"name": "祸御神",
-				"avatar": "avatars/hys.png",
-				"role": "gui动画"
+				"name": "哥斯拉（映素团队）",
+				"avatar": "avatars/gsl.png",
+				"role": "模型修改"
 			},
 			{
-				"name": "完全冻结",
-				"avatar": "avatars/af.avif",
-				"role": "模型"
+				"name": "祸御神",
+				"avatar": "avatars/hys.png",
+				"role": "GUI 动画"
 			}
 		],
 		"link": {
