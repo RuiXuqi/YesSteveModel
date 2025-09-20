@@ -4,8 +4,8 @@ import com.atsuishio.superbwarfare.api.event.RenderPlayerArmEvent;
 import com.atsuishio.superbwarfare.client.renderer.CustomGunRenderer;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.renderer.CustomFirstPersonArmRenderer;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
@@ -58,9 +58,9 @@ public class ReplacePlayerArmRender {
             }
 
             if (useOldHandRender) {
-                poseStack.translate((bone.getPivotX() + 1) / 16f, (bone.getPivotY() - 2) / 16f, bone.getPivotZ() / 16f);
+                poseStack.translate((bone.getPivotX() - 1) / 16f, (bone.getPivotY() - 2) / 16f, bone.getPivotZ() / 16f);
             } else {
-                poseStack.translate((bone.getPivotX() + 1) / 16f, (bone.getPivotY() + 7) / 16f, bone.getPivotZ() / 16f);
+                poseStack.translate(bone.getPivotX() / 16f, (bone.getPivotY() + 7) / 16f, bone.getPivotZ() / 16f);
                 poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             }
