@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.info.ModelInfo;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -14,10 +15,10 @@ public class ClientModel {
 
     private final ModelInfo modelInfo;
     private final ClientModelInfo clientModelInfo;
-    private final List<ResourceLocation> registeredTextureIds;
+    private final List<AbstractTexture> registeredTextureIds;
 
     public ClientModel(PlayerModel playerModel, Map<ResourceLocation, ProjectileModel> projectileModels, Map<ResourceLocation, VehicleModel> vehicleModels,
-                       CommonAsset assets, ModelInfo modelInfo, ClientModelInfo clientModelInfo, List<ResourceLocation> registeredTextureIds) {
+                       CommonAsset assets, ModelInfo modelInfo, ClientModelInfo clientModelInfo, List<AbstractTexture> registeredTextureIds) {
         this.playerModel = playerModel;
         this.projectileModels = projectileModels;
         this.vehicleModels = vehicleModels;
@@ -31,7 +32,7 @@ public class ClientModel {
         return playerModel;
     }
 
-    public List<ResourceLocation> registeredTextureIds() {
+    public List<AbstractTexture> registeredTextureIds() {
         return registeredTextureIds;
     }
 

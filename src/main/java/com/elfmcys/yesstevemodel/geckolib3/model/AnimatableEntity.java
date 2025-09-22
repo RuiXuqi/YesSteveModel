@@ -64,15 +64,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      */
     protected Map<String, AnimationState> codedAnimationStates = Maps.newHashMap();
 
-    protected AnimatableEntity(TEntity entity, boolean asyncUpdate) {
+    protected AnimatableEntity(TEntity entity) {
         this.entity = entity;
         this.animationProcessor = new AnimationProcessor<>(this);
         this.rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
         this.stateTracker = createStateTracker(entity);
         this.physicsManager = new PhysicsManager();
-        if (asyncUpdate) {
-            AnimationParallelTicker.register(this);
-        }
     }
 
     protected EntityStateTracker<TEntity> createStateTracker(TEntity entity) {
@@ -226,10 +223,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         }
     }
 
-    protected boolean prepareForUpdate() {
-        return true;
-    }
-
     /**
      * 获取当前正在使用的模型
      */
@@ -261,7 +254,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         waitForAsyncUpdate();
         UnsafeUtil.getUnsafe().storeFence();
         task = ThreadTools.submit(() -> {
-            UnsafeUtil.getUnsafe().loadFence();
             try {
                 return performUpdate(partialTicks);
             } finally {
@@ -301,7 +293,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     @Nullable
     protected AnimationEvent<?> performUpdate(float partialTicks) {
-        if (!prepareForUpdate() || this.currentModel == null) {
+        if (this.currentModel == null) {
             return null;
         }
         final Entity entity = this.entity;

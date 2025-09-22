@@ -3,10 +3,13 @@ package com.elfmcys.yesstevemodel.client.entity;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.VehicleModel;
+import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
+import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -46,8 +49,13 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     }
 
     @Override
-    protected boolean prepareForUpdate() {
-        return super.prepareForUpdate() && vehicleModel != null;
+    @SuppressWarnings("deprecation")
+    protected @Nullable ResourceHolder createResourceHolder(ClientModel model) {
+        var vehicleModel = model.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
+        if (vehicleModel != null) {
+            return new VehicleResourceHolder(model, vehicleModel);
+        }
+        return null;
     }
 
     /**
@@ -55,9 +63,8 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
         vehicleModel = isFallback ? null : newModel.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
-        return vehicleModel != null;
     }
 
     @Override
@@ -68,7 +75,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     @Override
     @NotNull
     public ResourceLocation getTextureLocation() {
-        return vehicleModel.texture();
+        return ((VehicleResourceHolder) getResourceHolder()).textureHolder.getId().orElseGet(MissingTextureAtlasSprite::getLocation);
     }
 
     @Override
@@ -83,7 +90,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
 
     @Override
     public boolean isModelPresent() {
-        return super.isModelPresent() && vehicleModel != null;
+        return super.isModelPresent() && vehicleModel != null && getResourceHolder().isLoaded();
     }
 
     @Override
@@ -94,5 +101,19 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     @Override
     public float getHeightScale() {
         return 0.7F;
+    }
+
+    private static class VehicleResourceHolder extends ResourceHolder {
+        private final TextureHolder textureHolder;
+
+        protected VehicleResourceHolder(ClientModel model, VehicleModel vehicleModel) {
+            super(model);
+            textureHolder = CustomTextureManager.register(vehicleModel.texture(), true);
+        }
+
+        @Override
+        public boolean isLoaded() {
+            return textureHolder.getId().isPresent();
+        }
     }
 }

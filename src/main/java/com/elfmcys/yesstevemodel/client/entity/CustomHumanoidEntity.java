@@ -1,8 +1,11 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
+import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
+import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -11,18 +14,21 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 使用玩家模型的实体
  */
 public abstract class CustomHumanoidEntity<T extends LivingEntity> extends CustomEntity<T> {
     private String textureName;
-    private ResourceLocation textureLocation;
     private int textureIndex;
 
     private final Vector2f headRot = new Vector2f();
@@ -86,21 +92,22 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     public void updateTextureName(String textureName) {
+        waitForAsyncUpdate();
         this.textureName = textureName;
         updateTexture();
     }
 
     public void updateModelAndTexture(String modelId, String textureName) {
         setInitialized();
+        waitForAsyncUpdate();
         this.textureName = textureName;
         updateModelId(modelId);
         updateTexture();
     }
 
     @Override
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
         updateTexture();
-        return true;
     }
 
     @Override
@@ -139,16 +146,17 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         return getModelContainer().playerModel().conditionManager();
     }
 
+    @SuppressWarnings("unchecked")
     private void updateTexture() {
         if (isModelPresent()) {
             var textures = getModelContainer().playerModel().textures();
             var texture = textures.get(textureName);
             if (texture != null) {
-                this.textureLocation = texture;
+                ((HumanoidResourceHolder) getResourceHolder()).setTexture(texture);
                 this.textureIndex = textures.valueList().indexOf(texture);
             } else {
                 this.textureName = textures.getKeyAt(0);
-                this.textureLocation = textures.getValueAt(0);
+                ((HumanoidResourceHolder) getResourceHolder()).setTexture(textures.getValueAt(0));
                 this.textureIndex = 0;
             }
         }
@@ -177,8 +185,9 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
 
     @Override
     @NotNull
+    @SuppressWarnings("unchecked")
     public ResourceLocation getTextureLocation() {
-        return isModelPresent() ? textureLocation : getModelContainer().playerModel().textures().getValueAt(0);
+        return isModelPresent() ? ((HumanoidResourceHolder) getResourceHolder()).textureHolder.getId().get() : ClientModelManager.getDefaultModelTextureId();
     }
 
     @Override
@@ -206,5 +215,41 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
 
     public void setTacGunAnimationNeedReload(boolean tacGunAnimationNeedReload) {
         this.tacGunAnimationNeedReload = tacGunAnimationNeedReload;
+    }
+
+    protected class HumanoidResourceHolder extends ResourceHolder {
+        public TextureHolder textureHolder;
+        private final List<TextureHolder> textureHolders;
+        private final int releaseDelay;
+
+        public HumanoidResourceHolder(ClientModel model, boolean registerAllTexture, boolean immediately, int releaseDelay) {
+            super(model);
+            var selectedTexture = model.playerModel().textures().get(textureName);
+            this.textureHolder = CustomTextureManager.register(selectedTexture != null ? selectedTexture : model.playerModel().defaultTexture(), immediately, releaseDelay);
+            this.releaseDelay = releaseDelay;
+            if (registerAllTexture) {
+                textureHolders = new ArrayList<>();
+                for (var texture : model.playerModel().textures().values()) {
+                    textureHolders.add(CustomTextureManager.register(texture, false));
+                }
+                for (var projectile : model.projectileModels().values()) {
+                    textureHolders.add(CustomTextureManager.register(projectile.texture(), false));
+                }
+                for (var vehicle : model.vehicleModels().values()) {
+                    textureHolders.add(CustomTextureManager.register(vehicle.texture(), false));
+                }
+            } else {
+                textureHolders = null;
+            }
+        }
+
+        private void setTexture(AbstractTexture texture) {
+            textureHolder = CustomTextureManager.register(texture, true, releaseDelay);
+        }
+
+        @Override
+        public boolean isLoaded() {
+            return textureHolder.getId().isPresent();
+        }
     }
 }

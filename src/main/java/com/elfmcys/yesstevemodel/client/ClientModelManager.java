@@ -6,7 +6,9 @@ import com.elfmcys.yesstevemodel.client.model.ClientModelBuilder;
 import com.elfmcys.yesstevemodel.client.model.ClientModelSyncListener;
 import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
+import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
 import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
+import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SyncDataToServer;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
@@ -14,16 +16,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.logging.log4j.message.StringFormattedMessage;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,9 +39,9 @@ public class ClientModelManager {
     private static volatile Map<String, ModelPackInfo> PACKS = new Object2ReferenceOpenHashMap<>();
 
     private static ClientModel DEFAULT_MODEL;
+    private static TextureHolder DEFAULT_TEXTURE_HOLDER;
 
-    private static final ConcurrentLinkedQueue<Triple<ClientModel, String, List<Pair<ResourceLocation, AbstractTexture>>>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
-    private static final ConcurrentLinkedQueue<ResourceLocation> REMOVED_TEXTURE_QUEUE = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<Pair<ClientModel, String>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
 
     private static final WeakHashMap<ClientModelSyncListener, Object> LISTENERS = new WeakHashMap<>();
 
@@ -68,6 +67,10 @@ public class ClientModelManager {
 
     public static ClientModel getDefaultModel() {
         return DEFAULT_MODEL;
+    }
+
+    public static ResourceLocation getDefaultModelTextureId() {
+        return DEFAULT_TEXTURE_HOLDER.getId().get();
     }
 
     // listener 以弱引用的方式存储，需要自己 hold 一个强引用防止被回收
@@ -213,7 +216,9 @@ public class ClientModelManager {
                 for (String removedModelId : removedModelIds) {
                     var removedModel = models.remove(removedModelId);
                     if (removedModel != null) {
-                        REMOVED_TEXTURE_QUEUE.addAll(removedModel.registeredTextureIds());
+                        for (var texture : removedModel.registeredTextureIds()) {
+                            CustomTextureManager.release(texture);
+                        }
                     }
                 }
             }
@@ -245,9 +250,8 @@ public class ClientModelManager {
     @SuppressWarnings("unused")
     private static void addModel(ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
         ClientModel model;
-        var textures = new ArrayList<Pair<ResourceLocation, AbstractTexture>>(4);
         try {
-            model = ClientModelBuilder.build(modelData, isDefault, isNeedAuth, textures);
+            model = ClientModelBuilder.build(modelData, isDefault, isNeedAuth);
         } catch (Exception e) {
             if (isDefault) {
                 throw e;
@@ -255,9 +259,12 @@ public class ClientModelManager {
             YesSteveModel.LOGGER.error(new StringFormattedMessage("Failed to process {}", modelPath), e);
             return;
         }
-        NEW_MODEL_QUEUE.add(new ImmutableTriple<>(model, modelPath, textures));
+        NEW_MODEL_QUEUE.add(Pair.of(model, modelPath));
         if (isDefault) {
             DEFAULT_MODEL = model;
+            Minecraft.getInstance().execute(() -> {
+                DEFAULT_TEXTURE_HOLDER = CustomTextureManager.register(model.playerModel().textures().getValueAt(0), true);
+            });
             return;
         }
 
@@ -297,42 +304,21 @@ public class ClientModelManager {
         });
     }
 
-    // 每 tick 注册或移除一个贴图，尽可能避免卡顿
     public static void tick() {
-        var removed = REMOVED_TEXTURE_QUEUE.poll();
-        if (removed != null) {
-            Minecraft.getInstance().getTextureManager().release(removed);
+        if (NEW_MODEL_QUEUE.isEmpty()) {
             return;
         }
-
-        var newModelPair = NEW_MODEL_QUEUE.peek();
-        if (newModelPair == null) {
-            return;
-        }
-
-        if (!newModelPair.getRight().isEmpty()) {
-            var textureList = newModelPair.getRight();
-            var texturePair = textureList.remove(textureList.size() - 1);
-            Minecraft.getInstance().getTextureManager().register(texturePair.getLeft(), texturePair.getRight());
-            return;
-        }
-        NEW_MODEL_QUEUE.poll();
-
         var models = new Object2ReferenceOpenHashMap<>(MODELS);
-        String modelPath = newModelPair.getMiddle();
-        models.put(modelPath, newModelPair.getLeft());
-
+        while (true) {
+            var pair = NEW_MODEL_QUEUE.poll();
+            if (pair == null) {
+                break;
+            }
+            models.put(pair.getRight(), pair.getLeft());
+        }
         MODELS = models;
         invokeListener(listener ->
-                listener.onNewModelLoaded(models, modelPath, newModelPair.getLeft()));
-    }
-
-    public static int getNewModelQueueSize() {
-        return NEW_MODEL_QUEUE.size();
-    }
-
-    public static int getRemovedTextureQueueSize() {
-        return REMOVED_TEXTURE_QUEUE.size();
+                listener.onNewModelLoaded(models));
     }
 
     public static class SyncState {

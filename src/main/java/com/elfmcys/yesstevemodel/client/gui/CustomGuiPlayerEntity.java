@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.mojang.authlib.GameProfile;
@@ -71,6 +72,11 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     @Override
     public DebugSource getDebugSource() {
         return null;
+    }
+
+    @Override
+    protected @NotNull HumanoidResourceHolder createResourceHolder(ClientModel model) {
+        return new HumanoidResourceHolder(model, false, true, 15 * 20);
     }
 
     private static class FakePlayer extends Player {

@@ -5,10 +5,13 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
 import com.elfmcys.yesstevemodel.client.animation.predicate.ProjectileMainPredicate;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.ProjectileModel;
+import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
+import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.NotNull;
@@ -38,8 +41,12 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     }
 
     @Override
-    protected boolean prepareForUpdate() {
-        return super.prepareForUpdate() && projectileModel != null;
+    protected @Nullable ResourceHolder createResourceHolder(ClientModel model) {
+        var projectileModel = model.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
+        if (projectileModel != null) {
+            return new ProjectileResourceHolder(model, projectileModel);
+        }
+        return null;
     }
 
     /**
@@ -47,9 +54,8 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
         projectileModel = isFallback ? null : newModel.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
-        return projectileModel != null;
     }
 
     @Override
@@ -60,7 +66,7 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     @Override
     @NotNull
     public ResourceLocation getTextureLocation() {
-        return projectileModel.texture();
+        return ((ProjectileResourceHolder) this.getResourceHolder()).textureHolder.getId().orElseGet(MissingTextureAtlasSprite::getLocation);
     }
 
     @Override
@@ -75,7 +81,7 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
 
     @Override
     public boolean isModelPresent() {
-        return super.isModelPresent() && projectileModel != null;
+        return super.isModelPresent() && projectileModel != null && getResourceHolder().isLoaded();
     }
 
     @Override
@@ -86,5 +92,19 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     @Override
     public float getHeightScale() {
         return 0.7F;
+    }
+
+    private static class ProjectileResourceHolder extends ResourceHolder {
+        private final TextureHolder textureHolder;
+
+        protected ProjectileResourceHolder(ClientModel model, ProjectileModel projectileModel) {
+            super(model);
+            textureHolder = CustomTextureManager.register(projectileModel.texture(), true);
+        }
+
+        @Override
+        public boolean isLoaded() {
+            return textureHolder.getId().isPresent();
+        }
     }
 }

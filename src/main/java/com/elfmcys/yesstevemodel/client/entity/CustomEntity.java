@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
 import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
@@ -19,16 +20,22 @@ import org.jetbrains.annotations.Nullable;
 public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T> {
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private ClientModel currentModelContainer;
+    private ResourceHolder resourceHolder;
     private boolean isFallback;
+    private int lastCheckUpdateTime;
 
     protected CustomEntity(T entity, boolean asyncUpdate) {
-        super(entity, asyncUpdate);
+        super(entity);
+        if (asyncUpdate) {
+            AnimationParallelTicker.register(this);
+        }
     }
 
-    @Override
-    protected boolean prepareForUpdate() {
-        checkModelContainerUpdate();
-        return true;
+    public void checkModelUpdate() {
+        if (lastCheckUpdateTime < entity.tickCount) {
+            checkModelContainerUpdate();
+            lastCheckUpdateTime = entity.tickCount;
+        }
     }
 
     public final ClientModel getModelContainer() {
@@ -36,35 +43,40 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     protected final void updateModelId(String modelId) {
+        waitForAsyncUpdate();
         this.modelId = modelId;
         checkModelContainerUpdate();
     }
 
     private void checkModelContainerUpdate() {
-        var updated = ClientModelManager.getModel(modelId).map(model -> {
-            if (isFallback || model != currentModelContainer) {
+        ClientModelManager.getModel(modelId).ifPresentOrElse(model -> {
+            if (isFallback || resourceHolder == null || model != resourceHolder.model) {
                 isFallback = false;
-                currentModelContainer = model;
-                return true;
+                resourceHolder = createResourceHolder(model);
             }
-            return false;
-        }).orElseGet(() -> {
+        }, () -> {
             var defaultModel = ClientModelManager.getDefaultModel();
-            if (!isFallback || defaultModel != currentModelContainer) {
+            if (!isFallback || resourceHolder == null || defaultModel != resourceHolder.model) {
                 isFallback = true;
-                currentModelContainer = defaultModel;
-                return true;
+                resourceHolder = createResourceHolder(defaultModel);
             }
-            return false;
         });
 
-        if (updated && onLoadModelContainer(currentModelContainer, isFallback)) {
+        if (resourceHolder != null && resourceHolder.model != currentModelContainer && resourceHolder.isLoaded()) {
+            currentModelContainer = resourceHolder.model;
+            onLoadModelContainer(currentModelContainer, isFallback);
             loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
         }
     }
 
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
-        return true;
+    @Nullable
+    protected abstract ResourceHolder createResourceHolder(ClientModel model);
+
+    protected final ResourceHolder getResourceHolder() {
+        return resourceHolder;
+    }
+
+    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
     }
 
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个
@@ -76,7 +88,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     @Override
     public boolean isModelPresent() {
-        return !isFallback;
+        return !isFallback && resourceHolder != null && resourceHolder.isLoaded();
     }
 
     @Override
@@ -97,6 +109,18 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
             return CustomDebugSource.INSTANCE;
         } else {
             return null;
+        }
+    }
+
+    protected static class ResourceHolder {
+        public final ClientModel model;
+
+        protected ResourceHolder(ClientModel model) {
+            this.model = model;
+        }
+
+        public boolean isLoaded() {
+            return true;
         }
     }
 }
