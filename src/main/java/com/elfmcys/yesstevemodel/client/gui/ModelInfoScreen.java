@@ -92,7 +92,7 @@ public class ModelInfoScreen extends Screen {
             }
             ModelAuthor author = authors.get(index);
             var avatarHolder = avatarTextures.get(index);
-            addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, model, avatarHolder != null ? avatarHolder.getId().get() : DEFAULT_AVATAR, index, this));
+            addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, model, avatarHolder != null ? avatarHolder.id().get() : DEFAULT_AVATAR, index, this));
         }
 
         addRenderableWidget(new FlatColorButton(x + 2, y + 25, 18, 100, Component.literal("<"), (b) -> {

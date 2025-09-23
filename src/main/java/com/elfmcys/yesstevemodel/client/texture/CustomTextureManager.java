@@ -144,7 +144,7 @@ public class CustomTextureManager {
         }
 
         @Override
-        public Optional<ResourceLocation> getId() {
+        public Optional<ResourceLocation> id() {
             return ready ? Optional.of(id) : Optional.empty();
         }
 

@@ -187,7 +187,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     @NotNull
     @SuppressWarnings("unchecked")
     public ResourceLocation getTextureLocation() {
-        return isModelPresent() ? ((HumanoidResourceHolder) getResourceHolder()).textureHolder.getId().get() : ClientModelManager.getDefaultModelTextureId();
+        return isModelPresent() ? ((HumanoidResourceHolder) getResourceHolder()).textureHolder.id().get() : ClientModelManager.getDefaultModelTextureId();
     }
 
     @Override
@@ -249,7 +249,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
 
         @Override
         public boolean isLoaded() {
-            return textureHolder.getId().isPresent();
+            return textureHolder.id().isPresent();
         }
     }
 }

@@ -70,7 +70,7 @@ public class ClientModelManager {
     }
 
     public static ResourceLocation getDefaultModelTextureId() {
-        return DEFAULT_TEXTURE_HOLDER.getId().get();
+        return DEFAULT_TEXTURE_HOLDER.id().get();
     }
 
     // listener 以弱引用的方式存储，需要自己 hold 一个强引用防止被回收

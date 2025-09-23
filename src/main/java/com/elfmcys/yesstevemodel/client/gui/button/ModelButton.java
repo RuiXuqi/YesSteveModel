@@ -160,7 +160,7 @@ public class ModelButton extends Button {
         if (this.background != null) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            graphics.blit(this.background.getId().get(), x, y, 0, 0, this.width, this.height, this.width, this.height);
+            graphics.blit(this.background.id().get(), x, y, 0, 0, this.width, this.height, this.width, this.height);
             RenderSystem.disableBlend();
         }
 
@@ -180,7 +180,7 @@ public class ModelButton extends Button {
         if (this.foreground != null) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            graphics.blit(this.foreground.getId().get(), x, y, z, 0, 0, this.width, this.height, this.width, this.height);
+            graphics.blit(this.foreground.id().get(), x, y, z, 0, 0, this.width, this.height, this.width, this.height);
             RenderSystem.disableBlend();
         }
 
