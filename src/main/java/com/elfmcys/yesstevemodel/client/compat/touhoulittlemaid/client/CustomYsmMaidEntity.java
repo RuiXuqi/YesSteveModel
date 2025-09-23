@@ -7,6 +7,7 @@ import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidStatuePredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
@@ -22,6 +23,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
@@ -38,6 +40,11 @@ public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implem
         super(player, asyncUpdate);
         registerControllers();
         physicsGuiManager = new PhysicsManager();
+    }
+
+    @Override
+    protected @NotNull ResourceHolder createResourceHolder(ClientModel model) {
+        return new HumanoidResourceHolder(model, true, true, 30 * 20);
     }
 
     @Override

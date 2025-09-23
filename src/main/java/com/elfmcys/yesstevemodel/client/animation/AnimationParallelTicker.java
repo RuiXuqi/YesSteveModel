@@ -1,7 +1,7 @@
 package com.elfmcys.yesstevemodel.client.animation;
 
+import com.elfmcys.yesstevemodel.client.entity.CustomEntity;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
 import java.util.Iterator;
 
 public class AnimationParallelTicker {
-    private static final ReferenceArrayList<WeakReference<AnimatableEntity<?>>> INSTANCE_LIST = new ReferenceArrayList<>(64);
+    private static final ReferenceArrayList<WeakReference<CustomEntity<?>>> INSTANCE_LIST = new ReferenceArrayList<>(64);
 
     public static void tickAll(final float partialTick) {
         final Minecraft mc = Minecraft.getInstance();
@@ -22,24 +22,26 @@ public class AnimationParallelTicker {
             return;
         }
 
-        final Iterator<WeakReference<AnimatableEntity<?>>> iterator = INSTANCE_LIST.iterator();
+        final Iterator<WeakReference<CustomEntity<?>>> iterator = INSTANCE_LIST.iterator();
         while (iterator.hasNext()) {
-            final AnimatableEntity<?> instance = iterator.next().get();
-            if (instance == null) {
+            final CustomEntity<?> animatable = iterator.next().get();
+            if (animatable == null) {
                 iterator.remove();
                 continue;
             }
-            if (!instance.isActive()) {
+            if (!animatable.isActive()) {
                 // 原版 mc 不会 revive 客户端实体，此处假设其它模组也不会；
                 // 如果出现玩家动画不更新的 bug，优先排查这里。
                 iterator.remove();
                 continue;
             }
-            if (!instance.isInitialized() || !instance.canUpdateAsync()) {
+            if (!animatable.canUpdateAsync() || !animatable.isInitialized()) {
                 continue;
             }
 
-            final Entity entity = instance.getEntity();
+            animatable.checkModelUpdate();
+
+            final Entity entity = animatable.getEntity();
             if (entity instanceof AbstractClientPlayer) {
                 if (entity instanceof LocalPlayer) {
                     if (ClientConfig.DISABLE_SELF_MODEL.get()) {
@@ -60,11 +62,11 @@ public class AnimationParallelTicker {
                 }
             }
 
-            instance.beginAsyncUpdate(partialTick);
+            animatable.beginAsyncUpdate(partialTick);
         }
     }
 
-    public static void register(AnimatableEntity<?> instance) {
+    public static void register(CustomEntity<?> instance) {
         INSTANCE_LIST.add(new WeakReference<>(instance));
     }
 }

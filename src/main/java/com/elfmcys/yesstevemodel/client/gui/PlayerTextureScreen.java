@@ -17,10 +17,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 
@@ -43,7 +43,7 @@ public class PlayerTextureScreen extends Screen {
     protected final ClientModel model;
     private final PlayerModelScreen parent;
     private final String modelId;
-    private final FifoHashMap<String, ResourceLocation> textures;
+    private final FifoHashMap<String, ? extends AbstractTexture> textures;
     private final List<String> animations;
     private String animation = "";
     private int maxTexturePage;

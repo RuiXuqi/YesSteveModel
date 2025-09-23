@@ -35,6 +35,8 @@ import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
 
 public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, CustomPlayerEntity> {
+    private ResourceLocation textureOverride;
+
     @SuppressWarnings("all")
     public CustomPlayerRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
@@ -56,8 +58,9 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
             return;
         }
 
-        var animEvent = updateAnimation(cap, partialTick);
+        cap.checkModelUpdate();
         var event = new SpecialPlayerRenderEvent(player, cap, cap.getModelId());
+        textureOverride = event.getTextureLocationOverride();
         if (MinecraftForge.EVENT_BUS.post(event)) {
             return;
         }
@@ -89,7 +92,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
             });
         }
 
-        renderAnimatableEntity(cap, animEvent, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        renderAnimatableEntity(cap, event.getTextureLocationOverride(), entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
@@ -126,7 +129,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
     @Override
     @NotNull
     public ResourceLocation getTextureLocation(Player pEntity) {
-        return pEntity.getCapability(PlayerAnimatableCapabilityProvider.CAP).map(CustomPlayerEntity::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation());
+        return textureOverride == null ? pEntity.getCapability(PlayerAnimatableCapabilityProvider.CAP).map(CustomPlayerEntity::getTextureLocation).orElse(MissingTextureAtlasSprite.getLocation()) : textureOverride;
     }
 
     @Override

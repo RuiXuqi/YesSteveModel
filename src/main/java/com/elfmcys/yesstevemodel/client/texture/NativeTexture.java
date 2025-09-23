@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 // Native access
-public class NativeTexture extends AbstractTexture {
+public class NativeTexture extends AbstractTexture implements PBRTextureSet {
     // Native access
     @SuppressWarnings("all")
     private final long nativeId;
@@ -22,7 +22,7 @@ public class NativeTexture extends AbstractTexture {
     // Native access
     public NativeTexture(long nativeId) {
         this.nativeId = nativeId;
-        CleanerUtil.ref(this, NativeTexture::free);
+        CleanerUtil.ref(this, nativeId, NativeTexture::free);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class NativeTexture extends AbstractTexture {
     private native void upload();
 
     // 不需要在 Render Thread 上调用
-    private native void free();
+    private static native void free(long id);
 
     // Native Access
     @SuppressWarnings("unused")
@@ -50,7 +50,7 @@ public class NativeTexture extends AbstractTexture {
         this.pbrTextures = Reference2ReferenceMaps.unmodifiable(new Reference2ReferenceOpenHashMap<>(pbrTextures));
     }
 
-    public Map<PBRTextureType, NativeTexture> getPBRTextures() {
+    public Map<PBRTextureType, ? extends AbstractTexture> getPBRTextures() {
         return pbrTextures;
     }
 }

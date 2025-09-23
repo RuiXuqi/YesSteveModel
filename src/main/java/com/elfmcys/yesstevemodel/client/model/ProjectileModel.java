@@ -3,7 +3,7 @@ package com.elfmcys.yesstevemodel.client.model;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 
 import java.util.Map;
 
@@ -11,9 +11,9 @@ public class ProjectileModel {
     private final GeoModel model;
     private final Map<String, Animation> animations;
     private final Map<String, AnimationControllerData> controllers;
-    private final ResourceLocation texture;
+    private final AbstractTexture texture;
 
-    public ProjectileModel(GeoModel model, Map<String, Animation> animations, Map<String, AnimationControllerData> controllers, ResourceLocation texture) {
+    public ProjectileModel(GeoModel model, Map<String, Animation> animations, Map<String, AnimationControllerData> controllers, AbstractTexture texture) {
         this.model = model;
         this.animations = animations;
         this.controllers = controllers;
@@ -32,7 +32,7 @@ public class ProjectileModel {
         return controllers;
     }
 
-    public ResourceLocation texture() {
+    public AbstractTexture texture() {
         return texture;
     }
 }

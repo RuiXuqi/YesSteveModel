@@ -6,7 +6,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.util.FifoHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 
 import java.util.Map;
 
@@ -18,13 +18,13 @@ public class PlayerModel {
     private final ConditionManager conditionManager;
     private final FPArmConditionManager fpArmConditionManager;
     private final Map<String, AnimationControllerData> animationControllers;
-    private final FifoHashMap<String, ResourceLocation> textures;
+    private final FifoHashMap<String, ? extends AbstractTexture> textures;
     private final String defaultTextureName;
-    private final ResourceLocation defaultTexture;
+    private final AbstractTexture defaultTexture;
 
     public PlayerModel(GeoModel mainModel, GeoModel armModel, Map<String, Animation> animations, Map<String, Animation> fpArmAnimations,
                        ConditionManager conditionManager, FPArmConditionManager fpArmConditionManager, Map<String, AnimationControllerData> animationControllers,
-                       FifoHashMap<String, ResourceLocation> textures, String defaultTextureName, ResourceLocation defaultTexture) {
+                       FifoHashMap<String, ? extends AbstractTexture> textures, String defaultTextureName, AbstractTexture defaultTexture) {
         this.mainModel = mainModel;
         this.armModel = armModel;
         this.animations = animations;
@@ -65,7 +65,7 @@ public class PlayerModel {
         return animationControllers;
     }
 
-    public FifoHashMap<String, ResourceLocation> textures() {
+    public FifoHashMap<String, ? extends AbstractTexture> textures() {
         return textures;
     }
 
@@ -73,7 +73,7 @@ public class PlayerModel {
         return defaultTextureName;
     }
 
-    public ResourceLocation defaultTexture() {
+    public AbstractTexture defaultTexture() {
         return defaultTexture;
     }
 }

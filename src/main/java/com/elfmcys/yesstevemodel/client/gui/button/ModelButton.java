@@ -8,6 +8,8 @@ import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
+import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
+import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
@@ -45,8 +47,8 @@ public class ModelButton extends Button {
     private final double fadeoutTime;
     private final boolean disablePreviewRotation;
 
-    private @Nullable ResourceLocation background = null;
-    private @Nullable ResourceLocation foreground = null;
+    private @Nullable TextureHolder background = null;
+    private @Nullable TextureHolder foreground = null;
 
     private @Nullable String locale;
     private @Nullable List<Component> displayInfo = null;
@@ -64,8 +66,8 @@ public class ModelButton extends Button {
         this.disablePreviewRotation = model.info().properties().disablePreviewRotation();
 
         // 获取模型信息中的 GUI 图片
-        this.background = model.clientInfo().guiBackground();
-        this.foreground = model.clientInfo().guiForeground();
+        this.background = model.clientInfo().guiBackground() == null ? null : CustomTextureManager.register(model.clientInfo().guiBackground(), true, 10 * 20);
+        this.foreground = model.clientInfo().guiForeground() == null ? null : CustomTextureManager.register(model.clientInfo().guiForeground(), true, 10 * 20);
 
         var animations = model.playerModel().animations();
         // 如果有 hover 动画
@@ -158,7 +160,7 @@ public class ModelButton extends Button {
         if (this.background != null) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            graphics.blit(this.background, x, y, 0, 0, this.width, this.height, this.width, this.height);
+            graphics.blit(this.background.getId().get(), x, y, 0, 0, this.width, this.height, this.width, this.height);
             RenderSystem.disableBlend();
         }
 
@@ -178,7 +180,7 @@ public class ModelButton extends Button {
         if (this.foreground != null) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            graphics.blit(this.foreground, x, y, z, 0, 0, this.width, this.height, this.width, this.height);
+            graphics.blit(this.foreground.getId().get(), x, y, z, 0, 0, this.width, this.height, this.width, this.height);
             RenderSystem.disableBlend();
         }
 

@@ -73,13 +73,14 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
 
     public void renderAnimatableEntity(T animatableEntity, float entityYaw, float partialTick,
                                        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        renderAnimatableEntity(animatableEntity, updateAnimation(animatableEntity, partialTick), null,  entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        renderAnimatableEntity(animatableEntity, null,  entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    public void renderAnimatableEntity(T animatableEntity, AnimationEvent<?> event, @Nullable ResourceLocation textureOverride, float entityYaw, float partialTick,
+    public void renderAnimatableEntity(T animatableEntity, @Nullable ResourceLocation textureOverride, float entityYaw, float partialTick,
                                        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(animatableEntity.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
+        var event = updateAnimation(animatableEntity, partialTick);
         final TEntity entity = animatableEntity.getEntity();
         if (event != null) {
             final EntityModelData data = event.getExtraData();

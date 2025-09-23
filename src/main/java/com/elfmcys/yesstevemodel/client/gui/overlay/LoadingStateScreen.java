@@ -72,28 +72,6 @@ public class LoadingStateScreen implements IGuiOverlay {
 
         // IDLE 状态单独处理
         if (state.getType() == ClientModelManager.SyncStateType.IDLE) {
-            int removedTextureQueueSize = ClientModelManager.getRemovedTextureQueueSize();
-            int newModelQueueSize = ClientModelManager.getNewModelQueueSize();
-
-            if (removedTextureQueueSize > 0) {
-                MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title")
-                        .append(Component.translatable("gui.yes_steve_model.sync_hint.clearing", removedTextureQueueSize)
-                                .withStyle(ChatFormatting.RED));
-
-                this.drawStringAtPosition(gui, guiGraphics, text, x, y, screenWidth);
-            } else if (newModelQueueSize > 0) {
-                int loadedModelSize = ClientModelManager.getModels().size();
-                int totalModelSize = loadedModelSize + newModelQueueSize;
-
-                MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title")
-                        .append(Component.translatable("gui.yes_steve_model.sync_hint.loading_models", newModelQueueSize, totalModelSize)
-                                .withStyle(ChatFormatting.YELLOW));
-                this.drawStringAtPosition(gui, guiGraphics, text, x, y, screenWidth);
-
-                float progress = (float) loadedModelSize / totalModelSize;
-                guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
-                guiGraphics.fill(barX, barY, barX + (int) (barWidth * progress), barY + barHeight, 0xFFFFFF00);
-            }
             return;
         }
 

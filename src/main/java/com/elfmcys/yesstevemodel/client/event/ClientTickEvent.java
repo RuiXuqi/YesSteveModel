@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -23,6 +24,7 @@ public class ClientTickEvent {
             return;
         }
         tickCount++;
+        CustomTextureManager.tick();
         ClientModelManager.tick();
 
         var player = Minecraft.getInstance().player;

@@ -39,7 +39,7 @@ public interface ClientModelSyncListener {
      * 每轮同步可触发多次，
      * 由于模型加载比较滞后，可能整个模型同步会话都结束了还没加载完，仍会照常触发
      */
-    default void onNewModelLoaded(Map<String, ClientModel> models, String newModelId, ClientModel newModel) {}
+    default void onNewModelLoaded(Map<String, ClientModel> models) {}
 
     /**
      * 同步中止，放弃本轮同步，重置会话状态，

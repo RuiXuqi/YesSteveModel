@@ -118,7 +118,7 @@ public class GeoModel {
         this.properties = properties;
 
         this.initialState = new GeoModelState(this).inputState();
-        CleanerUtil.ref(this, GeoModel::free);
+        CleanerUtil.ref(this, nativeId, GeoModel::free);
     }
 
     private IntList buildLocatorHierarchy(String[] hierarchy) {
@@ -138,5 +138,5 @@ public class GeoModel {
         return initialState;
     }
 
-    private native void free();
+    private static native void free(long id);
 }

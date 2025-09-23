@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.client.model;
 
-import net.minecraft.resources.ResourceLocation;
+import com.elfmcys.yesstevemodel.client.texture.NativeTexture;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -8,11 +9,11 @@ import java.util.Map;
 public class ClientModelInfo {
     private final String name;
     private boolean needAuth;
-    private final Map<String, ResourceLocation> authorAvatars;
-    private final Map<String, ResourceLocation> guiImages;
+    private final Map<String, NativeTexture> authorAvatars;
+    private final Map<String, AbstractTexture> guiImages;
 
     public ClientModelInfo(String name, boolean needAuth,
-                           Map<String, ResourceLocation> authorAvatars, Map<String, ResourceLocation> guiImages) {
+                           Map<String, NativeTexture> authorAvatars, Map<String, AbstractTexture> guiImages) {
         this.name = name;
         this.needAuth = needAuth;
         this.authorAvatars = authorAvatars;
@@ -31,17 +32,17 @@ public class ClientModelInfo {
         this.needAuth = needAuth;
     }
 
-    public Map<String, ResourceLocation> authorAvatars() {
+    public Map<String, NativeTexture> authorAvatars() {
         return authorAvatars;
     }
 
     @Nullable
-    public ResourceLocation guiForeground() {
+    public AbstractTexture guiForeground() {
         return guiImages.get("gui_foreground");
     }
 
     @Nullable
-    public ResourceLocation guiBackground() {
+    public AbstractTexture guiBackground() {
         return guiImages.get("gui_background");
     }
 }

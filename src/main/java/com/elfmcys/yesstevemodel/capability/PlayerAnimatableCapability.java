@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.molang.roaming.RemoteRoamingSt
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
@@ -26,6 +27,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
@@ -188,6 +190,12 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             var msg = new RoamingVarsChanges(this.currentHashShort, new Object2FloatArrayMap<>(nameArray, valueArray), null, this.entity.getId());
             NetworkHandler.sendToServer(new SubmitRoamingVarsChanges(msg));
         }
+    }
+
+    @Override
+    @NotNull
+    protected HumanoidResourceHolder createResourceHolder(ClientModel model) {
+        return new HumanoidResourceHolder(model, true, true, 30 * 20);
     }
 
     private static class RemoteStorage {

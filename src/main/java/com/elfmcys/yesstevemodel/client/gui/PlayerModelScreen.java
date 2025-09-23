@@ -758,7 +758,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     }
 
     @Override
-    public void onNewModelLoaded(Map<String, ClientModel> models, String newModelId, ClientModel newModel) {
+    public void onNewModelLoaded(Map<String, ClientModel> models) {
         init();
     }
 

@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManage
 import com.elfmcys.yesstevemodel.client.animation.predicate.EmptyPredicate;
 import com.elfmcys.yesstevemodel.client.animation.predicate.FPArmArmorPredicate;
 import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
@@ -48,12 +49,15 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     }
 
     @Override
-    protected boolean prepareForUpdate() {
+    public void checkModelUpdate() {
         if (mainModelEntity.getModelContainer() != getModelContainer()) {
             updateModelId(mainModelEntity.getModelId());
-            return true;
         }
-        return super.prepareForUpdate();
+    }
+
+    @Override
+    protected @Nullable ResourceHolder createResourceHolder(ClientModel model) {
+        return mainModelEntity.getResourceHolder();
     }
 
     @Override
