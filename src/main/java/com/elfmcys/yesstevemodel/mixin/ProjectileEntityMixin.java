@@ -19,6 +19,9 @@ public class ProjectileEntityMixin {
             return;
         }
         // 仅在服务端执行
+        if (owner.level().isClientSide()) {
+            return;
+        }
         if (owner instanceof ServerPlayer) {
             CapabilityEvent.onProjectileSetOwner((Projectile) (Object) this, (ServerPlayer) owner);
         } else if (TlmCommonCompat.isMaid(owner)) {
