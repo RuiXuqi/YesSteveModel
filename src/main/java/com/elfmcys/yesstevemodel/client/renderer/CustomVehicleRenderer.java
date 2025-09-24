@@ -22,7 +22,10 @@ public class CustomVehicleRenderer extends GeoEntityRenderer<Entity, CustomVehic
         if (Minecraft.getInstance().player == null || entity.isInvisibleTo(Minecraft.getInstance().player)) {
             return;
         }
-        entity.getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> render(cap, yaw, partialTick, poseStack, bufferSource, packedLight));
+        entity.getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            cap.checkModelUpdate();
+            render(cap, yaw, partialTick, poseStack, bufferSource, packedLight);
+        });
     }
 
     @Override

@@ -38,6 +38,7 @@ public class CustomFirstPersonArmRenderer {
             return;
         }
 
+        armEntity.checkModelUpdate();
         var renderEvent = new SpecialPlayerRenderEvent(player, cap, cap.getModelId());
         if (MinecraftForge.EVENT_BUS.post(renderEvent)) {
             return;

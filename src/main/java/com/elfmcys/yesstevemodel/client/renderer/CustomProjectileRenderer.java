@@ -22,7 +22,10 @@ public class CustomProjectileRenderer extends GeoProjectilesRenderer<Projectile,
         if (Minecraft.getInstance().player == null || entity.isInvisibleTo(Minecraft.getInstance().player)) {
             return;
         }
-        entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> render(cap, yaw, partialTick, poseStack, bufferSource, packedLight));
+        entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            cap.checkModelUpdate();
+            render(cap, yaw, partialTick, poseStack, bufferSource, packedLight);
+        });
     }
 
     @Override
