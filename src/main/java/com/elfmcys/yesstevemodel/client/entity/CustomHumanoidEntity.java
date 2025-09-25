@@ -107,12 +107,14 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
 
     @Override
     protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+        super.onLoadModelContainer(newModel, isFallback);
         updateTexture();
         return true;
     }
 
     @Override
     protected void onLoadGeoModel(GeoModelState model) {
+        super.onLoadGeoModel(model);
         if (model != null && !model.headBones().isEmpty()) {
             var head = model.headBones().get(model.headBones().size() - 1);
             headRot.set(head.getRotationX(), head.getRotationY());
@@ -125,7 +127,6 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         } else {
             wrappedUpdateHandler = null;
         }
-        physicsManager.reset();
     }
 
     @Override
