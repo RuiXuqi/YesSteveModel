@@ -7,7 +7,6 @@ import net.minecraft.util.StringUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -16,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public final class NativeLibUtil {
@@ -73,11 +74,15 @@ public final class NativeLibUtil {
             return null;
         }
 
-        var libPath = FMLPaths.CONFIGDIR.get()
-                .resolve(YesSteveModel.MOD_ID)
-                .resolve("cache")
+        var dir = SystemUtils.IS_OS_WINDOWS ? Path.of(System.getProperty("java.io.tmpdir"), "ysm")
+                : Path.of(System.getProperty("user.home"), ".ysm");
+        if (!Files.isDirectory(dir)) {
+            Files.createDirectory(dir);
+        }
+        var libPath = dir
                 .resolve(libFileName)
-                .toAbsolutePath().toString();
+                .toAbsolutePath()
+                .toString();
         writeLibData(libPath, libData);
         return libPath;
     }
