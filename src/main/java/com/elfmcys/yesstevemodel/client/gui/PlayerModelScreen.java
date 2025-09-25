@@ -519,7 +519,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         String pageInfo = String.format("%d/%d", page + 1, this.maxPage + 1);
         graphics.drawString(font, pageInfo, x + 138 + (282 - font.width(pageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
 
-        String debugInfo = String.format("%s-%s", SharedConstants.getCurrentVersion().getName(), ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString());
+        String debugInfo = ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString();
         graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
 
         if (StringUtils.isNotBlank(pack)) {
