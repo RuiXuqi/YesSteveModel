@@ -321,6 +321,10 @@ public class ClientModelManager {
                 listener.onNewModelLoaded(models));
     }
 
+    public static int getNewModelQueueSize() {
+        return NEW_MODEL_QUEUE.size();
+    }
+
     public static class SyncState {
         private SyncStateType type = SyncStateType.WAITING;
         private int total = -1;
