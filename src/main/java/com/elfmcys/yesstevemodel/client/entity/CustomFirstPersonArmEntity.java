@@ -56,7 +56,7 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     }
 
     @Override
-    protected @Nullable ResourceHolder createResourceHolder(ClientModel model) {
+    protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
         return mainModelEntity.getResourceHolder();
     }
 

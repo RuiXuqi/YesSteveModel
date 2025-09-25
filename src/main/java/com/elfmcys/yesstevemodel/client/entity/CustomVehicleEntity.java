@@ -50,7 +50,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
 
     @Override
     @SuppressWarnings("deprecation")
-    protected @Nullable ResourceHolder createResourceHolder(ClientModel model) {
+    protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
         var vehicleModel = model.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
         if (vehicleModel != null) {
             return new VehicleResourceHolder(model, vehicleModel);
@@ -63,9 +63,8 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
-        vehicleModel = isFallback ? null : newModel.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
-        return vehicleModel != null;
+    protected void onLoadModelContainer(ClientModel newModel) {
+        vehicleModel = newModel.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
     }
 
     @Override
@@ -107,8 +106,8 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     private static class VehicleResourceHolder extends ResourceHolder {
         private final TextureHolder textureHolder;
 
-        protected VehicleResourceHolder(ClientModel model, VehicleModel vehicleModel) {
-            super(model);
+        protected VehicleResourceHolder(ClientModel model, boolean fallback, VehicleModel vehicleModel) {
+            super(model, fallback);
             textureHolder = CustomTextureManager.register(vehicleModel.texture(), true);
         }
 

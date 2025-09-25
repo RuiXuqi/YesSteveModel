@@ -41,10 +41,12 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     }
 
     @Override
-    protected @Nullable ResourceHolder createResourceHolder(ClientModel model) {
-        var projectileModel = model.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
-        if (projectileModel != null) {
-            return new ProjectileResourceHolder(model, projectileModel);
+    protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
+        if (!isFallback) {
+            var projectileModel = model.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
+            if (projectileModel != null) {
+                return new ProjectileResourceHolder(model, false, projectileModel);
+            }
         }
         return null;
     }
@@ -54,9 +56,8 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
-        projectileModel = isFallback ? null : newModel.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
-        return projectileModel != null;
+    protected void onLoadModelContainer(ClientModel newModel) {
+        projectileModel = newModel.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
     }
 
     @Override
@@ -98,8 +99,8 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     private static class ProjectileResourceHolder extends ResourceHolder {
         private final TextureHolder textureHolder;
 
-        protected ProjectileResourceHolder(ClientModel model, ProjectileModel projectileModel) {
-            super(model);
+        protected ProjectileResourceHolder(ClientModel model, boolean fallback, ProjectileModel projectileModel) {
+            super(model, fallback);
             textureHolder = CustomTextureManager.register(projectileModel.texture(), true);
         }
 

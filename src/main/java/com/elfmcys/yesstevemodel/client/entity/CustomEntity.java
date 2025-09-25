@@ -21,7 +21,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
     private ClientModel currentModelContainer;
     private ResourceHolder resourceHolder;
-    private boolean isFallback;
+    private boolean modelFallback;
     private int lastCheckUpdateTime;
 
     protected CustomEntity(T entity, boolean asyncUpdate) {
@@ -50,35 +50,32 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     private void checkModelContainerUpdate() {
         ClientModelManager.getModel(modelId).ifPresentOrElse(model -> {
-            if (isFallback || resourceHolder == null || model != resourceHolder.model) {
-                isFallback = false;
-                resourceHolder = createResourceHolder(model);
+            if (resourceHolder == null || resourceHolder.fallback || model != resourceHolder.model) {
+                resourceHolder = createResourceHolder(model, false);
             }
         }, () -> {
             var defaultModel = ClientModelManager.getDefaultModel();
-            if (!isFallback || resourceHolder == null || defaultModel != resourceHolder.model) {
-                isFallback = true;
-                resourceHolder = createResourceHolder(defaultModel);
+            if (resourceHolder == null || !resourceHolder.fallback || defaultModel != resourceHolder.model) {
+                resourceHolder = createResourceHolder(defaultModel, true);
             }
         });
 
-        if (resourceHolder != null && resourceHolder.model != currentModelContainer && resourceHolder.isLoaded()) {
+        if (resourceHolder != null && (resourceHolder.model != currentModelContainer || resourceHolder.fallback != modelFallback) && resourceHolder.isLoaded()) {
             currentModelContainer = resourceHolder.model;
-            if (onLoadModelContainer(currentModelContainer, isFallback)) {
-                loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
-            }
+            modelFallback = resourceHolder.fallback;
+            onLoadModelContainer(currentModelContainer);
+            loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
         }
     }
 
     @Nullable
-    protected abstract ResourceHolder createResourceHolder(ClientModel model);
+    protected abstract ResourceHolder createResourceHolder(ClientModel model, boolean isFallback);
 
     protected final ResourceHolder getResourceHolder() {
         return resourceHolder;
     }
 
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
-        return true;
+    protected void onLoadModelContainer(ClientModel newModel) {
     }
 
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个
@@ -90,7 +87,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     @Override
     public boolean isModelPresent() {
-        return !isFallback && resourceHolder != null && resourceHolder.isLoaded();
+        return resourceHolder != null && !resourceHolder.fallback && resourceHolder.isLoaded();
     }
 
     @Override
@@ -116,9 +113,11 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     protected static class ResourceHolder {
         public final ClientModel model;
+        public final boolean fallback;
 
-        protected ResourceHolder(ClientModel model) {
+        protected ResourceHolder(ClientModel model, boolean fallback) {
             this.model = model;
+            this.fallback = fallback;
         }
 
         public boolean isLoaded() {

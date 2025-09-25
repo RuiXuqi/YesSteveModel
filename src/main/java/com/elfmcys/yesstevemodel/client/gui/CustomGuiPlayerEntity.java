@@ -75,8 +75,8 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
-    protected @NotNull HumanoidResourceHolder createResourceHolder(ClientModel model) {
-        return new HumanoidResourceHolder(model, false, true, 15 * 20);
+    protected @NotNull HumanoidResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
+        return new HumanoidResourceHolder(model, isFallback, false, true, 15 * 20);
     }
 
     private static class FakePlayer extends Player {

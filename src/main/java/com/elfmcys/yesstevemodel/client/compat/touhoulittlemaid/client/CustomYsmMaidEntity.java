@@ -43,8 +43,8 @@ public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implem
     }
 
     @Override
-    protected @NotNull ResourceHolder createResourceHolder(ClientModel model) {
-        return new HumanoidResourceHolder(model, true, true, 30 * 20);
+    protected @NotNull ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
+        return new HumanoidResourceHolder(model, isFallback, true, true, 30 * 20);
     }
 
     @Override

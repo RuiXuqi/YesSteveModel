@@ -106,10 +106,9 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
-    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
-        super.onLoadModelContainer(newModel, isFallback);
+    protected void onLoadModelContainer(ClientModel newModel) {
+        super.onLoadModelContainer(newModel);
         updateTexture();
-        return true;
     }
 
     @Override
@@ -224,8 +223,8 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         private final List<TextureHolder> textureHolders;
         private final int releaseDelay;
 
-        public HumanoidResourceHolder(ClientModel model, boolean registerAllTexture, boolean immediately, int releaseDelay) {
-            super(model);
+        public HumanoidResourceHolder(ClientModel model, boolean fallback, boolean registerAllTexture, boolean immediately, int releaseDelay) {
+            super(model, fallback);
             var selectedTexture = model.playerModel().textures().get(textureName);
             this.textureHolder = CustomTextureManager.register(selectedTexture != null ? selectedTexture : model.playerModel().defaultTexture(), immediately, releaseDelay);
             this.releaseDelay = releaseDelay;

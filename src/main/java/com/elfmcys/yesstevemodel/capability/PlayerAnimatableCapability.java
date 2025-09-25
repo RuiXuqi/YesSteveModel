@@ -194,8 +194,8 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     @Override
     @NotNull
-    protected HumanoidResourceHolder createResourceHolder(ClientModel model) {
-        return new HumanoidResourceHolder(model, true, true, 30 * 20);
+    protected HumanoidResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
+        return new HumanoidResourceHolder(model, isFallback, true, true, 30 * 20);
     }
 
     private static class RemoteStorage {
