@@ -22,13 +22,12 @@ public class CustomFirstPersonArmRenderer {
     public void render(LocalPlayer player, ClientModel model, PlayerAnimatableCapability cap, HumanoidArm arm,
                        PoseStack poseStack, MultiBufferSource bufferSource,
                        int packedLight, float partialTick) {
-        cap.waitForAsyncUpdate();
-
         if (armEntity == null || armEntity.getEntity() != player) {
             armEntity = new CustomFirstPersonArmEntity(player, cap);
         }
 
-        AnimationEvent<?> event = armEntity.syncUpdate(partialTick);
+        armEntity.checkModelUpdate();
+        AnimationEvent<?> event = armEntity.updateAnimation(partialTick);
         if (event == null) {
             return;
         }
@@ -38,7 +37,6 @@ public class CustomFirstPersonArmRenderer {
             return;
         }
 
-        armEntity.checkModelUpdate();
         var renderEvent = new SpecialPlayerRenderEvent(player, cap, cap.getModelId());
         if (MinecraftForge.EVENT_BUS.post(renderEvent)) {
             return;

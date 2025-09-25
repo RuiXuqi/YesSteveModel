@@ -9,7 +9,6 @@ import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
-import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -74,7 +73,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     @Override
     public PhysicsManager getPhysicsManager() {
-        if (NativeRenderer.isAsyncScope() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
+        if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
             return physicsManager;
         } else {
             return guiPhysicsManager;
@@ -127,7 +126,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     public void resetRoamingVars(int modelHashShort, Int2FloatOpenHashMap vars) {
-        waitForAsyncUpdate();
         var storage = this.storageMap.computeIfAbsent(modelHashShort, h -> new RemoteStorage());
         if (isLocalPlayer()) {
             // 对于已成功初始化的 local roaming 丢弃服务端同步
@@ -156,7 +154,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     public void updateRemoteRoamingVars(int modelHashShort, Int2FloatArrayMap vars) {
         // 为了尝试兼容 replay 模组，服务端会额外向 LocalPlayer 发送更新包，非回放时要丢弃
-        waitForAsyncUpdate();
         if (!isLocalPlayer() && !vars.isEmpty()) {
             var storage = storageMap.computeIfAbsent(modelHashShort, h -> new RemoteStorage());
             if (storage.vars != null) {
@@ -168,7 +165,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     public void handleRoamingVarsChanges() {
-        waitForAsyncUpdate();
         if (isLocalPlayer() && this.currentHashShort != 0
                 && this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct
                 && localRoamingStruct.isDirty()) {

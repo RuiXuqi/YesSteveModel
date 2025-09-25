@@ -7,7 +7,5 @@ public interface IPreviewEntity {
     @NotNull
     PreviewAnimationInfo getPreviewInfo();
 
-    void waitForCapabilityUpdate();
-
     void setAllowEmitting(boolean allow);
 }

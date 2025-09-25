@@ -53,7 +53,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
         var vehicleModel = model.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
         if (vehicleModel != null) {
-            return new VehicleResourceHolder(model, vehicleModel);
+            return new VehicleResourceHolder(model, isFallback, vehicleModel);
         }
         return null;
     }

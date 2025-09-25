@@ -6,13 +6,20 @@ import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
+import com.elfmcys.yesstevemodel.util.ThreadTools;
+import com.elfmcys.yesstevemodel.util.UnsafeUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.Future;
 
 /**
  * 自动管理当前 model id 和 model container，并在找不到指定模型时 fallback 到默认模型
@@ -24,10 +31,13 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     private boolean modelFallback;
     private int lastCheckUpdateTime;
 
+    @Nullable
+    private Future<AnimationEvent<?>> asyncTask;
+
     protected CustomEntity(T entity, boolean asyncUpdate) {
         super(entity);
         if (asyncUpdate) {
-            AnimationParallelTicker.register(this);
+            AnimationParallelTicker.add(this);
         }
     }
 
@@ -43,7 +53,6 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     protected final void updateModelId(String modelId) {
-        waitForAsyncUpdate();
         this.modelId = modelId;
         checkModelContainerUpdate();
     }
@@ -109,6 +118,48 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         } else {
             return null;
         }
+    }
+
+    public void beginAsyncUpdate(final float partialTicks) {
+        UnsafeUtil.getUnsafe().storeFence();
+        asyncTask = ThreadTools.submit(() -> {
+            try {
+                return super.updateAnimation(partialTicks);
+            } finally {
+                UnsafeUtil.getUnsafe().storeFence();
+            }
+        });
+    }
+
+    @Override
+    public @Nullable AnimationEvent<?> updateAnimation(float partialTicks) {
+        RenderSystem.assertOnRenderThread();
+        if (RenderUtil.isRenderingLevel()) {
+            if (asyncTask != null) {
+                return waitForAsyncUpdate();
+            }
+        }
+        return super.updateAnimation(partialTicks);
+    }
+
+    public AnimationEvent<?> waitForAsyncUpdate() {
+        if (asyncTask != null) {
+            AnimationEvent<?> result = null;
+            try {
+                result = asyncTask.get();
+                UnsafeUtil.getUnsafe().loadFence();
+            } catch (InterruptedException ignored) {
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            asyncTask = null;
+            return result;
+        }
+        return null;
+    }
+
+    public boolean canUpdateAsync() {
+        return true;
     }
 
     protected static class ResourceHolder {

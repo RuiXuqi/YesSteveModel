@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.geckolib3.model;
 
-import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
 import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.client.event.ClientTickEvent;
@@ -20,8 +19,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import com.elfmcys.yesstevemodel.util.ThreadTools;
-import com.elfmcys.yesstevemodel.util.UnsafeUtil;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import net.minecraft.client.Minecraft;
@@ -34,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 public abstract class AnimatableEntity<TEntity extends Entity> {
@@ -48,16 +44,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     private GeoModelState currentModel;
     private Int2ReferenceMap<List<IValue>> eventHandlers;
 
-
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
     protected float lastFrameTime;
     protected int currentFrameRenderTimes;
 
     private float seekTime;
     private boolean initialize = false;
-
-    @Nullable
-    private Future<AnimationEvent<?>> task;
 
     /**
      * 存储 Coded 动画控制器的动画播放状态，用于一些 molang 判断
@@ -160,7 +152,69 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return currentFrameRenderTimes == 1;
     }
 
-    protected boolean updateAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
+    @Nullable
+    public AnimationEvent<?> updateAnimation(float partialTicks) {
+        if (this.currentModel == null) {
+            return null;
+        }
+        final Entity entity = this.entity;
+        final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
+        int entityTickCount = this instanceof IPreviewEntity ? ClientTickEvent.getTickCount() : entity.tickCount;
+        float realPartialTicks = partialTicks != 1f ? partialTicks : Minecraft.getInstance().getFrameTime();
+
+        boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
+        float limbSwingAmount = 0;
+        float limbSwing = 0;
+
+        if (!shouldSit && entity.isAlive() && livingEntity != null) {
+            limbSwingAmount = livingEntity.walkAnimation.speed(partialTicks);
+            limbSwing = livingEntity.walkAnimation.position(partialTicks);
+            if (livingEntity.isBaby()) {
+                limbSwing *= 3.0F;
+            }
+        }
+
+        EntityModelData entityModelData = new EntityModelData();
+        entityModelData.isSitting = shouldSit;
+
+        float lerpBodyRot = 0;
+        float lerpHeadRot = 0;
+        float netHeadYaw = 0;
+
+        if (livingEntity != null) {
+            entityModelData.isChild = livingEntity.isBaby();
+            lerpBodyRot = Mth.rotLerp(partialTicks, livingEntity.yBodyRotO, livingEntity.yBodyRot);
+            lerpHeadRot = Mth.rotLerp(partialTicks, livingEntity.yHeadRotO, livingEntity.yHeadRot);
+            netHeadYaw = lerpHeadRot - lerpBodyRot;
+        }
+
+        if (shouldSit && entity.getVehicle() instanceof LivingEntity) {
+            LivingEntity vehicle = (LivingEntity) entity.getVehicle();
+            lerpBodyRot = Mth.rotLerp(partialTicks, vehicle.yBodyRotO, vehicle.yBodyRot);
+            netHeadYaw = lerpHeadRot - lerpBodyRot;
+            float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
+            lerpBodyRot = lerpHeadRot - clampedHeadYaw;
+            if (clampedHeadYaw * clampedHeadYaw > 2500f) {
+                lerpBodyRot += clampedHeadYaw * 0.2f;
+            }
+            netHeadYaw = lerpHeadRot - lerpBodyRot;
+        }
+
+        entityModelData.rawHeadPitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
+        entityModelData.headPitch = -entityModelData.rawHeadPitch;
+        entityModelData.rawNetHeadYaw = netHeadYaw;
+        entityModelData.netHeadYaw = -Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
+        entityModelData.lerpBodyRot = lerpBodyRot;
+        entityModelData.lerpedAge = entityTickCount + partialTicks;
+
+        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
+        MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
+        ctx.setDebugSource(getDebugSource());
+        this.tickAnimation(ctx, event);
+        return event;
+    }
+
+    protected boolean tickAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
         var frameTime = animationEvent.getEntityTickCount() + animationEvent.getPartialTick();
 
         if (frameTime > lastFrameTime) {
@@ -250,109 +304,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return this.animationProcessor.getPublicVariableStorage();
     }
 
-    public void beginAsyncUpdate(final float partialTicks) {
-        waitForAsyncUpdate();
-        UnsafeUtil.getUnsafe().storeFence();
-        task = ThreadTools.submit(() -> {
-            try {
-                return performUpdate(partialTicks);
-            } finally {
-                UnsafeUtil.getUnsafe().storeFence();
-            }
-        });
-    }
-
-    public AnimationEvent<?> waitForAsyncUpdate() {
-        if (task != null) {
-            AnimationEvent<?> result = null;
-            try {
-                result = task.get();
-                UnsafeUtil.getUnsafe().loadFence();
-            } catch (InterruptedException ignored) {
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-            task = null;
-            return result;
-        }
-        return null;
-    }
-
-    public AnimationEvent<?> waitOrUpdate(float partialTicks) {
-        if (task != null) {
-            return waitForAsyncUpdate();
-        } else {
-            return performUpdate(partialTicks);
-        }
-    }
-
-    public AnimationEvent<?> syncUpdate(float partialTicks) {
-        waitForAsyncUpdate();
-        return performUpdate(partialTicks);
-    }
-
-    @Nullable
-    protected AnimationEvent<?> performUpdate(float partialTicks) {
-        if (this.currentModel == null) {
-            return null;
-        }
-        final Entity entity = this.entity;
-        final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
-        int entityTickCount = this instanceof IPreviewEntity ? ClientTickEvent.getTickCount() : entity.tickCount;
-        float realPartialTicks = partialTicks != 1f ? partialTicks : Minecraft.getInstance().getFrameTime();
-
-        boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
-        float limbSwingAmount = 0;
-        float limbSwing = 0;
-
-        if (!shouldSit && entity.isAlive() && livingEntity != null) {
-            limbSwingAmount = livingEntity.walkAnimation.speed(partialTicks);
-            limbSwing = livingEntity.walkAnimation.position(partialTicks);
-            if (livingEntity.isBaby()) {
-                limbSwing *= 3.0F;
-            }
-        }
-
-        EntityModelData entityModelData = new EntityModelData();
-        entityModelData.isSitting = shouldSit;
-
-        float lerpBodyRot = 0;
-        float lerpHeadRot = 0;
-        float netHeadYaw = 0;
-
-        if (livingEntity != null) {
-            entityModelData.isChild = livingEntity.isBaby();
-            lerpBodyRot = Mth.rotLerp(partialTicks, livingEntity.yBodyRotO, livingEntity.yBodyRot);
-            lerpHeadRot = Mth.rotLerp(partialTicks, livingEntity.yHeadRotO, livingEntity.yHeadRot);
-            netHeadYaw = lerpHeadRot - lerpBodyRot;
-        }
-
-        if (shouldSit && entity.getVehicle() instanceof LivingEntity) {
-            LivingEntity vehicle = (LivingEntity) entity.getVehicle();
-            lerpBodyRot = Mth.rotLerp(partialTicks, vehicle.yBodyRotO, vehicle.yBodyRot);
-            netHeadYaw = lerpHeadRot - lerpBodyRot;
-            float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
-            lerpBodyRot = lerpHeadRot - clampedHeadYaw;
-            if (clampedHeadYaw * clampedHeadYaw > 2500f) {
-                lerpBodyRot += clampedHeadYaw * 0.2f;
-            }
-            netHeadYaw = lerpHeadRot - lerpBodyRot;
-        }
-
-        entityModelData.rawHeadPitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
-        entityModelData.headPitch = -entityModelData.rawHeadPitch;
-        entityModelData.rawNetHeadYaw = netHeadYaw;
-        entityModelData.netHeadYaw = -Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
-        entityModelData.lerpBodyRot = lerpBodyRot;
-        entityModelData.lerpedAge = entityTickCount + partialTicks;
-
-        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
-        MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
-        ctx.setDebugSource(getDebugSource());
-        this.updateAnimation(ctx, event);
-        return event;
-    }
-
     protected void setInitialized() {
         this.initialize = true;
     }
@@ -364,10 +315,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     @Nullable
     public DebugSource getDebugSource() {
         return null;
-    }
-
-    public boolean canUpdateAsync() {
-        return true;
     }
 
     @SuppressWarnings("resource")

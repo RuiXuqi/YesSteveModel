@@ -10,19 +10,23 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 
 import java.lang.ref.WeakReference;
-import java.util.Iterator;
 
 public class AnimationParallelTicker {
-    private static final ReferenceArrayList<WeakReference<CustomEntity<?>>> INSTANCE_LIST = new ReferenceArrayList<>(64);
+    private static final ReferenceArrayList<WeakReference<CustomEntity<?>>> ANIMATABLE_LIST = new ReferenceArrayList<>(64);
+    private static final ReferenceArrayList<CustomEntity<?>> TASK_LIST = new ReferenceArrayList<>(16);
 
-    public static void tickAll(final float partialTick) {
+    public static void add(CustomEntity<?> instance) {
+        ANIMATABLE_LIST.add(new WeakReference<>(instance));
+    }
+
+    public static void scheduleAll(final float partialTick) {
         final Minecraft mc = Minecraft.getInstance();
         final LocalPlayer localPlayer = mc.player;
         if (localPlayer == null) {
             return;
         }
 
-        final Iterator<WeakReference<CustomEntity<?>>> iterator = INSTANCE_LIST.iterator();
+        final var iterator = ANIMATABLE_LIST.iterator();
         while (iterator.hasNext()) {
             final CustomEntity<?> animatable = iterator.next().get();
             if (animatable == null) {
@@ -35,11 +39,11 @@ public class AnimationParallelTicker {
                 iterator.remove();
                 continue;
             }
+
+            animatable.checkModelUpdate();
             if (!animatable.canUpdateAsync() || !animatable.isInitialized()) {
                 continue;
             }
-
-            animatable.checkModelUpdate();
 
             final Entity entity = animatable.getEntity();
             if (entity instanceof AbstractClientPlayer) {
@@ -63,10 +67,18 @@ public class AnimationParallelTicker {
             }
 
             animatable.beginAsyncUpdate(partialTick);
+            TASK_LIST.add(animatable);
         }
     }
 
-    public static void register(CustomEntity<?> instance) {
-        INSTANCE_LIST.add(new WeakReference<>(instance));
+    public static void waitAll() {
+        for (var animatable : TASK_LIST) {
+            try {
+                animatable.waitForAsyncUpdate();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+        TASK_LIST.clear();
     }
 }

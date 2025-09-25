@@ -60,15 +60,11 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
     }
 
     @Override
-    public void renderEarly(T animatableEntity, PoseStack poseStack, float partialTick,
+    public void renderEarly(T animatable, PoseStack poseStack, float partialTick,
                             MultiBufferSource bufferSource, VertexConsumer buffer, int packedLight, int packedOverlayIn,
                             float red, float green, float blue, float alpha) {
         this.renderEarlyMat = new Matrix4f(poseStack.last().pose());
-        IGeoRenderer.super.renderEarly(animatableEntity, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
-    }
-
-    protected AnimationEvent<?> updateAnimation(T animatable, float partialTick) {
-        return isAsyncScope() ? animatable.waitOrUpdate(partialTick) : animatable.syncUpdate(partialTick);
+        IGeoRenderer.super.renderEarly(animatable, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
     }
 
     public void renderAnimatableEntity(T animatableEntity, float entityYaw, float partialTick,
@@ -80,7 +76,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
                                        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(animatableEntity.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
-        var event = updateAnimation(animatableEntity, partialTick);
+        var event = animatableEntity.updateAnimation(partialTick);
         final TEntity entity = animatableEntity.getEntity();
         if (event != null) {
             final EntityModelData data = event.getExtraData();

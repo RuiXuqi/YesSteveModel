@@ -1,7 +1,5 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
-import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
-import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
@@ -9,7 +7,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -51,18 +48,11 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
-    protected AnimationEvent<?> performUpdate(float partialTicks) {
+    public AnimationEvent<?> updateAnimation(float partialTicks) {
         if (entity instanceof FakePlayer fakePlayer && !fakePlayer.updateClientLevel()) {
             return null;
         }
-        return super.performUpdate(partialTicks);
-    }
-
-    @Override
-    public void waitForCapabilityUpdate() {
-        if (entity instanceof LocalPlayer player) {
-            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::waitForAsyncUpdate);
-        }
+        return super.updateAnimation(partialTicks);
     }
 
     public static boolean isFakePlayer(Player player) {

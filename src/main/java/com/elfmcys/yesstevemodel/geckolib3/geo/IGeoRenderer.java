@@ -20,16 +20,16 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
     default void setCurrentRTB(MultiBufferSource bufferSource) {
     }
 
-    default void preRender(GeoModelState modelState, T instance, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
+    default void preRender(GeoModelState modelState, T animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
                            @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         setCurrentRTB(bufferSource);
-        renderEarly(instance, poseStack, partialTick, bufferSource, buffer, packedLight,
+        renderEarly(animatable, poseStack, partialTick, bufferSource, buffer, packedLight,
                 packedOverlay, red, green, blue, alpha);
-        renderLate(instance, poseStack, partialTick, bufferSource, buffer, packedLight,
+        renderLate(animatable, poseStack, partialTick, bufferSource, buffer, packedLight,
                 packedOverlay, red, green, blue, alpha);
     }
 
-    default void render(GeoModelState modelState, T instance, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
+    default void render(GeoModelState modelState, T animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
                         int textureIndex, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (buffer == null) {
             buffer = bufferSource.getBuffer(type);
@@ -40,17 +40,17 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
         setCurrentModelRenderCycle(EModelRenderCycle.REPEATED);
     }
 
-    default void renderEarly(T instance, PoseStack poseStack, float partialTick,
+    default void renderEarly(T animatable, PoseStack poseStack, float partialTick,
                              @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight,
                              int packedOverlayIn, float red, float green, float blue, float alpha) {
         if (getCurrentModelRenderCycle() == EModelRenderCycle.INITIAL) {
-            float width = instance.getWidthScale();
-            float height = instance.getHeightScale();
+            float width = animatable.getWidthScale();
+            float height = animatable.getHeightScale();
             poseStack.scale(width, height, width);
         }
     }
 
-    default void renderLate(T instance, PoseStack poseStack, float partialTick, MultiBufferSource bufferSource,
+    default void renderLate(T animatable, PoseStack poseStack, float partialTick, MultiBufferSource bufferSource,
                             @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue,
                             float alpha) {
     }
@@ -59,7 +59,7 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
         return CustomTranslucentRenderType.create(texture);
     }
 
-    default Color getRenderColor(T instance, float partialTick, PoseStack poseStack,
+    default Color getRenderColor(T animatable, float partialTick, PoseStack poseStack,
                                  @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight) {
         return Color.WHITE;
     }
@@ -70,9 +70,5 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
     }
 
     default void setCurrentModelRenderCycle(IRenderCycle cycle) {
-    }
-
-    default boolean isAsyncScope() {
-        return NativeRenderer.isAsyncScope();
     }
 }

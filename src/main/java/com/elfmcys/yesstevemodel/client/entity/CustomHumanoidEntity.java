@@ -46,15 +46,15 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
 
     @Override
     @SuppressWarnings("all")
-    protected boolean updateAnimation(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
+    protected boolean tickAnimation(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
         if (animationEvent.getExtraData() != null && entity != null) {
             EntityModelData data = animationEvent.getExtraData();
             this.recoverLastCodedAnimation();
-            boolean update = super.updateAnimation(ctx, animationEvent);
+            boolean update = super.tickAnimation(ctx, animationEvent);
             this.codeAnimation(animationEvent, data, update);
             return update;
         } else {
-            return super.updateAnimation(ctx, animationEvent);
+            return super.tickAnimation(ctx, animationEvent);
         }
     }
 
@@ -92,14 +92,12 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     public void updateTextureName(String textureName) {
-        waitForAsyncUpdate();
         this.textureName = textureName;
         updateTexture();
     }
 
     public void updateModelAndTexture(String modelId, String textureName) {
         setInitialized();
-        waitForAsyncUpdate();
         this.textureName = textureName;
         updateModelId(modelId);
         updateTexture();

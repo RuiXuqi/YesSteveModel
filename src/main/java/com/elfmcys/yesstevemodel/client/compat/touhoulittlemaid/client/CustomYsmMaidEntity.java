@@ -10,7 +10,6 @@ import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.geo.NativeRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
@@ -160,12 +159,12 @@ public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implem
 
     @Override
     public boolean shouldForceUpdate() {
-        return currentFrameRenderTimes > 1 || !NativeRenderer.isAsyncScope();
+        return currentFrameRenderTimes > 1 || !RenderUtil.isRenderingLevel();
     }
 
     @Override
     public PhysicsManager getPhysicsManager() {
-        if (NativeRenderer.isAsyncScope() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
+        if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
             return physicsManager;
         } else {
             return physicsGuiManager;

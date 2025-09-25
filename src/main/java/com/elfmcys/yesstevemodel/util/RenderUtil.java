@@ -27,13 +27,14 @@ import java.util.concurrent.ExecutionException;
 public final class RenderUtil {
     private static boolean renderingEntitiesInInventory = false;
     private static boolean renderingEntitiesInPaperDoll = false;
+    private static boolean renderingLevel = false;
 
     public static void setRenderingEntitiesInInventory(boolean value) {
         renderingEntitiesInInventory = value;
     }
 
     public static boolean isRenderingEntitiesInInventory() {
-        return renderingEntitiesInInventory && RenderSystem.isOnRenderThread();
+        return renderingEntitiesInInventory;
     }
 
     public static void setRenderingEntitiesInPaperDoll(boolean renderingEntitiesInPaperDoll) {
@@ -41,7 +42,15 @@ public final class RenderUtil {
     }
 
     public static boolean isRenderingEntitiesInPaperDoll() {
-        return renderingEntitiesInPaperDoll && RenderSystem.isOnRenderThread();
+        return renderingEntitiesInPaperDoll;
+    }
+
+    public static void setRenderingLevel(boolean renderingLevel) {
+        RenderUtil.renderingLevel = renderingLevel;
+    }
+
+    public static boolean isRenderingLevel() {
+        return renderingLevel;
     }
 
     public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T> & IPreviewEntity> void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, float partialTicks, TAnimatable entity, GeoReplacedEntityRenderer<T, ? super TAnimatable> renderer, boolean showGround) {
@@ -62,8 +71,6 @@ public final class RenderUtil {
         Quaternionf xp = Axis.XP.rotationDegrees(-10 + pitch);
         zp.mul(xp);
         poseStack.mulPose(zp);
-
-        entity.waitForCapabilityUpdate();
 
         float yBodyRot = living.yBodyRot;
         float yBodyRotO = living.yBodyRotO;
@@ -239,10 +246,6 @@ public final class RenderUtil {
         Quaternionf xp = Axis.XP.rotationDegrees(disablePreviewRotation ? 0 : -10);
         zp.mul(xp);
         poseStack.mulPose(zp);
-
-        if (animatableEntity instanceof IPreviewEntity guiEntity) {
-            guiEntity.waitForCapabilityUpdate();
-        }
 
         float yBodyRot = living.yBodyRot;
         float yBodyRotO = living.yBodyRotO;

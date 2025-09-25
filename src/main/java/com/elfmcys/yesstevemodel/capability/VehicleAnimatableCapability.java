@@ -25,7 +25,6 @@ public class VehicleAnimatableCapability extends CustomVehicleEntity {
         if (vars == null) {
             return;
         }
-        waitForAsyncUpdate();
         // 无条件同步服务端数据
         roamingStruct = new RemoteRoamingStruct(vars);
     }

@@ -20,8 +20,6 @@ public class NativeRenderer {
     public static final int RENDER_MODE_RIGHT_ARM = 2;
     public static final int RENDER_MODE_BACKGROUND = 3;
 
-    private static volatile boolean IS_ASYNC_SCOPE = false;
-
     private static final Matrix4f POST_MAT = new Matrix4f();
 
     public static void renderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState,
@@ -41,21 +39,9 @@ public class NativeRenderer {
                 packedLight, packedOverlay, red, green, blue, alpha, renderOnGui);
     }
 
-    public static void beginAsyncScope() {
-        IS_ASYNC_SCOPE = true;
-    }
-
     private static native void nRenderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState, Matrix4f postMat, boolean useCompatibilityRenderer,
                                             GeoModel model, float[] inputState, float @Nullable [] outputState, int textureIndex, int renderMode,
                                             int packedLight, int packedOverlay, float red, float green, float blue, float alpha, boolean renderOnGui);
-
-    public static boolean isAsyncScope() {
-        return IS_ASYNC_SCOPE;
-    }
-
-    public static void endAsyncScope() {
-        IS_ASYNC_SCOPE = false;
-    }
 
     // Native Access
     @SuppressWarnings("all")
