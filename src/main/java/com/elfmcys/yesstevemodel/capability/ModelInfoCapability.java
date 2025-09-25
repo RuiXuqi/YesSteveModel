@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.capability;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.message.SyncModelInfo;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
@@ -178,7 +177,7 @@ public class ModelInfoCapability {
     }
 
     public void deserializeNBT(CompoundTag nbt) {
-        this.modelId = ModelIdUtil.stripLegacyPrefix(nbt.getString("model_id"));
+        this.modelId = nbt.getString("model_id");
         this.selectTexture = nbt.getString("select_texture");
         if (selectTexture.length() > 4 && selectTexture.toLowerCase().endsWith(".png")) {
             this.selectTexture = this.selectTexture.substring(0, this.selectTexture.length() - 4);

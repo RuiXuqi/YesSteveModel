@@ -1,13 +1,11 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Sets;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class AuthModelsCapability {
     private Set<String> authModels = Sets.newHashSet();
@@ -53,6 +51,5 @@ public class AuthModelsCapability {
         for (Tag tag : nbt) {
             authModels.add(tag.getAsString());
         }
-        authModels = authModels.stream().map(ModelIdUtil::stripLegacyPrefix).collect(Collectors.toSet());
     }
 }

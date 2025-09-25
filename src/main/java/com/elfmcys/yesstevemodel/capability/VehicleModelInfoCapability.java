@@ -48,7 +48,7 @@ public class VehicleModelInfoCapability {
     }
 
     public void deserializeNBT(CompoundTag nbt) {
-        this.modelId = ModelIdUtil.stripLegacyPrefix(nbt.getString("owner_model_id"));
+        this.modelId = nbt.getString("owner_model_id");
         this.initialized = nbt.getBoolean("initialized");
 
         this.molangVarsServerBound.clear();

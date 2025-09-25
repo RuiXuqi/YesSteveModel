@@ -1,13 +1,11 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.google.common.collect.Sets;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class StarModelsCapability {
     private Set<String> starModels = Sets.newHashSet();
@@ -53,6 +51,5 @@ public class StarModelsCapability {
         for (Tag tag : nbt) {
             starModels.add(tag.getAsString());
         }
-        starModels = starModels.stream().map(ModelIdUtil::stripLegacyPrefix).collect(Collectors.toSet());
     }
 }

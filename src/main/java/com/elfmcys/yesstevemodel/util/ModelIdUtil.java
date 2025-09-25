@@ -5,18 +5,8 @@ import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.resources.ResourceLocation;
 
 public final class ModelIdUtil {
-    public static final String LEGACY_MODEL_ID_PREFIX = "yes_steve_model:";
     public static final String DEFAULT_MODEL_ID = "default";
     public static final String DEFAULT_TEXTURE_NAME = "default";
-
-    public static String stripLegacyPrefix(String id) {
-        if (id.length() > LEGACY_MODEL_ID_PREFIX.length()) {
-            if (id.startsWith(LEGACY_MODEL_ID_PREFIX)) {
-                return id.substring(LEGACY_MODEL_ID_PREFIX.length());
-            }
-        }
-        return id;
-    }
 
     public static int getModelHashShort(String modelHash) {
         return Integer.parseUnsignedInt(modelHash.substring(0, 8), 16);
@@ -45,6 +35,7 @@ public final class ModelIdUtil {
         return idx >= 0 ? trimmed.substring(idx + 1) : trimmed;
     }
 
+    @SuppressWarnings("removal")
     public static ResourceLocation getModelPackIconId(String hierarchy) {
         return new ResourceLocation(YesSteveModel.MOD_ID, "model_pack_icon/" + hierarchy.hashCode());
     }
