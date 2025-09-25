@@ -78,6 +78,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         var renderTicks = event.renderTicks;
 
         if (this.state == null) {
+            if (!allowEmitting) {
+                return;
+            }
             // 初始化默认状态
             var stateName = this.data.initialState();
             var initialState = this.data.states().get(stateName);
@@ -86,7 +89,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             }
             this.stateName = stateName;
             updateState(initialState, evaluator);
-        } else {
+        } else if (allowEmitting) {
             // 更新当前状态
             int appliedController = 0;
             ctx.setAnyAnimationFinished(false);
