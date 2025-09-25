@@ -54,8 +54,9 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
         projectileModel = isFallback ? null : newModel.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
+        return projectileModel != null;
     }
 
     @Override

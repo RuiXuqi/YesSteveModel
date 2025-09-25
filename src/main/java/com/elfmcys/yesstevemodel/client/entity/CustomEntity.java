@@ -64,8 +64,9 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
         if (resourceHolder != null && resourceHolder.model != currentModelContainer && resourceHolder.isLoaded()) {
             currentModelContainer = resourceHolder.model;
-            onLoadModelContainer(currentModelContainer, isFallback);
-            loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
+            if (onLoadModelContainer(currentModelContainer, isFallback)) {
+                loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
+            }
         }
     }
 
@@ -76,7 +77,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         return resourceHolder;
     }
 
-    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+        return true;
     }
 
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个

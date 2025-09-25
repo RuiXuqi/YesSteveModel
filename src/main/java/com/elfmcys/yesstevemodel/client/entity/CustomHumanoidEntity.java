@@ -106,8 +106,9 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
-    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
         updateTexture();
+        return true;
     }
 
     @Override

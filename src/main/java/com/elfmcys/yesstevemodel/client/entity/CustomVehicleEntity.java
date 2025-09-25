@@ -63,8 +63,9 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected void onLoadModelContainer(ClientModel newModel, boolean isFallback) {
+    protected boolean onLoadModelContainer(ClientModel newModel, boolean isFallback) {
         vehicleModel = isFallback ? null : newModel.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
+        return vehicleModel != null;
     }
 
     @Override
