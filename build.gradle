@@ -70,7 +70,7 @@ legacyForge {
             ]
             // 以下环境变量只在调试时有效，在测试和生产构建中无效
             environment.putAll([
-                    "EMBEDDED_MODEL_PATH": "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\custom",
+                    "EMBEDDED_MODEL_PATH": "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\builtin",
                     "YSM_CORE_LIB"       : devLib
             ])
         }
