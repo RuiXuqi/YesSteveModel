@@ -19,13 +19,14 @@ public class ProjectileEntityMixin {
             return;
         }
         // 仅在服务端执行
-        if (owner.level().isClientSide()) {
+        Projectile projectile = (Projectile) (Object) this;
+        if (projectile == null || projectile.level() == null || projectile.level().isClientSide()) {
             return;
         }
         if (owner instanceof ServerPlayer) {
-            CapabilityEvent.onProjectileSetOwner((Projectile) (Object) this, (ServerPlayer) owner);
+            CapabilityEvent.onProjectileSetOwner(projectile, (ServerPlayer) owner);
         } else if (TlmCommonCompat.isMaid(owner)) {
-            TlmCommonCompat.onProjectileSetOwner((Projectile) (Object) this, owner);
+            TlmCommonCompat.onProjectileSetOwner(projectile, owner);
         }
     }
 }
