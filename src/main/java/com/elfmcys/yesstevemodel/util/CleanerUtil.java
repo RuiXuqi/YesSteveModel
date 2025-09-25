@@ -5,7 +5,6 @@ import io.netty.util.internal.ObjectCleaner;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-// Native Access
 public class CleanerUtil {
     public static <T> void ref(Object obj, T arg, Consumer<T> cleanAction) {
         ObjectCleaner.register(obj, () -> cleanAction.accept(arg));

@@ -5,5 +5,5 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Optional;
 
 public interface TextureHolder {
-    Optional<ResourceLocation> getId();
+    Optional<ResourceLocation> id();
 }

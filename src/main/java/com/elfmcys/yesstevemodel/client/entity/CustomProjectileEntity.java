@@ -66,7 +66,7 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     @Override
     @NotNull
     public ResourceLocation getTextureLocation() {
-        return ((ProjectileResourceHolder) this.getResourceHolder()).textureHolder.getId().orElseGet(MissingTextureAtlasSprite::getLocation);
+        return ((ProjectileResourceHolder) this.getResourceHolder()).textureHolder.id().orElseGet(MissingTextureAtlasSprite::getLocation);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
 
         @Override
         public boolean isLoaded() {
-            return textureHolder.getId().isPresent();
+            return textureHolder.id().isPresent();
         }
     }
 }

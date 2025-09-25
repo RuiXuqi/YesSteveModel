@@ -75,7 +75,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     @Override
     @NotNull
     public ResourceLocation getTextureLocation() {
-        return ((VehicleResourceHolder) getResourceHolder()).textureHolder.getId().orElseGet(MissingTextureAtlasSprite::getLocation);
+        return ((VehicleResourceHolder) getResourceHolder()).textureHolder.id().orElseGet(MissingTextureAtlasSprite::getLocation);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
 
         @Override
         public boolean isLoaded() {
-            return textureHolder.getId().isPresent();
+            return textureHolder.id().isPresent();
         }
     }
 }
