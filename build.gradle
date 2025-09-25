@@ -29,7 +29,7 @@ tasks.named('wrapper', Wrapper).configure {
 
 version = mod_version
 group = 'com.elfmcys.yesstevemodel'
-archivesBaseName = 'yesstevemodel'
+archivesBaseName = 'ysm'
 
 // 构建工具用到的变量
 var buildDir = layout.buildDirectory.asFile.get().absolutePath
