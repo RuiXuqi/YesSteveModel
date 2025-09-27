@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.compat;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.tr7zw.firstperson.api.FirstPersonAPI;
 import dev.tr7zw.firstperson.api.PlayerOffsetHandler;
 import net.minecraft.world.phys.Vec3;

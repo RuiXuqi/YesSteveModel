@@ -13,7 +13,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
-import com.elfmcys.yesstevemodel.util.RenderUtil;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
