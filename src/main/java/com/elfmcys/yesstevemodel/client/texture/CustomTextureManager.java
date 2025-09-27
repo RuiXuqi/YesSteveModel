@@ -2,41 +2,36 @@ package com.elfmcys.yesstevemodel.client.texture;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.util.CleanerUtil;
+import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.ReferenceIntMutablePair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class CustomTextureManager {
-    private final static int MAX_MILLI = 10;
-    private final static AtomicLong COUNTER = new AtomicLong();
+    private final static int MAX_MILLI = 20;
+    private static long COUNTER = 0;
 
-    private final static ConcurrentHashMap<AbstractTexture, WeakReference<TextureHolderImpl>> HOLDER_MAP = new ConcurrentHashMap<>();
-    private final static ConcurrentLinkedQueue<Pair<TextureHolderImpl, AbstractTexture>> PENDING_TEXTURES = new ConcurrentLinkedQueue<>();
+    private final static IdentityHashMap<AbstractTexture, WeakReference<TextureHolderImpl>> HOLDER_MAP = new IdentityHashMap<>();
+    private final static Queue<Pair<TextureHolderImpl, AbstractTexture>> PENDING_TEXTURES = Queues.newArrayDeque();
 
-    private final static ConcurrentHashMap<AbstractTexture, Pair<ResourceLocation, AtomicInteger>> REMOVING_TEXTURES = new ConcurrentHashMap<>();
-    private final static ConcurrentLinkedQueue<ResourceLocation> REMOVED_TEXTURES = new ConcurrentLinkedQueue<>();
-
+    private final static ConcurrentHashMap<AbstractTexture, ReferenceIntMutablePair<ResourceLocation>> REMOVING_TEXTURES = new ConcurrentHashMap<>();
+    private final static Queue<ResourceLocation> REMOVED_TEXTURES = Queues.newArrayDeque();
 
     public static TextureHolder register(AbstractTexture texture, boolean immediately) {
         return register(texture, immediately, 10 * 20);
     }
 
     public static TextureHolder register(AbstractTexture texture, boolean immediately, int removingDelayTicks) {
-        if (immediately) {
-            RenderSystem.assertOnRenderThread();
-        }
+        RenderSystem.assertOnRenderThread();
+
         var ref = HOLDER_MAP.get(texture);
         if (ref != null) {
             var holder = ref.get();
@@ -74,21 +69,37 @@ public class CustomTextureManager {
     }
 
     public static void release(AbstractTexture texture) {
+        RenderSystem.assertOnRenderThread();
         HOLDER_MAP.remove(texture);
     }
 
     public static void tick() {
         RenderSystem.assertOnRenderThread();
-        StopWatch stopWatch = StopWatch.createStarted();
 
         if (!REMOVING_TEXTURES.isEmpty()) {
             var removingIter = REMOVING_TEXTURES.entrySet().iterator();
             while (removingIter.hasNext()) {
                 var removing = removingIter.next();
-                if (removing.getValue().second().decrementAndGet() < 0) {
+                var ticks = removing.getValue().secondInt();
+                if (ticks <= 0) {
+                    REMOVED_TEXTURES.add(removing.getValue().first());
                     removingIter.remove();
-                     REMOVED_TEXTURES.add(removing.getValue().first());
+                } else {
+                    removing.getValue().second(ticks - 1);
                 }
+            }
+        }
+
+        StopWatch stopWatch = StopWatch.createStarted();
+        while (true) {
+            var texturePair = PENDING_TEXTURES.poll();
+            if (texturePair == null) {
+                break;
+            }
+
+            doRegister(texturePair.right(), texturePair.left());
+            if (stopWatch.getTime() >= MAX_MILLI) {
+                return;
             }
         }
 
@@ -103,24 +114,12 @@ public class CustomTextureManager {
                 return;
             }
         }
-
-        while (true) {
-            var texturePair = PENDING_TEXTURES.poll();
-            if (texturePair == null) {
-                return;
-            }
-
-            doRegister(texturePair.right(), texturePair.left());
-            if (stopWatch.getTime() >= MAX_MILLI) {
-                return;
-            }
-        }
     }
 
     private static void doRegister(AbstractTexture texture, TextureHolderImpl holder) {
         if (!holder.ready) {
             Minecraft.getInstance().getTextureManager().register(holder.id, texture);
-            CleanerUtil.ref(holder, holder.id, holder.delayTicks, (id, delayTicks) -> REMOVING_TEXTURES.put(texture, Pair.of(id, new AtomicInteger(delayTicks))));
+            CleanerUtil.ref(holder, holder.id, holder.delayTicks, (id, delayTicks) -> REMOVING_TEXTURES.put(texture, ReferenceIntMutablePair.of(id, delayTicks)));
             holder.setReady();
         }
     }
@@ -138,7 +137,7 @@ public class CustomTextureManager {
 
         @SuppressWarnings("removal")
         TextureHolderImpl(int delayTicks) {
-            this.id = new ResourceLocation(YesSteveModel.MOD_ID, "textures/" + COUNTER.getAndIncrement());
+            this.id = new ResourceLocation(YesSteveModel.MOD_ID, "textures/" + ++COUNTER);
             this.delayTicks = delayTicks;
             this.ready = false;
         }

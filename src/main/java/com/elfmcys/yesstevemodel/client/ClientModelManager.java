@@ -213,14 +213,20 @@ public class ClientModelManager {
             var models = new Object2ReferenceOpenHashMap<>(MODELS);
 
             if (removedModelIds != null) {
+                var removedList = new ArrayList<ClientModel>(removedModelIds.length);
                 for (String removedModelId : removedModelIds) {
                     var removedModel = models.remove(removedModelId);
                     if (removedModel != null) {
+                        removedList.add(removedModel);
+                    }
+                }
+                Minecraft.getInstance().execute(() -> {
+                    for (var removedModel : removedList) {
                         for (var texture : removedModel.registeredTextureIds()) {
                             CustomTextureManager.release(texture);
                         }
                     }
-                }
+                });
             }
 
             if (alterModelIds != null) {
