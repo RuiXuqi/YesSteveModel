@@ -591,6 +591,11 @@ public class AnimationRouletteScreen extends Screen {
     }
 
     private void drawRouletteBg(PoseStack pPoseStack, int mouseX, int mouseY) {
+        // extraAnimationMap 可能为空
+        if (this.extraAnimationMap.isEmpty()) {
+            return;
+        }
+
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
