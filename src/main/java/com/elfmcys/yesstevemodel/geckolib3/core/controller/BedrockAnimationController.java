@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
+import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
@@ -78,9 +79,6 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         var renderTicks = event.renderTicks;
 
         if (this.state == null) {
-            if (!allowEmitting) {
-                return;
-            }
             // 初始化默认状态
             var stateName = this.data.initialState();
             var initialState = this.data.states().get(stateName);
@@ -89,7 +87,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             }
             this.stateName = stateName;
             updateState(initialState, evaluator);
-        } else if (allowEmitting) {
+        } else if (allowEmitting || event.getAnimatableEntity() instanceof IPreviewEntity) {
             // 更新当前状态
             int appliedController = 0;
             ctx.setAnyAnimationFinished(false);

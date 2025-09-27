@@ -31,7 +31,7 @@ public class FirstPersonCompat {
 
     // Native Access
     public static boolean isRenderingPlayer() {
-        return INSTALLED && RenderSystem.isOnRenderThread() && FirstPersonAPI.isRenderingPlayer();
+        return INSTALLED && FirstPersonAPI.isRenderingPlayer();
     }
 
     public static boolean shouldHideHead() {

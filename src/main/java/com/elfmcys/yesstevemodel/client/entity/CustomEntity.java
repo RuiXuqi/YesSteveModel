@@ -134,7 +134,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     @Override
     public @Nullable AnimationEvent<?> updateAnimation(float partialTicks) {
         RenderSystem.assertOnRenderThread();
-        if (RenderUtil.isRenderingLevel()) {
+        if (RenderUtil.isRenderingLevelExclusive()) {
             if (asyncTask != null) {
                 return waitForAsyncUpdate();
             }
