@@ -45,7 +45,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     private Int2ReferenceMap<List<IValue>> eventHandlers;
 
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
-    protected float lastFrameTime;
+    protected float lastFrameTime = -1;
     protected int currentFrameRenderTimes;
 
     private float seekTime;
@@ -148,8 +148,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     protected boolean allowEmitting() {
-        // 同帧内只有第一次更新允许生成行为
-        return currentFrameRenderTimes == 1;
+        return true;
     }
 
     @Nullable
@@ -221,6 +220,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             currentFrameRenderTimes = 1;
             lastFrameTime = frameTime;
         } else {
+            // 目前不允许倒退，可能会影响 replay 的回放
             currentFrameRenderTimes++;
             frameTime = lastFrameTime;
         }
@@ -230,13 +230,10 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         } else {
             float currentTick = frameTime - manager.startTick;
             float deltaTicks = currentTick - manager.lastTick;
-            if (deltaTicks >= 0f) {
+            if (deltaTicks > 0f) {
                 manager.lastTick = currentTick;
-            } else {
-                // 目前不允许倒退，可能会影响 replay 的回放
-                deltaTicks = 0;
+                this.seekTime += deltaTicks;
             }
-            this.seekTime += deltaTicks;
         }
 
         boolean forceUpdate = this.shouldForceUpdate();
@@ -248,7 +245,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                 stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
                 physicsManager.update(this.seekTime);
                 preAnimationSetup(this.seekTime);
-                getAnimationProcessor().tickAnimation(animationEvent, ctx, allowEmitting());
+                getAnimationProcessor().tickAnimation(animationEvent, ctx, currentFrameRenderTimes > 1, allowEmitting());
                 return true;
             }
         }
@@ -267,6 +264,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.eventHandlers = eventHandlers;
         this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
         onLoadGeoModel(this.currentModel);
+        this.currentFrameRenderTimes = 0;
     }
 
     public void reloadGeoModel() {

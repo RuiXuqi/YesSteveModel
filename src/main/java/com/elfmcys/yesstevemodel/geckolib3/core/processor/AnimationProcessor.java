@@ -49,7 +49,7 @@ public class AnimationProcessor<TEntity extends Entity> {
     }
 
     @SuppressWarnings("unchecked")
-    public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx, boolean allowEmitting) {
+    public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx, boolean multipleRender,  boolean allowEmitting) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
 
@@ -63,9 +63,11 @@ public class AnimationProcessor<TEntity extends Entity> {
             if (this.modelDirty) {
                 controller.updateModel(this.modelBones, eventHandlers);
             }
-            // 将当前控制器设置为动画测试事件
-            // 处理动画并向点队列添加新值
-            controller.process(event, evaluator, allowEmitting);
+            if (!multipleRender) {
+                // 将当前控制器设置为动画测试事件
+                // 处理动画并向点队列添加新值
+                controller.process(event, evaluator, allowEmitting);
+            }
             // 解决一个历史遗留问题而保留的动画混合
             @Deprecated boolean blendRotation = controller.blendRotation();
             // 遍历每个骨骼，并对属性进行插值计算

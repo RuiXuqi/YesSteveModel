@@ -130,7 +130,13 @@ public class CtrlBinding extends ContextBinding {
     private static boolean testCondition(String name, IContext<LivingEntity> context) {
         LivingEntity entity = context.entity();
 
+        var stateTracker = context.animatableEntity().getStateTracker();
+        if (stateTracker.getMainAnimationCache() != null) {
+            return name.equals(stateTracker.getMainAnimationCache());
+        }
+
         if (context.animatableEntity() instanceof IPreviewEntity) {
+            stateTracker.setMainAnimationCache("");
             return false;
         }
 
@@ -138,6 +144,7 @@ public class CtrlBinding extends ContextBinding {
         if (entity instanceof Player player) {
             boolean parcool = ParCoolCompat.hasAnimation(player);
             if (parcool) {
+                stateTracker.setMainAnimationCache("");
                 return false;
             }
         }
@@ -145,16 +152,19 @@ public class CtrlBinding extends ContextBinding {
         // 载具
         Entity vehicle = entity.getVehicle();
         if (vehicle != null && vehicle.isAlive()) {
+            stateTracker.setMainAnimationCache("");
             return false;
         }
 
         for (int i = Priority.HIGHEST; i <= Priority.LOWEST; i++) {
             for (Condition condition : DATA[i]) {
                 if (condition.predicate().test(context)) {
+                    stateTracker.setMainAnimationCache(condition.name());
                     return condition.name().equals(name);
                 }
             }
         }
+        stateTracker.setMainAnimationCache("");
         return false;
     }
 

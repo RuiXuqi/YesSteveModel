@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 public class EntityStateTracker<T extends Entity> {
     protected T entity;
@@ -13,6 +14,7 @@ public class EntityStateTracker<T extends Entity> {
 
     private Vec3 lastPosition;
     private Vec3 positionDelta = Vec3.ZERO;
+    private String mainAnimationCache;
     protected float lastRenderTick;
 
     public EntityStateTracker(T entity) {
@@ -43,6 +45,7 @@ public class EntityStateTracker<T extends Entity> {
      */
     protected void updateRenderTickData(float currentRenderTick, float lastRenderTick, float partialTicks) {
         updatePositionDelta(partialTicks);
+        mainAnimationCache = null;
     }
 
     protected void updateEntityTickData(int currentTickCount, int lastTickCount) {
@@ -76,5 +79,14 @@ public class EntityStateTracker<T extends Entity> {
      */
     public Vec3 getPositionDelta() {
         return positionDelta;
+    }
+
+    @Nullable
+    public String getMainAnimationCache() {
+        return mainAnimationCache;
+    }
+
+    public void setMainAnimationCache(String mainAnimation) {
+        this.mainAnimationCache = mainAnimation;
     }
 }
