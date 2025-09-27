@@ -1,5 +1,7 @@
 package com.elfmcys.yesstevemodel.util;
 
+import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
@@ -50,6 +52,12 @@ public final class RenderUtil {
     }
 
     public static boolean isRenderingLevel() {
+        return renderingLevel ||
+                IrisCompat.isRenderingShadow() ||
+                FirstPersonCompat.isRenderingPlayer();
+    }
+
+    public static boolean isRenderingLevelExclusive() {
         return renderingLevel;
     }
 

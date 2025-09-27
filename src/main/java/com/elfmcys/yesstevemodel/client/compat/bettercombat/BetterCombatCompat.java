@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.client.compat.bettercombat;
 
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.util.PersonView;
-import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraftforge.fml.loading.LoadingModList;
 
 public class BetterCombatCompat {
@@ -18,6 +17,6 @@ public class BetterCombatCompat {
     }
 
     public static boolean shouldHideHead(CustomPlayerEntity entity) {
-        return INSTALLED && PersonView.isFirstPersonView(entity) && RenderUtil.isRenderingLevel();
+        return INSTALLED && PersonView.isFirstPersonView(entity);
     }
 }

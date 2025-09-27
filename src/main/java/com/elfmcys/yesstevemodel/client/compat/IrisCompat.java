@@ -59,7 +59,7 @@ public class IrisCompat {
     }
 
     public static boolean isRenderingShadow() {
-        return RenderSystem.isOnRenderThread() && IrisApi.getInstance().isRenderingShadowPass();
+        return INSTALLED && IrisApi.getInstance().isRenderingShadowPass();
     }
 
     private static long getEntityIdLegacy() {
@@ -77,8 +77,10 @@ public class IrisCompat {
     }
 
     public static void setupState() {
-        ENTITY_ID = ENTITY_ID_GETTER.getAsLong();
-        IS_RENDERING_SHADOW = isRenderingShadow();
+        if (INSTALLED) {
+            ENTITY_ID = ENTITY_ID_GETTER.getAsLong();
+            IS_RENDERING_SHADOW = isRenderingShadow();
+        }
     }
 
     private static class LegacyPBRLoader implements net.coderbot.iris.texture.pbr.loader.PBRTextureLoader<NativeTexture> {

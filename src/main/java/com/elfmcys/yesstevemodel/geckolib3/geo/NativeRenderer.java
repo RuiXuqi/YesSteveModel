@@ -25,9 +25,7 @@ public class NativeRenderer {
     public static void renderModel(VertexConsumer vertexConsumer, PoseStack.Pose poseState,
                                    GeoModel model, float[] inputState, float @Nullable [] outputState, int textureIndex, int renderMode,
                                    int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        if (IrisCompat.isInstalled()) {
-            IrisCompat.setupState();
-        }
+        IrisCompat.setupState();
 
         var forceLegacyRenderer = OptifineCompat.isInstalled() || ClientConfig.USE_COMPATIBILITY_RENDERER.get();
         RenderSystem.getProjectionMatrix().mul(RenderSystem.getModelViewMatrix(), POST_MAT);

@@ -114,7 +114,7 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> {
      */
     @Override
     public boolean shouldForceUpdate() {
-        return currentFrameRenderTimes > 1 || !RenderUtil.isRenderingLevel();
+        return currentFrameRenderTimes > 1;
     }
 
     @Deprecated
