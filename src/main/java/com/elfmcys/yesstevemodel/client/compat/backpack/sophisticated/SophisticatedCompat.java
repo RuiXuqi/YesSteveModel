@@ -19,6 +19,11 @@ public class SophisticatedCompat {
      */
     public static void init() {
         INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null;
+    }
+
+    public static void addLayer() {
+        // 以防加载顺序的不同，导致没有初始化
+        INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null;
         if (isInstalled()) {
             RegisterEntityRenderersEvent.getPlayerRenderer().addLayer(new YsmBackpackLayerRenderer());
         }

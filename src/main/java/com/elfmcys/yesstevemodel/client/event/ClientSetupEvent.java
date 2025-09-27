@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.event;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.compat.*;
+import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.create.CreateCompat;
@@ -53,6 +54,7 @@ public class ClientSetupEvent {
             SlashBladeCompat.init();
             SwemCompat.init();
             CreateCompat.init();
+            SophisticatedCompat.init();
 
             // 一定要放在最后
             initCoreClient();

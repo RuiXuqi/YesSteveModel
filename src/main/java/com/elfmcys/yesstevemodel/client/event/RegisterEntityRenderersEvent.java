@@ -42,7 +42,7 @@ public class RegisterEntityRenderersEvent {
         CUSTOM_FIRST_PERSON_RENDERER = new CustomFirstPersonArmRenderer();
         CUSTOM_VEHICLE_RENDERER = new CustomVehicleRenderer(context);
 
-        SophisticatedCompat.init();
+        SophisticatedCompat.addLayer();
     }
 
     @SubscribeEvent

@@ -225,6 +225,9 @@ public class AnimationRouletteScreen extends Screen {
             lineMaxWidth = Math.max(lineMaxWidth, font.width(labelStr) + 16);
             labelsIndex++;
         }
+        if (lineMaxWidth == 0) {
+            lineMaxWidth = 115;
+        }
         int countPerLine = Math.max(1, 115 / lineMaxWidth);
 
         String titleStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]), radioForms.title());
