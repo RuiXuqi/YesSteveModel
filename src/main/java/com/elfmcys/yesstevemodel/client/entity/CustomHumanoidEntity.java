@@ -136,7 +136,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
                 executeMolangExp(MolangEventWrapper.wrap(initEvent), true, true, null);
             }
         }
-        if (wrappedUpdateHandler != null) {
+        if (wrappedUpdateHandler != null && currentFrameRenderTimes == 1) {
             executeMolangExp(wrappedUpdateHandler, true, true, null);
         }
     }
