@@ -32,6 +32,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     private final AnimationPlayer animationPlayer;
     private final boolean blendRotation;
     private final ControllerContext ctx;
+    private final float defaultTransitionTicks;
     @Nullable
     private IValue molangPredicate;
     private boolean pause;
@@ -56,6 +57,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.name = name;
         this.animationPredicate = animationPredicate;
         this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
+        this.defaultTransitionTicks = transitionLengthTicks;
         this.blendRotation = blendRotation;
         this.ctx = new ControllerContext();
     }
@@ -119,7 +121,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     @Override
     public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
         this.animationPlayer.updateModel(modelBones);
-
+        this.animationPlayer.setBeginningTransition(new LinearBlendTransition(defaultTransitionTicks));
         this.molangPredicate = null;
         var predictEventName = StringPool.getName(this.name.replace(".", "_ctrl_"));
         if (predictEventName != StringPool.NONE) {
