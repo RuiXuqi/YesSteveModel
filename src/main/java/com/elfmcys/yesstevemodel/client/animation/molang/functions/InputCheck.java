@@ -15,16 +15,18 @@ public class InputCheck {
             if (!InputCheckUtil.isInGame()) {
                 return false;
             }
-            int keyCode = arguments.getAsInt(context, 0);
-            if (GLFW.GLFW_KEY_SPACE <= keyCode && keyCode <= GLFW.GLFW_KEY_LAST) {
-                return ModInputEvent.KEY_STATES[keyCode];
+            for (var i = 0; i < arguments.size(); i++) {
+                int keyCode = arguments.getAsInt(context, i);
+                if (GLFW.GLFW_KEY_SPACE <= keyCode && keyCode <= GLFW.GLFW_KEY_LAST && ModInputEvent.KEY_STATES[keyCode]) {
+                    return true;
+                }
             }
             return false;
         }
 
         @Override
         public boolean validateArgumentSize(int size) {
-            return size == 1;
+            return size >= 1;
         }
     }
 
