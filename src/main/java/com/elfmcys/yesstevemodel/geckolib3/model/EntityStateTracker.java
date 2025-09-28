@@ -16,6 +16,7 @@ public class EntityStateTracker<T extends Entity> {
     private Vec3 positionDelta = Vec3.ZERO;
     private String mainAnimationCache;
     protected float lastRenderTick;
+    protected float renderTickDelta;
 
     public EntityStateTracker(T entity) {
         this.entity = entity;
@@ -44,6 +45,7 @@ public class EntityStateTracker<T extends Entity> {
      * 不要用 entity.tickCount，否则会受暂停影响。
      */
     protected void updateRenderTickData(float currentRenderTick, float lastRenderTick, float partialTicks) {
+        renderTickDelta = currentRenderTick - lastRenderTick;
         updatePositionDelta(partialTicks);
         mainAnimationCache = null;
     }
@@ -88,5 +90,9 @@ public class EntityStateTracker<T extends Entity> {
 
     public void setMainAnimationCache(String mainAnimation) {
         this.mainAnimationCache = mainAnimation;
+    }
+
+    public float getRenderTickDelta() {
+        return renderTickDelta;
     }
 }

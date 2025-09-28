@@ -81,6 +81,7 @@ public class YSMBinding extends ContextBinding {
         var("weather", ctx -> getWeather(ctx.level()));
         var("dimension_name", ctx -> ctx.level().dimension().location().toString());
         var("fps", ctx -> Minecraft.getInstance().getFps());
+        var("time_delta", ctx -> ctx.animatableEntity().getStateTracker().getRenderTickDelta() / 20);
 
         entityVar("input_vertical", MoveInputVariable::getVertical);
         entityVar("input_horizontal", MoveInputVariable::getHorizontal);

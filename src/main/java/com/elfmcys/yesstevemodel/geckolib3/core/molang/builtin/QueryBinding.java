@@ -23,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
@@ -64,9 +63,9 @@ public class QueryBinding extends ContextBinding {
         entityVar("distance_from_camera", ctx -> ctx.mc().gameRenderer.getMainCamera().getPosition().distanceTo(ctx.entity().position()));
         entityVar("eye_target_x_rotation", ctx -> ctx.entity().getViewXRot(ctx.animationEvent().getPartialTick()));
         entityVar("eye_target_y_rotation", ctx -> ctx.entity().getViewYRot(ctx.animationEvent().getPartialTick()));
-        entityVar("ground_speed", ctx -> getGroundSpeed(ctx.entity()));
+        entityVar("ground_speed", QueryBinding::getGroundSpeed);
         entityVar("modified_distance_moved", ctx -> ctx.entity().walkDist);
-        entityVar("vertical_speed", ctx -> getVerticalSpeed(ctx.entity()));
+        entityVar("vertical_speed", QueryBinding::getVerticalSpeed);
         entityVar("walk_distance", ctx -> ctx.entity().moveDist);
         entityVar("has_rider", ctx -> ctx.entity().isVehicle());
         entityVar("is_first_person", ctx -> PersonView.getPersonView(ctx) == CameraType.FIRST_PERSON.ordinal());
@@ -176,13 +175,16 @@ public class QueryBinding extends ContextBinding {
         }
     }
 
-    private static float getGroundSpeed(Entity player) {
-        Vec3 velocity = player.getDeltaMovement();
-        return 20 * Mth.sqrt((float) ((velocity.x * velocity.x) + (velocity.z * velocity.z)));
+    private static float getGroundSpeed(IContext<Entity> ctx) {
+        var stateStacker = ctx.animatableEntity().getStateTracker();
+        var posDelta = stateStacker.getPositionDelta();
+        return 20 / stateStacker.getRenderTickDelta() * Mth.sqrt((float) ((posDelta.x * posDelta.x) + (posDelta.z * posDelta.z)));
     }
 
-    private static float getVerticalSpeed(Entity entity) {
-        return 20 * (float) (entity.position().y - entity.yo);
+    private static float getVerticalSpeed(IContext<Entity> ctx) {
+        var stateStacker = ctx.animatableEntity().getStateTracker();
+        var posDelta = stateStacker.getPositionDelta();
+        return 20 / stateStacker.getRenderTickDelta() * (float) posDelta.y;
     }
 
     private static float getCapeFlapAmount(IContext<Player> ctx) {
