@@ -14,6 +14,8 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
+import it.unimi.dsi.fastutil.booleans.BooleanList;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,6 +36,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     private final Vector2f headRot = new Vector2f();
     private boolean fireInitEvent = false;
     private IValue wrappedUpdateHandler = null;
+    private final BooleanList updateHandlerArgs = new BooleanArrayList(1);
 
     /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
@@ -42,6 +45,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
 
     protected CustomHumanoidEntity(T entity, boolean asyncUpdate) {
         super(entity, asyncUpdate);
+        updateHandlerArgs.size(1);
     }
 
     @Override
@@ -120,7 +124,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         fireInitEvent = true;
         var updateHandlers = getEventHandler(MolangEventWrapper.PLAYER_UPDATE);
         if (updateHandlers != null) {
-            wrappedUpdateHandler = MolangEventWrapper.wrap(updateHandlers);
+            wrappedUpdateHandler = MolangEventWrapper.wrap(updateHandlers, updateHandlerArgs);
         } else {
             wrappedUpdateHandler = null;
         }
@@ -136,7 +140,8 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
                 executeMolangExp(MolangEventWrapper.wrap(initEvent), true, true, null);
             }
         }
-        if (wrappedUpdateHandler != null && currentFrameRenderTimes == 1) {
+        if (wrappedUpdateHandler != null) {
+            updateHandlerArgs.set(0, currentFrameRenderTimes == 1);
             executeMolangExp(wrappedUpdateHandler, true, true, null);
         }
     }
