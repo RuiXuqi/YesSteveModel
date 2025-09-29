@@ -1,7 +1,6 @@
 package com.elfmcys.yesstevemodel.client.animation.molang;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.physics.IPhysics;
-import com.elfmcys.yesstevemodel.util.RenderUtil;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,8 +10,7 @@ public class PhysicsManager {
 
     public void update(float renderTicks) {
         if (lastRenderTicks > 0) {
-            // 每帧至少在场景内实体渲染或纸娃娃渲染内更新一次
-            if (renderTicks > lastRenderTicks && (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingEntitiesInPaperDoll())) {
+            if (renderTicks > lastRenderTicks) {
                 float interval = (renderTicks - lastRenderTicks) / 20f;
                 lastRenderTicks = renderTicks;
                 physicsValues.int2ReferenceEntrySet().fastForEach(entry -> entry.getValue().update(interval));
