@@ -188,6 +188,13 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         }
     }
 
+    public void copyFrom(PlayerAnimatableCapability source) {
+        this.storageMap.putAll(source.storageMap);
+        updateModelAndTexture(source.getModelId(), source.getTextureName());
+        source.storageMap.clear();
+        source.roamingStruct = null;
+    }
+
     @Override
     @NotNull
     protected HumanoidResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
