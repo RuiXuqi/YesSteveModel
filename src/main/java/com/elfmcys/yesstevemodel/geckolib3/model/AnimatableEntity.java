@@ -245,7 +245,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                 stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
                 physicsManager.update(this.seekTime);
                 preAnimationSetup(this.seekTime);
-                getAnimationProcessor().tickAnimation(animationEvent, ctx, currentFrameRenderTimes > 1, allowEmitting());
+                getAnimationProcessor().tickAnimation(animationEvent, ctx, currentFrameRenderTimes == 1, allowEmitting());
                 return true;
             }
         }

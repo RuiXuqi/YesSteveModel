@@ -49,7 +49,7 @@ public class AnimationProcessor<TEntity extends Entity> {
     }
 
     @SuppressWarnings("unchecked")
-    public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx, boolean multipleRender,  boolean allowEmitting) {
+    public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx, boolean shouldTick, boolean allowEmitting) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
 
@@ -63,7 +63,7 @@ public class AnimationProcessor<TEntity extends Entity> {
             if (this.modelDirty) {
                 controller.updateModel(this.modelBones, eventHandlers);
             }
-            if (!multipleRender) {
+            if (shouldTick) {
                 // 将当前控制器设置为动画测试事件
                 // 处理动画并向点队列添加新值
                 controller.process(event, evaluator, allowEmitting);

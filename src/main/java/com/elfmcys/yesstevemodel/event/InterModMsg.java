@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.event;
+package com.elfmcys.yesstevemodel.event;
 
 import com.elfmcys.yesstevemodel.client.compat.top.TopPlugin;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
