@@ -7,6 +7,7 @@ import net.minecraft.util.StringUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -76,8 +77,14 @@ public final class NativeLibUtil {
 
         var dir = SystemUtils.IS_OS_WINDOWS ? Path.of(System.getProperty("java.io.tmpdir"), "ysm")
                 : Path.of(System.getProperty("user.home"), ".ysm");
-        if (!Files.isDirectory(dir)) {
-            Files.createDirectory(dir);
+        try {
+            if (!Files.isDirectory(dir)) {
+                Files.createDirectory(dir);
+            }
+        } catch (Throwable t) {
+            dir = FMLPaths.CONFIGDIR.get()
+                    .resolve(YesSteveModel.MOD_ID)
+                    .resolve("cache");
         }
         var libPath = dir
                 .resolve(libFileName)
