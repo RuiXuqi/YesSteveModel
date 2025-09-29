@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.network.message;
 
-import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.ClientLazyCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ProjectileModelInfoCapability;
 import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -59,10 +59,12 @@ public class SyncProjectileModelInfo {
     }
 
     @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("DataFlowIssue")
     private static void handleCapability(Entity entity, ProjectileModelInfoCapability newCap, Int2FloatOpenHashMap vars) {
-        entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.init(newCap.getOwnerModelId());
-            cap.initRoamingVars(vars);
+        entity.getCapability(ClientLazyCapabilityProvider.CAP).ifPresent(cap -> {
+            var animatable = cap.getProjectileAnimatableCapabilityProvider().initialize();
+            animatable.init(newCap.getOwnerModelId());
+            animatable.initRoamingVars(vars);
         });
     }
 }

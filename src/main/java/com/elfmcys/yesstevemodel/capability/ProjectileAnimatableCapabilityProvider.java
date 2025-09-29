@@ -23,17 +23,16 @@ public class ProjectileAnimatableCapabilityProvider implements ICapabilityProvid
         this.projectile = projectile;
     }
 
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return CAP.orEmpty(cap, LazyOptional.of(this::createCapability));
+    public ProjectileAnimatableCapability initialize() {
+        if (this.instance == null) {
+            this.instance = new ProjectileAnimatableCapability(projectile);
+            this.projectile = null;
+        }
+        return this.instance;
     }
 
-    @NotNull
-    private ProjectileAnimatableCapability createCapability() {
-        if (instance == null) {
-            this.instance = new ProjectileAnimatableCapability(projectile);
-            projectile = null;
-        }
-        return instance;
+    @Override
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        return CAP.orEmpty(cap, instance == null ? LazyOptional.empty() : LazyOptional.of(() -> instance));
     }
 }

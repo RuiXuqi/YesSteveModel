@@ -23,17 +23,16 @@ public class VehicleAnimatableCapabilityProvider implements ICapabilityProvider 
         this.entity = entity;
     }
 
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return CAP.orEmpty(cap, LazyOptional.of(this::createCapability));
-    }
-
-    @NotNull
-    private VehicleAnimatableCapability createCapability() {
-        if (instance == null) {
+    public VehicleAnimatableCapability initialize() {
+        if (this.instance == null) {
             this.instance = new VehicleAnimatableCapability(entity);
-            entity = null;
+            this.entity = null;
         }
         return instance;
+    }
+
+    @Override
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        return CAP.orEmpty(cap, instance == null ? LazyOptional.empty() : LazyOptional.of(() -> instance));
     }
 }

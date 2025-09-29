@@ -31,6 +31,7 @@ public final class CapabilityEvent {
     private static final ResourceLocation ANIMATABLE_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "animatable");
     private static final ResourceLocation PROJECTILE_ANIMATABLE_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "projectile_animatable");
     private static final ResourceLocation VEHICLE_ANIMATABLE_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "vehicle_animatable");
+    private static final ResourceLocation CLIENT_LAZY_CAP = new ResourceLocation(YesSteveModel.MOD_ID, "client_lazy");
 
     @SubscribeEvent
     @SuppressWarnings("resource")
@@ -69,17 +70,19 @@ public final class CapabilityEvent {
                 return;
             }
 
-            // 投掷物
-            if (entity instanceof Projectile projectile
-                && !entity.getCapability(ProjectileAnimatableCapabilityProvider.CAP).isPresent()
-                && !event.getCapabilities().containsKey(PROJECTILE_ANIMATABLE_CAP)) {
-                event.addCapability(PROJECTILE_ANIMATABLE_CAP, new ProjectileAnimatableCapabilityProvider(projectile));
-            }
+            // 客户端懒加载 cap
+            if (!entity.getCapability(ClientLazyCapabilityProvider.CAP).isPresent()
+                    && !event.getCapabilities().containsKey(CLIENT_LAZY_CAP)) {
+                var vehicleAnimatable = new VehicleAnimatableCapabilityProvider(entity);
+                event.addCapability(VEHICLE_ANIMATABLE_CAP, vehicleAnimatable);
 
-            // 其他载具
-            if (!entity.getCapability(VehicleAnimatableCapabilityProvider.CAP).isPresent()
-                && !event.getCapabilities().containsKey(VEHICLE_ANIMATABLE_CAP)) {
-                event.addCapability(VEHICLE_ANIMATABLE_CAP, new VehicleAnimatableCapabilityProvider(entity));
+                ProjectileAnimatableCapabilityProvider projectileAnimatable = null;
+                if (entity instanceof Projectile projectile) {
+                    projectileAnimatable = new ProjectileAnimatableCapabilityProvider(projectile);
+                    event.addCapability(PROJECTILE_ANIMATABLE_CAP, projectileAnimatable);
+                }
+
+                event.addCapability(CLIENT_LAZY_CAP, new ClientLazyCapabilityProvider(vehicleAnimatable, projectileAnimatable));
             }
         }
     }
