@@ -26,4 +26,8 @@ public class RateLimiter {
     public float getInterval() {
         return interval;
     }
+
+    public void reset() {
+        aggregate = interval;
+    }
 }

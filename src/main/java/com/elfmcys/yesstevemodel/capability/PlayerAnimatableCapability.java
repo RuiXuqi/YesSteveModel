@@ -71,8 +71,8 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     @Override
-    protected void preAnimationSetup(float seekTime) {
-        super.preAnimationSetup(seekTime);
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
+        super.preAnimationSetup(seekTime, shouldTick);
 
         // 更新调试信息
         if (debugInfo != null && debugInfo.isEnabled()) {

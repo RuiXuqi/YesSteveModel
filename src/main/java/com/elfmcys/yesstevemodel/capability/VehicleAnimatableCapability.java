@@ -30,8 +30,8 @@ public class VehicleAnimatableCapability extends CustomVehicleEntity {
     }
 
     @Override
-    protected void preAnimationSetup(float seekTime) {
-        super.preAnimationSetup(seekTime);
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
+        super.preAnimationSetup(seekTime, shouldTick);
         getAnimationProcessor().putRemoteStruct(roamingStruct);
     }
 }

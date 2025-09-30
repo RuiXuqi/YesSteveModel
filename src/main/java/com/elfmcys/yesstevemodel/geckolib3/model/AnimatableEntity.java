@@ -47,7 +47,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
     protected float lastFrameTime = -1;
     protected boolean lastMutableRender;
-    protected int currentFrameRenderTimes;
+    protected boolean currentFrameTicked;
+    protected boolean currentFrameShouldTick;
 
     private float seekTime;
     private boolean initialize = false;
@@ -132,7 +133,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      * 更新动画之前调用，
      * 如果由于频率限制、renderTick 倒退等原因导致动画不更新，则不会调用
      */
-    protected void preAnimationSetup(float seekTime) {
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
     }
 
     public final TEntity getEntity() {
@@ -219,11 +220,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         var mutableRender = !isImmutableRender();
 
         if (frameTime > lastFrameTime) {
-            currentFrameRenderTimes = 1;
+            currentFrameTicked = false;
+            currentFrameShouldTick = false;
             lastFrameTime = frameTime;
         } else {
             // 目前不允许倒退，可能会影响 replay 的回放
-            currentFrameRenderTimes++;
             frameTime = lastFrameTime;
         }
 
@@ -240,14 +241,16 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         animationEvent.renderTicks = this.seekTime;
 
         if (!animationProcessor.isModelEmpty()) {
-            var shouldUpdate = rateLimiter.request(seekTime / 20);
+            currentFrameShouldTick |= rateLimiter.request(seekTime / 20);
+            var shouldUpdate = currentFrameShouldTick && !currentFrameTicked;
             if (lastMutableRender || mutableRender || shouldUpdate) {
-                var shouldTick = !mutableRender;
+                var shouldTick = !mutableRender && shouldUpdate;
                 if (shouldTick) {
+                    currentFrameTicked = true;
                     stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
                 }
                 getPhysicsManager().update(this.seekTime);
-                preAnimationSetup(this.seekTime);
+                preAnimationSetup(this.seekTime, shouldTick);
                 getAnimationProcessor().tickAnimation(animationEvent, ctx, shouldTick, allowEmitting());
                 lastMutableRender = mutableRender;
                 return true;
@@ -268,7 +271,9 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.eventHandlers = eventHandlers;
         this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
         onLoadGeoModel(this.currentModel);
-        this.currentFrameRenderTimes = 0;
+        this.currentFrameTicked = false;
+        this.currentFrameShouldTick = true;
+        this.rateLimiter.reset();
         this.lastMutableRender = false;
     }
 

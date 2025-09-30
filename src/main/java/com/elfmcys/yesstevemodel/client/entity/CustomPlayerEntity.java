@@ -174,8 +174,8 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> {
     }
 
     @Override
-    protected void preAnimationSetup(float seekTime) {
-        super.preAnimationSetup(seekTime);
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
+        super.preAnimationSetup(seekTime, shouldTick);
         // 设置 roaming 变量
         getAnimationProcessor().putRemoteStruct(getRoamingStruct());
     }

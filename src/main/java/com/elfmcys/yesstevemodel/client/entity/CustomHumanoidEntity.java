@@ -131,8 +131,8 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
-    protected void preAnimationSetup(float seekTime) {
-        super.preAnimationSetup(seekTime);
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
+        super.preAnimationSetup(seekTime, shouldTick);
         if (fireInitEvent) {
             fireInitEvent = false;
             var initEvent = getEventHandler(MolangEventWrapper.PLAYER_INIT);
@@ -141,7 +141,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
             }
         }
         if (wrappedUpdateHandler != null) {
-            updateHandlerArgs.set(0, currentFrameRenderTimes == 1);
+            updateHandlerArgs.set(0, shouldTick);
             executeMolangExp(wrappedUpdateHandler, true, true, null);
         }
     }

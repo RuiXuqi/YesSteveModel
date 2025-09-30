@@ -100,7 +100,7 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     }
 
     @Override
-    protected void preAnimationSetup(float seekTime) {
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
         // 设置 roaming 变量
         getAnimationProcessor().putRemoteStruct(mainModelEntity.getRoamingStruct());
     }
