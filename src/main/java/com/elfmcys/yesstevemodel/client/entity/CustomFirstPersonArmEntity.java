@@ -31,6 +31,11 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
         return mainModelEntity;
     }
 
+    @Override
+    protected boolean isImmutableRender() {
+        return true;
+    }
+
     @SuppressWarnings("all")
     private void registerControllers() {
         addAnimationController(new HybridAnimationController(this, FP_ARM_MISC_CONTROLLER, 0, new EmptyPredicate()));
