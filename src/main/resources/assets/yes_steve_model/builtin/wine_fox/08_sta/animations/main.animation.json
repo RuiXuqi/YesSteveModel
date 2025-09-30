@@ -11871,7 +11871,8 @@
 					"scale": "v.roaming.car"
 				},
 				"AllRoot": {
-					"position": [0, "v.player_root_seat*16", 0]
+					"position": [0, "v.player_root_seat*16", 0],
+					"scale": "!v.roaming.car"
 				},
 				"AllBody": {
 					"scale": ["1+v.player_root_width", 1, "1+v.player_root_width"]
