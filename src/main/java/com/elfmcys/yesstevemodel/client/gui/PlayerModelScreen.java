@@ -520,7 +520,10 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         graphics.drawString(font, pageInfo, x + 138 + (282 - font.width(pageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
 
         String debugInfo = ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString();
+        graphics.pose().pushPose();
+        graphics.pose().translate(0f, 0f, 1000);
         graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
+        graphics.pose().popPose();
 
         if (StringUtils.isNotBlank(pack)) {
             MutableComponent path = Component.literal("\uD83D\uDCC2 " + pack).withStyle(ChatFormatting.GRAY);
@@ -597,21 +600,21 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             int scissorW = (int) (125 * scale);
             int scissorH = (int) (171 * scale);
             RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
+            graphics.pose().pushPose();
+            graphics.pose().translate(0f, 0f, 100);
             InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x + 67, y + 190, 70, x + 67 - mouseX, y + 180 - 95 - mouseY, player);
+            graphics.pose().popPose();
             RenderSystem.disableScissor();
 
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                String[] modelName = {""};
-                ClientModelManager.getModel(cap.getModelId()).ifPresent(model -> {
+                var modelName = ClientModelManager.getModel(cap.getModelId()).map(model -> {
                     ModelMetadata metadata = model.info().metadata();
                     if (metadata != null) {
-                        modelName[0] = LanguageManager.getI18n(model, "metadata.name", metadata.name());
+                        return LanguageManager.getI18n(model, "metadata.name", metadata.name());
                     }
-                });
-                if (StringUtils.isBlank(modelName[0])) {
-                    modelName[0] = cap.getModelId();
-                }
-                List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName[0]), 125);
+                    return "";
+                }).filter(StringUtils::isNoneBlank).orElse(cap.getModelId());
+                List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
                 int lineY = y + 205;
                 for (FormattedCharSequence line : modelNameSplit) {
                     int nameWidth = font.width(line);

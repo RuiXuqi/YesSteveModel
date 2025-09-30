@@ -1,13 +1,16 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.gui;
 
+import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomEntity;
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.ModelInfoScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerTextureScreen;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
+import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -16,6 +19,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -62,8 +66,14 @@ public class MaidModelScreen extends PlayerModelScreen {
         RenderSystem.disableScissor();
 
         this.maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(cap -> {
-            String modelId = cap.getModelId();
-            List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelId), 125);
+            var modelName = ClientModelManager.getModel(cap.getModelId()).map(model -> {
+                ModelMetadata metadata = model.info().metadata();
+                if (metadata != null) {
+                    return LanguageManager.getI18n(model, "metadata.name", metadata.name());
+                }
+                return "";
+            }).filter(StringUtils::isNoneBlank).orElse(cap.getModelId());
+            List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
             int lineY = y + 205;
             for (FormattedCharSequence line : modelNameSplit) {
                 int nameWidth = font.width(line);
