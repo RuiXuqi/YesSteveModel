@@ -58,7 +58,7 @@ public final class RenderUtil {
     }
 
     public static boolean isRenderingLevelExclusive() {
-        return renderingLevel;
+        return renderingLevel && !FirstPersonCompat.isRenderingPlayer();
     }
 
     public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T> & IPreviewEntity> void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, float partialTicks, TAnimatable entity, GeoReplacedEntityRenderer<T, ? super TAnimatable> renderer, boolean showGround) {

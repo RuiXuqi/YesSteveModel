@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 public final class PersonView {
     public static int getPersonView(IContext<? extends Entity> ctx) {
         // 是客户端玩家，而且不在 GUI 渲染内
-        if (ctx.entity() == Minecraft.getInstance().player && RenderUtil.isRenderingLevelExclusive()) {
+        if (ctx.entity() == Minecraft.getInstance().player && RenderUtil.isRenderingLevel()) {
             return ctx.mc().options.getCameraType().ordinal();
         } else {
             // 否则永远返回第三人称正面视角
@@ -20,7 +20,7 @@ public final class PersonView {
 
     public static boolean isFirstPersonView(AnimatableEntity<? extends Entity> animatable) {
         Entity entity = animatable.getEntity();
-        if (entity == Minecraft.getInstance().player && RenderUtil.isRenderingLevelExclusive()) {
+        if (entity == Minecraft.getInstance().player && RenderUtil.isRenderingLevel()) {
             return Minecraft.getInstance().options.getCameraType().ordinal() == CameraType.FIRST_PERSON.ordinal();
         }
         return false;
