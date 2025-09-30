@@ -170,6 +170,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
             if (asyncTask != null) {
                 return waitForAsyncUpdate();
             }
+        } else {
+            waitForAsyncUpdate();
         }
         return super.updateAnimation(partialTicks);
     }
