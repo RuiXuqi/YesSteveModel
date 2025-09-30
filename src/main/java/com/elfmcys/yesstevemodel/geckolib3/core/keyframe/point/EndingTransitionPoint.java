@@ -14,6 +14,14 @@ public class EndingTransitionPoint extends AnimationPoint {
     }
 
     @Override
+    public float getPercentCompleted() {
+        if (totalTick == 0) {
+            return currentTick == 0 ? 0 : 1;
+        }
+        return currentTick / totalTick;
+    }
+
+    @Override
     public Vector3f getLerpPoint(ExpressionEvaluator<MolangContext<?>> evaluator) {
         if (lastLerpResult == null) {
             lastLerpResult = new Vector3f(srcPoint);

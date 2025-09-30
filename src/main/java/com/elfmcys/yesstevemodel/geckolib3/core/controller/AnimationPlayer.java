@@ -287,24 +287,13 @@ public class AnimationPlayer {
                 }
             }
 
+            this.animTickOffset = renderTicks;
             if (state == AnimationState.RUNNING) {
                 if (animTick > currentAnim.animationLength) {
-                    if (currentLoopType == LoopType.HOLD_ON_LAST_FRAME) {
-                        this.animTickOffset = renderTicks;
-                    } else {
-                        this.animTickOffset = renderTicks - (animTick - currentAnim.animationLength);
-                    }
                     animTick = currentAnim.animationLength;
-                } else {
-                    this.animTickOffset = renderTicks;
                 }
                 this.endingTransitionSrcTick = animTick;
             } else {
-                if (animTick > this.beginningTransition.length()) {
-                    this.animTickOffset = renderTicks - (animTick - this.beginningTransition.length());
-                } else {
-                    this.animTickOffset = renderTicks;
-                }
                 this.endingTransitionSrcTick = 0;
             }
             this.currentAnimFinished = true;
