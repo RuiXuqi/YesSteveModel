@@ -61,6 +61,12 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     }
 
     @Override
+    protected void onClearModelContainer() {
+        super.onClearModelContainer();
+        projectileModel = null;
+    }
+
+    @Override
     protected GeoModel getYsmGeoModel() {
         return projectileModel.model();
     }

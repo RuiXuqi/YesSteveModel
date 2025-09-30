@@ -44,4 +44,6 @@ public interface IAnimationController<T extends AnimatableEntity<?>> {
     default boolean blendRotation() {
         return false;
     }
+
+    void clear();
 }

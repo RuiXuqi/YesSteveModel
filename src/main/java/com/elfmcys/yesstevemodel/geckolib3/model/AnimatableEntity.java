@@ -277,6 +277,13 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.lastMutableRender = false;
     }
 
+    protected void clearGeoModel() {
+        this.currentModel = null;
+        this.eventHandlers = null;
+        this.animationProcessor.clearModel();
+        this.physicsManager.reset();
+    }
+
     public void reloadGeoModel() {
         if (this.currentModel != null) {
             this.currentModel = new GeoModelState(this.currentModel.model());

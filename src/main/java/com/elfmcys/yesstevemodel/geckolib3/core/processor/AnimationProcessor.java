@@ -194,17 +194,26 @@ public class AnimationProcessor<TEntity extends Entity> {
         return bone != null ? bone.bone : null;
     }
 
-    public void loadModel(Int2ReferenceMap<IBone> boneMap, Int2ReferenceMap<List<IValue>> eventHandlers) {
+    public void clearModel() {
         this.modelBonesMap.clear();
         this.activeModelBones.clear();
         this.modelBones.clear();
+        this.molangMemory.initialize(null);
+        this.eventHandlers = Int2ReferenceMaps.emptyMap();
+        this.pendingMolangTask.clear();
+        for (var controller : this.animatable.getAnimationData().getAnimationControllers()) {
+            controller.clear();
+        }
+    }
+
+    public void loadModel(Int2ReferenceMap<IBone> boneMap, Int2ReferenceMap<List<IValue>> eventHandlers) {
+        clearModel();
         this.modelBones.ensureCapacity(boneMap.size());
         Int2ReferenceMaps.fastForEach(boneMap, entry -> {
             BoneTopLevelSnapshot bone = new BoneTopLevelSnapshot(entry.getValue());
             this.modelBonesMap.put(entry.getIntKey(), bone);
             this.modelBones.add(bone);
         });
-        this.molangMemory.initialize(null);
         this.modelDirty = true;
         this.eventHandlers = eventHandlers;
     }

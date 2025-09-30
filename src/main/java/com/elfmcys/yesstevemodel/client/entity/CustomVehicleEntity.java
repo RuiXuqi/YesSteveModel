@@ -68,6 +68,12 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     }
 
     @Override
+    protected void onClearModelContainer() {
+        super.onClearModelContainer();
+        this.vehicleModel = null;
+    }
+
+    @Override
     protected GeoModel getYsmGeoModel() {
         return vehicleModel.model();
     }

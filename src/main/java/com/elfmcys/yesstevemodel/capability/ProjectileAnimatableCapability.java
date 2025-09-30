@@ -22,11 +22,12 @@ public class ProjectileAnimatableCapability extends CustomProjectileEntity {
     }
 
     public void initRoamingVars(Int2FloatOpenHashMap vars) {
-        if (vars == null) {
-            return;
+        if (vars != null) {
+            // 无条件同步服务端数据
+            roamingStruct = new RemoteRoamingStruct(vars);
+        } else {
+            roamingStruct = null;
         }
-        // 无条件同步服务端数据
-        roamingStruct = new RemoteRoamingStruct(vars);
     }
 
     @Override

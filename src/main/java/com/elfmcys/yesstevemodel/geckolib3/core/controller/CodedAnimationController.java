@@ -175,6 +175,11 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.reset();
     }
 
+    public void clear() {
+        this.animationPlayer.clear();
+        this.molangPredicate = null;
+    }
+
     public void indicateReload() {
         this.animationPlayer.indicateReload();
     }

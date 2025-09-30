@@ -94,12 +94,21 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
             }
         });
 
-        if (resourceHolder != null && (resourceHolder.model != currentModelContainer || resourceHolder.fallback != modelFallback) && resourceHolder.isLoaded()) {
-            currentModelContainer = resourceHolder.model;
-            modelFallback = resourceHolder.fallback;
-            onLoadModelContainer(currentModelContainer);
-            loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
+        if (resourceHolder != null) {
+            if ((resourceHolder.model != currentModelContainer || resourceHolder.fallback != modelFallback) && resourceHolder.isLoaded()) {
+                currentModelContainer = resourceHolder.model;
+                modelFallback = resourceHolder.fallback;
+                onLoadModelContainer(currentModelContainer);
+                loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
+            }
+        } else if (currentModelContainer != null) {
+            onClearModelContainer();
+            currentModelContainer = null;
         }
+    }
+
+    protected void onClearModelContainer() {
+        clearGeoModel();
     }
 
     @Nullable

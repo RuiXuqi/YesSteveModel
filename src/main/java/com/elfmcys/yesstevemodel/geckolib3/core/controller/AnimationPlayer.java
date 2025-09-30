@@ -97,8 +97,7 @@ public class AnimationPlayer {
      * 切换模型，重置所有状态
      */
     public void updateModel(List<BoneTopLevelSnapshot> boneList) {
-        reset();
-        this.boneAnimQueues.clear();
+        clear();
         for (BoneTopLevelSnapshot bone : boneList) {
             this.boneAnimQueues.put(bone.name, new BoneAnimationQueue(bone));
         }
@@ -517,6 +516,14 @@ public class AnimationPlayer {
         this.lastSetAnim = null;
         this.nextAnim = null;
         resetToIdle();
+    }
+
+    /**
+     * 清空所有状态
+     */
+    public void clear() {
+        reset();
+        this.boneAnimQueues.clear();
     }
 
     /**

@@ -46,10 +46,12 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
         var animationControllerData = animatableEntity.getAnimationControllerData(this.name);
         if (animationControllerData != null) {
-            this.bedrockAnimationController.updateModelBones(modelBones, animationControllerData);
+            this.bedrockAnimationController.updateModel(modelBones, animationControllerData);
+            this.codedAnimationController.clear();
             this.activeController = this.bedrockAnimationController;
         } else {
             this.codedAnimationController.updateModel(modelBones, eventHandlers);
+            this.bedrockAnimationController.clear();
             this.activeController = this.codedAnimationController;
         }
     }
@@ -67,5 +69,12 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     @Override
     public boolean blendRotation() {
         return this.activeController.blendRotation();
+    }
+
+    @Override
+    public void clear() {
+        if (this.activeController != null) {
+            this.activeController.clear();
+        }
     }
 }

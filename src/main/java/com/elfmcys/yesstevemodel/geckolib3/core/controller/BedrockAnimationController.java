@@ -159,32 +159,20 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
         var data = this.animatableEntity.getAnimationControllerData(this.name);
         if (data != null) {
-            this.updateModelBones(modelBones, data);
+            this.updateModel(modelBones, data);
         } else {
-            this.clearModelBones();
+            this.clear();
         }
     }
 
-    public void updateModelBones(List<BoneTopLevelSnapshot> modelBones, @NotNull AnimationControllerData animationControllerData) {
-        clearModelBones();
+    public void updateModel(List<BoneTopLevelSnapshot> modelBones, @NotNull AnimationControllerData animationControllerData) {
+        this.clear();
 
         this.data = animationControllerData;
         for (var bone : modelBones) {
             this.blendAnimationQueues.put(bone.name, new BlendBoneAnimationQueue(bone));
         }
         this.modelBones = modelBones;
-    }
-
-    public void clearModelBones() {
-        this.modelBones = ReferenceLists.emptyList();
-        this.data = null;
-        this.state = null;
-        this.activeAnimationPlayerSize = 0;
-        // 由于容量太大，new 会对 GC 造成一定压力
-        this.blendAnimationQueues.clear();
-        for (var holder : this.animationPlayers) {
-            holder.markAsDirty();
-        }
     }
 
     @SuppressWarnings("DataFlowIssue")
@@ -239,6 +227,20 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 visitor.accept(queue);
             }
         }
+    }
+
+    @Override
+    public void clear() {
+        this.modelBones = ReferenceLists.emptyList();
+        this.data = null;
+        this.state = null;
+        this.activeAnimationPlayerSize = 0;
+        this.activeBlendAnimationQueues.clear();
+        this.blendAnimationQueues.clear();
+        for (var holder : this.animationPlayers) {
+            holder.animationPlayer.clear();
+        }
+        this.animationPlayers.clear();
     }
 
     private static class AnimationPlayerHolder {
