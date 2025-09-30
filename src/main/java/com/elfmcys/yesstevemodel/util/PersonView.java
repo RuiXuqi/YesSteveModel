@@ -32,6 +32,6 @@ public final class PersonView {
     }
 
     public static boolean isInInventory(AnimatableEntity<?> animatableEntity) {
-        return animatableEntity instanceof IPreviewEntity || RenderUtil.isRenderingEntitiesInInventory();
+        return animatableEntity instanceof IPreviewEntity || RenderUtil.isRenderingInInventory();
     }
 }

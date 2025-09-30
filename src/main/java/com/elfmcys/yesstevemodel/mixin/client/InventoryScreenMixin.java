@@ -13,11 +13,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InventoryScreenMixin {
     @Inject(at = @At("HEAD"), method = "renderEntityInInventoryFollowsAngle(Lnet/minecraft/client/gui/GuiGraphics;IIIFFLnet/minecraft/world/entity/LivingEntity;)V", remap = false)
     private static void beforeRenderEntityInInventoryFollowsAngle(GuiGraphics pGuiGraphics, int pX, int pY, int pScale, float angleXComponent, float angleYComponent, LivingEntity pEntity, CallbackInfo ci) {
-        RenderUtil.setRenderingEntitiesInInventory(true);
+        RenderUtil.setRenderingInInventory(true);
     }
 
-    @Inject(at = @At("TAIL"), method = "renderEntityInInventoryFollowsAngle(Lnet/minecraft/client/gui/GuiGraphics;IIIFFLnet/minecraft/world/entity/LivingEntity;)V", remap = false)
+    @Inject(at = @At("RETURN"), method = "renderEntityInInventoryFollowsAngle(Lnet/minecraft/client/gui/GuiGraphics;IIIFFLnet/minecraft/world/entity/LivingEntity;)V", remap = false)
     private static void afterRenderEntityInInventoryFollowsAngle(GuiGraphics pGuiGraphics, int pX, int pY, int pScale, float angleXComponent, float angleYComponent, LivingEntity pEntity, CallbackInfo ci) {
-        RenderUtil.setRenderingEntitiesInInventory(false);
+        RenderUtil.setRenderingInInventory(false);
     }
 }

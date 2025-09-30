@@ -60,6 +60,11 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
+    protected boolean isImmutableRender() {
+        return true;
+    }
+
+    @Override
     public DebugSource getDebugSource() {
         return null;
     }

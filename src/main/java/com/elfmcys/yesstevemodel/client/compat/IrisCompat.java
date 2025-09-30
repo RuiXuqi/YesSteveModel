@@ -78,7 +78,7 @@ public class IrisCompat {
     public static void setupState() {
         if (INSTALLED) {
             ENTITY_ID = ENTITY_ID_GETTER.getAsLong();
-            IS_RENDERING_SHADOW = isRenderingShadow();
+            IS_RENDERING_SHADOW = IrisApi.getInstance().isRenderingShadowPass();
         }
     }
 

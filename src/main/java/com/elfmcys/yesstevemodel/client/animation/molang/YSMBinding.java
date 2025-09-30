@@ -86,7 +86,7 @@ public class YSMBinding extends ContextBinding {
         entityVar("input_vertical", MoveInputVariable::getVertical);
         entityVar("input_horizontal", MoveInputVariable::getHorizontal);
         entityVar("person_view", PersonView::getPersonView);
-        entityVar("rendering_in_paperdoll", ctx -> RenderUtil.isRenderingEntitiesInPaperDoll());
+        entityVar("rendering_in_paperdoll", ctx -> RenderUtil.isRenderingInPaperDoll());
         entityVar("rendering_in_inventory", PersonView::isInInventory);
         entityVar("block_light", ctx -> ctx.level().getBrightness(LightLayer.BLOCK, ctx.entity().blockPosition()));
         entityVar("sky_light", ctx -> ctx.level().getBrightness(LightLayer.SKY, ctx.entity().blockPosition()));

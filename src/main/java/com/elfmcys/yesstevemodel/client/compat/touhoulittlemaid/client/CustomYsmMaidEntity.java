@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
-import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidMiscPredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidRoulettePredicate;
@@ -10,9 +9,7 @@ import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
-import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.github.tartaricacid.touhoulittlemaid.api.entity.IMaid;
 import com.github.tartaricacid.touhoulittlemaid.client.resource.pojo.MaidModelInfo;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -31,14 +28,11 @@ import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
  */
 @OnlyIn(Dist.CLIENT)
 public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implements IGeoEntity {
-    private final PhysicsManager physicsGuiManager;
-
     private MaidModelInfo maidInfo = new MaidModelInfo();
 
     public CustomYsmMaidEntity(EntityMaid player, boolean asyncUpdate) {
         super(player, asyncUpdate);
         registerControllers();
-        physicsGuiManager = new PhysicsManager();
     }
 
     @Override
@@ -151,30 +145,6 @@ public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implem
         super.preAnimationSetup(seekTime);
 
         getAnimationProcessor().putRemoteStruct(getRemoteStruct());
-
-        // 更新物理
-        if (getPhysicsManager() == physicsGuiManager)
-            physicsGuiManager.update(seekTime);
-    }
-
-    @Override
-    public boolean shouldForceUpdate() {
-        return currentFrameRenderTimes > 1 || !RenderUtil.isRenderingLevel();
-    }
-
-    @Override
-    public PhysicsManager getPhysicsManager() {
-        if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
-            return physicsManager;
-        } else {
-            return physicsGuiManager;
-        }
-    }
-
-    @Override
-    protected void onLoadGeoModel(GeoModelState model) {
-        super.onLoadGeoModel(model);
-        physicsGuiManager.reset();
     }
 
     @Override

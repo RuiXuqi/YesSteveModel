@@ -27,24 +27,24 @@ import java.util.concurrent.ExecutionException;
 
 @SuppressWarnings("all")
 public final class RenderUtil {
-    private static boolean renderingEntitiesInInventory = false;
-    private static boolean renderingEntitiesInPaperDoll = false;
+    private static boolean renderingInInventory = false;
+    private static boolean renderingInPaperDoll = false;
     private static boolean renderingLevel = false;
 
-    public static void setRenderingEntitiesInInventory(boolean value) {
-        renderingEntitiesInInventory = value;
+    public static void setRenderingInInventory(boolean value) {
+        renderingInInventory = value;
     }
 
-    public static boolean isRenderingEntitiesInInventory() {
-        return renderingEntitiesInInventory;
+    public static boolean isRenderingInInventory() {
+        return renderingInInventory;
     }
 
-    public static void setRenderingEntitiesInPaperDoll(boolean renderingEntitiesInPaperDoll) {
-        RenderUtil.renderingEntitiesInPaperDoll = renderingEntitiesInPaperDoll;
+    public static void setRenderingInPaperDoll(boolean renderingEntitiesInPaperDoll) {
+        RenderUtil.renderingInPaperDoll = renderingEntitiesInPaperDoll;
     }
 
-    public static boolean isRenderingEntitiesInPaperDoll() {
-        return renderingEntitiesInPaperDoll;
+    public static boolean isRenderingInPaperDoll() {
+        return renderingInPaperDoll;
     }
 
     public static void setRenderingLevel(boolean renderingLevel) {
@@ -62,7 +62,7 @@ public final class RenderUtil {
     }
 
     public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T> & IPreviewEntity> void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, float partialTicks, TAnimatable entity, GeoReplacedEntityRenderer<T, ? super TAnimatable> renderer, boolean showGround) {
-        setRenderingEntitiesInInventory(true);
+        setRenderingInInventory(true);
         var living = entity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
@@ -158,7 +158,7 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        setRenderingEntitiesInInventory(false);
+        setRenderingInInventory(false);
     }
 
     private static void renderBed(float scale, float pitch, float yaw, MultiBufferSource.BufferSource bufferSource) {
@@ -238,7 +238,7 @@ public final class RenderUtil {
             GeoReplacedEntityRenderer<T, TAnimatable> renderer,
             boolean disablePreviewRotation,
             boolean disableEquipments) {
-        setRenderingEntitiesInInventory(true);
+        setRenderingInInventory(true);
         var living = animatableEntity.getEntity();
 
         PoseStack viewStack = RenderSystem.getModelViewStack();
@@ -341,11 +341,11 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        setRenderingEntitiesInInventory(false);
+        setRenderingInInventory(false);
     }
 
     public static void renderExtraPlayerEntity(GuiGraphics pGuiGraphics, LocalPlayer player, double posX, double posY, float scale, float yawOffset, int z, float partialTicks) {
-        RenderUtil.setRenderingEntitiesInPaperDoll(true);
+        RenderUtil.setRenderingInPaperDoll(true);
         PoseStack viewStack = RenderSystem.getModelViewStack();
         viewStack.pushPose();
         viewStack.translate(posX + scale * 0.5, posY + scale * 2, 0);
@@ -370,6 +370,6 @@ public final class RenderUtil {
         viewStack.popPose();
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
-        RenderUtil.setRenderingEntitiesInPaperDoll(false);
+        RenderUtil.setRenderingInPaperDoll(false);
     }
 }

@@ -3,16 +3,14 @@ package com.elfmcys.yesstevemodel.geckolib3.core.event.predicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final T animatable;
     private final float limbSwing;
     private final float limbSwingAmount;
     private final int entityTickCount;
+    private final float requestedPartialTick;
     private final float partialTick;
     private final boolean isMoving;
     public float renderTicks;
@@ -20,13 +18,15 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final EntityModelData extraData;
     protected CodedAnimationController<T> codedController;
 
-    public AnimationEvent(T animatable, float limbSwing, float limbSwingAmount, int entityTickCount, float partialTick, boolean isMoving,
+    public AnimationEvent(T animatable, float limbSwing, float limbSwingAmount, int entityTickCount, float requestedPartialTick, float partialTick, boolean isMoving,
                           @Nullable EntityModelData extraData) {
         this.animatable = animatable;
         this.limbSwing = limbSwing;
         this.limbSwingAmount = limbSwingAmount;
         this.entityTickCount = entityTickCount;
+        this.requestedPartialTick = requestedPartialTick;
         this.partialTick = partialTick;
+        this.renderTicks = entityTickCount + partialTick;
         this.isMoving = isMoving;
         this.extraData = extraData;
     }
@@ -49,6 +49,10 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
 
     public int getEntityTickCount() {
         return entityTickCount;
+    }
+
+    public float getRequestedPartialTick() {
+        return requestedPartialTick;
     }
 
     public float getPartialTick() {

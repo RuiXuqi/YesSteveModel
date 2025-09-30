@@ -108,14 +108,6 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> {
         return localPlayer;
     }
 
-    /**
-     * 现在幂等了
-     */
-    @Override
-    public boolean shouldForceUpdate() {
-        return currentFrameRenderTimes > 1;
-    }
-
     @Deprecated
     @Override
     protected void codeAnimation(AnimationEvent<CustomPlayerEntity> animationEvent, EntityModelData data, boolean update) {

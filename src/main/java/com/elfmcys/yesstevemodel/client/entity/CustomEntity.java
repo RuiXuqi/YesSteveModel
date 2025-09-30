@@ -3,6 +3,8 @@ package com.elfmcys.yesstevemodel.client.entity;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
 import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
+import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
+import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
@@ -11,6 +13,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
@@ -30,6 +33,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     private ResourceHolder resourceHolder;
     private boolean modelFallback;
     private int lastCheckUpdateTime;
+    @Nullable
+    private PhysicsManager alterPhysicsManager;
 
     @Nullable
     private Future<AnimationEvent<?>> asyncTask;
@@ -38,6 +43,26 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         super(entity);
         if (asyncUpdate) {
             AnimationParallelTicker.add(this);
+        }
+    }
+
+    @Override
+    public PhysicsManager getPhysicsManager() {
+        if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingInPaperDoll()) {
+            return physicsManager;
+        } else {
+            if (alterPhysicsManager == null) {
+                alterPhysicsManager = new PhysicsManager();
+            }
+            return alterPhysicsManager;
+        }
+    }
+
+    @Override
+    protected void onLoadGeoModel(GeoModelState model) {
+        super.onLoadGeoModel(model);
+        if (alterPhysicsManager != null) {
+            alterPhysicsManager.reset();
         }
     }
 
@@ -97,6 +122,13 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     @Override
     public boolean isModelPresent() {
         return resourceHolder != null && !resourceHolder.fallback && resourceHolder.isLoaded();
+    }
+
+    @Override
+    protected boolean isImmutableRender() {
+        // 已知场景内、iris 阴影不会修改实体参数；
+        // FirstPersonMod 会隐藏头部、原版 inventory 会修改身体和头部旋转、纸娃娃可能会基于 molang 应用不同的效果
+        return RenderUtil.isRenderingLevelExclusive() || IrisCompat.isRenderingShadow();
     }
 
     @Override

@@ -6701,7 +6701,7 @@
 			"loop": true,
 			"bones": {
 				"FLongHair": {
-					"rotation": ["ysm.second_order('抬头头发防穿模', ysm.head_pitch>-40?ysm.head_pitch:-40, 2, 0.6, 0)", 0, 0]
+					"rotation": ["math.max(ysm.head_pitch, ysm.second_order('抬头头发防穿模', ysm.head_pitch>-40?ysm.head_pitch:-40, 2, 0.6, 0))", 0, 0]
 				},
 				"ElytraLocator": {
 					"rotation": [

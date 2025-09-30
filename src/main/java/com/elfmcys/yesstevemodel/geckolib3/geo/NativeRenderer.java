@@ -30,7 +30,7 @@ public class NativeRenderer {
         var forceLegacyRenderer = OptifineCompat.isInstalled() || ClientConfig.USE_COMPATIBILITY_RENDERER.get();
         RenderSystem.getProjectionMatrix().mul(RenderSystem.getModelViewMatrix(), POST_MAT);
 
-        var renderOnGui = RenderUtil.isRenderingEntitiesInInventory() || RenderUtil.isRenderingEntitiesInPaperDoll();
+        var renderOnGui = RenderUtil.isRenderingInInventory() || RenderUtil.isRenderingInPaperDoll();
 
         nRenderModel(vertexConsumer, poseState, POST_MAT, forceLegacyRenderer,
                 model, inputState, outputState, textureIndex, renderMode,

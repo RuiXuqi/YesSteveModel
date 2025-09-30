@@ -1,12 +1,9 @@
 package com.elfmcys.yesstevemodel.capability;
 
-import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.RemoteRoamingStruct;
-import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
-import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -14,14 +11,12 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SubmitRoamingVarsChanges;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
-import com.elfmcys.yesstevemodel.util.RenderUtil;
 import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatMaps;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 @OnlyIn(Dist.CLIENT)
 public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     private final Int2ReferenceOpenHashMap<RemoteStorage> storageMap;
-    private final PhysicsManager guiPhysicsManager;
     private final DebugInfo debugInfo;
 
     private int currentHashShort;
@@ -41,7 +35,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     public PlayerAnimatableCapability(Player player) {
         super(player, player instanceof LocalPlayer, true);
         storageMap = new Int2ReferenceOpenHashMap<>(8);
-        guiPhysicsManager = new PhysicsManager();
         debugInfo = localPlayer ? new DebugInfo() : null;
     }
 
@@ -54,30 +47,9 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         return (PlayerStateTracker) super.getStateTracker();
     }
 
-    private boolean isFirstPersonModActive() {
-        return FirstPersonCompat.isInstalled() && FirstPersonCompat.isEnabled();
-    }
-
-    @Override
-    public boolean canUpdateAsync() {
-        // 在 LocalPlayer 第一人称下，如果安装了第一人称模组并启用，或没有禁用纸娃娃，则异步更新是多余的
-        return !isLocalPlayer()
-                || !Minecraft.getInstance().options.getCameraType().isFirstPerson()
-                || (!isFirstPersonModActive() && ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.get());
-    }
-
     @Override
     public @Nullable Struct getRoamingStruct() {
         return roamingStruct;
-    }
-
-    @Override
-    public PhysicsManager getPhysicsManager() {
-        if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingEntitiesInPaperDoll()) {
-            return physicsManager;
-        } else {
-            return guiPhysicsManager;
-        }
     }
 
     @Override
@@ -96,16 +68,11 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         } else {
             roamingStruct = null;
         }
-        guiPhysicsManager.reset();
     }
 
     @Override
     protected void preAnimationSetup(float seekTime) {
         super.preAnimationSetup(seekTime);
-
-        if (getPhysicsManager() == guiPhysicsManager) {
-            guiPhysicsManager.update(seekTime);
-        }
 
         // 更新调试信息
         if (debugInfo != null && debugInfo.isEnabled()) {

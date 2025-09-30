@@ -20,7 +20,7 @@ public class ClientTickEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        if (event.phase != TickEvent.Phase.END) {
+        if (event.phase == TickEvent.Phase.END) {
             return;
         }
         tickCount++;

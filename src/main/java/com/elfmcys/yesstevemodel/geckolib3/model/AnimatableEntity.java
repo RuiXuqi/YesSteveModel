@@ -46,6 +46,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
     protected float lastFrameTime = -1;
+    protected boolean lastMutableRender;
     protected int currentFrameRenderTimes;
 
     private float seekTime;
@@ -206,7 +207,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         entityModelData.lerpBodyRot = lerpBodyRot;
         entityModelData.lerpedAge = entityTickCount + partialTicks;
 
-        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
+        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, partialTicks, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
         MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
         ctx.setDebugSource(getDebugSource());
         this.tickAnimation(ctx, event);
@@ -214,7 +215,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     protected boolean tickAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
-        var frameTime = animationEvent.getEntityTickCount() + animationEvent.getPartialTick();
+        var frameTime = animationEvent.renderTicks;
+        var mutableRender = !isImmutableRender();
 
         if (frameTime > lastFrameTime) {
             currentFrameRenderTimes = 1;
@@ -235,17 +237,19 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                 this.seekTime += deltaTicks;
             }
         }
-
-        boolean forceUpdate = this.shouldForceUpdate();
         animationEvent.renderTicks = this.seekTime;
 
         if (!animationProcessor.isModelEmpty()) {
             var shouldUpdate = rateLimiter.request(seekTime / 20);
-            if (forceUpdate || shouldUpdate) {
-                stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
-                physicsManager.update(this.seekTime);
+            if (lastMutableRender || mutableRender || shouldUpdate) {
+                var shouldTick = !mutableRender;
+                if (shouldTick) {
+                    stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
+                }
+                getPhysicsManager().update(this.seekTime);
                 preAnimationSetup(this.seekTime);
-                getAnimationProcessor().tickAnimation(animationEvent, ctx, currentFrameRenderTimes == 1, allowEmitting());
+                getAnimationProcessor().tickAnimation(animationEvent, ctx, shouldTick, allowEmitting());
+                lastMutableRender = mutableRender;
                 return true;
             }
         }
@@ -265,6 +269,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
         onLoadGeoModel(this.currentModel);
         this.currentFrameRenderTimes = 0;
+        this.lastMutableRender = false;
     }
 
     public void reloadGeoModel() {
@@ -290,8 +295,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         physicsManager.reset();
     }
 
-    public boolean shouldForceUpdate() {
-        return false;
+    /**
+     * 渲染期间是否会保持实体属性不变
+     */
+    protected boolean isImmutableRender() {
+        return true;
     }
 
     public void executeMolangExp(IValue value, boolean allowEmitting, boolean pre, @Nullable Consumer<String> resultConsumer) {
