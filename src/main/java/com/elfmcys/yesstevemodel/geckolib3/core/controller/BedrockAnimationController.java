@@ -517,6 +517,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                         isBeginningTransition = true;
                         offset = transitionPoint.getTransitionOffset();
                         transitionPercentProgress = transitionPoint.getTransitionPercentProgress();
+                        target.setEndingTransitionPercentProgressIfLess(0);
                     }
                 }
 
