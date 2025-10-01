@@ -45,7 +45,7 @@ public class SubmitRoamingVarsChanges {
         } else if (entity instanceof ServerPlayer player) {
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
                 cap.updateRoamingVars(message.changes);
-                if (player.getVehicle() != null) {
+                if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
                     player.getVehicle().getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(vehicleCap -> {
                         cap.getMolangVars().ifPresent(molangVars -> {
                             vehicleCap.update(cap.getModelId(), molangVars);

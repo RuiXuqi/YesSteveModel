@@ -66,7 +66,7 @@ public class TlmCommonCompatInner {
         if (!(entity instanceof EntityMaid maid)) {
             return;
         }
-        if (maid.isYsmModel()) {
+        if (maid.isYsmModel() && vehicle.getFirstPassenger() == entity) {
             vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 // TODO: 实现女仆的 roaming 变量
                 cap.update(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());

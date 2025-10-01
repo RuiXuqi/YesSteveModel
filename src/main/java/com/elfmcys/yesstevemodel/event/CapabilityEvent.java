@@ -185,7 +185,7 @@ public final class CapabilityEvent {
                     cap.buildPacketForDispatch(player).ifPresent(packet -> {
                         cap.clearDirty();
                         NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
-                        if (player.getVehicle() != null) {
+                        if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
                             CapabilityEvent.onVehicleSetModel(player.getVehicle(), player);
                         }
                     });

@@ -2,7 +2,6 @@ package com.elfmcys.yesstevemodel.network.message;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.capability.VehicleModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.yesstevemodel.client.event.EntityLoadEvent;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
@@ -47,7 +46,7 @@ public class DispatchRoamingVarsChanges {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 cap.updateRemoteRoamingVars(msg.changes.modelHashShort, msg.changes.variablesClientBound);
             });
-            if (player.getVehicle() != null) {
+            if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
                 player.getVehicle().getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(vehicleCap -> {
                    vehicleCap.updateRoamingVars(msg.changes.variablesClientBound);
                 });
