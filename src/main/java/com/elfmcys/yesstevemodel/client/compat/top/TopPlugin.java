@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.VehicleModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import mcjty.theoneprobe.api.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +40,7 @@ public final class TopPlugin implements Function<ITheOneProbe, Void> {
                         ServerModelManager.getModel(cap.getModelId()).ifPresent(m -> {
                             probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER))
                                     .text(Component.translatable("top.yes_steve_model.model_info.id").append(
-                                            StringUtils.defaultIfBlank(m.info().metadata() == null ? "" : m.info().metadata().name(), cap.getModelId())));
+                                            StringUtils.defaultIfBlank(m.info().metadata() == null ? "" : m.info().metadata().name(), ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
                         });
                     }
                 });
@@ -51,7 +52,7 @@ public final class TopPlugin implements Function<ITheOneProbe, Void> {
                                 .ifPresent(m -> {
                                     probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER))
                                             .text(Component.translatable("top.yes_steve_model.model_info.id").append(
-                                                    StringUtils.defaultIfBlank(m.info().metadata() == null ? "" : m.info().metadata().name(), cap.getOwnerModelId())));
+                                                    StringUtils.defaultIfBlank(m.info().metadata() == null ? "" : m.info().metadata().name(), ModelIdUtil.getFileNameFromPath(cap.getOwnerModelId()))));
                                 });
                     }
                 });

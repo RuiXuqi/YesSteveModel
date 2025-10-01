@@ -26,6 +26,20 @@ public final class ModelIdUtil {
         }
     }
 
+    public static String getFileNameFromPath(String modelPath) {
+        var lastSlash = modelPath.lastIndexOf('/');
+        String modelName;
+        if (lastSlash == -1) {
+            modelName = modelPath;
+        } else {
+            modelName = modelPath.substring(lastSlash + 1);
+        }
+        if (modelName.length() > 4 && (modelName.endsWith(".zip") || modelName.endsWith(".ysm"))) {
+            modelName = modelName.substring(0, modelName.length() - 4);
+        }
+        return modelName;
+    }
+
     public static String getLastFolderName(String path) {
         if (path == null || path.isEmpty()) {
             return "";

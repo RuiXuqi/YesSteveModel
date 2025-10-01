@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.compat.jade;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -28,14 +29,14 @@ public class JadePlugin implements IWailaPlugin {
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     if (cap.isInitialized()) {
                         tooltip.add(Component.translatable("top.yes_steve_model.model_info.id")
-                                .append(cap.getModelContainer().getDisplayName(cap.getModelId())));
+                                .append(cap.getModelContainer().getDisplayName(ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
                     }
                 });
             } else {
                 entityAccessor.getEntity().getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     if (cap.isInitialized() && cap.isModelPresent()) {
                         tooltip.add(Component.translatable("top.yes_steve_model.model_info.id")
-                                .append(cap.getModelContainer().getDisplayName(cap.getModelId())));
+                                .append(cap.getModelContainer().getDisplayName(ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
                     }
                 });
             }

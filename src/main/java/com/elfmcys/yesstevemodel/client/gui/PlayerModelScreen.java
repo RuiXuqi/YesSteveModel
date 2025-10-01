@@ -28,7 +28,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.ChatFormatting;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -613,7 +612,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                         return LanguageManager.getI18n(model, "metadata.name", metadata.name());
                     }
                     return "";
-                }).filter(StringUtils::isNoneBlank).orElse(cap.getModelId());
+                }).filter(StringUtils::isNoneBlank).orElse(ModelIdUtil.getFileNameFromPath(cap.getModelId()));
                 List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
                 int lineY = y + 205;
                 for (FormattedCharSequence line : modelNameSplit) {

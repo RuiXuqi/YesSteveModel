@@ -11,6 +11,7 @@ import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
 import com.elfmcys.yesstevemodel.client.gui.PlayerTextureScreen;
 import com.elfmcys.yesstevemodel.client.gui.button.ModelButton;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -72,7 +73,7 @@ public class MaidModelScreen extends PlayerModelScreen {
                     return LanguageManager.getI18n(model, "metadata.name", metadata.name());
                 }
                 return "";
-            }).filter(StringUtils::isNoneBlank).orElse(cap.getModelId());
+            }).filter(StringUtils::isNoneBlank).orElse(ModelIdUtil.getFileNameFromPath(cap.getModelId()));
             List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
             int lineY = y + 205;
             for (FormattedCharSequence line : modelNameSplit) {

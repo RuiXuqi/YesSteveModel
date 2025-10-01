@@ -13,6 +13,7 @@ import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
@@ -96,11 +97,7 @@ public class ModelButton extends Button {
     private static MutableComponent getModelName(CustomGuiPlayerEntity animatedEntity, ClientModel model) {
         ModelMetadata metadata = model.info().metadata();
         if (metadata == null || StringUtils.isBlank(metadata.name())) {
-            if (animatedEntity.getModelId().endsWith(".ysm") || animatedEntity.getModelId().endsWith(".zip")) {
-                return Component.literal(animatedEntity.getModelId().substring(0, animatedEntity.getModelId().length() - 4));
-            } else {
-                return Component.literal(animatedEntity.getModelId());
-            }
+            return Component.literal(ModelIdUtil.getFileNameFromPath(animatedEntity.getModelId()));
         }
         return Component.literal(LanguageManager.getI18n(model, "metadata.name", metadata.name()));
     }
