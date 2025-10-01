@@ -140,10 +140,9 @@
         "animation": "animations/boat.animation.json",
         "texture": "textures/boat.png"
       },
-      "minecraft:horse": {
-        "model": "models/boat.json",
-        "animation": "animations/boat.animation.json",
-        "texture": "textures/boat.png"
+      "minecraft:minecart": {
+        "model": "models/minecart.json",
+        "texture": "textures/minecart.png"
       }
     },
     "sound_path": "sounds"
