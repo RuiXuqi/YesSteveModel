@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.model;
 
 import com.elfmcys.yesstevemodel.capability.AuthModelsCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.ModelInfoCapability;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -10,6 +11,7 @@ import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.floats.FloatReferencePair;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -67,7 +69,17 @@ public final class ServerModelManager {
 
     // 非阻塞
     public static void syncModelsToPlayer(ServerPlayer player, @Nullable Consumer<SyncModelResult> completeCallback) {
-        syncTaskEnqueue(new UUID[]{player.getUUID()}, new String[]{player.getGameProfile().getName()}, completeCallback);
+        var server = ServerLifecycleHooks.getCurrentServer();
+        server.execute(() -> {
+            // 按距离从近到远排序
+            var players = server.getPlayerList().getPlayers();
+            var list = new ArrayList<FloatReferencePair<ServerPlayer>>(players.size());
+            for (var onlinePlayer : players) {
+                list.add(FloatReferencePair.of(onlinePlayer.distanceTo(player), onlinePlayer));
+            }
+            list.sort((l, r) -> Float.compare(l.firstFloat(), r.firstFloat()));
+            syncTaskEnqueue(new UUID[]{player.getUUID()}, new String[]{player.getGameProfile().getName()}, getSelectedModelIds(list.stream().map(it.unimi.dsi.fastutil.Pair::second).toList()), completeCallback);
+        });
     }
 
     public static native void exportModel(String modelId, @Nullable String extra, @Nullable Consumer<ExportModelResult> resultCallback);
@@ -87,9 +99,21 @@ public final class ServerModelManager {
                 Collection<ServerPlayer> players = server.getPlayerList().getPlayers();
                 UUID[] uuids = players.stream().filter(NetworkHandler::isPlayerChannelPresent).map(Entity::getUUID).toArray(UUID[]::new);
                 String[] playerNames = players.stream().filter(NetworkHandler::isPlayerChannelPresent).map(p -> p.getGameProfile().getName()).toArray(String[]::new);
-                syncTaskEnqueue(uuids, playerNames, syncCompleteCallback);
+                String[] selectedModels = getSelectedModelIds(players);
+                syncTaskEnqueue(uuids, playerNames, selectedModels, syncCompleteCallback);
             });
         });
+    }
+
+    private static String[] getSelectedModelIds(Collection<ServerPlayer> players) {
+        return players.stream()
+            .filter(NetworkHandler::isPlayerChannelPresent)
+            .map(p -> p.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP)
+                    .map(ModelInfoCapability::getModelId))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .distinct()
+            .toArray(String[]::new);
     }
 
     // 非阻塞
@@ -122,7 +146,7 @@ public final class ServerModelManager {
         }
     }
 
-    private static native void syncTaskEnqueue(UUID[] playerIds, String[] playerNames, Object state);
+    private static native void syncTaskEnqueue(UUID[] playerIds, String[] playerNames, String[] selectedModels, Object state);
 
     public static void syncTaskAbort(UUID playerId) {
         syncReceiveData(playerId, null);
