@@ -3,12 +3,15 @@ package com.elfmcys.yesstevemodel.capability;
 import com.elfmcys.yesstevemodel.model.ServerModelManager;
 import com.elfmcys.yesstevemodel.network.message.SyncModelInfo;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
+import com.google.common.collect.Queues;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
+import java.util.Queue;
+import java.util.function.Consumer;
 
 public class ModelInfoCapability {
     private String modelId;
@@ -24,6 +27,7 @@ public class ModelInfoCapability {
 
     /* 以下字段不参与持久化 */
     private boolean dirty;
+    private final Queue<Consumer<Object2FloatOpenHashMap<String>>> molangVarsConsumers;
 
     public ModelInfoCapability() {
         var defaultModel = ServerModelManager.getDefaultModelAndTexture();
@@ -31,6 +35,7 @@ public class ModelInfoCapability {
         this.selectTexture = defaultModel.getRight();
         this.molangStorage = new Int2ReferenceOpenHashMap<>();
         this.propertiesTracker = new ServerDrivenPlayerPropertiesTracker();
+        this.molangVarsConsumers = Queues.newArrayDeque();
     }
 
     public void setModelAndTexture(String modelId, String selectTexture) {
@@ -55,6 +60,8 @@ public class ModelInfoCapability {
         this.playAnimation = source.playAnimation;
         this.mandatory = source.mandatory;
         this.propertiesTracker = source.propertiesTracker;
+        this.molangVarsConsumers.addAll(source.molangVarsConsumers);
+        source.molangVarsConsumers.clear();
         markDirty();
     }
 
@@ -90,18 +97,41 @@ public class ModelInfoCapability {
 
     // 必须在主线程上调用
     public Optional<SyncModelInfo> buildPacketForDispatch(ServerPlayer entity) {
-        return ServerModelManager.getModel(modelId).map(model ->
-                new SyncModelInfo(
-                        entity.getId(),
-                        modelId,
-                        model.info().hashShort(),
-                        selectTexture,
-                        animation,
-                        playAnimation,
-                        molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>()),
-                        null,
-                        ServerDrivenPlayerPropertiesTracker.full(entity))
-        );
+        return ServerModelManager.getModel(modelId).map(model -> {
+            var molangVars = molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>(0));
+            while (true) {
+                var task = molangVarsConsumers.poll();
+                if (task == null) {
+                    break;
+                }
+                task.accept(molangVars);
+            }
+            return new SyncModelInfo(
+                    entity.getId(),
+                    modelId,
+                    model.info().hashShort(),
+                    selectTexture,
+                    animation,
+                    playAnimation,
+                    molangVars,
+                    null,
+                    ServerDrivenPlayerPropertiesTracker.full(entity));
+        });
+    }
+
+    public void executeWithMolangVars(Consumer<Object2FloatOpenHashMap<String>> consumer) {
+        ServerModelManager.getModel(modelId).ifPresentOrElse(model -> {
+            int index = model.info().hashShort();
+            var molangVars = molangStorage.computeIfAbsent(index, hash -> new Object2FloatOpenHashMap<>(0));
+            consumer.accept(molangVars);
+        }, () -> {
+            molangVarsConsumers.add(consumer);
+        });
+    }
+
+    public Optional<Object2FloatOpenHashMap<String>> getMolangVars() {
+        return ServerModelManager.getModel(modelId)
+                .map(m -> molangStorage.computeIfAbsent(m.info().hashShort(), hash -> new Object2FloatOpenHashMap<>(0)));
     }
 
     public void updateRoamingVars(RoamingVarsChanges changes) {
@@ -145,13 +175,6 @@ public class ModelInfoCapability {
 
     public boolean isMandatory() {
         return mandatory;
-    }
-
-    public Object2FloatOpenHashMap<String> getMolangVarsServerBound() {
-        return ServerModelManager.getModel(modelId).map(model -> {
-            int index = model.info().hashShort();
-            return molangStorage.computeIfAbsent(index, hash -> new Object2FloatOpenHashMap<>());
-        }).orElse(new Object2FloatOpenHashMap<>());
     }
 
     public CompoundTag serializeNBT() {

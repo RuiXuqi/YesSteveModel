@@ -26,7 +26,7 @@ public class SyncVehicleModelInfo {
     }
 
     public SyncVehicleModelInfo(int entityId, VehicleModelInfoCapability capability) {
-        this(entityId, capability, new Int2FloatOpenHashMap());
+        this(entityId, capability, new Int2FloatOpenHashMap(0));
     }
 
     public static void encode(SyncVehicleModelInfo message, FriendlyByteBuf buf) {

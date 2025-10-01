@@ -185,6 +185,9 @@ public final class CapabilityEvent {
                     cap.buildPacketForDispatch(player).ifPresent(packet -> {
                         cap.clearDirty();
                         NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
+                        if (player.getVehicle() != null) {
+                            CapabilityEvent.onVehicleSetModel(player.getVehicle(), player);
+                        }
                     });
                     cap.getPropertiesTracker().tick(player, cap.isDirty());
                 } else {
@@ -200,8 +203,10 @@ public final class CapabilityEvent {
                 return;
             }
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.init(ownerCap.getModelId(), ownerCap.getMolangVarsServerBound());
-                NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(projectile.getId(), cap), projectile);
+                ownerCap.executeWithMolangVars(molangVars -> {
+                    cap.init(ownerCap.getModelId(), molangVars);
+                    NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(projectile.getId(), cap), projectile);
+                });
             });
         });
     }
@@ -212,8 +217,11 @@ public final class CapabilityEvent {
                 return;
             }
             vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
-                cap.init(ownerCap.getModelId(), ownerCap.getMolangVarsServerBound());
-                NetworkHandler.broadcastToVisiblePlayers(new SyncVehicleModelInfo(vehicle.getId(), cap), vehicle);
+                // 失败就丢弃
+                ownerCap.getMolangVars().ifPresent(molangVars -> {
+                    cap.init(ownerCap.getModelId(), molangVars);
+                    NetworkHandler.broadcastToVisiblePlayers(new SyncVehicleModelInfo(vehicle.getId(), cap), vehicle);
+                });
             });
         });
     }
