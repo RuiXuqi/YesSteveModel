@@ -69,7 +69,7 @@ public class TlmCommonCompatInner {
         if (maid.isYsmModel()) {
             vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 // TODO: 实现女仆的 roaming 变量
-                cap.init(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());
+                cap.update(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());
                 SyncVehicleModelInfo info = new SyncVehicleModelInfo(vehicle.getId(), cap);
                 NetworkHandler.broadcastToVisiblePlayers(info, vehicle);
             });

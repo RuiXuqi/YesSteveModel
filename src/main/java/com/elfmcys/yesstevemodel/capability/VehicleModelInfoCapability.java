@@ -9,7 +9,7 @@ public class VehicleModelInfoCapability {
     private boolean initialized = false;
     private Object2FloatOpenHashMap<String> molangVarsServerBound = new Object2FloatOpenHashMap<>();
 
-    public void init(String modelId, Object2FloatOpenHashMap<String> molangVarsServerBound) {
+    public void update(String modelId, Object2FloatOpenHashMap<String> molangVarsServerBound) {
         this.modelId = modelId;
         this.initialized = true;
         this.molangVarsServerBound = molangVarsServerBound;

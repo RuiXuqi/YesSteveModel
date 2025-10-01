@@ -4,7 +4,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.molang.runtime.HashMapStruct;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ValueConversions;
-import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 
@@ -25,7 +24,7 @@ public class RemoteRoamingStruct implements Struct {
         values.put(name, ValueConversions.asFloat(value));
     }
 
-    public void update(Int2FloatArrayMap changes) {
+    public void update(Int2FloatMap changes) {
         values.putAll(changes);
     }
 

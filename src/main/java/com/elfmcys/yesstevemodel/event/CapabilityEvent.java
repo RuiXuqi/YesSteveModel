@@ -219,7 +219,7 @@ public final class CapabilityEvent {
             vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 // 失败就丢弃
                 ownerCap.getMolangVars().ifPresent(molangVars -> {
-                    cap.init(ownerCap.getModelId(), molangVars);
+                    cap.update(ownerCap.getModelId(), molangVars);
                     NetworkHandler.broadcastToVisiblePlayers(new SyncVehicleModelInfo(vehicle.getId(), cap), vehicle);
                 });
             });
