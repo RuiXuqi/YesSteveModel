@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.model;
 
+import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.info.ModelInfo;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -54,5 +55,13 @@ public class ClientModel {
 
     public ClientModelInfo clientInfo() {
         return clientModelInfo;
+    }
+
+    public String getDisplayName(String defaultName) {
+        var metadata = info().metadata();
+        if (metadata != null) {
+            return LanguageManager.getI18n(this, "metadata.name", metadata.name());
+        }
+        return defaultName;
     }
 }
