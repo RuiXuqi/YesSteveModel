@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.renderer.replace.EntityRendererReplace;
 import com.elfmcys.yesstevemodel.client.renderer.replace.FishingHookRendererReplace;
 import com.elfmcys.yesstevemodel.client.renderer.replace.ProjectileRendererReplace;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -43,6 +44,7 @@ public class EntityRenderDispatcherMixin {
         }
 
         if (!ClientConfig.DISABLE_VEHICLE_MODEL.get()) {
+            RenderUtil.adjustPassengerPosition(entity, poseStack, partialTicks);
             return EntityRendererReplace.renderInMixin(entity, rotationYaw, partialTicks, poseStack, buffer, packedLight);
         }
 

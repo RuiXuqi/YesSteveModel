@@ -1,11 +1,17 @@
 package com.elfmcys.yesstevemodel.util;
 
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
+import com.elfmcys.yesstevemodel.client.renderer.replace.EntityRendererReplace;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
+import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -53,12 +59,48 @@ public final class RenderUtil {
 
     public static boolean isRenderingLevel() {
         return renderingLevel ||
-                IrisCompat.isRenderingShadow() ||
-                FirstPersonCompat.isRenderingPlayer();
+               IrisCompat.isRenderingShadow() ||
+               FirstPersonCompat.isRenderingPlayer();
     }
 
     public static boolean isRenderingLevelExclusive() {
         return renderingLevel && !FirstPersonCompat.isRenderingPlayer();
+    }
+
+    public static void adjustPassengerPosition(Entity entity, PoseStack poseStack, float partialTicks) {
+        Entity vehicle = entity.getVehicle();
+        if (vehicle != null) {
+            vehicle.getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(vehicleCap -> {
+                if (!vehicleCap.isInitialized() || !vehicleCap.isModelPresent()) {
+                    return;
+                }
+                int index = vehicle.getPassengers().indexOf(entity);
+                if (index < 0) {
+                    return;
+                }
+                GeoModelState loadedGeoModel = vehicleCap.getLoadedGeoModel();
+                if (loadedGeoModel == null || loadedGeoModel.passengerBones().isEmpty() || index >= loadedGeoModel.passengerBones().size()) {
+                    return;
+                }
+                var bone = loadedGeoModel.passengerBones().get(index);
+                if (bone == null) {
+                    return;
+                }
+                float rawVehicleYaw = Mth.lerp(partialTicks, vehicle.yRotO, vehicle.getYRot());
+                float vehicleYaw = EntityRendererReplace.getYaw(vehicle, rawVehicleYaw, partialTicks);
+                poseStack.mulPose(Axis.YP.rotationDegrees(180 - vehicleYaw));
+                RenderUtils.prepMatrixForLocator(poseStack, bone);
+                poseStack.mulPose(Axis.YN.rotationDegrees(180 - vehicleYaw));
+
+                double yOffset = -vehicle.getPassengersRidingOffset() - entity.getMyRidingOffset();
+                // 如果乘客带有玩家 cap 或者女仆 cap，那么不扣除 0.5 偏移
+                boolean playerHasCap = entity instanceof Player player && player.getCapability(PlayerAnimatableCapabilityProvider.CAP).isPresent();
+                if (playerHasCap || TlmClientCompat.hasMaidCap(entity)) {
+                    yOffset = yOffset - 0.5;
+                }
+                poseStack.translate(0, yOffset, 0);
+            });
+        }
     }
 
     public static <T extends LivingEntity, TAnimatable extends AnimatableEntity<T> & IPreviewEntity> void renderTextureScreenEntity(float pPosX, float pPosY, float pScale, float pitch, float yaw, float partialTicks, TAnimatable entity, GeoReplacedEntityRenderer<T, ? super TAnimatable> renderer, boolean showGround) {

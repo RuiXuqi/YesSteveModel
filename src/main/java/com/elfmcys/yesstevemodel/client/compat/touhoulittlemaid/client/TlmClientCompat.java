@@ -63,6 +63,10 @@ public class TlmClientCompat {
         return isInstalled() && TlmClientCompatInner.isMaid(entity);
     }
 
+    public static boolean hasMaidCap(Entity entity) {
+        return isInstalled() && TlmClientCompatInner.hasMaidCap(entity);
+    }
+
     public static boolean isChair(Entity entity) {
         return isInstalled() && TlmClientCompatInner.isChair(entity);
     }

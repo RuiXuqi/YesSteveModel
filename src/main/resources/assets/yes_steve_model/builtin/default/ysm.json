@@ -140,6 +140,11 @@
         "animation": "animations/boat.animation.json",
         "texture": "textures/boat.png"
       },
+      "minecraft:chest_boat": {
+        "model": "models/chest_boat.json",
+        "animation": "animations/boat.animation.json",
+        "texture": "textures/boat.png"
+      },
       "minecraft:minecart": {
         "model": "models/minecart.json",
         "texture": "textures/minecart.png"

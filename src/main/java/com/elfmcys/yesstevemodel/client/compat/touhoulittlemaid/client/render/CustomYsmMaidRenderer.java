@@ -53,33 +53,6 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
     @Override
     public void geoRender(EntityMaid entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         entity.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(customGeoMaidEntity -> {
-            Entity vehicle = entity.getVehicle();
-            if (vehicle != null) {
-                vehicle.getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(vehicleCap -> {
-                    if (!vehicleCap.isInitialized() || !vehicleCap.isModelPresent()) {
-                        return;
-                    }
-                    int index = vehicle.getPassengers().indexOf(entity);
-                    if (index < 0) {
-                        return;
-                    }
-                    GeoModelState loadedGeoModel = vehicleCap.getLoadedGeoModel();
-                    if (loadedGeoModel == null || loadedGeoModel.passengerBones().isEmpty() || index >= loadedGeoModel.passengerBones().size()) {
-                        return;
-                    }
-                    var bone = loadedGeoModel.passengerBones().get(index);
-                    if (bone == null) {
-                        return;
-                    }
-                    float rawVehicleYaw = Mth.lerp(partialTick, vehicle.yRotO, vehicle.getYRot());
-                    float vehicleYaw = EntityRendererReplace.getYaw(vehicle, rawVehicleYaw, partialTick);
-                    poseStack.mulPose(Axis.YP.rotationDegrees(180 - vehicleYaw));
-                    RenderUtils.prepMatrixForLocator(poseStack, bone);
-                    poseStack.mulPose(Axis.YN.rotationDegrees(180 - vehicleYaw));
-                    poseStack.translate(0, -entity.getMyRidingOffset() - 0.5, 0);
-                });
-            }
-
             renderAnimatableEntity(customGeoMaidEntity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         });
     }

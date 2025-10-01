@@ -40,6 +40,13 @@ public class TlmClientCompatInner {
         return entity instanceof EntityMaid;
     }
 
+    static boolean hasMaidCap(Entity entity) {
+        if (entity instanceof EntityMaid maid) {
+            return maid.getCapability(YsmMaidCapabilityProvider.CAP).isPresent() && maid.isYsmModel();
+        }
+        return false;
+    }
+
     static boolean isChair(Entity entity) {
         return entity instanceof EntityChair;
     }
