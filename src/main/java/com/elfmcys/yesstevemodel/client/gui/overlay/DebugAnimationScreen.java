@@ -16,13 +16,12 @@ import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import java.util.List;
 
 public class DebugAnimationScreen implements IGuiOverlay {
-    private static final int DEBUG_BG_WIDTH = 1000;
     private static final IntList DEBUG_CONTROLLERS_INDEX = new IntArrayList();
 
     @Override
     public void render(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
         if (DebugAnimationKey.TYPE == DebugAnimationKey.DebugType.CUSTOM) {
-            renderCustom(gui, graphics);
+            renderCustom(gui, graphics, screenWidth, screenHeight);
         }
     }
 
@@ -35,7 +34,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
     }
 
     @SuppressWarnings("all")
-    private static void renderCustom(ForgeGui gui, GuiGraphics graphics) {
+    private static void renderCustom(ForgeGui gui, GuiGraphics graphics, int screenWidth, int screenHeight) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
             return;
@@ -45,7 +44,7 @@ public class DebugAnimationScreen implements IGuiOverlay {
 
             DebugInfo debugInfo = cap.getDebugInfo();
             debugInfo.enumerate((name, result) -> {
-                renderCustomText(gui, graphics, y, name, result);
+                renderCustomText(gui, graphics, y, name, result, screenWidth, screenHeight);
             });
 
             // 渲染状态机信息
@@ -54,21 +53,21 @@ public class DebugAnimationScreen implements IGuiOverlay {
             DEBUG_CONTROLLERS_INDEX.forEach(index -> {
                 if (index < size) {
                     IAnimationController controller = controllers.get(index);
-                    renderCustomText(gui, graphics, y, controller.getName(), controller.getState());
+                    renderCustomText(gui, graphics, y, controller.getName(), controller.getState(), screenWidth, screenHeight);
                 }
             });
         });
     }
 
-    private static void renderCustomText(ForgeGui gui, GuiGraphics graphics, int[] y, String name, String result) {
+    private static void renderCustomText(ForgeGui gui, GuiGraphics graphics, int[] y, String name, String result, int screenWidth, int screenHeight) {
         Font font = gui.getFont();
         if ((y[0] - 5) % 20 == 0) {
-            graphics.fill(2, y[0] - 1, DEBUG_BG_WIDTH, y[0] + 9, 0xc0505050);
+            graphics.fill(2, y[0] - 1, screenWidth, y[0] + 9, 0xc0505050);
         } else {
-            graphics.fill(2, y[0] - 1, DEBUG_BG_WIDTH, y[0] + 9, 0xc0506050);
+            graphics.fill(2, y[0] - 1, screenWidth, y[0] + 9, 0xc0506050);
         }
         graphics.drawString(font, name, 5, y[0], 0xffffff);
-        graphics.drawString(font, result, 260, y[0], 0xffffff);
+        graphics.drawString(font, result, screenWidth / 2, y[0], 0xffffff);
         y[0] = y[0] + 10;
     }
 }
