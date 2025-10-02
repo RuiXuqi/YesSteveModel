@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
@@ -25,6 +26,11 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     @Override
     public @NotNull PreviewAnimationInfo getPreviewInfo() {
         return guiAnimationInfo;
+    }
+
+    @Override
+    public PhysicsManager getPhysicsManager() {
+        return physicsManager;
     }
 
     @Override

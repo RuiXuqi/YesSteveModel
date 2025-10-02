@@ -27,6 +27,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
@@ -82,6 +83,7 @@ public class YSMBinding extends ContextBinding {
         var("dimension_name", ctx -> ctx.level().dimension().location().toString());
         var("fps", ctx -> Minecraft.getInstance().getFps());
         var("time_delta", ctx -> ctx.animatableEntity().getStateTracker().getRenderTickDelta() / 20);
+        entityVar("ground_speed2", YSMBinding::getGroundSpeed2);
 
         entityVar("input_vertical", MoveInputVariable::getVertical);
         entityVar("input_horizontal", MoveInputVariable::getHorizontal);
@@ -205,6 +207,12 @@ public class YSMBinding extends ContextBinding {
             }
         }
         return "";
+    }
+
+    private static float getGroundSpeed2(IContext<Entity> ctx) {
+        var stateStacker = ctx.animatableEntity().getStateTracker();
+        var posDelta = stateStacker.getPositionDelta();
+        return 20 * Mth.sqrt((float) ((posDelta.x * posDelta.x) + (posDelta.z * posDelta.z))) / stateStacker.getRenderTickDelta();
     }
 
     private static float getXxa(IContext<LivingEntity> ctx) {
