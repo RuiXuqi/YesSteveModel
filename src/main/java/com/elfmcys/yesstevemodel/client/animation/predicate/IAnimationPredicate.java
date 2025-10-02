@@ -21,6 +21,22 @@ public interface IAnimationPredicate<T extends AnimatableEntity<?>> {
         return PlayState.CONTINUE;
     }
 
+    /**
+     * 自 2.4.2-snapshot-27 版本起，所有的手部动画全部交由动画文件本身决定播放类型
+     * 部分旧版加密模型可能会动画错误，特此保留此方法以兼容旧版加密模型
+     */
+    @NotNull
+    static <P extends AnimatableEntity<?>> PlayState playCompatAnimation(AnimationEvent<P> event, String animationName, LoopType loopType, int formatVer) {
+        // 未加密的模型是 0，旧版（1.1.x 版本）加密是 -1，2.4.2-snapshot-21 版本序号是 18，snapshot-32 是 19
+        // 未加密模型和 19 序号（包含）之后的都直接让动画文件决定播放类型
+        if (formatVer == 0 || formatVer >= 19) {
+            event.getCodedController().setAnimation(animationName);
+        } else {
+            event.getCodedController().setAnimation(animationName, loopType);
+        }
+        return PlayState.CONTINUE;
+    }
+
     @NotNull
     static <T extends AnimatableEntity<?>> PlayState playLoopAnimation(AnimationEvent<T> event, String animationName) {
         return playAnimation(event, animationName, LoopType.LOOP);

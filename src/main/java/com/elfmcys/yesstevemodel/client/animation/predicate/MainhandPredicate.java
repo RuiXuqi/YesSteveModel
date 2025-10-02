@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.HumanoidStateTracker;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
+import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import net.minecraft.world.InteractionHand;
@@ -18,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
+import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playCompatAnimation;
 
 public class MainhandPredicate implements IAnimationPredicate<CustomHumanoidEntity<?>> {
     @Override
@@ -32,6 +33,8 @@ public class MainhandPredicate implements IAnimationPredicate<CustomHumanoidEnti
             return PlayState.PAUSE;
         }
 
+        int formatVer = event.getAnimatableEntity().getModelContainer().info().formatVer();
+
         ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
         PlayState gunHoldAnimation = TACZCompat.playGunHoldAnimation(mainHandItem, event);
         if (gunHoldAnimation != null) {
@@ -42,12 +45,12 @@ public class MainhandPredicate implements IAnimationPredicate<CustomHumanoidEnti
             return gunHoldAnimation;
         }
         if (mainHandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(mainHandItem)) {
-            return playAnimation(event, "hold_mainhand:charged_crossbow");
+            return playCompatAnimation(event, "hold_mainhand:charged_crossbow", LoopType.LOOP, formatVer);
         }
         boolean playerIsFishing = entity instanceof Player player && player.fishing != null;
         boolean maidIsFishing = TlmClientCompat.isMaidFishing(entity);
         if (playerIsFishing || maidIsFishing) {
-            return playAnimation(event, "hold_mainhand:fishing");
+            return playCompatAnimation(event, "hold_mainhand:fishing", LoopType.LOOP, formatVer);
         }
 
         var tracker = event.getAnimatableEntity().getStateTracker();
@@ -60,7 +63,7 @@ public class MainhandPredicate implements IAnimationPredicate<CustomHumanoidEnti
         if (conditionalHold != null) {
             String name = conditionalHold.doTest(entity, InteractionHand.MAIN_HAND);
             if (StringUtils.isNoneBlank(name)) {
-                return playAnimation(event, name);
+                return playCompatAnimation(event, name, LoopType.LOOP, formatVer);
             }
         }
 
