@@ -65,7 +65,6 @@
       "#战术装备切换": "§6状态切换",
       "部署阔剑拌雷": "#kuojian",
       "#姿势切换": "§c姿势切换 Pose",
-      "#战术语音": "§e语音【空】",
       "摆姿势": "§e机械师斯塔",
       "#自定义体型/特效/表情": "§c自定义模型"
     },
@@ -141,23 +140,11 @@
         }
       },
       {
-        "id": "武器展示",
-        "extra_animation": {}
-      },
-      {
         "id": "战术装备切换",
         "extra_animation": {
           "驾驶坦克2": "§4进入车辆",
           "离开坦克": "§4下车"
         }
-      },
-      {
-        "id": "战术语音",
-        "extra_animation": {}
-      },
-      {
-        "id": "角色星级",
-        "extra_animation": {}
       },
       {
         "id": "舞蹈/动作",
@@ -415,7 +402,7 @@
             "description": "预设体型切换",
             "value": "v.player_size_YS",
             "labels": {
-              "重置": "v.player_size_YS=0;        v.player_root_size=0;     v.player_root_width=0;     v.player_root_seat=0;       v.player_head_size=0;      v.player_head_width=0;       v.player_arm_size=0;     v.player_arm_length=0;       v.player_Leg_size=0;      v.player_Leg_length=0",
+              "重置": "v.player_size_YS=0;        v.player_root_size=1;     v.player_root_width=0;     v.player_root_seat=0;       v.player_head_size=0;      v.player_head_width=0;       v.player_arm_size=0;     v.player_arm_length=0;       v.player_Leg_size=0;      v.player_Leg_length=0",
               "宽体斯塔": "v.player_size_YS=1;    v.player_root_size=0.1;     v.player_root_width=2;     v.player_root_seat=-0.05;   v.player_head_size=-0.3;   v.player_head_width=-0.45;   v.player_arm_size=0.6;   v.player_arm_length=0.2;     v.player_Leg_size=0.15;   v.player_Leg_length=-0.2",
               "魁梧斯塔": "v.player_size_YS=2;    v.player_root_size=0.6;   v.player_root_width=0.5;   v.player_root_seat=0.15;    v.player_head_size=-0.5;   v.player_head_width=-0.2;    v.player_arm_size=1;   v.player_arm_length=-0.25;   v.player_Leg_size=0.2;    v.player_Leg_length=-0.1",
               "小孩斯塔": "v.player_size_YS=3;    v.player_root_size=-0.4;  v.player_root_width=0;     v.player_root_seat=-0.3;    v.player_head_size=0.25;    v.player_head_width=0;       v.player_arm_size=0.1;   v.player_arm_length=-0.2;    v.player_Leg_size=0;      v.player_Leg_length=-0.4",

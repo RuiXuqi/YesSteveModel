@@ -11871,8 +11871,7 @@
 					"scale": "v.roaming.car"
 				},
 				"AllRoot": {
-					"position": [0, "v.player_root_seat*16", 0],
-					"scale": "!v.roaming.car"
+					"position": [0, "v.player_root_seat*16", 0]
 				},
 				"AllBody": {
 					"scale": ["1+v.player_root_width", 1, "1+v.player_root_width"]
@@ -11979,6 +11978,9 @@
 				"Right_meimao": {
 					"rotation": [0, 0, "v.meimao_r"],
 					"position": [0, "v.meimao_v/10", 0]
+				},
+				"Root": {
+					"scale": "!v.roaming.car"
 				}
 			}
 		},
