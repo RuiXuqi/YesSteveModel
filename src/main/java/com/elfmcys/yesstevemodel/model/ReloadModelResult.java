@@ -2,6 +2,8 @@ package com.elfmcys.yesstevemodel.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import net.minecraft.network.chat.Component;
 
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +23,8 @@ public class ReloadModelResult {
     public ReloadModelResult(boolean success, @Nullable Object message, Map<String, ServerModel> models, String[] authModels) {
         this.success = success;
         this.message = (Component) message;
-        this.models = ImmutableMap.copyOf(models);
-        this.authModels = ImmutableSet.copyOf(authModels);
+        this.models = models == null ? Object2ReferenceMaps.emptyMap() : ImmutableMap.copyOf(models);
+        this.authModels = authModels == null ? ObjectSets.emptySet() : ImmutableSet.copyOf(authModels);
     }
 
     public boolean success() {
