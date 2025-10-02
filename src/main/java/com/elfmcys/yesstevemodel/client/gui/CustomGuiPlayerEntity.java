@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -80,10 +81,10 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
         return new HumanoidResourceHolder(model, isFallback, false, true, 15 * 20);
     }
 
-    private static class FakePlayer extends Player {
+    private static class FakePlayer extends AbstractClientPlayer {
         @SuppressWarnings("DataFlowIssue")
         public FakePlayer() {
-            super(Minecraft.getInstance().level, BlockPos.ZERO, 0, createRandomGameProfile());
+            super(Minecraft.getInstance().level, createRandomGameProfile());
         }
 
         private static GameProfile createRandomGameProfile() {
