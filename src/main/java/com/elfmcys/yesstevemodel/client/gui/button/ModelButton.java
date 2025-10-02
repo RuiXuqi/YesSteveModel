@@ -6,10 +6,12 @@ import com.elfmcys.yesstevemodel.capability.StarModelsCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.AnimationRegister;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
+import com.elfmcys.yesstevemodel.client.gui.PlayerModelScreen;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
 import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetModelAndTexture;
@@ -47,6 +49,7 @@ public class ModelButton extends Button {
     private final String focusAnimationName;
     private final double fadeoutTime;
     private final boolean disablePreviewRotation;
+    private final Component modelId;
 
     private @Nullable TextureHolder background = null;
     private @Nullable TextureHolder foreground = null;
@@ -65,6 +68,7 @@ public class ModelButton extends Button {
         this.model = model;
         this.animatedEntity = animatedEntity;
         this.disablePreviewRotation = model.info().properties().disablePreviewRotation();
+        this.modelId = Component.literal(ModelIdUtil.getFileNameFromPath(animatedEntity.getModelId()));
 
         // 获取模型信息中的 GUI 图片
         this.background = model.clientInfo().guiBackground() == null ? null : CustomTextureManager.register(model.clientInfo().guiBackground(), true, 10 * 20);
@@ -100,6 +104,14 @@ public class ModelButton extends Button {
             return Component.literal(ModelIdUtil.getFileNameFromPath(animatedEntity.getModelId()));
         }
         return Component.literal(LanguageManager.getI18n(model, "metadata.name", metadata.name()));
+    }
+
+    @Override
+    public Component getMessage() {
+        if (ClientConfig.SHOW_MODEL_ID_FIRST.get()) {
+            return this.modelId;
+        }
+        return super.getMessage();
     }
 
     @Override

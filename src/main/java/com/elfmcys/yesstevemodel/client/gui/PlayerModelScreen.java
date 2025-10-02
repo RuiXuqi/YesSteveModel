@@ -14,6 +14,7 @@ import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.ClientModelSyncListener;
 import com.elfmcys.yesstevemodel.client.model.ModelPackInfo;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.info.ModelAuthor;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
@@ -30,6 +31,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -414,6 +416,16 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             addRenderableWidget(new FlatIconButton(x + 110, y + 27, 20, 20, 0, 32, b -> this.backToParent())
                     .setTooltips("gui.back"));
         }
+
+        // 添加是否优先显示模型 ID 按钮
+        addRenderableWidget(new Checkbox(x + 5, y - 22, 20, 20, Component.translatable("gui.yes_steve_model.show_model_id_first"), ClientConfig.SHOW_MODEL_ID_FIRST.get(), true) {
+            @Override
+            public void onPress() {
+                super.onPress();
+                ClientConfig.SHOW_MODEL_ID_FIRST.set(this.selected());
+                ClientConfig.SHOW_MODEL_ID_FIRST.save();
+            }
+        });
 
         addRenderableWidget(new FlatIconButton(x + 328, y + 5, 18, 18, 32, 0, (b) -> {
             if (this.category != Category.ALL) {

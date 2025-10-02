@@ -12,6 +12,7 @@ public class ClientConfig {
     public static ForgeConfigSpec.BooleanValue DISABLE_VEHICLE_MODEL;
     public static ForgeConfigSpec.BooleanValue USE_COMPATIBILITY_RENDERER;
     public static ForgeConfigSpec.DoubleValue SOUND_VOLUME;
+    public static ForgeConfigSpec.BooleanValue SHOW_MODEL_ID_FIRST;
 
     public static ForgeConfigSpec init() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -50,6 +51,9 @@ public class ClientConfig {
 
         builder.comment("The amount of volume when the animation is played.");
         SOUND_VOLUME = builder.defineInRange("SoundVolume", 100.0, 0.0, 100.0);
+
+        builder.comment("Whether to display model ID first in the model selection screen, instead of the model name filled in by the model author.");
+        SHOW_MODEL_ID_FIRST = builder.define("ShowModelIdFirst", false);
 
         builder.pop();
     }
