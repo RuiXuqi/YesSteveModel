@@ -27,6 +27,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -54,8 +56,8 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     private static final String AUTHOR_SEARCH_PREFIX = "@";
     private static final String PACK_SEARCH_PREFIX = "#";
 
-    private static int page = 0;
-    private static String pack = "";
+    private static Object2IntMap<String> PAGE = new Object2IntOpenHashMap<>();
+    private static String PACK = "";
 
     private final HashSet<String> clientNotDisplayModels = Sets.newHashSet();
     private final Map<String, ModelPackInfo> allPacks;
@@ -105,11 +107,11 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
     private Map<String, ClientModel> getPackModels() {
         Map<String, ClientModel> packModels = Maps.newHashMap();
-        if (StringUtils.isBlank(pack)) {
+        if (StringUtils.isBlank(PACK)) {
             packModels.putAll(ClientModelManager.getModels());
         }
         ClientModelManager.getModels().forEach((k, v) -> {
-            if (k.startsWith(pack)) {
+            if (k.startsWith(PACK)) {
                 packModels.put(k, v);
             }
             String packPath = ModelIdUtil.splitModelPath(k).right();
@@ -139,11 +141,11 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
     private Map<String, ModelPackInfo> getPackInfos() {
         Map<String, ModelPackInfo> packInfos = Maps.newHashMap();
-        if (StringUtils.isBlank(pack)) {
+        if (StringUtils.isBlank(PACK)) {
             return Maps.newHashMap(allPacks);
         }
         allPacks.forEach((k, v) -> {
-            if (k.startsWith(pack)) {
+            if (k.startsWith(PACK)) {
                 packInfos.put(k, v);
             }
         });
@@ -204,13 +206,13 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                     return true;
                 }
                 // 只保留当前文件夹下的模型
-                return !split.right().equals(pack);
+                return !split.right().equals(PACK);
             });
 
             packs.entrySet().removeIf(next -> {
                 String path = next.getKey();
                 // 只保留当前文件夹下的文件夹
-                return !this.shouldKeep(pack, path);
+                return !this.shouldKeep(PACK, path);
             });
         } else {
             // 搜索框不为空时，为搜索模式，此时不考虑文件树，直接拉平
@@ -369,8 +371,8 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         this.clearWidgets();
         this.calculateModelList();
 
-        if (page > this.maxPage) {
-            page = 0;
+        if (this.getCurrentPage() > this.maxPage) {
+            this.resetCurrentPage();
         }
 
         this.x = (width - 420) / 2;
@@ -412,7 +414,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         addRenderableWidget(new StarButton(x + 110, y + 5));
 
         // 添加返回按钮
-        if (StringUtils.isNotBlank(pack)) {
+        if (StringUtils.isNotBlank(PACK)) {
             addRenderableWidget(new FlatIconButton(x + 110, y + 27, 20, 20, 0, 32, b -> this.backToParent())
                     .setTooltips("gui.back"));
         }
@@ -430,21 +432,21 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         addRenderableWidget(new FlatIconButton(x + 328, y + 5, 18, 18, 32, 0, (b) -> {
             if (this.category != Category.ALL) {
                 this.category = Category.ALL;
-                page = 0;
+                this.resetCurrentPage();
                 this.init();
             }
         }).setTooltips("gui.yes_steve_model.all_models"));
         addRenderableWidget(new FlatIconButton(x + 308, y + 5, 18, 18, 48, 0, (b) -> {
             if (this.category != Category.AUTH) {
                 this.category = Category.AUTH;
-                page = 0;
+                this.resetCurrentPage();
                 this.init();
             }
         }).setTooltips("gui.yes_steve_model.auth_models"));
         addRenderableWidget(new FlatIconButton(x + 288, y + 5, 18, 18, 0, 0, (b) -> {
             if (this.category != Category.STAR) {
                 this.category = Category.STAR;
-                page = 0;
+                this.resetCurrentPage();
                 this.init();
             }
         }).setTooltips("gui.yes_steve_model.star_models"));
@@ -460,14 +462,16 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         }).setTooltips("gui.yes_steve_model.open_model_folder.open"));
 
         addRenderableWidget(new FlatColorButton(x + 198, y + 215, 52, 14, Component.translatable("gui.yes_steve_model.pre_page"), (b) -> {
+            int page = this.getCurrentPage();
             if (page > 0) {
-                page--;
+                this.setCurrentPage(page - 1);
                 this.init();
             }
         }));
         addRenderableWidget(new FlatColorButton(x + 308, y + 215, 52, 14, Component.translatable("gui.yes_steve_model.next_page"), (b) -> {
+            int page = this.getCurrentPage();
             if (page < this.maxPage) {
-                page++;
+                this.setCurrentPage(page + 1);
                 this.init();
             }
         }));
@@ -478,7 +482,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         LazyOptional<AuthModelsCapability> authModels = minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP);
 
         for (int i = 0; i < 10; i++) {
-            int index = i + page * 10;
+            int index = i + this.getCurrentPage() * 10;
             int xStart = x + 143 + 55 * (i % 5);
             int yStart = y + 28 + 93 * (i / 5);
 
@@ -487,8 +491,8 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
                 String id = packOrderList.get(index);
                 this.getPack(id).ifPresent(packInfo -> {
                     this.addRenderableWidget(new PackButton(xStart, yStart, 52, 90, packInfo, b -> {
-                        pack = id;
-                        page = 0;
+                        PACK = id;
+                        this.resetCurrentPage();
                         this.init();
                     }));
                 });
@@ -527,7 +531,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             graphics.drawString(font, Component.translatable("gui.yes_steve_model.search").withStyle(ChatFormatting.ITALIC), x + 148, y + 10, 0x777777);
         }
 
-        String pageInfo = String.format("%d/%d", page + 1, this.maxPage + 1);
+        String pageInfo = String.format("%d/%d", this.getCurrentPage() + 1, this.maxPage + 1);
         graphics.drawString(font, pageInfo, x + 138 + (282 - font.width(pageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
 
         String debugInfo = ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString();
@@ -536,8 +540,8 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
         graphics.pose().popPose();
 
-        if (StringUtils.isNotBlank(pack)) {
-            MutableComponent path = Component.literal("\uD83D\uDCC2 " + pack).withStyle(ChatFormatting.GRAY);
+        if (StringUtils.isNotBlank(PACK)) {
+            MutableComponent path = Component.literal("\uD83D\uDCC2 " + PACK).withStyle(ChatFormatting.GRAY);
             int i = 0;
             List<FormattedCharSequence> split = font.split(path, 270);
             for (FormattedCharSequence sequence : split) {
@@ -658,7 +662,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         }
         boolean result = super.mouseClicked(mouseX, mouseY, button);
         // 最后判断鼠标右键，返回上一级
-        if (!result && button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && StringUtils.isNotBlank(pack)) {
+        if (!result && button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && StringUtils.isNotBlank(PACK)) {
             SimpleSoundInstance sound = SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F);
             Minecraft.getInstance().getSoundManager().play(sound);
             this.backToParent();
@@ -675,7 +679,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         String perText = this.textField.getValue();
         if (this.textField.charTyped(codePoint, modifiers)) {
             if (!Objects.equals(perText, this.textField.getValue())) {
-                page = 0;
+                this.resetCurrentPage();
                 this.init();
             }
             return true;
@@ -695,7 +699,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         }
         if (this.textField.keyPressed(keyCode, scanCode, modifiers)) {
             if (!Objects.equals(preText, this.textField.getValue())) {
-                page = 0;
+                this.resetCurrentPage();
                 this.init();
             }
             return true;
@@ -739,26 +743,40 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     }
 
     private void backToParent() {
-        String parentPath = this.getParentPath(pack);
-        if (!pack.equals(parentPath)) {
-            pack = parentPath;
-            page = 0;
+        String parentPath = this.getParentPath(PACK);
+        if (!PACK.equals(parentPath)) {
+            String oldPack = PACK;
+            PACK = parentPath;
+            PAGE.removeInt(oldPack);
             this.init();
         }
     }
 
     private boolean scrollPage(double delta) {
+        int page = this.getCurrentPage();
         if (delta > 0 && page > 0) {
-            page--;
+            this.setCurrentPage(page - 1);
             getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.init();
         }
         if (delta < 0 && page < this.maxPage) {
-            page++;
+            this.setCurrentPage(page + 1);
             getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.init();
         }
         return true;
+    }
+
+    public int getCurrentPage() {
+        return PAGE.getOrDefault(PACK, 0);
+    }
+
+    public void setCurrentPage(int page) {
+        PAGE.put(PACK, page);
+    }
+
+    public void resetCurrentPage() {
+        PAGE.put(PACK, 0);
     }
 
     @Override
