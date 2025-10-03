@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.info.ModelFormatVersion;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,9 +28,7 @@ public interface IAnimationPredicate<T extends AnimatableEntity<?>> {
      */
     @NotNull
     static <P extends AnimatableEntity<?>> PlayState playCompatAnimation(AnimationEvent<P> event, String animationName, LoopType loopType, int formatVer) {
-        // 未加密的模型是 0，旧版（1.1.x 版本）加密是 -1，2.4.2-snapshot-21 版本序号是 18，snapshot-32 是 19
-        // 未加密模型和 19 序号（包含）之后的都直接让动画文件决定播放类型
-        if (formatVer == 0 || formatVer >= 19) {
+        if (ModelFormatVersion.shouldIgnoreCodedLoopTypeForHandAnim(formatVer)) {
             event.getCodedController().setAnimation(animationName);
         } else {
             event.getCodedController().setAnimation(animationName, loopType);
