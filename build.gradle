@@ -190,6 +190,9 @@ dependencies {
     // 机械动力，兼容那个扳手
     modCompileOnly "maven.modrinth:create:1.20.1-6.0.6"
 
+    // 简单帽子
+    modImplementation "maven.modrinth:simple-hats:1.20.1-0.3.2-forge"
+
     // 引入 MixinExtras 以解决一些棘手的 Mixin 冲突问题（比如 @Redirect 不能嵌套）
     // Fabric / NeoForge 中自带 MixinExtras，无需打包
     modCompileOnly "io.github.llamalad7:mixinextras-common:0.3.6"

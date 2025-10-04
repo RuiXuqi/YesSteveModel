@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.gui.CustomGuiPlayerEntity;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomParrotOnShoulderLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerElytraLayer;
+import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerHeadLayer;
 import com.elfmcys.yesstevemodel.client.renderer.layer.CustomPlayerItemInHandLayer;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.GeoReplacedEntityRenderer;
@@ -37,6 +38,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
         addLayer(new CustomPlayerItemInHandLayer(ctx.getItemInHandRenderer()));
         addLayer(new CustomPlayerElytraLayer(ctx));
         addLayer(new CustomParrotOnShoulderLayer(ctx));
+        addLayer(new CustomPlayerHeadLayer(ctx));
     }
 
     @Override
