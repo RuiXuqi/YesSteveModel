@@ -9,11 +9,10 @@ import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
-import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -49,34 +48,22 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
-    @SuppressWarnings("all")
-    protected boolean tickAnimation(MolangContext ctx, @NotNull AnimationEvent animationEvent) {
-        if (animationEvent.getExtraData() != null && entity != null) {
-            EntityModelData data = animationEvent.getExtraData();
-            this.recoverLastCodedAnimation();
-            boolean update = super.tickAnimation(ctx, animationEvent);
-            this.codeAnimation(animationEvent, data, update);
-            return update;
-        } else {
-            return super.tickAnimation(ctx, animationEvent);
-        }
-    }
-
-    @Deprecated
-    protected void codeAnimation(AnimationEvent<CustomPlayerEntity> animationEvent, EntityModelData data, boolean update) {
+    protected void codeAnimation(AnimationEvent<? extends AnimatableEntity<T>> animationEvent, boolean shouldUpdate) {
         GeoModelState model = getLoadedGeoModel();
         if (model != null && !model.headBones().isEmpty()) {
             var head = model.headBones().get(model.headBones().size() - 1);
             // 更新头部旋转
-            if (update) {
+            if (shouldUpdate) {
                 headRot.set(head.getRotationX(), head.getRotationY());
             }
+            var data = animationEvent.getExtraData();
             head.setRotationX(headRot.x + (float) Math.toRadians(data.headPitch));
             head.setRotationY(headRot.y + (float) Math.toRadians(data.netHeadYaw));
         }
     }
 
-    protected void recoverLastCodedAnimation() {
+    @Override
+    protected void recoverLastCodedAnimation(boolean lastFrameUpdated) {
         var model = getLoadedGeoModel();
         if (model != null && !model.headBones().isEmpty()) {
             var head = model.headBones().get(model.headBones().size() - 1);

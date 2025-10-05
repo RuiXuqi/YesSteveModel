@@ -2,16 +2,12 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
-import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
-import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
-import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.player.LocalPlayer;
@@ -106,35 +102,6 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> {
 
     public boolean isLocalPlayer() {
         return localPlayer;
-    }
-
-    @Deprecated
-    @Override
-    protected void codeAnimation(AnimationEvent<CustomPlayerEntity> animationEvent, EntityModelData data, boolean update) {
-        super.codeAnimation(animationEvent,data, update);
-
-        GeoModelState model = getLoadedGeoModel();
-
-        // 更新第一人称相机偏移与头部隐藏
-        if (model != null && animationEvent.getAnimatableEntity().isLocalPlayer()) {
-            if (FirstPersonCompat.isInstalled()) {
-                if (model.firstPersonHead() != null) {
-                    model.firstPersonHead().setHidden(FirstPersonCompat.shouldHideHead());
-                }
-                if (model.firstPersonViewLocator() != null) {
-                    FirstPersonCompat.setHeadPos(model.firstPersonViewLocator().getPivotY() * animationEvent.getAnimatableEntity().getHeightScale());
-                } else if (update) {
-                    if (!model.headBones().isEmpty()) {
-                        var head = model.headBones().get(model.headBones().size() - 1);
-                        FirstPersonCompat.setHeadPos(head == null ? 24f : (head.getPivotY() * animationEvent.getAnimatableEntity().getHeightScale()));
-                    }
-                }
-            }
-
-            if (BetterCombatCompat.isInstalled() && model.firstPersonHead() != null) {
-                model.firstPersonHead().setHidden(BetterCombatCompat.shouldHideHead(this));
-            }
-        }
     }
 
     @Override

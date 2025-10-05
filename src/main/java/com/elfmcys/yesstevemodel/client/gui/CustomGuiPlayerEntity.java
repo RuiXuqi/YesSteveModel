@@ -9,7 +9,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,11 +54,11 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
-    public AnimationEvent<?> updateAnimation(float partialTicks) {
+    public AnimationEvent<?> updateAnimation(float partialTicks, boolean renderingInLevelExclusive) {
         if (entity instanceof FakePlayer fakePlayer && !fakePlayer.updateClientLevel()) {
             return null;
         }
-        return super.updateAnimation(partialTicks);
+        return super.updateAnimation(partialTicks, renderingInLevelExclusive);
     }
 
     public static boolean isFakePlayer(Player player) {
@@ -67,7 +66,7 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
-    protected boolean isImmutableRender() {
+    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
         return true;
     }
 

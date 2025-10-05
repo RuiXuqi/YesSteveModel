@@ -9,6 +9,7 @@ import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +33,7 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     }
 
     @Override
-    protected boolean isImmutableRender() {
+    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
         return true;
     }
 

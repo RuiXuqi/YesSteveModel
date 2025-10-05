@@ -19,6 +19,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.processor.IBone;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.RateLimiter;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import net.minecraft.client.Minecraft;
@@ -50,6 +51,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected boolean currentFrameTicked;
     protected boolean currentFrameShouldTick;
 
+    private boolean lastFrameUpdated;
     private float seekTime;
     private boolean initialize = false;
 
@@ -153,8 +155,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return true;
     }
 
+    public final @Nullable AnimationEvent<?> updateAnimation(float partialTicks) {
+        return updateAnimation(partialTicks, RenderUtil.isRenderingLevelExclusive());
+    }
+
     @Nullable
-    public AnimationEvent<?> updateAnimation(float partialTicks) {
+    public AnimationEvent<?> updateAnimation(float partialTicks, boolean renderingInLevelExclusive) {
         if (this.currentModel == null) {
             return null;
         }
@@ -208,16 +214,21 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         entityModelData.lerpBodyRot = lerpBodyRot;
         entityModelData.lerpedAge = entityTickCount + partialTicks;
 
-        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this, limbSwing, limbSwingAmount, entityTickCount, partialTicks, realPartialTicks, (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()), entityModelData);
+        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this,
+                limbSwing, limbSwingAmount,
+                entityTickCount, partialTicks, realPartialTicks,
+                (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()),
+                renderingInLevelExclusive,
+                entityModelData);
         MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
         ctx.setDebugSource(getDebugSource());
         this.tickAnimation(ctx, event);
         return event;
     }
 
-    protected boolean tickAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
+    protected void tickAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
         var frameTime = animationEvent.renderTicks;
-        var mutableRender = !isImmutableRender();
+        var mutableRender = !isImmutableRender(animationEvent);
 
         if (frameTime > lastFrameTime) {
             currentFrameTicked = false;
@@ -242,9 +253,10 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
         if (!animationProcessor.isModelEmpty()) {
             currentFrameShouldTick |= rateLimiter.request(seekTime / 20);
-            var shouldUpdate = currentFrameShouldTick && !currentFrameTicked;
-            if (lastMutableRender || mutableRender || shouldUpdate) {
-                var shouldTick = !mutableRender && shouldUpdate;
+            var shouldUpdate = (currentFrameShouldTick && !currentFrameTicked) || lastMutableRender || mutableRender;
+            var shouldTick = !mutableRender && currentFrameShouldTick && !currentFrameTicked;
+            recoverLastCodedAnimation(lastFrameUpdated);
+            if (shouldUpdate) {
                 if (shouldTick) {
                     currentFrameTicked = true;
                     stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
@@ -253,10 +265,16 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                 preAnimationSetup(this.seekTime, shouldTick);
                 getAnimationProcessor().tickAnimation(animationEvent, ctx, shouldTick, allowEmitting());
                 lastMutableRender = mutableRender;
-                return true;
             }
+            codeAnimation(animationEvent, shouldUpdate);
+            lastFrameUpdated = shouldUpdate;
         }
-        return false;
+    }
+
+    protected void codeAnimation(AnimationEvent<? extends AnimatableEntity<TEntity>> animationEvent, boolean shouldUpdate) {
+    }
+
+    protected void recoverLastCodedAnimation(boolean lastFrameUpdated) {
     }
 
     public AnimationProcessor<TEntity> getAnimationProcessor() {
@@ -310,7 +328,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     /**
      * 渲染期间是否会保持实体属性不变
      */
-    protected boolean isImmutableRender() {
+    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
         return true;
     }
 

@@ -10,7 +10,9 @@ import net.minecraft.world.entity.player.Player;
 public class FirstPersonModHideVariable implements IValueEvaluator<Boolean, IContext<Player>> {
     @Override
     public Boolean eval(IContext<Player> ctx) {
-        if (FirstPersonCompat.isInstalled() && PersonView.getPersonView(ctx) == CameraType.FIRST_PERSON.ordinal()) {
+        if (!ctx.animationEvent().isRenderingInLevelExclusive()
+                && FirstPersonCompat.isInstalled()
+                && PersonView.getPersonView(ctx) == CameraType.FIRST_PERSON.ordinal()) {
             return FirstPersonCompat.shouldHideHead();
         } else {
             return false;

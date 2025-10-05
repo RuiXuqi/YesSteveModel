@@ -3,7 +3,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.event.predicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final T animatable;
@@ -13,13 +13,17 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final float requestedPartialTick;
     private final float partialTick;
     private final boolean isMoving;
+    private final boolean renderingInLevelExclusive;
     public float renderTicks;
-    @Nullable
     private final EntityModelData extraData;
     protected CodedAnimationController<T> codedController;
 
-    public AnimationEvent(T animatable, float limbSwing, float limbSwingAmount, int entityTickCount, float requestedPartialTick, float partialTick, boolean isMoving,
-                          @Nullable EntityModelData extraData) {
+    public AnimationEvent(T animatable,
+                          float limbSwing, float limbSwingAmount,
+                          int entityTickCount, float requestedPartialTick, float partialTick,
+                          boolean isMoving,
+                          boolean renderingInLevelExclusive,
+                          @NotNull EntityModelData extraData) {
         this.animatable = animatable;
         this.limbSwing = limbSwing;
         this.limbSwingAmount = limbSwingAmount;
@@ -28,6 +32,7 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         this.partialTick = partialTick;
         this.renderTicks = entityTickCount + partialTick;
         this.isMoving = isMoving;
+        this.renderingInLevelExclusive = renderingInLevelExclusive;
         this.extraData = extraData;
     }
 
@@ -63,6 +68,10 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         return isMoving;
     }
 
+    public boolean isRenderingInLevelExclusive() {
+        return renderingInLevelExclusive;
+    }
+
     public CodedAnimationController<T> getCodedController() {
         return codedController;
     }
@@ -71,7 +80,7 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
         this.codedController = controller;
     }
 
-    @Nullable
+    @NotNull
     public EntityModelData getExtraData() {
         return extraData;
     }

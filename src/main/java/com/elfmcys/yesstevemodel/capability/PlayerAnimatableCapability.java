@@ -1,11 +1,15 @@
 package com.elfmcys.yesstevemodel.capability;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.RemoteRoamingStruct;
+import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
+import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
@@ -67,6 +71,47 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             }
         } else {
             roamingStruct = null;
+        }
+    }
+
+    @Override
+    @SuppressWarnings("DataFlowIssue")
+    protected void codeAnimation(AnimationEvent<? extends AnimatableEntity<Player>> animationEvent, boolean update) {
+        super.codeAnimation(animationEvent, update);
+
+        // 更新第一人称相机偏移与头部隐藏
+        GeoModelState model = getLoadedGeoModel();
+        if (model != null && isLocalPlayer()) {
+            if (!animationEvent.isRenderingInLevelExclusive() && FirstPersonCompat.isInstalled()) {
+                if (model.firstPersonHead() != null) {
+                    model.firstPersonHead().setHidden(FirstPersonCompat.shouldHideHead());
+                }
+                if (model.firstPersonViewLocator() != null) {
+                    FirstPersonCompat.setHeadPos(model.firstPersonViewLocator().getPivotY() * getHeightScale());
+                } else if (update) {
+                    if (!model.headBones().isEmpty()) {
+                        var head = model.headBones().get(model.headBones().size() - 1);
+                        FirstPersonCompat.setHeadPos(head == null ? 24f : (head.getPivotY() * getHeightScale()));
+                    }
+                }
+            }
+
+            if (BetterCombatCompat.isInstalled() && model.firstPersonHead() != null) {
+                model.firstPersonHead().setHidden(BetterCombatCompat.shouldHideHead(this));
+            }
+        }
+    }
+
+    @Override
+    @SuppressWarnings("DataFlowIssue")
+    protected void recoverLastCodedAnimation(boolean lastFrameUpdated) {
+        super.recoverLastCodedAnimation(lastFrameUpdated);
+
+        GeoModelState model = getLoadedGeoModel();
+        if (model != null && isLocalPlayer()) {
+            if ((FirstPersonCompat.isInstalled() || BetterCombatCompat.isInstalled()) && model.firstPersonHead() != null) {
+                model.firstPersonHead().setHidden(false);
+            }
         }
     }
 

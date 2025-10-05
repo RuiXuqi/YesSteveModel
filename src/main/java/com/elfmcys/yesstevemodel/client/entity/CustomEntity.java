@@ -134,10 +134,10 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     @Override
-    protected boolean isImmutableRender() {
+    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
         // 已知场景内、iris 阴影不会修改实体参数；
         // FirstPersonMod 会隐藏头部、原版 inventory 会修改身体和头部旋转、纸娃娃可能会基于 molang 应用不同的效果
-        return RenderUtil.isRenderingLevelExclusive() || IrisCompat.isRenderingShadow();
+        return animEvent.isRenderingInLevelExclusive() || IrisCompat.isRenderingShadow();
     }
 
     @Override
@@ -165,7 +165,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         UnsafeUtil.getUnsafe().storeFence();
         asyncTask = ThreadTools.submit(() -> {
             try {
-                return super.updateAnimation(partialTicks);
+                // 异步更新的作用域固定，无须判断
+                return super.updateAnimation(partialTicks, true);
             } finally {
                 UnsafeUtil.getUnsafe().storeFence();
             }
@@ -173,16 +174,15 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     @Override
-    public @Nullable AnimationEvent<?> updateAnimation(float partialTicks) {
+    public @Nullable AnimationEvent<?> updateAnimation(float partialTicks, boolean renderingInLevelExclusive) {
         RenderSystem.assertOnRenderThread();
-        if (RenderUtil.isRenderingLevelExclusive()) {
+        if (renderingInLevelExclusive) {
             if (asyncTask != null) {
                 return waitForAsyncUpdate();
             }
-        } else {
-            waitForAsyncUpdate();
         }
-        return super.updateAnimation(partialTicks);
+        waitForAsyncUpdate();
+        return super.updateAnimation(partialTicks, renderingInLevelExclusive);
     }
 
     public AnimationEvent<?> waitForAsyncUpdate() {

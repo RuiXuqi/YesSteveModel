@@ -64,6 +64,7 @@ public final class RenderUtil {
     }
 
     public static boolean isRenderingLevelExclusive() {
+        RenderSystem.assertOnRenderThread();
         return renderingLevel && !FirstPersonCompat.isRenderingPlayer();
     }
 

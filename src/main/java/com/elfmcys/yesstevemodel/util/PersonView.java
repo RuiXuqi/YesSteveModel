@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.util;
 
+import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
@@ -20,7 +21,7 @@ public final class PersonView {
 
     public static boolean isFirstPersonView(AnimatableEntity<? extends Entity> animatable) {
         Entity entity = animatable.getEntity();
-        if (entity == Minecraft.getInstance().player && RenderUtil.isRenderingLevel()) {
+        if (entity == Minecraft.getInstance().player && RenderUtil.isRenderingLevel() && !IrisCompat.isRenderingShadow()) {
             return Minecraft.getInstance().options.getCameraType().ordinal() == CameraType.FIRST_PERSON.ordinal();
         }
         return false;
