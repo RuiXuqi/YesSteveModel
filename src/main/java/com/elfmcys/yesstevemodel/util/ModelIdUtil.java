@@ -3,6 +3,10 @@ package com.elfmcys.yesstevemodel.util;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public final class ModelIdUtil {
     public static final String DEFAULT_MODEL_ID = "default";
@@ -52,5 +56,30 @@ public final class ModelIdUtil {
     @SuppressWarnings("removal")
     public static ResourceLocation getModelPackIconId(String hierarchy) {
         return new ResourceLocation(YesSteveModel.MOD_ID, "model_pack_icon/" + hierarchy.hashCode());
+    }
+
+    @SuppressWarnings({"DataFlowIssue", "deprecation"})
+    public static Set<ResourceLocation> getEntityIdMatch(String[] matches) {
+        var set = new HashSet<ResourceLocation>();
+        for (var match : matches) {
+            if (match.startsWith("#")) {
+                var tagId = ResourceLocation.tryParse(match.substring(1));
+                if (tagId == null) {
+                    continue;
+                }
+                var tags = ForgeRegistries.ENTITY_TYPES.tags();
+                var tagKey = tags.createTagKey(tagId);
+                tags.getTag(tagKey).forEach(type -> {
+                    set.add(type.builtInRegistryHolder().key().location());;
+                });
+            } else {
+                var entityId = ResourceLocation.tryParse(match);
+                if (entityId == null) {
+                    continue;
+                }
+                set.add(entityId);
+            }
+        }
+        return set;
     }
 }

@@ -115,41 +115,48 @@
         "textures/blue.png"
       ]
     },
-    "projectiles": {
-      "minecraft:arrow": {
+    "projectiles": [
+      {
+        "match": ["minecraft:arrow"],
         "model": "models/arrow.json",
         "animation": "animations/arrow.animation.json",
         "texture": "textures/arrow.png"
       },
-      "minecraft:trident": {
+      {
+        "match": ["minecraft:trident"],
         "model": "models/trident.json",
         "texture": "textures/trident.png"
       },
-      "minecraft:fishing_bobber": {
+      {
+        "match": ["minecraft:fishing_bobber"],
         "model": "models/fishing_bobber.json",
         "texture": "textures/fishing_bobber.png"
       },
-      "minecraft:firework_rocket": {
+      {
+        "match": ["minecraft:firework_rocket"],
         "model": "models/firework_rocket.json",
         "texture": "textures/firework_rocket.png"
       }
-    },
-    "vehicles": {
-      "minecraft:boat": {
+    ],
+    "vehicles": [
+      {
+        "match": ["minecraft:boat"],
         "model": "models/boat.json",
         "animation": "animations/boat.animation.json",
         "texture": "textures/boat.png"
       },
-      "minecraft:chest_boat": {
+      {
+        "match": ["minecraft:chest_boat"],
         "model": "models/chest_boat.json",
         "animation": "animations/boat.animation.json",
         "texture": "textures/boat.png"
       },
-      "minecraft:minecart": {
+      {
+        "match": ["minecraft:minecart"],
         "model": "models/minecart.json",
         "texture": "textures/minecart.png"
       }
-    },
+    ],
     "sound_path": "sounds"
   }
 }

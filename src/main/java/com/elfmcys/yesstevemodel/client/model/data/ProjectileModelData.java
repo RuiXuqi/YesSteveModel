@@ -7,17 +7,23 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 
 // Native Access
 public class ProjectileModelData {
+    private final String[] match;
     private final GeoModel geoModel;
     private final AnimationFile animationFile;
     private final AnimationControllerFile controllerFile;
     private final NativeTexture texture;
 
     // Native Access
-    public ProjectileModelData(GeoModel geoModel, AnimationFile animationFile, AnimationControllerFile controllerFile, NativeTexture texture) {
+    public ProjectileModelData(String[] match, GeoModel geoModel, AnimationFile animationFile, AnimationControllerFile controllerFile, NativeTexture texture) {
+        this.match = match;
         this.geoModel = geoModel;
         this.animationFile = animationFile;
         this.controllerFile = controllerFile;
         this.texture = texture;
+    }
+
+    public String[] match() {
+        return match;
     }
 
     public GeoModel geoModel() {

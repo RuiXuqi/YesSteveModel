@@ -1,14 +1,13 @@
 package com.elfmcys.yesstevemodel.model;
 
 import com.elfmcys.yesstevemodel.info.ModelInfo;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 // Native Access
-@SuppressWarnings("removal")
 public class ServerModel {
     private final String name;
     private final ServerPlayerModel playerModel;
@@ -18,13 +17,18 @@ public class ServerModel {
     private final boolean isDefault;
     private final boolean isNeedAuth;
 
+    private Object[] rawProjectileModels;
+    private Object[] rawVehicleModels;
+
     // Native Access
-    public ServerModel(String name, ServerPlayerModel playerModel, String[] projectileModels, String[] vehicleModels,
+    public ServerModel(String name, ServerPlayerModel playerModel, Object[] projectileModels, Object[] vehicleModels,
                        ModelInfo info, boolean isDefault, boolean isNeedAuth) {
         this.name = name;
         this.playerModel = playerModel;
-        this.projectileModels = Arrays.stream(projectileModels).map(ResourceLocation::new).collect(Collectors.toSet());
-        this.vehicleModels = Arrays.stream(vehicleModels).map(ResourceLocation::new).collect(Collectors.toSet());
+        this.projectileModels = new HashSet<>();
+        this.vehicleModels = new HashSet<>();
+        this.rawProjectileModels = projectileModels;
+        this.rawVehicleModels = vehicleModels;
         this.info = info;
         this.isDefault = isDefault;
         this.isNeedAuth = isNeedAuth;
@@ -39,10 +43,20 @@ public class ServerModel {
     }
 
     public Set<ResourceLocation> projectileModels() {
+        var raw = rawProjectileModels;
+        for (var matches : raw) {
+            projectileModels.addAll(ModelIdUtil.getEntityIdMatch((String[]) matches));
+            rawProjectileModels = null;
+        }
         return projectileModels;
     }
 
     public Set<ResourceLocation> vehicleModels() {
+        var raw = rawVehicleModels;
+        for (var matches : raw) {
+            vehicleModels.addAll(ModelIdUtil.getEntityIdMatch((String[]) matches));
+            rawVehicleModels = null;
+        }
         return vehicleModels;
     }
 

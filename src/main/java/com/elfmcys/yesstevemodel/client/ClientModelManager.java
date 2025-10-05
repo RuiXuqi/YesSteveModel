@@ -39,6 +39,7 @@ public class ClientModelManager {
     private static volatile Map<String, ModelPackInfo> PACKS = new Object2ReferenceOpenHashMap<>();
 
     private static ClientModel DEFAULT_MODEL;
+    private static ClientModelData DEFAULT_MODEL_DATA;
     private static TextureHolder DEFAULT_TEXTURE_HOLDER;
 
     private static final ConcurrentLinkedQueue<Pair<ClientModel, String>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
@@ -54,6 +55,7 @@ public class ClientModelManager {
     }
 
     public static Map<String, ClientModel> getModels() {
+        setupDefaultModel();
         return MODELS;
     }
 
@@ -62,6 +64,7 @@ public class ClientModelManager {
     }
 
     public static Optional<ClientModel> getModel(String modelId) {
+        setupDefaultModel();
         return Optional.ofNullable(MODELS.get(modelId));
     }
 
@@ -255,6 +258,23 @@ public class ClientModelManager {
     // Native Access
     @SuppressWarnings("unused")
     private static void addModel(ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
+        if (isDefault) {
+            DEFAULT_MODEL_DATA = modelData;
+            return;
+        }
+        setupDefaultModel();
+        addModelInternal(modelData, modelPath, false, isNeedAuth);
+    }
+
+    private static void setupDefaultModel() {
+        // 暂时先这样
+        if (DEFAULT_MODEL_DATA != null) {
+            addModelInternal(DEFAULT_MODEL_DATA, "default", true, false);
+            DEFAULT_MODEL_DATA = null;
+        }
+    }
+
+    private static void addModelInternal(ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
         ClientModel model;
         try {
             model = ClientModelBuilder.build(modelData, isDefault, isNeedAuth);

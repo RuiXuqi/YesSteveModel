@@ -3,8 +3,6 @@ package com.elfmcys.yesstevemodel.client.model;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
-import com.elfmcys.yesstevemodel.client.model.data.ProjectileModelData;
-import com.elfmcys.yesstevemodel.client.model.data.VehicleModelData;
 import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
@@ -14,6 +12,7 @@ import com.elfmcys.yesstevemodel.geckolib3.file.AnimationControllerFile;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.lib.concentus.OpusException;
+import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.SoundDecoderUtil;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
@@ -101,11 +100,10 @@ public class ClientModelBuilder {
     private static Map<ResourceLocation, ProjectileModel> buildProjectileModels(ClientModelData data, boolean isDefault, List<AbstractTexture> allTextures) {
         Object2ReferenceOpenHashMap<ResourceLocation, ProjectileModel> map = new Object2ReferenceOpenHashMap<>();
 
-        for (var entry : data.projectileModel().entrySet()) {
-            ProjectileModelData value = entry.getValue();
-            var model = value.geoModel();
-            AnimationFile animationFile = value.animationFile();
-            AnimationControllerFile controllerFile = value.controllerFile();
+        for (var projectile : data.projectileModel()) {
+            var geoModel = projectile.geoModel();
+            AnimationFile animationFile = projectile.animationFile();
+            AnimationControllerFile controllerFile = projectile.controllerFile();
 
             var animations = new Object2ReferenceOpenHashMap<>(animationFile != null ? animationFile.animations() : Object2ReferenceMaps.emptyMap());
             if (!isDefault) {
@@ -119,10 +117,13 @@ public class ClientModelBuilder {
                 controllers = new Object2ReferenceOpenHashMap<>(controllerFile.animationControllers());
             }
 
-            allTextures.add(value.texture());
-            allTextures.addAll(value.texture().getPBRTextures().values());
+            allTextures.add(projectile.texture());
+            allTextures.addAll(projectile.texture().getPBRTextures().values());
 
-            map.put(new ResourceLocation(entry.getKey()), new ProjectileModel(model, animations, controllers, value.texture()));
+            var model = new ProjectileModel(geoModel, animations, controllers, projectile.texture());
+            for (var id : ModelIdUtil.getEntityIdMatch(projectile.match())) {
+                map.put(id, model);
+            }
         }
 
         return map;
@@ -131,11 +132,10 @@ public class ClientModelBuilder {
     private static Map<ResourceLocation, VehicleModel> buildVehicleModels(ClientModelData data, boolean isDefault, List<AbstractTexture> allTextures) {
         Object2ReferenceOpenHashMap<ResourceLocation, VehicleModel> map = new Object2ReferenceOpenHashMap<>();
 
-        for (var entry : data.vehicleModel().entrySet()) {
-            VehicleModelData value = entry.getValue();
-            var model = value.geoModel();
-            var animationFile = value.animationFile();
-            var controllerFile = value.controllerFile();
+        for (var vehicle : data.vehicleModel()) {
+            var geoModel = vehicle.geoModel();
+            var animationFile = vehicle.animationFile();
+            var controllerFile = vehicle.controllerFile();
 
             var animations = new Object2ReferenceOpenHashMap<>(animationFile != null ? animationFile.animations() : Object2ReferenceMaps.emptyMap());
             if (!isDefault) {
@@ -149,10 +149,13 @@ public class ClientModelBuilder {
                 controllers = new Object2ReferenceOpenHashMap<>(controllerFile.animationControllers());
             }
 
-            allTextures.add(value.texture());
-            allTextures.addAll(value.texture().getPBRTextures().values());
+            allTextures.add(vehicle.texture());
+            allTextures.addAll(vehicle.texture().getPBRTextures().values());
 
-            map.put(new ResourceLocation(entry.getKey()), new VehicleModel(model, animations, controllers, value.texture()));
+            var model = new VehicleModel(geoModel, animations, controllers, vehicle.texture());
+            for (var id : ModelIdUtil.getEntityIdMatch(vehicle.match())) {
+                map.put(id, model);
+            }
         }
 
         return map;
