@@ -70,7 +70,7 @@ public final class ModelIdUtil {
                 var tags = ForgeRegistries.ENTITY_TYPES.tags();
                 var tagKey = tags.createTagKey(tagId);
                 tags.getTag(tagKey).forEach(type -> {
-                    set.add(type.builtInRegistryHolder().key().location());;
+                    set.add(type.builtInRegistryHolder().key().location());
                 });
             } else {
                 var entityId = ResourceLocation.tryParse(match);
