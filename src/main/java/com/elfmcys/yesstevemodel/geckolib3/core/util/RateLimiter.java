@@ -1,14 +1,18 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.util;
 
 public class RateLimiter {
-    private final float interval;
+    private float interval;
     private float aggregate;
     private float lastRequestTime;
 
-    public RateLimiter(int limitPerSec) {
-        interval = 1f / limitPerSec;
-        aggregate = interval;
+    public RateLimiter() {
+        interval = 1f / 120;
+        aggregate = 1;
         lastRequestTime = 0;
+    }
+
+    public void setLimit(int limitPerSec) {
+        interval = 1f / limitPerSec;
     }
 
     public boolean request(float time) {
@@ -19,7 +23,7 @@ public class RateLimiter {
             return false;
         }
 
-        this.aggregate = this.aggregate % this.interval;
+        this.aggregate %= this.interval;
         return true;
     }
 

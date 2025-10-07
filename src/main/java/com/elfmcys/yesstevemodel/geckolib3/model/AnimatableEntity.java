@@ -51,6 +51,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected boolean currentFrameTicked;
     protected boolean currentFrameShouldTick;
 
+    protected boolean lastFrameRendered = true;
+    protected boolean currentFrameRendered = false;
     private boolean lastFrameUpdated;
     private float seekTime;
     private boolean initialize = false;
@@ -63,9 +65,10 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected AnimatableEntity(TEntity entity) {
         this.entity = entity;
         this.animationProcessor = new AnimationProcessor<>(this);
-        this.rateLimiter = new RateLimiter(Minecraft.getInstance().getWindow().getRefreshRate());
+        this.rateLimiter = new RateLimiter();
         this.stateTracker = createStateTracker(entity);
         this.physicsManager = new PhysicsManager();
+        this.rateLimiter.setLimit(getFrameRateLimit());
     }
 
     protected EntityStateTracker<TEntity> createStateTracker(TEntity entity) {
@@ -155,6 +158,30 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return true;
     }
 
+    public int getFrameRateLimit() {
+        var localPlayer = Minecraft.getInstance().player;
+        if (localPlayer != null && localPlayer != entity) {
+            var localPos = localPlayer.position();
+            if (localPos.x != 0 || localPos.y != 0 || localPos.z != 0) {
+                // 未渲染：屏幕外、太远、被 EntityCulling 剔除
+                if (!lastFrameRendered) {
+                    return 10;
+                }
+
+                var distance = localPlayer.distanceTo(entity);
+                // 超远距离：原版超过这个距离会跳过渲染
+                if (distance > 64) {
+                    return 30;
+                }
+                // 一般远距离
+                if (distance > 40) {
+                    return 60;
+                }
+            }
+        }
+        return ClientTickEvent.getRefreshRate();
+    }
+
     public final @Nullable AnimationEvent<?> updateAnimation(float partialTicks) {
         return updateAnimation(partialTicks, RenderUtil.isRenderingLevelExclusive());
     }
@@ -234,6 +261,9 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             currentFrameTicked = false;
             currentFrameShouldTick = false;
             lastFrameTime = frameTime;
+            rateLimiter.setLimit(getFrameRateLimit());
+            lastFrameRendered = currentFrameRendered;
+            currentFrameRendered = false;
         } else {
             // 目前不允许倒退，可能会影响 replay 的回放
             frameTime = lastFrameTime;
@@ -330,6 +360,10 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      */
     protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
         return true;
+    }
+
+    public void countRender() {
+        currentFrameRendered = true;
     }
 
     public void executeMolangExp(IValue value, boolean allowEmitting, boolean pre, @Nullable Consumer<String> resultConsumer) {

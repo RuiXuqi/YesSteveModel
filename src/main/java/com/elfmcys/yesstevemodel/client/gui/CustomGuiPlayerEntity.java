@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
+import com.elfmcys.yesstevemodel.client.event.ClientTickEvent;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
@@ -46,6 +47,11 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     @Override
     protected boolean allowEmitting() {
         return allowEmitting;
+    }
+
+    @Override
+    public int getFrameRateLimit() {
+        return ClientTickEvent.getRefreshRate();
     }
 
     @Override

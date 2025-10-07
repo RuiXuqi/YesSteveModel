@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientTickEvent {
     private static int tickCount;
+    private static int refreshRate = 60;
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
@@ -26,6 +27,7 @@ public class ClientTickEvent {
         tickCount++;
         CustomTextureManager.tick();
         ClientModelManager.tick();
+        refreshRate = Minecraft.getInstance().getWindow().getRefreshRate();
 
         var player = Minecraft.getInstance().player;
         if (player != null) {
@@ -35,5 +37,9 @@ public class ClientTickEvent {
 
     public static int getTickCount() {
         return tickCount;
+    }
+
+    public static int getRefreshRate() {
+        return refreshRate;
     }
 }
