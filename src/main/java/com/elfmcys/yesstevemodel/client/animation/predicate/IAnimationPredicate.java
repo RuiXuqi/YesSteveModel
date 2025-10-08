@@ -28,7 +28,7 @@ public interface IAnimationPredicate<T extends AnimatableEntity<?>> {
      */
     @NotNull
     static <P extends AnimatableEntity<?>> PlayState playCompatAnimation(AnimationEvent<P> event, String animationName, LoopType loopType, int formatVer) {
-        if (ModelFormatVersion.shouldIgnoreCodedLoopTypeForHandAnim(formatVer)) {
+        if (ModelFormatVersion.shouldIgnoreCodedLoopTypeForHandAnim(event, animationName, formatVer)) {
             event.getCodedController().setAnimation(animationName);
         } else {
             event.getCodedController().setAnimation(animationName, loopType);

@@ -31,6 +31,9 @@ public class Animation {
     public final List<ParticleEventKeyFrame> particleKeyFrames;
     public final List<EventKeyFrame<IValue[]>> customInstructionKeyframes;
 
+    // 是否是复制自默认模型的动画，用来纠正 2.4.1 及以前手部动画播放错误的问题
+    public boolean isCopiedFromDefaultModel = false;
+
     // Native Access
     public Animation(String name, double animationLength, LoopType loop, @Nullable IValue startDelay, @Nullable IValue loopDelay, @Nullable IValue blendWeight, @Nullable Boolean overridePreviousAnimation, BoneAnimation[] boneAnimations, EventKeyFrame<String>[] soundKeyFrames, ParticleEventKeyFrame[] particleKeyFrames, EventKeyFrame<IValue[]>[] customInstructionKeyframes) {
         this.name = name;

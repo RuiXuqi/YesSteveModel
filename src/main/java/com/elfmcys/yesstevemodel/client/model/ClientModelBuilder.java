@@ -45,6 +45,9 @@ public class ClientModelBuilder {
         var model = new ClientModel(playerModel, projectileModels, vehicleModels, assets, data.info(), clientModelInfo, allTextures);
         if (isDefault) {
             DEFAULT_MODEL = model;
+            // 标记默认模型的动画，防止 2.4.1 及以前版本的手部动画播放错误的问题
+            DEFAULT_MODEL.playerModel().animations().values().forEach(animation -> animation.isCopiedFromDefaultModel = true);
+            // TODO: 第一人称手臂动画、projectileModels 和 vehicleModels 也需要标记吗？
         }
         return model;
     }
