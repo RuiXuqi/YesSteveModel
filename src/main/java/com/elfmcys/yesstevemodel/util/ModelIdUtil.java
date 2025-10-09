@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.util;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -11,6 +12,11 @@ import java.util.Set;
 public final class ModelIdUtil {
     public static final String DEFAULT_MODEL_ID = "default";
     public static final String DEFAULT_TEXTURE_NAME = "default";
+    private static final Set<String> KNOWN_EXT = Sets.newHashSet(
+            ".zip",
+            ".7z",
+            ".ysm"
+    );
 
     public static int getModelHashShort(String modelHash) {
         return Integer.parseUnsignedInt(modelHash.substring(0, 8), 16);
@@ -38,10 +44,12 @@ public final class ModelIdUtil {
         } else {
             modelName = modelPath.substring(lastSlash + 1);
         }
-        if (modelName.length() > 4 && (modelName.endsWith(".zip") || modelName.endsWith(".ysm"))) {
-            modelName = modelName.substring(0, modelName.length() - 4);
+        var lastDot = modelName.lastIndexOf('.');
+        if (lastDot < 1 || KNOWN_EXT.contains(modelName.substring(lastDot).toLowerCase())) {
+            return modelName;
         }
-        return modelName;
+
+        return modelName.substring(0, lastDot);
     }
 
     public static String getLastFolderName(String path) {

@@ -37,7 +37,7 @@
   "gui.yes_steve_model.disclaimer.read": "Я прочитав і погоджуюся з умовами використання",
   "gui.yes_steve_model.disclaimer.close": "Закрити",
   "gui.yes_steve_model.open_model_folder.open": "Відкрити папку моделей",
-  "gui.yes_steve_model.open_model_folder.tips": "У відкритій папці можна розмістити наступні три типи файлів моделей:\n\n§2§nпапка:§r Папка повинна містити файли моделей Bedrock Edition та текстури;\n\n§2§nzip-файл:§r Стиснутий пакет повинен безпосередньо містити файли моделей Bedrock Edition та текстури;\n\n§2§nysm-файл:§r Цей формат є зашифрованим файлом і не може бути редагований або змінений.",
+  "gui.yes_steve_model.open_model_folder.tips": "У відкритій папці можна розмістити наступні три типи файлів моделей:\n\n§2§nпапка:§r Папка повинна містити файли моделей Bedrock Edition та текстури;\n\n§2§nzip/7z-файл:§r Стиснутий пакет повинен безпосередньо містити файли моделей Bedrock Edition та текстури;\n\n§2§nysm-файл:§r Цей формат є зашифрованим файлом і не може бути редагований або змінений.",
   "gui.yes_steve_model.extra_player_render.tips": "Перетягніть зелений квадрат: Переміщення\nПеретягніть синій квадрат: Масштабування\nПеретягніть правою кнопкою: Обертання\nAlt + R: Скинути\n\n[Натисніть Esc для виходу]",
   "gui.yes_steve_model.texture.button.animation_name": "Назва анімації: %s",
   "gui.yes_steve_model.texture.button.empty": "Порожньо",

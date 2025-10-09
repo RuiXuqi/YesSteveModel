@@ -314,7 +314,7 @@
   "error.yes_steve_model.parse_zip": "無法解析壓縮檔 %s",
   "error.yes_steve_model.extract_zip": "無法解壓檔案 %s",
   "error.yes_steve_model.validation": "模型檔案校驗失敗",
-  "error.yes_steve_model.file_too_large": "檔案不能大於 32MB %s",
+  "error.yes_steve_model.file_too_large": "檔案不能大於 66MB %s",
   "error.yes_steve_model.invalid_model_name": "模型名稱不合法，必須是§c§n小寫英文字元、數字、下劃線。",
   "error.yes_steve_model.invalid_texture_name": "材質檔名不合法，必須是§c§n小寫英文字元、數字、下劃線。",
   "error.yes_steve_model.parse_json": "無法解析 json 檔案 %s",
