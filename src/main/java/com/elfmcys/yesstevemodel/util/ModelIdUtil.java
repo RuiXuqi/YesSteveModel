@@ -45,7 +45,7 @@ public final class ModelIdUtil {
             modelName = modelPath.substring(lastSlash + 1);
         }
         var lastDot = modelName.lastIndexOf('.');
-        if (lastDot < 1 || KNOWN_EXT.contains(modelName.substring(lastDot).toLowerCase())) {
+        if (lastDot < 1 || !KNOWN_EXT.contains(modelName.substring(lastDot).toLowerCase())) {
             return modelName;
         }
 
