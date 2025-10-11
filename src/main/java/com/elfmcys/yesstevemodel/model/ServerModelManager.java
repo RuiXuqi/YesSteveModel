@@ -68,14 +68,17 @@ public final class ServerModelManager {
     }
 
     // 非阻塞
+    @SuppressWarnings("resource")
     public static void syncModelsToPlayer(ServerPlayer player, @Nullable Consumer<SyncModelResult> completeCallback) {
         var server = ServerLifecycleHooks.getCurrentServer();
         server.execute(() -> {
             // 按距离从近到远排序
             var players = server.getPlayerList().getPlayers();
-            var list = new ArrayList<FloatReferencePair<ServerPlayer>>(players.size());
+            var list = new ArrayList<FloatReferencePair<ServerPlayer>>();
             for (var onlinePlayer : players) {
-                list.add(FloatReferencePair.of(onlinePlayer.distanceTo(player), onlinePlayer));
+                if (onlinePlayer.level().dimensionType() == player.level().dimensionType()) {
+                    list.add(FloatReferencePair.of(onlinePlayer.distanceTo(player), onlinePlayer));
+                }
             }
             list.sort((l, r) -> Float.compare(l.firstFloat(), r.firstFloat()));
             syncTaskEnqueue(new UUID[]{player.getUUID()}, new String[]{player.getGameProfile().getName()}, getSelectedModelIds(list.stream().map(it.unimi.dsi.fastutil.Pair::second).toList()), completeCallback);
