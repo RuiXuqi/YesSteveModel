@@ -1,6 +1,6 @@
 package com.elfmcys.yesstevemodel.client.model;
 
-import com.elfmcys.yesstevemodel.client.sound.SoundData;
+import com.elfmcys.yesstevemodel.client.sound.data.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 

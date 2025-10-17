@@ -57,6 +57,7 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     @Override
     @SuppressWarnings("deprecation")
     protected void onLoadModelContainer(ClientModel newModel) {
+        super.onLoadModelContainer(newModel);
         projectileModel = newModel.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
     }
 

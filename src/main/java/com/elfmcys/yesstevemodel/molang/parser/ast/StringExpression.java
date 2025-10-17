@@ -25,7 +25,9 @@
 package com.elfmcys.yesstevemodel.molang.parser.ast;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -38,9 +40,9 @@ import java.util.Objects;
  * @since 3.0.0
  */
 public final class StringExpression implements Expression {
-
     private final String value;
     private final int pooledValue;
+    private ResourceLocation cachedValue;
 
     public StringExpression(final @NotNull String value) {
         this.value = Objects.requireNonNull(value, "value");
@@ -69,6 +71,15 @@ public final class StringExpression implements Expression {
     @Override
     public String toString() {
         return value;
+    }
+
+    @Nullable
+    public ResourceLocation getCachedValue() {
+        return cachedValue;
+    }
+
+    public void setCachedValue(@Nullable final ResourceLocation cachedValue) {
+        this.cachedValue = cachedValue;
     }
 
     @Override

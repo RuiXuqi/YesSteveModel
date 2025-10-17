@@ -64,6 +64,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     @Override
     @SuppressWarnings("deprecation")
     protected void onLoadModelContainer(ClientModel newModel) {
+        super.onLoadModelContainer(newModel);
         vehicleModel = newModel.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
     }
 

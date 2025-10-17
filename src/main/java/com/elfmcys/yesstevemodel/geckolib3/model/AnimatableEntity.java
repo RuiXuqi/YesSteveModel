@@ -3,7 +3,7 @@ package com.elfmcys.yesstevemodel.geckolib3.model;
 import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.client.event.ClientTickEvent;
-import com.elfmcys.yesstevemodel.client.sound.SoundData;
+import com.elfmcys.yesstevemodel.client.sound.stream.AudioStreamProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public abstract class AnimatableEntity<TEntity extends Entity> {
@@ -107,9 +108,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return null;
     }
 
-    @Nullable
-    public SoundData getSoundData(String name) {
-        return null;
+    public Optional<AudioStreamProvider> getSoundStream(String name) {
+        return Optional.empty();
     }
 
     @Nullable

@@ -5,28 +5,21 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.event;
 
-import com.elfmcys.yesstevemodel.client.sound.CustomSoundInstance;
-import com.elfmcys.yesstevemodel.client.sound.ICanStopSound;
-import com.elfmcys.yesstevemodel.client.sound.MinecraftSoundInstance;
+import com.elfmcys.yesstevemodel.client.sound.instance.SoundInstanceManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.event.EventKeyFrame;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
-import com.elfmcys.yesstevemodel.init.ModSounds;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.StringUtil;
 
 import java.util.List;
 
 public class SoundKeyframeExecutor {
     private final List<EventKeyFrame<String>> list;
-    private final ReferenceArrayList<ICanStopSound> cachePlaySounds;
+    private final SoundInstanceManager soundManager;
     private int nextIndex = 0;
 
-    public SoundKeyframeExecutor(List<EventKeyFrame<String>> list) {
+    public SoundKeyframeExecutor(List<EventKeyFrame<String>> list, SoundInstanceManager soundManager) {
         this.list = list;
-        this.cachePlaySounds = new ReferenceArrayList<>();
+        this.soundManager = soundManager;
     }
 
     public void executeTo(AnimatableEntity<?> animatable, float currentTick, boolean allowEmitting) {
@@ -36,53 +29,19 @@ public class SoundKeyframeExecutor {
                 return;
             }
             nextIndex++;
-            if (allowEmitting) {
-                playSound(animatable, keyFrame);
+            if (allowEmitting && !StringUtil.isNullOrEmpty(keyFrame.getEventData())) {
+                soundManager.playSound(animatable, 0, keyFrame.getEventData(), false, null);
             }
         }
-    }
-
-    private void playSound(AnimatableEntity<?> animatable, EventKeyFrame<String> keyFrame) {
-        String soundName = keyFrame.getEventData();
-        SoundInstance soundInstance;
-        var targetEntity = animatable.isFakePlayer() ? Minecraft.getInstance().player : animatable.getEntity();
-        if (targetEntity == null) {
-            return;
-        }
-        if (soundName.contains(":")) {
-            // 如果声音名带冒号，那么大概率就是调用原版音频，因为 Windows 中冒号不是合法的文件名
-            ResourceLocation soundId = new ResourceLocation(soundName);
-            SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(soundId);
-            MinecraftSoundInstance instance = new MinecraftSoundInstance(soundEvent, targetEntity);
-            cachePlaySounds.add(instance);
-            soundInstance = instance;
-        } else {
-            // 否则认为是自定义的音频文件
-            var soundData = animatable.getSoundData(soundName);
-            if (soundData == null) {
-                var debugSource = animatable.getDebugSource();
-                if (debugSource != null) {
-                    debugSource.print("Sound not found: " + soundName);
-                }
-                return;
-            }
-            CustomSoundInstance instance = new CustomSoundInstance(ModSounds.CUSTOM, soundData, targetEntity);
-            cachePlaySounds.add(instance);
-            soundInstance = instance;
-        }
-        Minecraft.getInstance().execute(() -> Minecraft.getInstance().getSoundManager().play(soundInstance));
     }
 
     public void reset() {
         nextIndex = 0;
-        stopPlayingSounds();
+        soundManager.stopAllPlayingSounds();
     }
 
-    public void stopPlayingSounds() {
-        if (!cachePlaySounds.isEmpty()) {
-            cachePlaySounds.forEach(ICanStopSound::setStopped);
-            cachePlaySounds.clear();
-        }
+    public void stopAll() {
+        soundManager.stopAllPlayingSounds();
     }
 
     public boolean reachEnd() {

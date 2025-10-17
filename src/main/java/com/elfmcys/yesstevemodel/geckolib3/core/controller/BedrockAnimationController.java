@@ -18,6 +18,7 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceLists;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -65,7 +66,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.animatableEntity = animatableEntity;
         this.name = name;
         this.initTransitionLengthTicks = transitionLengthTicks;
-        this.ctx = new ControllerContext();
+        this.ctx = new ControllerContext(true);
     }
 
     @Override
@@ -74,6 +75,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             return;
         }
 
+        evaluator.entity().setAnimationContext(null);
         evaluator.entity().setControllerContext(ctx);
         var renderTicks = event.renderTicks;
 
@@ -177,6 +179,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
     @SuppressWarnings("DataFlowIssue")
     private void updateState(AnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
+        ctx.soundManager().stopAllPlayingSounds();
+
         evaluator.entity().setAllowEmitting(true);
         if (this.state != null) {
             for (var exp : this.state.onExit()) {
@@ -185,6 +189,11 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
         for (var exp : newState.onEntry()) {
             exp.eval(evaluator);
+        }
+        for (var se : newState.soundEffects()) {
+            if (!StringUtils.isNoneBlank(se)) {
+                ctx.soundManager().playSound(evaluator.entity().animatableEntity(), 0, se, false, null);
+            }
         }
         evaluator.entity().setAllowEmitting(false);
         this.state = newState;
@@ -241,6 +250,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             holder.animationPlayer.clear();
         }
         this.animationPlayers.clear();
+        this.ctx.soundManager().stopAllPlayingSounds();
     }
 
     private static class AnimationPlayerHolder {

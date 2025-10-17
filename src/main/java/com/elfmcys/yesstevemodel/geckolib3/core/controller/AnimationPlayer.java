@@ -239,6 +239,10 @@ public class AnimationPlayer {
         }
     }
 
+    public AnimationContext getAnimationContext() {
+        return this.animationContext;
+    }
+
     /**
      * 执行剩余的事件关键帧，并重置到初始状态
      */
@@ -421,7 +425,7 @@ public class AnimationPlayer {
             activeBoneAnimQueues.add(queue);
         }
         instructionKeyFrameExecutor = new InstructionKeyFrameExecutor(currentAnim.customInstructionKeyframes);
-        soundKeyFrameExecutor = new SoundKeyframeExecutor(currentAnim.soundKeyFrames);
+        soundKeyFrameExecutor = new SoundKeyframeExecutor(currentAnim.soundKeyFrames, animationContext.soundManager());
 
         return true;
     }
@@ -501,11 +505,11 @@ public class AnimationPlayer {
     }
 
     /**
-     * 重置当前音频关键帧，并停止所有正在播放的音频。
+     * 停止所有正在播放的音频。
      */
     public void stopPlayingSounds() {
         if (this.soundKeyFrameExecutor != null) {
-            this.soundKeyFrameExecutor.stopPlayingSounds();
+            this.soundKeyFrameExecutor.stopAll();
         }
     }
 

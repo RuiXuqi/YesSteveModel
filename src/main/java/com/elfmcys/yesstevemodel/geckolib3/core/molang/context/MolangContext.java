@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.sound.instance.SoundInstanceManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
@@ -33,6 +34,7 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
 
     protected AnimationContext animationContext;
     protected ControllerContext controllerContext;
+    protected SoundInstanceManager globalSoundManager;
     protected RandomSource random;
     protected MolangMemory memory;
     protected IForeignVariableStorage foreignStorage;
@@ -46,14 +48,15 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
         this.data = data;
     }
 
-    private MolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data, AnimationContext animationContext, RandomSource random, MolangMemory memory) {
+    private MolangContext(TEntity entity, MolangContext<?> context) {
         this.entity = entity;
-        this.animatableEntity = animatableEntity;
-        this.animationEvent = animationEvent;
-        this.data = data;
-        this.animationContext = animationContext;
-        this.random = random;
-        this.memory = memory;
+        this.animatableEntity = context.animatableEntity;
+        this.animationEvent = context.animationEvent;
+        this.data = context.data;
+        this.animationContext = context.animationContext;
+        this.random = context.random;
+        this.memory = context.memory;
+        this.globalSoundManager = context.globalSoundManager;
         if (entity instanceof Player player) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 foreignStorage = cap.getPublicVariableStorage();
@@ -122,7 +125,7 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     // FIXME: 需要同时更新 animatable 和 entity 两个属性，再加上源属性
     @Override
     public <TChild> IContext<TChild> createChild(TChild child) {
-        return new MolangContext<>(child, animatableEntity, animationEvent, data, animationContext, random, memory);
+        return new MolangContext<>(child, this);
     }
 
     @Override
@@ -200,6 +203,30 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
         if (isDebugEnabled()) {
             debugSource.print(message);
         }
+    }
+
+    @Override
+    @Nullable
+    public SoundInstanceManager getSoundManager(boolean global) {
+        if (!global) {
+            if (animationContext != null) {
+                var manager = animationContext.soundManager();
+                if (manager != null) {
+                    return manager;
+                }
+            }
+            if (controllerContext != null) {
+                var manager = controllerContext.soundManager();
+                if (manager != null) {
+                    return manager;
+                }
+            }
+        }
+        return this.globalSoundManager;
+    }
+
+    public void setGlobalSoundManager(SoundInstanceManager globalSoundManager) {
+        this.globalSoundManager = globalSoundManager;
     }
 
     public void setAnimationContext(AnimationContext ctx) {

@@ -7,7 +7,10 @@ import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
-import com.elfmcys.yesstevemodel.client.sound.SoundData;
+import com.elfmcys.yesstevemodel.client.sound.data.SoundFormat;
+import com.elfmcys.yesstevemodel.client.sound.data.ModelSoundHolder;
+import com.elfmcys.yesstevemodel.client.sound.data.SoundDataManager;
+import com.elfmcys.yesstevemodel.client.sound.stream.AudioStreamProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -22,6 +25,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.concurrent.Future;
 
 /**
@@ -119,6 +123,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     protected void onLoadModelContainer(ClientModel newModel) {
+        resourceHolder.soundHolder = SoundDataManager.register(newModel);
     }
 
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个
@@ -147,9 +152,15 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     @Override
-    @Nullable
-    public final SoundData getSoundData(String name) {
-        return getModelContainer().assets().sounds().get(name);
+    public Optional<AudioStreamProvider> getSoundStream(String name) {
+        if (resourceHolder.soundHolder != null) {
+            var soundData = getModelContainer().assets().sounds().get(name);
+            if (soundData != null && soundData.soundFormat() != SoundFormat.UNDEFINED) {
+                var holder = resourceHolder.soundHolder;
+                return Optional.of(() -> holder.openStream(soundData));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -208,6 +219,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     protected static class ResourceHolder {
         public final ClientModel model;
         public final boolean fallback;
+        @Nullable
+        public ModelSoundHolder soundHolder;
 
         protected ResourceHolder(ClientModel model, boolean fallback) {
             this.model = model;

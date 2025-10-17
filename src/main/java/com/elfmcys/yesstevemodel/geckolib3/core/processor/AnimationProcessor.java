@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.processor;
 
+import com.elfmcys.yesstevemodel.client.sound.instance.SoundInstanceManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.manager.AnimationData;
@@ -38,10 +39,12 @@ public class AnimationProcessor<TEntity extends Entity> {
     private final ReferenceArrayList<BoneTopLevelSnapshot> activeModelBones = new ReferenceArrayList<>();      // 即使更新开销大也比链表更优
 
     private final MolangMemory molangMemory = new MolangMemory();
+    private final SoundInstanceManager globalSoundManager = new SoundInstanceManager();
     private final RandomSource random = new XoroshiroRandomSource(RandomSupport.generateUniqueSeed());
     // molang 执行任务的生产和消费可能在不同线程上
     private final ConcurrentLinkedQueue<MolangExecutionTask> pendingMolangTask = new ConcurrentLinkedQueue<>();
 
+    private float lastTrimTime = 0;
     private boolean modelDirty = false;
 
     public AnimationProcessor(AnimatableEntity<TEntity> animatable) {
@@ -52,9 +55,17 @@ public class AnimationProcessor<TEntity extends Entity> {
     public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx, boolean shouldTick, boolean allowEmitting) {
         ctx.setMemory(this.molangMemory);
         ctx.setRandom(this.random);
+        ctx.setGlobalSoundManager(this.globalSoundManager);
 
         ExpressionEvaluator<MolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
         var renderTicks = event.renderTicks;
+
+        if (renderTicks - lastTrimTime >= 1200) {
+            globalSoundManager.trim();
+            lastTrimTime = renderTicks;
+        } else if (lastTrimTime > renderTicks) {
+            lastTrimTime = renderTicks;
+        }
 
         preProcess(evaluator);
 
@@ -185,6 +196,8 @@ public class AnimationProcessor<TEntity extends Entity> {
             }
         }
 
+        ctx.setControllerContext(null);
+        ctx.setAnimationContext(null);
         postProcess(evaluator);
     }
 
@@ -201,6 +214,7 @@ public class AnimationProcessor<TEntity extends Entity> {
         this.molangMemory.initialize(null);
         this.eventHandlers = Int2ReferenceMaps.emptyMap();
         this.pendingMolangTask.clear();
+        this.globalSoundManager.stopAllPlayingSounds();
         for (var controller : this.animatable.getAnimationData().getAnimationControllers()) {
             controller.clear();
         }

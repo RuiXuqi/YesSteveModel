@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.client.model;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
-import com.elfmcys.yesstevemodel.client.sound.SoundData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -11,16 +10,13 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationControllerFile;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
-import com.elfmcys.yesstevemodel.lib.concentus.OpusException;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
-import com.elfmcys.yesstevemodel.util.SoundDecoderUtil;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -165,7 +161,7 @@ public class ClientModelBuilder {
     }
 
     private static CommonAsset buildCommonAssets(ClientModelData data) {
-        var sounds = buildSoundMap(data);
+        var sounds = data.assets().sounds();
         var userFunctions = buildUserFunctionMap(data);
         var eventHandlers = buildEventHandlers(data);
 
@@ -206,29 +202,6 @@ public class ClientModelBuilder {
             }
         }
         return map;
-    }
-
-    public static Map<String, SoundData> buildSoundMap(ClientModelData data) {
-        Object2ObjectOpenHashMap<String, SoundData> map = new Object2ObjectOpenHashMap<>();
-        var sounds = data.assets().sounds();
-        if (sounds != null && !sounds.isEmpty()) {
-            for (String soundPath : sounds.keySet()) {
-                SoundData soundData = bufferToSoundData(sounds.get(soundPath));
-                if (soundData != null) {
-                    map.put(soundPath, soundData);
-                }
-            }
-        }
-        return Object2ObjectMaps.unmodifiable(map);
-    }
-
-    private static SoundData bufferToSoundData(byte[] byteArray) {
-        try {
-            return SoundDecoderUtil.bufferToSoundData(byteArray);
-        } catch (IOException | OpusException e) {
-            e.fillInStackTrace();
-        }
-        return null;
     }
 
     public static Map<String, AbstractTexture> buildGuiImages(ClientModelData data, List<AbstractTexture> allTextures) {

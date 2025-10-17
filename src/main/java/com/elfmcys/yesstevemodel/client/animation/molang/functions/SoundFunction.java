@@ -1,159 +1,131 @@
 package com.elfmcys.yesstevemodel.client.animation.molang.functions;
 
-import com.elfmcys.yesstevemodel.client.sound.CustomSoundInstance;
-import com.elfmcys.yesstevemodel.client.sound.MinecraftSoundInstance;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.function.entity.EntityFunction;
-import com.elfmcys.yesstevemodel.init.ModSounds;
 import com.elfmcys.yesstevemodel.molang.runtime.ExecutionContext;
 import com.elfmcys.yesstevemodel.molang.runtime.Function;
-import com.google.common.collect.Maps;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
+import com.elfmcys.yesstevemodel.molang.runtime.binding.ValueConversions;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.ref.WeakReference;
-import java.util.Map;
-
 public class SoundFunction {
-    private static final Map<String, WeakReference<MinecraftSoundInstance>> CACHE = Maps.newConcurrentMap();
-
     public static class Stop extends EntityFunction {
         @Override
-        protected Object eval(ExecutionContext<IContext<Entity>> context, Function.ArgumentCollection arguments) {
-            if (!context.entity().allowEmitting()) {
+        protected Object eval(ExecutionContext<IContext<Entity>> ctx, Function.ArgumentCollection arguments) {
+            if (!ctx.entity().allowEmitting()) {
                 return false;
             }
-            String id = arguments.getAsString(context, 0);
-            if (StringUtils.isEmpty(id)) {
-                return false;
-            }
-            var ref = CACHE.get(id);
-            if (ref != null) {
-                var instance = ref.get();
-                if (instance != null) {
-                    instance.setStopped();
+            int id;
+            var idObj = arguments.getValue(ctx, 0);
+            if (idObj instanceof Number idNum) {
+                id = -idNum.intValue();
+                if (id > 0) {
+                    return false;
                 }
-                CACHE.remove(id);
+            } else {
+                id = ValueConversions.asPooledString(idObj);
             }
-            return true;
+            var global = arguments.size() > 0 && arguments.getAsBoolean(ctx, 1);
+            var manager = ctx.entity().getSoundManager(global);
+            if (manager != null) {
+                return manager.stopPlayingSound(id);
+            }
+            return false;
         }
 
         @Override
         public boolean validateArgumentSize(int size) {
-            return size >= 1;
+            return size == 1 || size == 2;
         }
     }
 
     public static class StopAll extends EntityFunction {
         @Override
-        protected Object eval(ExecutionContext<IContext<Entity>> context, Function.ArgumentCollection arguments) {
-            if (!context.entity().allowEmitting()) {
+        protected Object eval(ExecutionContext<IContext<Entity>> ctx, Function.ArgumentCollection arguments) {
+            if (!ctx.entity().allowEmitting()) {
                 return false;
             }
-            for (var ref : CACHE.values()) {
-                var instance = ref.get();
-                if (instance != null) {
-                    instance.setStopped();
-                }
+            var global = arguments.size() > 0 && arguments.getAsBoolean(ctx, 0);
+            var manager = ctx.entity().getSoundManager(global);
+            if (manager != null) {
+                manager.stopAllPlayingSounds();
+                return true;
             }
-            CACHE.clear();
-            return true;
+            return false;
         }
 
         @Override
         public boolean validateArgumentSize(int size) {
-            return size == 0;
+            return size <= 1;
         }
     }
 
     public static class Play extends EntityFunction {
         @Override
-        protected Object eval(ExecutionContext<IContext<Entity>> context, Function.ArgumentCollection arguments) {
-            if (!context.entity().allowEmitting()) {
+        protected Object eval(ExecutionContext<IContext<Entity>> ctx, Function.ArgumentCollection arguments) {
+            if (!ctx.entity().allowEmitting()) {
                 return false;
             }
-            String id = arguments.getAsString(context, 0);
-            if (StringUtils.isEmpty(id)) {
-                return false;
+            int id;
+            var idObj = arguments.getValue(ctx, 0);
+            if (idObj instanceof Number idNum) {
+                id = -idNum.intValue();
+                if (id > 0) {
+                    return false;
+                }
+            } else {
+                id = ValueConversions.asPooledString(idObj);
             }
-            String soundName = arguments.getAsString(context, 1);
+            String soundName = arguments.getAsString(ctx, 1);
             if (StringUtils.isBlank(soundName)) {
                 return false;
             }
-            Entity targetEntity = context.entity().entity();
+            Entity targetEntity = ctx.entity().entity();
             if (targetEntity == null) {
                 return false;
             }
-            boolean force = false;
+            int mode;
             if (arguments.size() >= 3) {
-                force = arguments.getAsBoolean(context, 2);
-            }
-            SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-
-            // 先检查缓存
-            var ref = CACHE.get(id);
-            if (ref != null) {
-                MinecraftSoundInstance instance = ref.get();
-                // 如果不是强制播放，并且当前已经有同 ID 的音效在播放，那么就不再播放
-                if (instance != null && soundManager.isActive(instance)) {
-                    if (force) {
-                        instance.setStopped();
-                    } else {
-                        return false;
-                    }
-                } else {
-                    CACHE.remove(id);
-                }
-            }
-
-            MinecraftSoundInstance sound;
-            if (soundName.contains(":")) {
-                // 如果声音名带冒号，那么大概率就是调用原版音频，因为 Windows 中冒号不是合法的文件名
-                ResourceLocation soundId = new ResourceLocation(soundName);
-                SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(soundId);
-                sound = new MinecraftSoundInstance(soundEvent, targetEntity);
-            } else {
-                // 否则认为是自定义的音频文件
-                var animatable = context.entity().animatableEntity();
-                var soundData = animatable.getSoundData(soundName);
-                if (soundData == null) {
-                    var debugSource = animatable.getDebugSource();
-                    if (debugSource != null) {
-                        debugSource.print("Sound not found: " + soundName);
-                    }
+                mode = arguments.getAsInt(ctx, 2);
+                if (mode < 0 || mode > 7) {
                     return false;
                 }
-                sound = new CustomSoundInstance(ModSounds.CUSTOM, soundData, targetEntity);
+            } else {
+                mode = 0;
             }
 
-            // 设置音量和音调
-            if (arguments.size() >= 4) {
-                float volume = arguments.getAsFloat(context, 3);
-                sound.setConfiguredVolume(Mth.clamp(volume, 0.001f, 1000f));
-            }
-            if (arguments.size() >= 5) {
-                float pitch = arguments.getAsFloat(context, 4);
-                sound.setPitch(Mth.clamp(pitch, 0.001f, 1000f));
+            var manager = ctx.entity().getSoundManager((mode & 2) == 2);
+            if (manager == null) {
+                return false;
             }
 
-            // 如果是 GUI 内，设置为 UI 音效
-            if (context.entity().animatableEntity().isFakePlayer()) {
-                sound.setAsUI();
-            }
+            return manager.playSound(ctx.entity().animatableEntity(), id, soundName, (mode & 1) == 1, instance -> {
+                if (instance == null) {
+                    ctx.entity().debugPrint("Sound not found: %s", soundName);
+                    return;
+                }
+                instance.setLooping((mode & 4) == 4);
+                // 设置音量和音调
+                if (arguments.size() >= 4) {
+                    float volume = arguments.getAsFloat(ctx, 3);
+                    instance.setConfiguredVolume(Mth.clamp(volume, 0.001f, 1000f));
+                }
+                if (arguments.size() >= 5) {
+                    float pitch = arguments.getAsFloat(ctx, 4);
+                    instance.setPitch(Mth.clamp(pitch, 0.001f, 1000f));
+                }
 
-            CACHE.put(id, new WeakReference<>(sound));
-            Minecraft.getInstance().execute(() -> soundManager.play(sound));
-            return true;
+                // 如果是 GUI 内，设置为 UI 音效
+                if (ctx.entity().animatableEntity().isFakePlayer()) {
+                    instance.setAsUI();
+                }
+            });
         }
 
         @Override
         public boolean validateArgumentSize(int size) {
-            return size >= 2;
+            return size >= 2 && size <= 5;
         }
     }
 }

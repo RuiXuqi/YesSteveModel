@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
+import com.elfmcys.yesstevemodel.client.sound.decoder.DecoderManager;
 import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -27,6 +28,7 @@ public class ClientTickEvent {
         tickCount++;
         CustomTextureManager.tick();
         ClientModelManager.tick();
+        DecoderManager.tick();
         refreshRate = Minecraft.getInstance().getWindow().getRefreshRate();
 
         var player = Minecraft.getInstance().player;

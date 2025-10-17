@@ -59,7 +59,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
         this.defaultTransitionTicks = transitionLengthTicks;
         this.blendRotation = blendRotation;
-        this.ctx = new ControllerContext();
+        this.ctx = new ControllerContext(false);
     }
 
     @Override
@@ -104,11 +104,14 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.ctx.setAllAnimationsFinished(this.animationPlayer.currentAnimFinished());
 
         evaluator.entity().setControllerContext(this.ctx);
+        evaluator.entity().setAnimationContext(this.animationPlayer.getAnimationContext());
         evaluator.entity().setAllowEmitting(true);
 
         var state = this.molangPredicate.evalAsInt(evaluator);
 
         evaluator.entity().setAllowEmitting(false);
+        evaluator.entity().setAnimationContext(null);
+        evaluator.entity().setControllerContext(null);
 
         return switch (state) {
             case CtrlBinding.STATE_CONTINUE -> PlayState.CONTINUE;
