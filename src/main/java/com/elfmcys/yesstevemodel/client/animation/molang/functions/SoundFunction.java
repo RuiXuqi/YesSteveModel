@@ -26,7 +26,7 @@ public class SoundFunction {
             } else {
                 id = ValueConversions.asPooledString(idObj);
             }
-            var global = arguments.size() > 0 && arguments.getAsBoolean(ctx, 1);
+            var global = arguments.size() == 2 && arguments.getAsBoolean(ctx, 1);
             var manager = ctx.entity().getSoundManager(global);
             if (manager != null) {
                 return manager.stopPlayingSound(id);
