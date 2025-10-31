@@ -3,8 +3,6 @@ package com.elfmcys.yesstevemodel.geckolib3.geo;
 import com.elfmcys.yesstevemodel.api.ILivingRenderer;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
-import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.yesstevemodel.geckolib3.util.IRenderCycle;
@@ -78,7 +76,8 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
             return;
         var event = animatableEntity.updateAnimation(partialTick);
         final TEntity entity = animatableEntity.getEntity();
-        if (event != null) {
+        var mc = Minecraft.getInstance();
+        if (event != null && mc.player != null) {
             final EntityModelData data = event.getExtraData();
             this.dispatchedMat = new Matrix4f(poseStack.last().pose());
 
@@ -97,27 +96,30 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
             preRenderCallback(entity, poseStack, partialTick);
             poseStack.translate(0, 0.01f, 0);
 
-            Color renderColor = getRenderColor(animatableEntity, partialTick, poseStack, bufferSource, null, packedLight);
-            var renderType = getRenderType(textureOverride == null ? animatableEntity.getTextureLocation() : textureOverride);
+            var bodyVisible = this.isBodyVisible(entity) && !entity.isInvisibleTo(mc.player);
+            var glowing = mc.shouldEntityAppearGlowing(entity);
+            var renderType = getRenderType(textureOverride == null ? animatableEntity.getTextureLocation() : textureOverride, bodyVisible, glowing);
+
+            var model = animatableEntity.getLoadedGeoModel();
+            var renderLayersFirst = animatableEntity.renderLayersFirst();
+            var renderColor = getRenderColor(animatableEntity, partialTick, poseStack, bufferSource, null, packedLight);
             var textureIndex = textureOverride == null ? animatableEntity.getTextureIndex() : 0;
 
-            GeoModelState model = animatableEntity.getLoadedGeoModel();
-            boolean renderLayersFirst = animatableEntity.renderLayersFirst();
-            if (Minecraft.getInstance().player != null && !entity.isInvisibleTo(Minecraft.getInstance().player)) {
-                preRender(model, animatableEntity, partialTick, renderType, poseStack, bufferSource, null,
-                        packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
-                        renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
-                        renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-                if (renderLayersFirst && !entity.isSpectator()) {
-                    renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
-                }
+            preRender(model, animatableEntity, partialTick, poseStack, bufferSource, null,
+                    packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
+                    renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
+                    renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
+            if (renderLayersFirst && !entity.isSpectator()) {
+                renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
+            }
+            if (renderType != null) {
                 render(model, animatableEntity, partialTick, renderType, poseStack, bufferSource, textureIndex, null,
                         packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
                         renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
                         renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-                if (!renderLayersFirst && !entity.isSpectator()) {
-                    renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
-                }
+            }
+            if (!renderLayersFirst && !entity.isSpectator()) {
+                renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
             }
             poseStack.popPose();
         }

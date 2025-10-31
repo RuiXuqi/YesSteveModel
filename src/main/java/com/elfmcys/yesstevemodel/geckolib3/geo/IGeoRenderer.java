@@ -20,7 +20,7 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
     default void setCurrentRTB(MultiBufferSource bufferSource) {
     }
 
-    default void preRender(GeoModelState modelState, T animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
+    default void preRender(GeoModelState modelState, T animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
                            @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         setCurrentRTB(bufferSource);
         renderEarly(animatable, poseStack, partialTick, bufferSource, buffer, packedLight,
@@ -56,8 +56,15 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
                             float alpha) {
     }
 
-    default RenderType getRenderType(ResourceLocation texture) {
-        return CustomTranslucentRenderType.create(texture);
+    @Nullable
+    default RenderType getRenderType(ResourceLocation texture, boolean visible, boolean glowing) {
+        if (visible) {
+            return CustomTranslucentRenderType.create(texture);
+        }
+        if (glowing) {
+            return RenderType.outline(texture);
+        }
+        return null;
     }
 
     default Color getRenderColor(T animatable, float partialTick, PoseStack poseStack,

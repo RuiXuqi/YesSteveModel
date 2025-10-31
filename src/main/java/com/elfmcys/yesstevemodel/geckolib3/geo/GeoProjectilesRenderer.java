@@ -8,8 +8,8 @@ import com.elfmcys.yesstevemodel.geckolib3.util.IRenderCycle;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -31,18 +31,24 @@ public abstract class GeoProjectilesRenderer<TEntity extends Projectile, T exten
 
     public void render(T animatable, float yaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         var event = animatable.updateAnimation(partialTick);
-        if (event != null) {
+        var mc = Minecraft.getInstance();
+        if (event != null && mc.player != null) {
             var entity = animatable.getEntity();
-            this.dispatchedMat = new Matrix4f(poseStack.last().pose());
-            setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
-            poseStack.pushPose();
-            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
-            Color renderColor = getRenderColor(animatable, partialTick, poseStack, bufferSource, null, packedLight);
-            RenderType renderType = getRenderType(animatable.getTextureLocation());
-            GeoModelState model = animatable.getLoadedGeoModel();
-            render(model, animatable, partialTick, renderType, poseStack, bufferSource, 0, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-            poseStack.popPose();
+            var bodyVisible = !entity.isInvisibleTo(mc.player);
+            var glowing = mc.shouldEntityAppearGlowing(entity);
+            var renderType = getRenderType(animatable.getTextureLocation(), bodyVisible, glowing);
+
+            if (renderType != null && (bodyVisible || glowing)) {
+                var renderColor = getRenderColor(animatable, partialTick, poseStack, bufferSource, null, packedLight);
+                var model = animatable.getLoadedGeoModel();
+                this.dispatchedMat = new Matrix4f(poseStack.last().pose());
+                setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
+                poseStack.pushPose();
+                poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
+                poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
+                render(model, animatable, partialTick, renderType, poseStack, bufferSource, 0, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
+                poseStack.popPose();
+            }
         }
         super.render(animatable.getEntity(), yaw, partialTick, poseStack, bufferSource, packedLight);
     }
