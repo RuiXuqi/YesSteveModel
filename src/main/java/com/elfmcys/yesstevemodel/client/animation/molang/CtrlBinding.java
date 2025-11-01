@@ -179,7 +179,7 @@ public class CtrlBinding extends ContextBinding {
     }
 
     private static boolean isFlying(IContext<LivingEntity> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().isFlying();
         } else if (ctx.entity() instanceof Player player) {
             return player.getAbilities().flying;

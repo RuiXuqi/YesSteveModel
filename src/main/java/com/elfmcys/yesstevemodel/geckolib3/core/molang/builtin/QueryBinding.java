@@ -110,7 +110,7 @@ public class QueryBinding extends ContextBinding {
     }
 
     private static boolean isFlying(IContext<Player> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().isFlying();
         } else {
             return ctx.entity().getAbilities().flying;
@@ -118,7 +118,7 @@ public class QueryBinding extends ContextBinding {
     }
 
     private static int getExpLevel(IContext<Player> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().expLevel();
         } else {
             return ctx.entity().experienceLevel;
@@ -126,7 +126,7 @@ public class QueryBinding extends ContextBinding {
     }
 
     private static Object getHealth(IContext<LivingEntity> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().health();
         } else {
             return ctx.entity().getHealth();
@@ -134,7 +134,7 @@ public class QueryBinding extends ContextBinding {
     }
 
     private static Object getMaxHealth(IContext<LivingEntity> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().maxHealth();
         } else {
             return ctx.entity().getMaxHealth();

@@ -216,7 +216,7 @@ public class YSMBinding extends ContextBinding {
     }
 
     private static float getXxa(IContext<LivingEntity> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().xxa();
         } else {
             return ctx.entity().xxa;
@@ -224,7 +224,7 @@ public class YSMBinding extends ContextBinding {
     }
 
     private static float getYya(IContext<LivingEntity> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().yya();
         } else {
             return ctx.entity().yya;
@@ -232,7 +232,7 @@ public class YSMBinding extends ContextBinding {
     }
 
     private static float getZza(IContext<LivingEntity> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().zza();
         } else {
             return ctx.entity().zza;
@@ -240,7 +240,7 @@ public class YSMBinding extends ContextBinding {
     }
 
     private static boolean inShieldBlockCooldown(IContext<Player> context) {
-        if (context.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (context.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().inShieldBlockCooldown();
         } else {
             return false;
@@ -276,7 +276,7 @@ public class YSMBinding extends ContextBinding {
     }
 
     private static Object getFoodLevel(IContext<LivingEntity> ctx) {
-        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap) {
+        if (ctx.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
             return cap.getStateTracker().foodLevel();
         } else if (ctx.entity() instanceof Player player) {
             return player.getFoodData().getFoodLevel();

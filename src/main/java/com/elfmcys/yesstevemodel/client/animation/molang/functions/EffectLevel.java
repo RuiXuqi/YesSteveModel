@@ -33,7 +33,7 @@ public class EffectLevel extends ContextFunction<Entity> {
                 continue;
             }
 
-            if (context.entity().animatableEntity() instanceof PlayerAnimatableCapability cap) {
+            if (context.entity().animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
                 sum += cap.getStateTracker().getEffectLevel(effect);
             } else if (context.entity().entity() instanceof LivingEntity) {
                 MobEffectInstance instance = ((LivingEntity) context.entity().entity()).getEffect(effect);
