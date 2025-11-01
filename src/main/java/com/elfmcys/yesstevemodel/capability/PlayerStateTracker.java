@@ -7,8 +7,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
 
 public class PlayerStateTracker extends HumanoidStateTracker<Player> {
-    private final Object2ByteOpenHashMap<MobEffect> effects;
     private final boolean localPlayer;
+    private final Object2ByteOpenHashMap<MobEffect> effects;
 
     private boolean remoteFlying;
     private int expLevel;
@@ -27,8 +27,25 @@ public class PlayerStateTracker extends HumanoidStateTracker<Player> {
 
     public PlayerStateTracker(Player player, boolean localPlayer) {
         super(player);
-        this.effects = new Object2ByteOpenHashMap<>(8);
         this.localPlayer = localPlayer;
+        this.effects = new Object2ByteOpenHashMap<>(8);
+    }
+
+    @Override
+    public void reset() {
+        effects.clear();
+
+        remoteFlying = false;
+        expLevel = 0;
+        health = 0;
+        maxHealth = 0;
+        foodLevel = 0;
+
+        xxa = 0;
+        yya = 0;
+        zza = 0;
+
+        inShieldBlockCooldown = false;
     }
 
     public void updateServerDrivenProperty(DispatchServerDrivenProperty msg) {

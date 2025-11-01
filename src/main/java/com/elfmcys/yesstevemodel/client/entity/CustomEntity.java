@@ -51,6 +51,17 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     @Override
+    protected void reset() {
+        modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+        currentModelContainer = null;
+        resourceHolder = null;
+        modelFallback = false;
+        lastCheckUpdateTime = 0;
+        alterPhysicsManager = null;
+        super.reset();
+    }
+
+    @Override
     public PhysicsManager getPhysicsManager() {
         if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingInPaperDoll()) {
             return physicsManager;

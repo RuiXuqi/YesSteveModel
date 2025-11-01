@@ -54,9 +54,9 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     protected boolean lastFrameRendered = true;
     protected boolean currentFrameRendered = false;
-    private boolean lastFrameUpdated;
-    private float seekTime;
-    private boolean initialize = false;
+    protected boolean lastFrameUpdated;
+    protected float seekTime;
+    protected boolean initialize = false;
 
     /**
      * 存储 Coded 动画控制器的动画播放状态，用于一些 molang 判断
@@ -70,6 +70,23 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.stateTracker = createStateTracker(entity);
         this.physicsManager = new PhysicsManager();
         this.rateLimiter.setLimit(getFrameRateLimit());
+    }
+
+    protected void reset() {
+        clearGeoModel();
+        rateLimiter.reset();
+        manager.reset();
+        stateTracker.reset();
+        lastFrameTime = -1;
+        lastMutableRender = false;
+        currentFrameTicked = false;
+        currentFrameShouldTick = false;
+        lastFrameRendered = true;
+        currentFrameRendered = false;
+        lastFrameUpdated = false;
+        seekTime = 0;
+        initialize = false;
+        codedAnimationStates.clear();
     }
 
     protected EntityStateTracker<TEntity> createStateTracker(TEntity entity) {

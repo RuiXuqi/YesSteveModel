@@ -37,6 +37,15 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> {
         registerControllers();
     }
 
+    @Override
+    protected void reset() {
+        isPlayingExtraAnimation = false;
+        extraAnimationName = "idle";
+        isExtraAnimationDirty = false;
+        syncHandler = null;
+        super.reset();
+    }
+
     /**
      * 越往后优先级越高
      */

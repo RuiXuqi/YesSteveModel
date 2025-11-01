@@ -13,6 +13,13 @@ public class HumanoidStateTracker<T extends LivingEntity> extends EntityStateTra
         super(entity);
     }
 
+    @Override
+    public void reset() {
+        mainhandItemStack = ItemStack.EMPTY;
+        offhandItemStack = ItemStack.EMPTY;
+        super.reset();
+    }
+
     public ItemStack getHandItem(InteractionHand hand) {
         if (hand == InteractionHand.MAIN_HAND) {
             return mainhandItemStack;

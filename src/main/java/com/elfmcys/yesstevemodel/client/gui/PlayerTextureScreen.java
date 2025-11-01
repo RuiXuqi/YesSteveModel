@@ -62,15 +62,17 @@ public class PlayerTextureScreen extends Screen {
 
     static {
         for (int i = 0; i < TEXTURE_BUTTON_ENTITY.length; i++) {
-            CustomGuiPlayerEntity animatedEntity = new CustomGuiPlayerEntity();
-            animatedEntity.getPreviewInfo().setPreview(AnimationRegister.IDLE);
-            TEXTURE_BUTTON_ENTITY[i] = animatedEntity;
+            TEXTURE_BUTTON_ENTITY[i] = new CustomGuiPlayerEntity();
         }
     }
 
     public PlayerTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
         super(Component.literal("Player Texture GUI"));
         this.previewEntity = new CustomGuiPlayerEntity();
+        for (var entity : TEXTURE_BUTTON_ENTITY) {
+            entity.reset();
+            entity.getPreviewInfo().setPreview(AnimationRegister.IDLE);
+        }
         this.parent = parent;
         this.modelId = modelId;
         this.model = model;

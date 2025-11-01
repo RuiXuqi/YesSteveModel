@@ -23,6 +23,16 @@ public class EntityStateTracker<T extends Entity> {
         this.entityTickStates = new IntOpenHashSet();
     }
 
+    public void reset() {
+        entityTickStates.clear();
+        lastEntityTickCount = 0;
+        lastPosition = null;
+        positionDelta = Vec3.ZERO;
+        mainAnimationCache = null;
+        lastRenderTick = 0;
+        renderTickDelta = 0;
+    }
+
     final void update(int entityTickCount, float renderTick, float partialTicks) {
         if (lastEntityTickCount < entityTickCount) {
             updateEntityTickData(entityTickCount, lastEntityTickCount);

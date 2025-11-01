@@ -56,7 +56,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
     private static final String AUTHOR_SEARCH_PREFIX = "@";
     private static final String PACK_SEARCH_PREFIX = "#";
 
-    private static Object2IntMap<String> PAGE = new Object2IntOpenHashMap<>();
+    private static final Object2IntMap<String> PAGE = new Object2IntOpenHashMap<>();
     private static String PACK = "";
 
     private final HashSet<String> clientNotDisplayModels = Sets.newHashSet();
@@ -77,9 +77,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
     static {
         for (int i = 0; i < MODEL_PREVIEW_ENTITY.length; i++) {
-            CustomGuiPlayerEntity animatedEntity = new CustomGuiPlayerEntity();
-            animatedEntity.getPreviewInfo().setPreview(AnimationRegister.IDLE);
-            MODEL_PREVIEW_ENTITY[i] = animatedEntity;
+            MODEL_PREVIEW_ENTITY[i] = new CustomGuiPlayerEntity();
         }
     }
 
@@ -503,6 +501,7 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
             if (0 <= index && index < modelOrderList.size()) {
                 String id = modelOrderList.get(index);
                 final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
+                animatedEntity.reset();
                 authModels.ifPresent(cap -> {
                     var model = models.get(id);
                     boolean needAuth = model.clientInfo().isNeedAuth() && !cap.getAuthModels().contains(id);

@@ -43,4 +43,10 @@ public class AnimationData {
     public List<IAnimationController> getAnimationControllers() {
         return animationControllers;
     }
+
+    public void reset() {
+        lastTick = 0;
+        startTick = -1;
+        resetTickLength = DEFAULT_ENDING_TRANSITION_LENGTH;
+    }
 }

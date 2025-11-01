@@ -48,6 +48,17 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
+    protected void reset() {
+        textureName = null;
+        textureIndex = 0;
+        headRot.set(0);
+        fireInitEvent = false;
+        wrappedUpdateHandler = null;
+        tacGunAnimationNeedReload = false;
+        super.reset();
+    }
+
+    @Override
     protected void codeAnimation(AnimationEvent<? extends AnimatableEntity<T>> animationEvent, boolean shouldUpdate) {
         GeoModelState model = getLoadedGeoModel();
         if (model != null && !model.headBones().isEmpty()) {

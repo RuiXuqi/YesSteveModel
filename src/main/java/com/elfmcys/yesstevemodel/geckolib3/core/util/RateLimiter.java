@@ -33,5 +33,6 @@ public class RateLimiter {
 
     public void reset() {
         aggregate = interval;
+        lastRequestTime = 0;
     }
 }

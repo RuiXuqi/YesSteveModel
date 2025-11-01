@@ -7,4 +7,9 @@ public class MaidStateTracker extends HumanoidStateTracker<EntityMaid> {
     public MaidStateTracker(EntityMaid entity) {
         super(entity);
     }
+
+    @Override
+    public void reset() {
+        super.reset();
+    }
 }

@@ -25,6 +25,15 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
+    public void reset() {
+        guiAnimationInfo.setFocus("");
+        guiAnimationInfo.setPreview("");
+        guiAnimationInfo.setHover("");
+        allowEmitting = false;
+        super.reset();
+    }
+
+    @Override
     public @NotNull PreviewAnimationInfo getPreviewInfo() {
         return guiAnimationInfo;
     }
