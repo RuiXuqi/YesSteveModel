@@ -58,6 +58,7 @@ public class QueryBinding extends ContextBinding {
         var("moon_phase", ctx -> ctx.level().getMoonPhase());
         var("time_of_day", ctx -> MolangUtils.normalizeTime(ctx.level().getDayTime()));
         var("time_stamp", ctx -> ctx.level().getDayTime());
+        var("delta_time", ctx -> ctx.animatableEntity().getStateTracker().getRenderTickDelta() / 20);
 
         entityVar("yaw_speed", QueryBinding::getYawSpeed);
         entityVar("cardinal_facing_2d", ctx -> ctx.entity().getDirection().get3DDataValue());
