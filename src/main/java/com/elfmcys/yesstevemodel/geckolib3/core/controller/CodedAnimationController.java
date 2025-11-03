@@ -56,7 +56,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
                                     IAnimationPredicate<T> animationPredicate, boolean blendRotation) {
         this.name = name;
         this.animationPredicate = animationPredicate;
-        this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks);
+        this.animationPlayer = new AnimationPlayer(animatableEntity, transitionLengthTicks, true);
         this.defaultTransitionTicks = transitionLengthTicks;
         this.blendRotation = blendRotation;
         this.ctx = new ControllerContext(false);

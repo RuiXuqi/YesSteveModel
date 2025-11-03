@@ -61,6 +61,10 @@ public class AnimationPlayer {
      */
     private final AnimatableEntity<?> animatableEntity;
     /**
+     * 是否对缩放帧禁用起始过渡
+     */
+    private boolean disableBeginningTransitionScale;
+    /**
      * 尾过渡动画长度
      * <p>
      * 一定不能小于 1
@@ -88,8 +92,20 @@ public class AnimationPlayer {
      * @param transitionLengthTicks 动画过渡时间（tick）
      */
     public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks) {
+        this(animatableEntity, transitionLengthTicks, false);
+    }
+
+    /**
+     * 实例化动画播放器，每个播放器同一时间只能播放一个动画
+     *
+     * @param animatableEntity      实体
+     * @param transitionLengthTicks 动画过渡时间（tick）
+     * @param disableBeginningTransitionScale 是否对缩放帧禁用起始过渡
+     */
+    public AnimationPlayer(AnimatableEntity<?> animatableEntity, float transitionLengthTicks, boolean disableBeginningTransitionScale) {
         this.animatableEntity = animatableEntity;
         this.beginningTransition = new LinearBlendTransition(transitionLengthTicks);
+        this.disableBeginningTransitionScale = disableBeginningTransitionScale;
         this.animTickOffset = 0.0f;
     }
 
@@ -324,8 +340,9 @@ public class AnimationPlayer {
             }
 
             if (boneAnimationQueue.scaleKeyFrames != null) {
-                boneAnimationQueue.scale = getBeginningTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, transitionTicks, percentProgress,
-                        transitionOffset.scale);
+                boneAnimationQueue.scale = disableBeginningTransitionScale
+                        ? getBeginningTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, this.beginningTransition.length(), 1.0f, transitionOffset.scale)
+                        : getBeginningTransitionPointAtTick(boneAnimationQueue.scaleKeyFrames, transitionTicks, percentProgress, transitionOffset.scale);
             }
         }
     }
@@ -494,6 +511,10 @@ public class AnimationPlayer {
 
     public void setBeginningTransition(IBlendTransition beginningTransition) {
         this.beginningTransition = beginningTransition;
+    }
+
+    public void setDisableBeginningTransitionScale(boolean value) {
+        this.disableBeginningTransitionScale = value;
     }
 
     public float getBeginningTransitionLength() {
