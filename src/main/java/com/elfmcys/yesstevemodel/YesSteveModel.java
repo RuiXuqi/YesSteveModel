@@ -8,11 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +34,19 @@ public class YesSteveModel {
             return;
         }
 
+        initConfig();
+    }
+
+    private static void initConfig() {
+        var deprecatedFile = FMLPaths.CONFIGDIR.get().resolve(MOD_ID + "-common.toml").toFile();
+        if (deprecatedFile.isFile()) {
+            var newFile = FMLPaths.CONFIGDIR.get().resolve(MOD_ID + "-client.toml").toFile();
+            if (!newFile.isFile()) {
+                deprecatedFile.renameTo(newFile);
+            } else {
+                deprecatedFile.delete();
+            }
+        }
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.init());
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.init());
         if (FMLEnvironment.dist == Dist.CLIENT) {
