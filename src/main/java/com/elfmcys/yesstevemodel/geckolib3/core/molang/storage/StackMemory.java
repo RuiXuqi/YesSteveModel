@@ -82,10 +82,11 @@ public class StackMemory implements ITempVariableStorage {
             var newArgSize = args.size();
             var newVarOffset = newArgOffset + newArgSize;
             ensureCapacity(newVarOffset);
+            varSize += args.size();
 
-            var mem = this.mem;
             for (int i = 0; i < newArgSize; i++) {
-                mem[newArgOffset + i] = args.getValue(ctx, i);
+                var value = args.getValue(ctx, i);
+                this.mem[newArgOffset + i] = value;
             }
 
             stackFrameList.add(((long) argSize << 32) | (long) argOffset);
