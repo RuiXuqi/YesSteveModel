@@ -37,6 +37,7 @@ public class MolangUtils {
     }
 
     @Nullable
+    @SuppressWarnings("resource")
     public static BlockState getRelativeBlock(ExecutionContext<IContext<Entity>> ctx, Function.ArgumentCollection args, int argsOffset) {
         double offsetX = args.getAsDouble(ctx, argsOffset);
         double offsetY = args.getAsDouble(ctx, argsOffset + 1);
@@ -46,7 +47,7 @@ public class MolangUtils {
         }
         var entity = ctx.entity().entity();
         BlockPos pos = new BlockPos((int) Math.round(entity.getX() + offsetX - 0.5d),
-                (int) (entity.getY() + offsetY),        // 看起来有点怪，但是和之前版本保持一致比较好
+                (int) Math.round(entity.getY() + offsetY - 0.5d),
                 (int) Math.round(entity.getZ() + offsetZ - 0.5d));
         return entity.level().getBlockState(pos);
     }
