@@ -33,8 +33,8 @@ public class ClientInfo {
     public static void handleOnServer(ClientInfo clientInfo, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         ServerPlayer player = context.getSender();
-        if (player != null && NetworkHandler.setChannelVersion(context.getNetworkManager(), clientInfo.channelVersion)
-                && NetworkHandler.isChannelPresent(context.getNetworkManager())) {
+        if (player != null && NetworkHandler.setChannelVersion(context.getNetworkManager(), clientInfo.channelVersion)) {
+            ServerModelManager.checkCapability(player);
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
                 cap.setMandatory(false);
                 cap.stopAnimation();

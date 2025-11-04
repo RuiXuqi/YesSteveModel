@@ -12,6 +12,7 @@ import com.elfmcys.yesstevemodel.util.ThreadTools;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.floats.FloatReferencePair;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -46,6 +47,7 @@ public final class ServerModelManager {
      * 还可以获取其他服务端模型信息
      */
     private static Map<String, ServerModel> MODELS = Maps.newHashMap();
+    private static IntOpenHashSet MODEL_HASH_SET = new IntOpenHashSet();
     /**
      * 放置授权模型名称
      */
@@ -100,6 +102,9 @@ public final class ServerModelManager {
             }
             server.execute(() -> {
                 Collection<ServerPlayer> players = server.getPlayerList().getPlayers();
+                for (var player : players) {
+                    checkCapability(player);
+                }
                 UUID[] uuids = players.stream().filter(NetworkHandler::isPlayerChannelPresent).map(Entity::getUUID).toArray(UUID[]::new);
                 String[] playerNames = players.stream().filter(NetworkHandler::isPlayerChannelPresent).map(p -> p.getGameProfile().getName()).toArray(String[]::new);
                 String[] selectedModels = getSelectedModelIds(players);
@@ -131,7 +136,12 @@ public final class ServerModelManager {
         if (server != null) {
             server.execute(() -> {
                 if (result.success()) {
+                    var hashSet = new IntOpenHashSet(result.models().size());
+                    for (var model : result.models().values()) {
+                        hashSet.add(model.info().hashShort());
+                    }
                     MODELS = result.models();
+                    MODEL_HASH_SET = hashSet;
                     AUTH_MODELS = result.authModels();
                 }
                 if (completeCallback != null) {
@@ -232,8 +242,8 @@ public final class ServerModelManager {
                         return null;
                     }
                 });
-            } catch (Throwable ignored) {
-                ignored.printStackTrace();
+            } catch (Throwable e) {
+                e.printStackTrace();
                 return false;
             }
             // 等待发送结束
@@ -286,39 +296,31 @@ public final class ServerModelManager {
     // Native Access: 在 worker 线程上调用
     @SuppressWarnings("unused,unchecked")
     private static void syncTaskComplete(final SyncModelResult result, final @Nullable Object state) {
-        final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         final Consumer<SyncModelResult> completeCallback = (Consumer<SyncModelResult>) state;
-        if (server == null) {
-            if (completeCallback != null) {
-                completeCallback.accept(result);
-            }
-            return;
+        if (completeCallback != null) {
+            completeCallback.accept(result);
         }
-        server.execute(() -> {
-            for (UUID playerId : result.allPlayerIds()) {
-                final ServerPlayer player = server.getPlayerList().getPlayer(playerId);
-                if (player == null) {
-                    continue;
-                }
-                player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
-                    player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authModelCap -> {
-                        if (authModelCap.getAuthModels().removeIf(authModel -> !MODELS.containsKey(authModel) || !AUTH_MODELS.contains(authModel))) {
-                            NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelCap.getAuthModels()), player);
-                        }
+    }
 
-                        String modelId = modelIdCap.getModelId();
-                        if (!ServerModelManager.getModels().containsKey(modelId)
-                                || (AUTH_MODELS.contains(modelId) && !authModelCap.containModel(modelIdCap.getModelId()))
-                                || !MODELS.get(modelId).playerModel().textures().contains(modelIdCap.getSelectTexture())) {
-                            modelIdCap.setDefault();
-                        }
-                    });
+    public static void checkCapability(ServerPlayer player) {
+        if (!MODELS.isEmpty()) {
+            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
+                player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authModelCap -> {
+                    if (authModelCap.getAuthModels().removeIf(authModel -> !MODELS.containsKey(authModel) || !AUTH_MODELS.contains(authModel))) {
+                        NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelCap.getAuthModels()), player);
+                    }
+
+                    String modelId = modelIdCap.getModelId();
+                    if (!ServerModelManager.getModels().containsKey(modelId)
+                            || (AUTH_MODELS.contains(modelId) && !authModelCap.containModel(modelIdCap.getModelId()))
+                            || !MODELS.get(modelId).playerModel().textures().contains(modelIdCap.getSelectTexture())) {
+                        modelIdCap.setDefault();
+                    }
+
+                    modelIdCap.trimRoamingStorage(MODEL_HASH_SET);
                 });
-                if (completeCallback != null) {
-                    ThreadTools.submit(() -> completeCallback.accept(result));
-                }
-            }
-        });
+            });
+        }
     }
 
     // Native Access

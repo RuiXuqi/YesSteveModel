@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.network.message.SyncModelInfo;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import com.google.common.collect.Queues;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -144,6 +145,16 @@ public class ModelInfoCapability {
             }
         });
         // 无需 markDirty
+    }
+
+    public void trimRoamingStorage(IntSet hashSet) {
+         var iter = molangStorage.int2ReferenceEntrySet().fastIterator();
+        while (iter.hasNext()) {
+            var entry = iter.next();
+            if (!hashSet.contains(entry.getIntKey())) {
+                iter.remove();
+            }
+        }
     }
 
     public ServerDrivenPlayerPropertiesTracker getPropertiesTracker() {
