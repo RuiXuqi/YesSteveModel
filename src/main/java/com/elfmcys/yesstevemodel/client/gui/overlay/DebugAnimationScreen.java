@@ -41,7 +41,7 @@ public class DebugAnimationScreen {
     }
 
     public static boolean isEnabled() {
-        return TARGET != null && TARGET.get() != null;
+        return getTarget() != null;
     }
 
     public static boolean enable() {
@@ -86,9 +86,12 @@ public class DebugAnimationScreen {
         TARGET = new WeakReference<>(customEntity);
         customEntity.setDebugInfo(DEBUG_INFO);
         var entity = customEntity.getEntity();
-        Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.true")
-                .append(" -> ")
-                .append(Objects.requireNonNullElseGet(entity.getCustomName(), entity::getDisplayName)));
+        var localPlayer = Minecraft.getInstance().player;
+        if (localPlayer != null) {
+            localPlayer.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.true")
+                    .append(" -> ")
+                    .append(Objects.requireNonNullElseGet(entity.getCustomName(), entity::getDisplayName)));
+        }
     }
 
     public static void disable() {
@@ -98,7 +101,10 @@ public class DebugAnimationScreen {
                 target.setDebugInfo(null);
             }
             TARGET = null;
-            Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.false"));
+            var localPlayer = Minecraft.getInstance().player;
+            if (localPlayer != null) {
+                localPlayer.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.false"));
+            }
         }
     }
 
@@ -112,12 +118,19 @@ public class DebugAnimationScreen {
 
     @Nullable
     public static CustomEntity<?> getTarget() {
-        return TARGET != null ? TARGET.get() : null;
+        if (TARGET != null){
+            var entity = TARGET.get();
+            if (entity != null && entity.isActive()) {
+                return entity;
+            }
+            disable();
+        }
+        return null;
     }
 
     @SuppressWarnings("all")
     private static void renderCustom(ForgeGui gui, GuiGraphics graphics, int screenWidth, int screenHeight) {
-        CustomEntity<?> target = TARGET != null ? TARGET.get() : null;
+        CustomEntity<?> target = getTarget();
         if (target == null) {
             return;
         }
