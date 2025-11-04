@@ -83,7 +83,7 @@ public class ClientSetupEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        event.registerAbove(DEBUG_TEXT.id(), "ysm_debug_info", new DebugAnimationScreen());
+        event.registerAbove(DEBUG_TEXT.id(), "ysm_debug_info", DebugAnimationScreen.getGuiOverlay());
         event.registerAbove(DEBUG_TEXT.id(), "ysm_extra_player", new ExtraPlayerScreen());
         event.registerAbove(DEBUG_TEXT.id(), "ysm_loading_state", new LoadingStateScreen());
     }

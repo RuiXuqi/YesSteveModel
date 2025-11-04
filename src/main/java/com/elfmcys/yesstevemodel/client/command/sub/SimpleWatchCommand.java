@@ -3,8 +3,6 @@ package com.elfmcys.yesstevemodel.client.command.sub;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
-import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
@@ -18,7 +16,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import static com.elfmcys.yesstevemodel.client.command.ClientRootCommand.ALL_CONTROLLERS;
@@ -49,7 +46,7 @@ public class SimpleWatchCommand {
         Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> controller = () -> Commands.argument(CONTROLLER_NAME, StringArgumentType.string()).suggests(ALL_CONTROLLERS);
 
         watch.then(var.then(exp.get().executes(SimpleWatchCommand::addExpression)));
-        watch.then(state.then(controller.get().executes(SimpleWatchCommand::getState)));
+        watch.then(state.then(controller.get().executes(SimpleWatchCommand::addControllerState)));
         watch.then(clear.executes(SimpleWatchCommand::clearExpression));
 
         return watch;
@@ -70,10 +67,11 @@ public class SimpleWatchCommand {
             return Command.SINGLE_SUCCESS;
         }
         mc.execute(() -> mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.getDebugInfo().add(DebugInfo.Phase.POST_ANIMATION, exp, value);
+            DebugAnimationScreen.getDebugInfo().add(DebugInfo.Phase.POST_ANIMATION, exp, value);
             // 强制打开调试界面
-            DebugAnimationKey.TYPE = DebugAnimationKey.DebugType.CUSTOM;
-            cap.getDebugInfo().setEnabled(true);
+            if (!DebugAnimationScreen.isEnabled()) {
+                DebugAnimationScreen.enableForLocalPlayer();
+            }
         }));
 
         return Command.SINGLE_SUCCESS;
@@ -86,30 +84,23 @@ public class SimpleWatchCommand {
         }
         Minecraft mc = Minecraft.getInstance();
         mc.execute(() -> mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                .ifPresent(cap -> cap.getDebugInfo().clear()));
-        DebugAnimationScreen.clearDebugControllerIndex();
+                .ifPresent(cap -> DebugAnimationScreen.getDebugInfo().clear()));
+        DebugAnimationScreen.clearDebugController();
         return Command.SINGLE_SUCCESS;
     }
 
     @SuppressWarnings("all")
-    private static int getState(CommandContext<CommandSourceStack> ctx) {
+    private static int addControllerState(CommandContext<CommandSourceStack> ctx) {
         if (!isClientReady()) {
             return Command.SINGLE_SUCCESS;
         }
         Minecraft mc = Minecraft.getInstance();
         String controllerName = StringArgumentType.getString(ctx, CONTROLLER_NAME);
-        mc.execute(() -> mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            List<IAnimationController> controllers = cap.getAnimationData().getAnimationControllers();
-            for (int index = 0; index < controllers.size(); index++) {
-                IAnimationController controller = controllers.get(index);
-                if (controller.getName().equals(controllerName)) {
-                    DebugAnimationScreen.addDebugControllerIndex(index);
-                }
-            }
-            // 强制打开调试界面
-            DebugAnimationKey.TYPE = DebugAnimationKey.DebugType.CUSTOM;
-            cap.getDebugInfo().setEnabled(true);
-        }));
+        // 强制打开调试界面
+        DebugAnimationScreen.addDebugController(controllerName);
+        if (!DebugAnimationScreen.isEnabled()) {
+            DebugAnimationScreen.enableForLocalPlayer();
+        }
 
         return Command.SINGLE_SUCCESS;
     }

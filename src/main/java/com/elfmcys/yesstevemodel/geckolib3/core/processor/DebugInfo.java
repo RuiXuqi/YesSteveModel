@@ -10,15 +10,6 @@ import java.util.function.BiConsumer;
 public class DebugInfo {
     private static final DecimalFormat FORMATTER = new DecimalFormat("#.########");
     private final ReferenceArrayList<DebugItem> items = new ReferenceArrayList<>();
-    private boolean enabled = false;
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public boolean isEnabled() {
-        return this.enabled;
-    }
 
     public void add(Phase phase, String name, IValue exp) {
         items.add(new DebugItem(name, exp, phase));

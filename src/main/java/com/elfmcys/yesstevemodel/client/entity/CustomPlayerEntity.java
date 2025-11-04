@@ -19,7 +19,7 @@ import java.util.List;
 
 import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
-public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> {
+public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> implements IRoamingEntity {
     protected final boolean localPlayer;
 
     protected boolean isPlayingExtraAnimation = false;

@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.command.sub;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
@@ -59,6 +60,7 @@ public class MolangCommand {
         return molang;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private static int addExpression(CommandContext<CommandSourceStack> ctx, DebugInfo.Phase phase) {
         if (!isClientReady()) {
             return Command.SINGLE_SUCCESS;
@@ -74,7 +76,7 @@ public class MolangCommand {
         }
         Minecraft.getInstance().execute(() ->
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    cap.getDebugInfo().add(phase, expName, value);
+                    DebugAnimationScreen.getDebugInfo().add(phase, expName, value);
                 }));
 
         return Command.SINGLE_SUCCESS;
@@ -87,7 +89,7 @@ public class MolangCommand {
         String expName = StringArgumentType.getString(ctx, EXPRESSION_NAME_NAME);
         Minecraft.getInstance().execute(() ->
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    cap.getDebugInfo().remove(expName);
+                    DebugAnimationScreen.getDebugInfo().remove(expName);
                 }));
 
         return Command.SINGLE_SUCCESS;
@@ -99,7 +101,7 @@ public class MolangCommand {
         }
         Minecraft.getInstance().execute(() ->
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    cap.getDebugInfo().clear();
+                    DebugAnimationScreen.getDebugInfo().clear();
                 }));
 
         return Command.SINGLE_SUCCESS;
@@ -118,11 +120,15 @@ public class MolangCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            cap.executeMolangExp(value, true, false, result -> {
+        var target = DebugAnimationScreen.getTarget();
+        if (target == null) {
+            target = Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).orElse(null);
+        }
+        if (target != null) {
+            target.executeMolangExp(value, true, false, result -> {
                 Minecraft.getInstance().player.sendSystemMessage(Component.translatable("message.yes_steve_model.model.debug_animation.result", result));
             });
-        });
+        }
 
         return Command.SINGLE_SUCCESS;
     }

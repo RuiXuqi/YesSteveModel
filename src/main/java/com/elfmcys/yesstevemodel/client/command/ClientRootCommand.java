@@ -3,12 +3,16 @@ package com.elfmcys.yesstevemodel.client.command;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.client.command.sub.DebugCommand;
 import com.elfmcys.yesstevemodel.client.command.sub.MolangCommand;
 import com.elfmcys.yesstevemodel.client.command.sub.SimpleWatchCommand;
+import com.elfmcys.yesstevemodel.client.entity.CustomEntity;
+import com.elfmcys.yesstevemodel.client.entity.IRoamingEntity;
+import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
-import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.util.CommandUtil;
 import com.google.common.collect.Sets;
 import com.mojang.brigadier.CommandDispatcher;
@@ -25,8 +29,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@SuppressWarnings("removal")
 public class ClientRootCommand {
     private static final String ROOT_NAME = "ysmclient";
 
@@ -35,25 +42,21 @@ public class ClientRootCommand {
                 .requires(source -> CommandUtil.isLocalPlayer(source.getEntity()));
         root.then(MolangCommand.get());
         root.then(SimpleWatchCommand.get());
+        root.then(DebugCommand.get());
         dispatcher.register(root);
     }
 
     public static final SuggestionProvider<CommandSourceStack> ALL_VARS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "vars"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider && FMLEnvironment.dist == Dist.CLIENT) {
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player == null) {
-                return Suggestions.empty();
-            }
-            Set<String> vars = Sets.newHashSet();
-            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            return getTarget().map(cap -> {
                 // v 变量
+                Set<String> vars = Sets.newHashSet();
                 cap.getAnimationProcessor().visitScopedVariableNames(name -> {
                     vars.add(String.format("v.%s", name));
                 });
 
                 // v.roaming 变量
-                Struct remoteStruct = cap.getRoamingStruct();
-                if (remoteStruct instanceof LocalRoamingStruct struct) {
+                if (cap instanceof IRoamingEntity roaming && roaming.getRoamingStruct() instanceof LocalRoamingStruct struct) {
                     struct.visitNames(s -> {
                         Object object = struct.getProperty(StringPool.getName(s));
                         if (object != null) {
@@ -73,25 +76,35 @@ public class ClientRootCommand {
                 for (var name : cap.getModelContainer().assets().userFunctions().keySet()) {
                     vars.add(String.format("fn.%s", StringPool.getString(name)));
                 }
-            });
-            return SharedSuggestionProvider.suggest(vars, builder);
+
+                return SharedSuggestionProvider.suggest(vars, builder);
+            }).orElseGet(Suggestions::empty);
         }
         return Suggestions.empty();
     });
 
     public static final SuggestionProvider<CommandSourceStack> ALL_CONTROLLERS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "controllers"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider && FMLEnvironment.dist == Dist.CLIENT) {
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player == null) {
-                return Suggestions.empty();
-            }
-            Set<String> vars = Sets.newHashSet();
-            player.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                    .ifPresent(cap -> cap.getAnimationData()
-                            .getAnimationControllers()
-                            .forEach(c -> vars.add(c.getName())));
-            return SharedSuggestionProvider.suggest(vars, builder);
+            return getTarget().map(target -> {
+                Set<String> vars = target.getAnimationData()
+                        .getAnimationControllers()
+                        .stream()
+                        .map(IAnimationController::getName)
+                        .collect(Collectors.toSet());
+                return SharedSuggestionProvider.suggest(vars, builder);
+            }).orElseGet(Suggestions::empty);
         }
         return Suggestions.empty();
     });
+
+    private static Optional<CustomEntity<?>> getTarget() {
+        var target = DebugAnimationScreen.getTarget();
+        if (target == null) {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player != null) {
+                target = player.getCapability(PlayerAnimatableCapabilityProvider.CAP).orElse(null);
+            }
+        }
+        return Optional.ofNullable(target);
+    }
 }

@@ -5,7 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
 import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
 import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
-import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
+import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.sound.data.SoundFormat;
 import com.elfmcys.yesstevemodel.client.sound.data.ModelSoundHolder;
@@ -14,6 +14,7 @@ import com.elfmcys.yesstevemodel.client.sound.stream.AudioStreamProvider;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
+import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
@@ -39,6 +40,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     private int lastCheckUpdateTime;
     @Nullable
     private PhysicsManager alterPhysicsManager;
+    @Nullable
+    private DebugInfo debugInfo;
 
     @Nullable
     private Future<AnimationEvent<?>> asyncTask;
@@ -70,6 +73,27 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
                 alterPhysicsManager = new PhysicsManager();
             }
             return alterPhysicsManager;
+        }
+    }
+
+    public void setDebugInfo(@Nullable DebugInfo debugInfo) {
+        this.debugInfo = debugInfo;
+    }
+
+    @Override
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
+        super.preAnimationSetup(seekTime, shouldTick);
+        // 更新调试信息
+        if (debugInfo != null) {
+            var processor = getAnimationProcessor();
+            processor.enqueueMolangTask(evaluator -> {
+                debugInfo.evaluatePre(evaluator);
+                return null;
+            }, false, true, null);
+            processor.enqueueMolangTask(evaluator -> {
+                debugInfo.evaluatePost(evaluator);
+                return null;
+            }, false, false, null);
         }
     }
 
@@ -176,7 +200,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     @Override
     public DebugSource getDebugSource() {
-        if (DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
+        if (DebugAnimationScreen.isEnabled()) {
             return CustomDebugSource.INSTANCE;
         } else {
             return null;

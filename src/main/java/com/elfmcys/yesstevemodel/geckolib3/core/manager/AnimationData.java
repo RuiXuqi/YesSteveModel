@@ -6,6 +6,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.manager;
 
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.List;
 public class AnimationData {
     public static final float DEFAULT_ENDING_TRANSITION_LENGTH = 3;
 
-    private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(41);
+    private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(48);
+    private final Object2ReferenceOpenHashMap<String, IAnimationController> animationControllersMap = new Object2ReferenceOpenHashMap<>(48);
     public float lastTick;
     public float startTick = -1;
     // 全局尾过渡动画的长度，一定不能小于 1
@@ -25,6 +27,7 @@ public class AnimationData {
 
     public void addAnimationController(IAnimationController value) {
         animationControllers.add(value);
+        animationControllersMap.put(value.getName(), value);
     }
 
     public float getResetSpeed() {
@@ -42,6 +45,10 @@ public class AnimationData {
 
     public List<IAnimationController> getAnimationControllers() {
         return animationControllers;
+    }
+
+    public IAnimationController getAnimationController(String name) {
+        return animationControllersMap.get(name);
     }
 
     public void reset() {

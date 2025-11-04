@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
-import com.elfmcys.yesstevemodel.client.input.DebugAnimationKey;
+import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.PrimaryBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.FloatValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
@@ -28,7 +28,7 @@ public class MolangParser {
         try {
             return parseExpressionUnsafe(molangExpression, isUserFunc);
         } catch (Exception e) {
-            if (DebugAnimationKey.TYPE != DebugAnimationKey.DebugType.NONE) {
+            if (DebugAnimationScreen.isEnabled()) {
                 YesSteveModel.LOGGER.error("Failed to parse molang expression: {}\n{}", e.getMessage(), molangExpression);
                 CustomDebugSource.INSTANCE.print(Component.translatable("error.yes_steve_model.parse_molang_exp")
                                 .append(e.getMessage())

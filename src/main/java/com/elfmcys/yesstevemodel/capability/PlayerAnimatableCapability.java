@@ -8,7 +8,6 @@ import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStr
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
-import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.Nullable;
 @OnlyIn(Dist.CLIENT)
 public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     private final Int2ReferenceOpenHashMap<RemoteStorage> storageMap;
-    private final DebugInfo debugInfo;
 
     private int currentHashShort;
     private Struct roamingStruct;
@@ -39,7 +37,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     public PlayerAnimatableCapability(Player player) {
         super(player, player instanceof LocalPlayer, true);
         storageMap = new Int2ReferenceOpenHashMap<>(8);
-        debugInfo = localPlayer ? new DebugInfo() : null;
     }
 
     @Override
@@ -113,28 +110,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
                 model.firstPersonHead().setHidden(false);
             }
         }
-    }
-
-    @Override
-    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
-        super.preAnimationSetup(seekTime, shouldTick);
-
-        // 更新调试信息
-        if (debugInfo != null && debugInfo.isEnabled()) {
-            var processor = getAnimationProcessor();
-            processor.enqueueMolangTask(evaluator -> {
-                debugInfo.evaluatePre(evaluator);
-                return null;
-            }, false, true, null);
-            processor.enqueueMolangTask(evaluator -> {
-                debugInfo.evaluatePost(evaluator);
-                return null;
-            }, false, false, null);
-        }
-    }
-
-    public DebugInfo getDebugInfo() {
-        return debugInfo;
     }
 
     public void resetRoamingVars(int modelHashShort, Int2FloatOpenHashMap vars) {
