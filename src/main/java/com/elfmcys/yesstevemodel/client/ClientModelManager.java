@@ -38,8 +38,8 @@ public class ClientModelManager {
     // 以 Pack Path 为索引
     private static volatile Map<String, ModelPackInfo> PACKS = new Object2ReferenceOpenHashMap<>();
 
-    private static ClientModel DEFAULT_MODEL;
-    private static Runnable DEFAULT_MODEL_INIT;
+    private static volatile ClientModel DEFAULT_MODEL;
+    private static volatile Runnable DEFAULT_MODEL_INIT;
     private static TextureHolder DEFAULT_TEXTURE_HOLDER;
 
     private static final ConcurrentLinkedQueue<Pair<ClientModel, String>> NEW_MODEL_QUEUE = new ConcurrentLinkedQueue<>();
@@ -67,6 +67,7 @@ public class ClientModelManager {
     }
 
     public static ClientModel getDefaultModel() {
+        setupDefaultModel();
         return DEFAULT_MODEL;
     }
 
@@ -262,14 +263,21 @@ public class ClientModelManager {
             };
             return;
         }
+        setupDefaultModel();
         addModelInternal(modelData, modelPath, false, isNeedAuth);
     }
 
     public static void setupDefaultModel() {
         // 暂时先这样
-        if (DEFAULT_MODEL_INIT != null) {
-            DEFAULT_MODEL_INIT.run();
-            DEFAULT_MODEL_INIT = null;
+        var init = DEFAULT_MODEL_INIT;
+        if (init != null) {
+            synchronized (init) {
+                init = DEFAULT_MODEL_INIT;
+                if (init != null) {
+                    init.run();
+                    DEFAULT_MODEL_INIT = null;
+                }
+            }
         }
     }
 

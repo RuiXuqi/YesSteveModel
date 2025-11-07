@@ -123,7 +123,7 @@ public class ModelInfoCapability {
                 return new Object2FloatOpenHashMap<>(changes.variablesServerBound);
             }
         });
-        propertiesTracker.updateMolangVars(player, dirty, changes.modelHashShort, changes.variablesServerBound);
+        propertiesTracker.updateMolangVars(player, !dirty, changes.modelHashShort, changes.variablesServerBound);
         // 无需 markDirty
     }
 

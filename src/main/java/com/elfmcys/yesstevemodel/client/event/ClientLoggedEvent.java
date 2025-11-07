@@ -19,6 +19,7 @@ public class ClientLoggedEvent {
         if (LOGGED_IN) {
             return;
         }
+        ClientModelManager.setupDefaultModel();
         LOGGED_IN = true;
         if (!YesSteveModel.isAvailable()) {
             YesSteveModel.sendUnavailableMessage();
