@@ -6815,7 +6815,7 @@
 			"loop": true,
 			"bones": {
 				"Ribbon": {
-					"scale": "v.red_bow_headdress??1"
+					"scale": "v.roaming.red_bow_headdress??1"
 				}
 			}
 		},

@@ -76,7 +76,7 @@
             "type": "checkbox",
             "title": "headdress/头饰",
             "description": "Used to hide/show the red bow headdress (用来显示或开启玩家头饰)",
-            "value": "v.red_bow_headdress"
+            "value": "v.roaming.red_bow_headdress"
           }
         ]
       }
