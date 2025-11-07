@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.client.gui.button;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.parser.ParseException;
@@ -16,6 +17,7 @@ import net.minecraftforge.client.gui.widget.ForgeSlider;
 
 import java.text.DecimalFormat;
 
+@SuppressWarnings("removal")
 public class FlatSlider extends ForgeSlider {
     private static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(YesSteveModel.MOD_ID, "texture/roulette.png");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
@@ -35,7 +37,7 @@ public class FlatSlider extends ForgeSlider {
             String molangExpress = molang + "=" + getValue();
             IValue parsed = CustomMolangParser.parseSingleExpressionUnsafe(molangExpress);
             this.animatableEntity.executeMolangExp(parsed, true, false, null);
-            if (!CustomMolangParser.hasOnlyRoamingAssignment(molangExpress)) {
+            if (!CustomMolangParser.hasOnlyRoamingAssignment(molangExpress) && NetworkHandler.isRemoteChannelPresent() && !ServerConfig.LOW_BANDWIDTH_USAGE.get()) {
                 // 同步到周围的玩家
                 NetworkHandler.sendToServer(new SubmitRouletteConfig(molangExpress, this.animatableEntity.getEntity().getId()));
             }

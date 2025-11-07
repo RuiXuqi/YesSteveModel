@@ -13,6 +13,7 @@ import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.info.ModelProperties;
@@ -254,7 +255,7 @@ public class AnimationRouletteScreen extends Screen {
 
             FlatCheckbox checkbox = new FlatCheckbox(xOffset, this.y + tempYOffset, perWidth, labelName, data -> {
                 executeMolang(labelValue, null);
-                if (!CustomMolangParser.hasOnlyRoamingAssignment(labelValue)) {
+                if (!CustomMolangParser.hasOnlyRoamingAssignment(labelValue) && NetworkHandler.isRemoteChannelPresent() && !ServerConfig.LOW_BANDWIDTH_USAGE.get()) {
                     // 同步到周围的玩家
                     NetworkHandler.sendToServer(new SubmitRouletteConfig(labelValue, this.animatableEntity.getEntity().getId()));
                 }
@@ -305,7 +306,7 @@ public class AnimationRouletteScreen extends Screen {
             String value = data ? "1" : "0";
             String molang = checkboxForms.value() + "=" + value;
             executeMolang(molang, null);
-            if (!CustomMolangParser.hasOnlyRoamingAssignment(molang)) {
+            if (!CustomMolangParser.hasOnlyRoamingAssignment(molang) && NetworkHandler.isRemoteChannelPresent() && !ServerConfig.LOW_BANDWIDTH_USAGE.get()) {
                 // 同步到周围的玩家
                 NetworkHandler.sendToServer(new SubmitRouletteConfig(molang, this.animatableEntity.getEntity().getId()));
             }
