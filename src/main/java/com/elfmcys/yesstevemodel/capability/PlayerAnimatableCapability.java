@@ -14,10 +14,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SubmitRoamingVarsChanges;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
-import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2FloatMaps;
-import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.minecraft.client.player.LocalPlayer;
@@ -139,7 +136,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         return storageMap.containsKey(hashShort);
     }
 
-    public void updateRemoteRoamingVars(int modelHashShort, Int2FloatArrayMap vars) {
+    public void updateRemoteRoamingVars(int modelHashShort, Int2FloatMap vars) {
         // 为了尝试兼容 replay 模组，服务端会额外向 LocalPlayer 发送更新包，非回放时要丢弃
         if (!isLocalPlayer() && !vars.isEmpty()) {
             var storage = storageMap.computeIfAbsent(modelHashShort, h -> new RemoteStorage());
@@ -190,7 +187,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     private static class RemoteStorage {
         public volatile Int2FloatOpenHashMap vars;
-        public final ObjectArrayFIFOQueue<Int2FloatArrayMap> pendingChanges = new ObjectArrayFIFOQueue<>(4);
+        public final ObjectArrayFIFOQueue<Int2FloatMap> pendingChanges = new ObjectArrayFIFOQueue<>(4);
 
         public void mergePendingChanges() {
             while (!pendingChanges.isEmpty()) {

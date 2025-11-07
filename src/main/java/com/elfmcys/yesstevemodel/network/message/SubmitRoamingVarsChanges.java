@@ -3,7 +3,6 @@ package com.elfmcys.yesstevemodel.network.message;
 import com.elfmcys.yesstevemodel.capability.ModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.capability.VehicleModelInfoCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.TlmCommonCompat;
-import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -32,7 +31,6 @@ public class SubmitRoamingVarsChanges {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide().isServer() && context.getSender() != null) {
             var sender = context.getSender();
-            NetworkHandler.broadcastToVisiblePlayersAndSelf(new DispatchRoamingVarsChanges(message.changes), sender);
             context.enqueueWork(() -> handle(message, sender.serverLevel()));
         }
         context.setPacketHandled(true);
@@ -44,7 +42,7 @@ public class SubmitRoamingVarsChanges {
             TlmCommonCompat.handleVariableChanges(entity, message.changes);
         } else if (entity instanceof ServerPlayer player) {
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-                cap.updateRoamingVars(message.changes);
+                cap.updateRoamingVars(player, message.changes);
                 if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
                     player.getVehicle().getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(vehicleCap -> {
                         cap.getMolangVars().ifPresent(molangVars -> {

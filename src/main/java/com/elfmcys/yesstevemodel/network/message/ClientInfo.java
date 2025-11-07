@@ -37,7 +37,7 @@ public class ClientInfo {
             ServerModelManager.checkCapability(player);
             player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
                 cap.setMandatory(false);
-                cap.stopAnimation();
+                cap.stopAnimation(player);
             });
             player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
                 NetworkHandler.sendToClientPlayer(new SyncAuthModels(cap.getAuthModels()), player);

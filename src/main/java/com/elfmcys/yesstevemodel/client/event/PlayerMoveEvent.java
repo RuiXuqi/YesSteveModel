@@ -28,10 +28,9 @@ public class PlayerMoveEvent {
         if (isMoveKey() && player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                 if (!LOCK_EXTRA_ANIMATION && cap.isPlayingExtraAnimation()) {
+                    cap.stopExtraAnimation();
                     if (NetworkHandler.isRemoteChannelPresent()) {
                         NetworkHandler.sendToServer(SetPlayAnimation.stop());
-                    } else {
-                        cap.stopExtraAnimation();
                     }
                 }
             });

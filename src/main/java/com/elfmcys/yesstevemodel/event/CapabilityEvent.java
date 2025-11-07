@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.*;
+import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.*;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -118,7 +119,7 @@ public final class CapabilityEvent {
                 if (!NetworkHandler.isPlayerChannelPresent(trackPlayer) && !cap.isMandatory()) {
                     return;
                 }
-                cap.buildPacketForDispatch(trackPlayer).ifPresentOrElse(packet -> {
+                cap.buildPacketForDispatch(trackPlayer, false).ifPresentOrElse(packet -> {
                     NetworkHandler.sendToClientPlayer(packet, player);
                 }, cap::markDirty);
             });
@@ -148,8 +149,8 @@ public final class CapabilityEvent {
                     modelInfoCap.markDirty();
                     return;
                 }
-                modelInfoCap.stopAnimation();
-                modelInfoCap.buildPacketForDispatch(serverPlayer).ifPresentOrElse(packet -> {
+                modelInfoCap.stopAnimation(serverPlayer);
+                modelInfoCap.buildPacketForDispatch(serverPlayer, false).ifPresentOrElse(packet -> {
                     NetworkHandler.sendToClientPlayer(packet, serverPlayer);
                 }, modelInfoCap::markDirty);
             });
@@ -168,32 +169,35 @@ public final class CapabilityEvent {
      * 同步客户端服务端数据
      */
     @SubscribeEvent
-    public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
-        if (event.phase == TickEvent.Phase.END
-            && event.player instanceof ServerPlayer player) {
-            getModelInfoCap(player).ifPresent(cap -> {
-                if (!NetworkHandler.isPlayerChannelPresent(player) && !cap.isMandatory()) {
-                    if (player.tickCount == 200 || player.tickCount == 600 || player.tickCount == 1800) {
-                        NetworkHandler.sendToClientPlayer(new ServerInfo(), player);
-                    }
-                    return;
-                }
-                if (cap.isDirty()) {
-                    cap.buildPacketForDispatch(player).ifPresent(packet -> {
-                        cap.clearDirty();
-                        NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
-                        if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
-                            CapabilityEvent.onVehicleSetModel(player.getVehicle(), player);
+        if (event.phase == TickEvent.Phase.END) {
+            var players = event.getServer().getPlayerList().getPlayers();
+            var lowBandwidthUsage = ServerConfig.LOW_BANDWIDTH_USAGE.get();
+            for (ServerPlayer player : players) {
+                getModelInfoCap(player).ifPresent(cap -> {
+                    if (!NetworkHandler.isPlayerChannelPresent(player) && !cap.isMandatory()) {
+                        if (player.tickCount == 200 || player.tickCount == 600 || player.tickCount == 1800) {
+                            NetworkHandler.sendToClientPlayer(new ServerInfo(), player);
                         }
-                    });
-                    cap.getPropertiesTracker().tick(player, cap.isDirty());
-                } else {
-                    cap.getPropertiesTracker().tick(player, true);
-                }
-            });
+                        return;
+                    }
+                    if (cap.isDirty()) {
+                        cap.buildPacketForDispatch(player, true).ifPresent(packet -> {
+                            cap.clearDirty();
+                            NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
+                            if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
+                                CapabilityEvent.onVehicleSetModel(player.getVehicle(), player);
+                            }
+                        });
+                        cap.getPropertiesTracker().tick(player, cap.isDirty(), lowBandwidthUsage);
+                    } else {
+                        cap.getPropertiesTracker().tick(player, true, lowBandwidthUsage);
+                    }
+                });
+            }
         }
     }
 

@@ -17,8 +17,6 @@ import java.util.function.Consumer;
 public class ModelInfoCapability {
     private String modelId;
     private String selectTexture;
-    private String animation = "idle";
-    private boolean playAnimation = false;
     /**
      * 用于处理假人等伪造的玩家实体
      */
@@ -57,8 +55,6 @@ public class ModelInfoCapability {
         this.molangStorage = source.molangStorage;
         this.modelId = source.modelId;
         this.selectTexture = source.selectTexture;
-        this.animation = source.animation;
-        this.playAnimation = source.playAnimation;
         this.mandatory = source.mandatory;
         this.propertiesTracker = source.propertiesTracker;
         this.molangVarsConsumers.addAll(source.molangVarsConsumers);
@@ -79,25 +75,16 @@ public class ModelInfoCapability {
         markDirty();
     }
 
-    public void playAnimation(String animation) {
-        this.animation = animation;
-        this.playAnimation = true;
-        markDirty();
+    public void playAnimation(ServerPlayer player, String animation) {
+        propertiesTracker.setExtraAnimation(player, !dirty, animation);
     }
 
-    public void stopAnimation() {
-        if (this.playAnimation) {
-            this.playAnimation = false;
-            markDirty();
-        }
-    }
-
-    public String getAnimation() {
-        return animation;
+    public void stopAnimation(ServerPlayer player) {
+        propertiesTracker.setExtraAnimation(player, !dirty, "");
     }
 
     // 必须在主线程上调用
-    public Optional<SyncModelInfo> buildPacketForDispatch(ServerPlayer entity) {
+    public Optional<SyncModelInfo> buildPacketForDispatch(ServerPlayer entity, boolean broadcast) {
         return ServerModelManager.getModel(modelId).map(model -> {
             var molangVars = molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>(0));
             while (true) {
@@ -107,16 +94,8 @@ public class ModelInfoCapability {
                 }
                 task.accept(molangVars);
             }
-            return new SyncModelInfo(
-                    entity.getId(),
-                    modelId,
-                    model.info().hashShort(),
-                    selectTexture,
-                    animation,
-                    playAnimation,
-                    molangVars,
-                    null,
-                    ServerDrivenPlayerPropertiesTracker.full(entity));
+            return new SyncModelInfo(entity.getId(), modelId, selectTexture,
+                    propertiesTracker.full(entity, broadcast).molangVars(model.info().hashShort(), molangVars));
         });
     }
 
@@ -135,7 +114,7 @@ public class ModelInfoCapability {
                 .map(m -> molangStorage.computeIfAbsent(m.info().hashShort(), hash -> new Object2FloatOpenHashMap<>(0)));
     }
 
-    public void updateRoamingVars(RoamingVarsChanges changes) {
+    public void updateRoamingVars(ServerPlayer player, RoamingVarsChanges changes) {
         molangStorage.compute(changes.modelHashShort, (hash, map) -> {
             if (map != null) {
                 map.putAll(changes.variablesServerBound);
@@ -144,6 +123,7 @@ public class ModelInfoCapability {
                 return new Object2FloatOpenHashMap<>(changes.variablesServerBound);
             }
         });
+        propertiesTracker.updateMolangVars(player, dirty, changes.modelHashShort, changes.variablesServerBound);
         // 无需 markDirty
     }
 
@@ -159,10 +139,6 @@ public class ModelInfoCapability {
 
     public ServerDrivenPlayerPropertiesTracker getPropertiesTracker() {
         return propertiesTracker;
-    }
-
-    public boolean isPlayAnimation() {
-        return playAnimation;
     }
 
     public void markDirty() {
@@ -193,8 +169,6 @@ public class ModelInfoCapability {
 
         tag.putString("model_id", this.modelId);
         tag.putString("select_texture", this.selectTexture);
-        tag.putString("animation", this.animation);
-        tag.putBoolean("play_animation", this.playAnimation);
         tag.putBoolean("mandatory", mandatory);
 
         CompoundTag storageTag = new CompoundTag();
@@ -216,8 +190,6 @@ public class ModelInfoCapability {
         if (selectTexture.length() > 4 && selectTexture.toLowerCase().endsWith(".png")) {
             this.selectTexture = this.selectTexture.substring(0, this.selectTexture.length() - 4);
         }
-        this.animation = nbt.getString("animation");
-        this.playAnimation = nbt.getBoolean("play_animation");
         this.mandatory = nbt.getBoolean("mandatory");
 
         this.molangStorage.clear();

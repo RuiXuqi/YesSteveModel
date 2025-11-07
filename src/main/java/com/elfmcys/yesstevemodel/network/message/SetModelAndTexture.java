@@ -56,7 +56,7 @@ public class SetModelAndTexture {
             } else {
                 modelIdCap.setModelAndTexture(message.modelId, message.selectTexture);
             }
-            modelIdCap.stopAnimation();
+            modelIdCap.stopAnimation(sender);
         }));
     }
 }

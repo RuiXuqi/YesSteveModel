@@ -158,6 +158,13 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     protected void preAnimationSetup(float seekTime, boolean shouldTick) {
     }
 
+    /**
+     * 更新动画之后调用，
+     * 如果由于频率限制、renderTick 倒退等原因导致动画不更新，则不会调用
+     */
+    protected void postAnimationSetup(float seekTime, boolean shouldTick) {
+    }
+
     public final TEntity getEntity() {
         return entity;
     }
@@ -311,6 +318,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                 getPhysicsManager().update(this.seekTime);
                 preAnimationSetup(this.seekTime, shouldTick);
                 getAnimationProcessor().tickAnimation(animationEvent, ctx, shouldTick, allowEmitting());
+                postAnimationSetup(this.seekTime, shouldTick);
                 lastMutableRender = mutableRender;
             }
             codeAnimation(animationEvent, shouldUpdate);

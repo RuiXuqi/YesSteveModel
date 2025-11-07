@@ -36,9 +36,9 @@ public class PlayAnimationCommand {
         String animation = StringArgumentType.getString(context, ANIMATION_NAME);
         targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
             if (STOP.equals(animation)) {
-                cap.stopAnimation();
+                cap.stopAnimation(player);
             } else {
-                cap.playAnimation(animation);
+                cap.playAnimation(player, animation);
             }
         }));
         return Command.SINGLE_SUCCESS;

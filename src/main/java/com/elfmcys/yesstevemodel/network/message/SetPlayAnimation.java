@@ -74,7 +74,7 @@ public class SetPlayAnimation {
 
         sender.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(modelIdCap -> {
             if (message.extraAnimationIndex == -1) {
-                modelIdCap.stopAnimation();
+                modelIdCap.stopAnimation(sender);
             } else {
                 ServerModelManager.getModel(modelIdCap.getModelId()).ifPresent(model -> {
                     ModelProperties properties = model.info().properties();
@@ -88,7 +88,7 @@ public class SetPlayAnimation {
                     }
 
                     if (map.size() > message.extraAnimationIndex) {
-                        modelIdCap.playAnimation(map.getKeyAt(message.extraAnimationIndex));
+                        modelIdCap.playAnimation(sender, map.getKeyAt(message.extraAnimationIndex));
                     }
                 });
             }

@@ -4,11 +4,15 @@ import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
+import com.elfmcys.yesstevemodel.network.NetworkHandler;
+import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
+import com.elfmcys.yesstevemodel.util.ControllerUtils;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -154,6 +158,19 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
         super.preAnimationSetup(seekTime, shouldTick);
         // 设置 roaming 变量
         getAnimationProcessor().putRemoteStruct(getRoamingStruct());
+    }
+
+    @Override
+    protected void postAnimationSetup(float seekTime, boolean shouldTick) {
+        super.postAnimationSetup(seekTime, shouldTick);
+        if (localPlayer && shouldTick) {
+            if (isPlayingExtraAnimation() && getCodedAnimationStates(ControllerUtils.CAP_CONTROLLER) == AnimationState.IDLE) {
+                stopExtraAnimation();
+                if (NetworkHandler.isRemoteChannelPresent()) {
+                    NetworkHandler.sendToServer(SetPlayAnimation.stop());
+                }
+            }
+        }
     }
 
     public void molangSync(FloatArrayList args) {

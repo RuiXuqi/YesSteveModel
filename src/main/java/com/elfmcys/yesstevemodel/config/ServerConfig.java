@@ -13,6 +13,7 @@ public class ServerConfig {
     public static ForgeConfigSpec.IntValue BANDWIDTH_LIMIT;
     // Native Access: 同步开始时读取
     public static ForgeConfigSpec.IntValue CLIENT_SYNC_TIMEOUT;
+    public static ForgeConfigSpec.BooleanValue LOW_BANDWIDTH_USAGE;
     public static ForgeConfigSpec.BooleanValue CAN_SWITCH_MODEL;
     public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_ID;
     public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_TEXTURE;
@@ -50,6 +51,10 @@ public class ServerConfig {
 
         builder.comment("Timeout for players to respond to synchronization. Value not greater than 10 means AUTO.(In seconds)");
         CLIENT_SYNC_TIMEOUT = builder.defineInRange("PlayerSyncTimeout", 0, 0, 120);
+
+        builder.comment("Suppress network synchronization of partial features to reduce bandwidth usage");
+        builder.comment("Only effective when there are tons of players");
+        LOW_BANDWIDTH_USAGE = builder.define("LowBandwidthUsage", false);
 
         builder.pop();
     }

@@ -49,37 +49,37 @@ public class PlayerStateTracker extends HumanoidStateTracker<Player> {
     }
 
     public void updateServerDrivenProperty(DispatchServerDrivenProperty msg) {
-        if (msg.variant == 0 || msg.variant == 1) {
+        if ((msg.variant & ((short) 1 << 1)) != 0) {
             remoteFlying = msg.flying;
         }
-        if (msg.effects != null) {
-            if (msg.variant == 0) {
+        if ((msg.variant & ((short) 1 << 2)) != 0) {
+            if (msg.isFull()) {
                 effects.clear();
             }
             effects.putAll(msg.effects);
         }
-        if (msg.variant == 0 || msg.variant == 3) {
+        if ((msg.variant & ((short) 1 << 3)) != 0) {
             expLevel = msg.expLevel;
         }
-        if (msg.variant == 0 || msg.variant == 4) {
+        if ((msg.variant & ((short) 1 << 4)) != 0) {
             foodLevel = msg.foodLevel;
         }
-        if (msg.variant == 0 || msg.variant == 5) {
+        if ((msg.variant & ((short) 1 << 5)) != 0) {
             health = msg.health;
         }
-        if (msg.variant == 0 || msg.variant == 6) {
+        if ((msg.variant & ((short) 1 << 6)) != 0) {
             maxHealth = msg.maxHealth;
         }
-        if (msg.variant == 0 || msg.variant == 7) {
-            xxa = msg.xxa;
+        if ((msg.variant & ((short) 1 << 7)) != 0) {
+            xxa = msg.xxa / 127f;
         }
-        if (msg.variant == 0 || msg.variant == 8) {
-            yya = msg.yya;
+        if ((msg.variant & ((short) 1 << 8)) != 0) {
+            yya = msg.yya / 127f;
         }
-        if (msg.variant == 0 || msg.variant == 9) {
-            zza = msg.zza;
+        if ((msg.variant & ((short) 1 << 9)) != 0) {
+            zza = msg.zza / 127f;
         }
-        if (msg.variant == 0 || msg.variant == 10) {
+        if ((msg.variant & ((short) 1 << 10)) != 0) {
             inShieldBlockCooldown = msg.inShieldBlockCooldown;
         }
     }

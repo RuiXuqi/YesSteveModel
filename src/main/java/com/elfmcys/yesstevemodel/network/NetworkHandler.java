@@ -83,8 +83,6 @@ public final class NetworkHandler {
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(19, MolangSync.class, MolangSync::encode, MolangSync::decode, MolangSync::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-        CHANNEL.registerMessage(20, DispatchRoamingVarsChanges.class, DispatchRoamingVarsChanges::encode, DispatchRoamingVarsChanges::decode, DispatchRoamingVarsChanges::handle,
-                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(21, DispatchServerDrivenProperty.class, DispatchServerDrivenProperty::encode, DispatchServerDrivenProperty::decode, DispatchServerDrivenProperty::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(22, SyncVehicleModelInfo.class, SyncVehicleModelInfo::encode, SyncVehicleModelInfo::decode, SyncVehicleModelInfo::handle,
