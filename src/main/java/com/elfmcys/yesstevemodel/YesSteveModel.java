@@ -3,12 +3,12 @@ package com.elfmcys.yesstevemodel;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.config.ServerConfig;
 import com.elfmcys.yesstevemodel.init.ModSounds;
+import com.elfmcys.yesstevemodel.util.Keep;
 import com.elfmcys.yesstevemodel.util.NativeLibUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -54,6 +54,7 @@ public class YesSteveModel {
         }
     }
 
+    @Keep
     public static boolean isAvailable() {
         return AVAILABLE;
     }

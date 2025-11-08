@@ -10,9 +10,7 @@
 -repackageclasses com.elfmcys.yesstevemodel
 
 # 保留唯一的主模组类和 Mixin 类
--keep class com.elfmcys.yesstevemodel.YesSteveModel {
-    public static boolean isAvailable();
-}
+-keep class com.elfmcys.yesstevemodel.YesSteveModel
 -keep class com.elfmcys.yesstevemodel.mixin.*
 -keep class com.elfmcys.yesstevemodel.mixin.client.*
 -keep class com.elfmcys.yesstevemodel.mixin.client.parcool.*
