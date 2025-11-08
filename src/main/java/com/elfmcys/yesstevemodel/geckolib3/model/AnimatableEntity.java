@@ -308,7 +308,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         if (!animationProcessor.isModelEmpty()) {
             currentFrameShouldTick |= rateLimiter.request(seekTime / 20);
             var shouldUpdate = (currentFrameShouldTick && !currentFrameTicked) || lastMutableRender || mutableRender;
-            var shouldTick = !mutableRender && currentFrameShouldTick && !currentFrameTicked;
+            var shouldTick = (!mutableRender || (seekTime == 0 && !currentFrameTicked)) && currentFrameShouldTick && !currentFrameTicked;
             recoverLastCodedAnimation(lastFrameUpdated);
             if (shouldUpdate) {
                 if (shouldTick) {
@@ -346,8 +346,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         onLoadGeoModel(this.currentModel);
         this.currentFrameTicked = false;
         this.currentFrameShouldTick = true;
-        this.rateLimiter.reset();
         this.lastMutableRender = false;
+        this.lastFrameUpdated = false;
+        this.lastFrameTime = -1;
+        this.seekTime = 0;
+        this.rateLimiter.reset();
+        this.manager.reset();
     }
 
     protected void clearGeoModel() {
