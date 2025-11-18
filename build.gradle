@@ -174,7 +174,7 @@ dependencies {
     modImplementation "curse.maven:swem-582697:${swem_id}"
 
     // 女仆模组兼容
-    modImplementation "curse.maven:touhou-little-maid-355044:6911704-sources-6911737"
+    modImplementation "curse.maven:touhou-little-maid-355044:7198486-sources-7198488"
 
     // 背包兼容
     modImplementation "maven.modrinth:sophisticated-core:1.20.1-1.2.0.843-forge"

@@ -18,7 +18,7 @@ import net.minecraftforge.client.gui.widget.ForgeSlider;
 import java.text.DecimalFormat;
 
 @SuppressWarnings("removal")
-public class FlatSlider extends ForgeSlider {
+public class FlatSlider extends ForgeSlider implements IConfigFormsButton {
     private static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(YesSteveModel.MOD_ID, "texture/roulette.png");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
     private final AnimatableEntity<?> animatableEntity;

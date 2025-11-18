@@ -4,10 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.animation.molang.CustomMolangParser;
 import com.elfmcys.yesstevemodel.client.event.PlayerMoveEvent;
-import com.elfmcys.yesstevemodel.client.gui.button.FlatCheckbox;
-import com.elfmcys.yesstevemodel.client.gui.button.FlatColorButton;
-import com.elfmcys.yesstevemodel.client.gui.button.FlatRatioBox;
-import com.elfmcys.yesstevemodel.client.gui.button.FlatSlider;
+import com.elfmcys.yesstevemodel.client.gui.button.*;
 import com.elfmcys.yesstevemodel.client.input.AnimationRouletteKey;
 import com.elfmcys.yesstevemodel.client.input.ExtraAnimationKey;
 import com.elfmcys.yesstevemodel.client.lang.LanguageManager;
@@ -34,7 +31,9 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -63,7 +62,16 @@ import java.util.function.Consumer;
 public class AnimationRouletteScreen extends Screen {
     private static final String SPEC_PREFIX = "#";
     private static final String SPEC_RETURN = "#return";
+
+    /**
+     * 配置文本的国际化 key 模板
+     */
+    private static final String CONFIG_TITLE = "properties.extra_animation_buttons.%s.config_forms.%d.title";
+    private static final String CONFIG_DESC = "properties.extra_animation_buttons.%s.config_forms.%d.description";
+    private static final String CONFIG_LABELS = "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d";
+
     private static final int MAX_ROULETTE_COUNT = 8;
+
     /**
      * 用来缓存当前页面的打开情况，用于在每次打开时，都能记住上一次的页数
      */
@@ -80,6 +88,22 @@ public class AnimationRouletteScreen extends Screen {
     private ExtraAnimationButton configButtons = null;
     private Pair<String, Integer> current;
 
+    /**
+     * 当前配置页面滚动的 Y 值
+     */
+    private int configScrollY = 0;
+    /**
+     * 当前配置页面最大可以滚动的数值
+     */
+    private int maxScrollY = 0;
+    /**
+     * 上下滚动配置的按钮
+     */
+    @Nullable
+    private FlatColorButton scrollConfigUpBtn;
+    @Nullable
+    private FlatColorButton scrollConfigDownBtn;
+
     private final FifoHashMap<String, String> extraAnimationMap;
     private final Map<String, ExtraAnimationButton> buttonMap;
     private final Map<String, FifoHashMap<String, String>> classifyMap;
@@ -87,7 +111,9 @@ public class AnimationRouletteScreen extends Screen {
     private final AnimatableEntity<?> animatableEntity;
     private final ClientModel model;
 
-    public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap, Map<String, FifoHashMap<String, String>> classifyMap, ClientModel clientModel, AnimatableEntity<?> animatableEntity) {
+    public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap,
+                                   Map<String, FifoHashMap<String, String>> classifyMap,
+                                   ClientModel clientModel, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.model = clientModel;
         this.modelProperties = clientModel.info().properties();
@@ -169,16 +195,38 @@ public class AnimationRouletteScreen extends Screen {
         }
 
         // 翻页按钮
-        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 87, 15, 15, Component.literal("<"), b -> this.pageUp()));
-        this.addRenderableWidget(new FlatColorButton(this.x + 225, this.y - 87, 15, 15, Component.literal(">"), b -> this.pageDown()));
+        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 102, 30, 30, Component.literal("<"), b -> this.pageUp()));
+        this.addRenderableWidget(new FlatColorButton(this.x + 240, this.y - 102, 30, 30, Component.literal(">"), b -> this.pageDown()));
 
         // 添加返回按钮
         Component name = Component.translatable("gui.yes_steve_model.model.return");
-        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 70, 115, 15, name, b -> this.clickReturn()));
+        this.addRenderableWidget(new FlatColorButton(this.x + 125, this.y - 70, 145, 22, name, b -> this.clickReturn()));
 
         // 配置按钮
         if (configButtons != null) {
-            final int[] yOffset = {-53};
+            // 配置上下滚动按钮
+            this.scrollConfigUpBtn = new FlatColorButton(this.x + 242, this.y - 46, 28, 60, Component.literal("↑"), b -> {
+                this.configScrollUp(50);
+                if (this.configScrollY == 0 && this.scrollConfigUpBtn != null) {
+                    this.scrollConfigUpBtn.active = false;
+                }
+                if (this.scrollConfigDownBtn != null) {
+                    this.scrollConfigDownBtn.active = true;
+                }
+            });
+            this.scrollConfigDownBtn = new FlatColorButton(this.x + 242, this.y + 50, 28, 60, Component.literal("↓"), b -> {
+                this.configScrollDown(50);
+                if (this.configScrollY == this.maxScrollY && this.scrollConfigDownBtn != null) {
+                    this.scrollConfigDownBtn.active = false;
+                }
+                if (this.scrollConfigUpBtn != null) {
+                    this.scrollConfigUpBtn.active = true;
+                }
+            });
+            this.addRenderableWidget(this.scrollConfigUpBtn);
+            this.addRenderableWidget(this.scrollConfigDownBtn);
+
+            final int[] yOffset = {-46};
             final int[] index = {0};
             for (ConfigForms configForm : configButtons.getConfigForms()) {
                 this.addConfigForms(configForm, yOffset, index);
@@ -193,6 +241,8 @@ public class AnimationRouletteScreen extends Screen {
                 this.addRenderableWidget(checkbox);
                 yOffset[0] += 14;
                 index[0]++;
+                // 最终和 110 的差就是最大滚动高度
+                this.maxScrollY = Math.max(0, yOffset[0] - 110);
             });
         }
 
@@ -202,6 +252,8 @@ public class AnimationRouletteScreen extends Screen {
                 this.addRenderableWidget(slider);
                 yOffset[0] += 17;
                 index[0]++;
+                // 最终和 110 的差就是最大滚动高度
+                this.maxScrollY = Math.max(0, yOffset[0] - 110);
             });
         }
 
@@ -222,7 +274,7 @@ public class AnimationRouletteScreen extends Screen {
         int lineMaxWidth = 0;
         int labelsIndex = 0;
         for (String labelName : labels.keyList()) {
-            String labelStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(this.configButtons.getId(), index[0], labelsIndex), labelName);
+            String labelStr = LanguageManager.getI18n(this.model, CONFIG_LABELS.formatted(this.configButtons.getId(), index[0], labelsIndex), labelName);
             lineMaxWidth = Math.max(lineMaxWidth, font.width(labelStr) + 16);
             labelsIndex++;
         }
@@ -231,8 +283,8 @@ public class AnimationRouletteScreen extends Screen {
         }
         int countPerLine = Math.max(1, 115 / lineMaxWidth);
 
-        String titleStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]), radioForms.title());
-        String descStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]), radioForms.description());
+        String titleStr = LanguageManager.getI18n(this.model, CONFIG_TITLE.formatted(this.configButtons.getId(), index[0]), radioForms.title());
+        String descStr = LanguageManager.getI18n(this.model, CONFIG_DESC.formatted(this.configButtons.getId(), index[0]), radioForms.description());
 
         Component title = Component.literal(titleStr);
         Tooltip description = Tooltip.create(Component.literal(descStr));
@@ -244,7 +296,7 @@ public class AnimationRouletteScreen extends Screen {
         // 遍历添加每个 label
         int tempYOffset = yOffset[0] + 14;
         for (int i = 0; i < labels.size(); i++) {
-            String labelStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.labels.%d".formatted(this.configButtons.getId(), index[0], i), labels.getKeyAt(i));
+            String labelStr = LanguageManager.getI18n(this.model, CONFIG_LABELS.formatted(this.configButtons.getId(), index[0], i), labels.getKeyAt(i));
 
             Component labelName = Component.literal(labelStr);
             String labelValue = labels.getValueAt(i);
@@ -274,12 +326,15 @@ public class AnimationRouletteScreen extends Screen {
         // 最后记得换行
         yOffset[0] = yOffset[0] + maxHeight + 3;
         index[0] = index[0] + 1;
+
+        // 最终和 110 的差就是最大滚动高度
+        this.maxScrollY = Math.max(0, yOffset[0] - 110);
     }
 
     @NotNull
     private FlatSlider getFlatSlider(RangeForms rangeForms, String result, int[] yOffset, int[] index) {
-        String titleStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]), rangeForms.title());
-        String descStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]), rangeForms.description());
+        String titleStr = LanguageManager.getI18n(this.model, CONFIG_TITLE.formatted(this.configButtons.getId(), index[0]), rangeForms.title());
+        String descStr = LanguageManager.getI18n(this.model, CONFIG_DESC.formatted(this.configButtons.getId(), index[0]), rangeForms.description());
 
         Component title = Component.literal(titleStr);
         Tooltip description = Tooltip.create(Component.literal(descStr));
@@ -293,8 +348,8 @@ public class AnimationRouletteScreen extends Screen {
 
     @NotNull
     private FlatCheckbox getFlatCheckbox(CheckboxForms checkboxForms, String result, int[] yOffset, int[] index) {
-        String titleStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.title".formatted(this.configButtons.getId(), index[0]), checkboxForms.title());
-        String descStr = LanguageManager.getI18n(this.model, "properties.extra_animation_buttons.%s.config_forms.%d.description".formatted(this.configButtons.getId(), index[0]), checkboxForms.description());
+        String titleStr = LanguageManager.getI18n(this.model, CONFIG_TITLE.formatted(this.configButtons.getId(), index[0]), checkboxForms.title());
+        String descStr = LanguageManager.getI18n(this.model, CONFIG_DESC.formatted(this.configButtons.getId(), index[0]), checkboxForms.description());
 
         Component title = Component.literal(titleStr);
         Tooltip description = Tooltip.create(Component.literal(descStr));
@@ -339,15 +394,40 @@ public class AnimationRouletteScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         String patText = StringUtils.joinWith(" > ", CACHE.stream().map(Pair::getLeft).toArray());
-        graphics.drawCenteredString(font, Component.translatable("gui.yes_steve_model.roulette.path", patText), this.x + 180, this.y - 100, 0xFFFFFF);
+        graphics.drawCenteredString(font, Component.translatable("gui.yes_steve_model.roulette.path", patText), this.x + 195, this.y - 100, 0xFFFFFF);
 
-        this.drawRouletteBg(graphics.pose(), pMouseX, pMouseY);
+        this.drawRouletteBg(graphics.pose(), mouseX, mouseY);
         this.drawRouletteText(graphics);
         this.drawPageText(graphics);
-        super.render(graphics, pMouseX, pMouseY, pPartialTick);
-        this.drawTooltips(graphics, pMouseX, pMouseY);
+
+        // 普通按钮正常渲染
+        for (Renderable renderable : this.renderables) {
+            if (!(renderable instanceof IConfigFormsButton)) {
+                renderable.render(graphics, mouseX, mouseY, partialTick);
+            }
+        }
+
+        graphics.enableScissor(0, this.y - 46, this.width, this.y + 110);
+        if (mouseY < (this.y - 46) || (this.y + 110) < mouseY) {
+            // 鼠标不在滚动区域内，直接把 mouseY 设置为 -1000，防止按钮 hover
+            mouseY = -1000;
+        } else {
+            // 轮盘按钮考虑偏移然后渲染
+            mouseY += this.configScrollY;
+        }
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, -this.configScrollY, 0);
+        for (Renderable renderable : this.renderables) {
+            if (renderable instanceof IConfigFormsButton) {
+                renderable.render(graphics, mouseX, mouseY, partialTick);
+            }
+        }
+        graphics.pose().popPose();
+        graphics.disableScissor();
+
+        this.drawTooltips(graphics, mouseX, mouseY);
     }
 
     private void drawTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -372,19 +452,29 @@ public class AnimationRouletteScreen extends Screen {
     }
 
     private void drawPageText(GuiGraphics graphics) {
-        graphics.fill(this.x + 142, this.y - 87, this.x + 223, this.y - 72, 0, 0xCF000000);
+        graphics.fill(this.x + 157, this.y - 87, this.x + 238, this.y - 72, 0, 0xCF000000);
         String pageText = String.format("%d/%d", current.getRight() + 1, (this.extraAnimationMap.size() - 1) / MAX_ROULETTE_COUNT + 1);
-        graphics.drawCenteredString(font, pageText, this.x + 182, this.y - 83, ChatFormatting.AQUA.getColor());
+        graphics.drawCenteredString(font, pageText, this.x + 197, this.y - 83, ChatFormatting.AQUA.getColor());
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double scroll) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
         if (scroll < 0) {
-            this.pageDown();
+            // 如果在屏幕的左半边是滚动轮盘，右半边是滚动配置
+            if (mouseX < this.x + 110) {
+                this.pageDown();
+            } else {
+                this.configScrollDown(20);
+            }
             return true;
         }
         if (scroll > 0) {
-            this.pageUp();
+            // 如果在屏幕的左半边是滚动轮盘，右半边是滚动配置
+            if (mouseX < this.x + 110) {
+                this.pageUp();
+            } else {
+                this.configScrollUp(20);
+            }
             return true;
         }
         return false;
@@ -401,8 +491,16 @@ public class AnimationRouletteScreen extends Screen {
         }
     }
 
+    private void configScrollUp(int count) {
+        this.configScrollY = Math.max(0, this.configScrollY - count);
+    }
+
+    private void configScrollDown(int count) {
+        this.configScrollY = Math.min(this.maxScrollY, this.configScrollY + count);
+    }
+
     @Override
-    public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (-1 < selectId && selectId < extraAnimationMap.size()) {
             // 点击普通界面
             this.getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -430,7 +528,22 @@ public class AnimationRouletteScreen extends Screen {
             }
         }
 
-        return super.mouseClicked(pMouseX, pMouseY, pButton);
+        for (GuiEventListener listener : this.children()) {
+            double mouseYOffset = mouseY;
+            // 配置按钮需要考虑滚动偏移
+            if (listener instanceof IConfigFormsButton) {
+                mouseYOffset = mouseY + this.configScrollY;
+            }
+            if (listener.mouseClicked(mouseX, mouseYOffset, button)) {
+                this.setFocused(listener);
+                if (button == 0) {
+                    this.setDragging(true);
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -445,6 +558,8 @@ public class AnimationRouletteScreen extends Screen {
 
     private void clickConfig(String buttonName) {
         this.configButtons = this.buttonMap.get(buttonName);
+        this.configScrollY = 0;
+        this.maxScrollY = 0;
         this.init();
     }
 

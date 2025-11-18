@@ -9,7 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class FlatRatioBox extends AbstractWidget {
+public class FlatRatioBox extends AbstractWidget implements IConfigFormsButton {
     private final int maxHeight;
 
     public FlatRatioBox(int pX, int pY, int maxHeight, Component component) {

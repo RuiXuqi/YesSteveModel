@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
-public class FlatCheckbox extends StateSwitchingButton {
+public class FlatCheckbox extends StateSwitchingButton implements IConfigFormsButton {
     private static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(YesSteveModel.MOD_ID, "texture/roulette.png");
     private final Consumer<Boolean> onClick;
     private final Component name;
