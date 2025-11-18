@@ -6,6 +6,7 @@
   "gui.yes_steve_model.all_models": "所有模型",
   "gui.yes_steve_model.auth_models": "授权模型",
   "gui.yes_steve_model.star_models": "收藏模型",
+  "gui.yes_steve_model.skin": "打开 YSM 皮肤界面",
   "gui.yes_steve_model.config": "打开配置界面",
   "gui.yes_steve_model.download": "打开下载界面",
   "gui.yes_steve_model.show_model_id_first": "优先显示模型 ID",

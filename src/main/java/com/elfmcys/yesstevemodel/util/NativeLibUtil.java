@@ -131,4 +131,35 @@ public final class NativeLibUtil {
             return false;
         }
     }
+
+    public static LibcType detectLibc() {
+        try {
+            var lib = NativeLibrary.getInstance(Platform.C_LIBRARY_NAME);
+            if (lib != null) {
+                try {
+                    if (lib.getFunction("android_set_abort_message") != null) {
+                        return LibcType.BIONIC;
+                    }
+                } catch (Throwable ignored) {
+                }
+                try {
+                    if (lib.getFunction("gnu_get_libc_version") != null) {
+                        return LibcType.GNU;
+                    }
+                } catch (Throwable ignored) {
+                }
+                return LibcType.MUSL;
+            }
+        } catch (Throwable e) {
+            YesSteveModel.LOGGER.error("Unable to find libc", e);
+        }
+        return LibcType.UNKNOWN;
+    }
+
+    public enum LibcType {
+        UNKNOWN,
+        GNU,
+        MUSL,
+        BIONIC
+    }
 }
