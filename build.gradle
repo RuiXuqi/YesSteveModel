@@ -356,7 +356,7 @@ tasks.register('buildWindowsProductionJar', Exec) {
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'win-production',
             tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
-            '-p', "${projectDir}/ysm.vmp",
+            '-p',
             '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
             '-g', tasks.proguardJar.printMappingFile.path,
             '-o', outputDir
@@ -370,7 +370,7 @@ tasks.register('buildLinuxProductionJar', Exec) {
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'linux-production',
             tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
-            '-p', "${projectDir}/ysm.vmp",
+            '-p',
             '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
             '-g', tasks.proguardJar.printMappingFile.path,
             '-o', outputDir
@@ -384,7 +384,7 @@ tasks.register('buildAndroidProductionJar', Exec) {
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'android-production',
             tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
-            '-p', "${projectDir}/ysm.vmp",
+            '-p',
             '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
             '-g', tasks.proguardJar.printMappingFile.path,
             '-o', outputDir
@@ -398,7 +398,7 @@ tasks.register('buildProductionJar', Exec) {
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'production',
             tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
-            '-p', "${projectDir}/ysm.vmp",
+            '-p',
             '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
             '-g', tasks.proguardJar.printMappingFile.path,
             '-o', outputDir
@@ -412,7 +412,7 @@ tasks.register('buildProductionSignedJar', Exec) {
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'production',
             tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
-            '-p', "${projectDir}/ysm.vmp",
+            '-p',
             '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
             '-g', tasks.proguardJar.printMappingFile.path,
             '-o', outputDir,
