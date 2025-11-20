@@ -25,13 +25,10 @@ import java.io.IOException;
 public class YesSteveModel {
     public static final String MOD_ID = "yes_steve_model";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-    private static boolean AVAILABLE;
-    private static NativeLibUtil.LibcType LIBC_TYPE = NativeLibUtil.LibcType.UNKNOWN;
 
     public YesSteveModel() throws IOException {
-        AVAILABLE = NativeLibUtil.loadCoreLibrary();
-        LIBC_TYPE = NativeLibUtil.detectLibc();
-        if (!AVAILABLE) {
+        NativeLibUtil.loadCoreLibrary();
+        if (!NativeLibUtil.isAvailable()) {
             LOGGER.error(getUnavailableMessageString());
             return;
         }
@@ -58,12 +55,11 @@ public class YesSteveModel {
 
     @Keep
     public static boolean isAvailable() {
-        return AVAILABLE;
+        return NativeLibUtil.isAvailable();
     }
 
-    @Keep
-    public static NativeLibUtil.LibcType getLibcType() {
-        return LIBC_TYPE;
+    public static boolean isMobilePlatform() {
+        return NativeLibUtil.isMobilePlatform();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -75,10 +71,10 @@ public class YesSteveModel {
     }
 
     public static Component getUnavailableMessage() {
-        return Component.translatable("error.yes_steve_model.unsupported_platform", NativeLibUtil.getUnsupportedPlatformName());
+        return NativeLibUtil.getUnsupportedMsg();
     }
 
     public static String getUnavailableMessageString() {
-        return String.format("[YSM] Current platform is unsupported: %s", NativeLibUtil.getUnsupportedPlatformName());
+        return NativeLibUtil.getUnsupportedMsgStr();
     }
 }

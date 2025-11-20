@@ -268,6 +268,16 @@ tasks.register('buildLinuxTestJar', Exec) {
             '-o', outputDir
 }
 
+tasks.register('buildAndroidTestJar', Exec) {
+    description "构建 Android 版未混淆模组，仅供内部测试，不能以任何方式公开"
+    group buildTaskGroup
+    dependsOn tasks.reobfJar
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'android-test',
+            tasks.reobfJar.archiveFile.get().asFile.absolutePath,
+            '-l', tasks.reobfJar.remapOperation.mappings.first().absolutePath,
+            '-o', outputDir
+}
+
 tasks.register('tempJar', Jar) {
     manifest.from(tasks.jar.manifest)
     from tasks.jar.source
@@ -345,6 +355,34 @@ tasks.register('buildWindowsProductionJar', Exec) {
     outputs.upToDateWhen { false }
 
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'win-production',
+            tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
+            '-p', "${projectDir}/ysm.vmp",
+            '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
+            '-g', tasks.proguardJar.printMappingFile.path,
+            '-o', outputDir
+}
+
+tasks.register('buildLinuxProductionJar', Exec) {
+    description "构建经过混淆的模组，仅可用于 linux 端内测"
+    group buildTaskGroup
+    dependsOn tasks.reobfProguardJar
+    outputs.upToDateWhen { false }
+
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'linux-production',
+            tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
+            '-p', "${projectDir}/ysm.vmp",
+            '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,
+            '-g', tasks.proguardJar.printMappingFile.path,
+            '-o', outputDir
+}
+
+tasks.register('buildAndroidProductionJar', Exec) {
+    description "构建经过混淆的模组，仅可用于 android 端内测"
+    group buildTaskGroup
+    dependsOn tasks.reobfProguardJar
+    outputs.upToDateWhen { false }
+
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'android-production',
             tasks.reobfProguardJar.archiveFile.get().asFile.absolutePath,
             '-p', "${projectDir}/ysm.vmp",
             '-l', tasks.reobfProguardJar.remapOperation.mappings.first().absolutePath,

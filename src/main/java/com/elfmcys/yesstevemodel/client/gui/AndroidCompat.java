@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class AndroidCompat {
     public static boolean isAndroid() {
-        return YesSteveModel.getLibcType() == NativeLibUtil.LibcType.BIONIC;
+        return YesSteveModel.isMobilePlatform();
     }
 
     @Nullable
