@@ -11,6 +11,7 @@ import com.elfmcys.yesstevemodel.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.tacz.guns.api.TimelessAPI;
+import com.tacz.guns.api.client.gameplay.IClientPlayerGunOperator;
 import com.tacz.guns.api.entity.IGunOperator;
 import com.tacz.guns.api.item.GunTabType;
 import com.tacz.guns.api.item.IGun;
@@ -157,6 +158,10 @@ class TacCompatInner {
         LivingEntity livingEntity = event.getAnimatableEntity().getEntity();
         IGunOperator operator = IGunOperator.fromLivingEntity(livingEntity);
         long fireTick = operator.getSynShootCoolDown();
+
+        if (livingEntity instanceof IClientPlayerGunOperator clientOperator) {
+            fireTick = Math.max(fireTick, clientOperator.getClientShootCoolDown());
+        }
 
         if (event.getAnimatableEntity().isTacGunAnimationNeedReload()) {
             playLoopAnimation(event, "empty");
