@@ -14,19 +14,23 @@ public class SyncModelInfo {
     private final int entityId;
     private final String modelId;
     private final String selectTexture;
+    private final boolean disable;
     private final DispatchServerDrivenProperty properties;
 
-    public SyncModelInfo(int entityId, String modelId, String selectTexture, DispatchServerDrivenProperty properties) {
+    public SyncModelInfo(int entityId, String modelId, String selectTexture, boolean disable,
+                         DispatchServerDrivenProperty properties) {
         this.entityId = entityId;
         this.modelId = modelId;
         this.selectTexture = selectTexture;
         this.properties = properties;
+        this.disable = disable;
     }
 
     public static void encode(SyncModelInfo msg, FriendlyByteBuf buf) {
         buf.writeVarInt(msg.entityId);
         buf.writeUtf(msg.modelId);
         buf.writeUtf(msg.selectTexture);
+        buf.writeBoolean(msg.disable);
         DispatchServerDrivenProperty.encode(msg.properties, buf);
     }
 
@@ -34,14 +38,15 @@ public class SyncModelInfo {
         int entityId = buf.readVarInt();
         String modelId = buf.readUtf();
         String selectTexture = buf.readUtf();
+        boolean disable = buf.readBoolean();
         var properties = DispatchServerDrivenProperty.decode(buf);
-        return new SyncModelInfo(entityId, modelId, selectTexture, properties);
+        return new SyncModelInfo(entityId, modelId, selectTexture, disable, properties);
     }
 
     public static void handle(SyncModelInfo message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         if (context.getDirection().getReceptionSide().isClient()) {
-            EntityLoadEvent.executeOnEntity(message.entityId,  entity -> handleCapability(entity, message));
+            EntityLoadEvent.executeOnEntity(message.entityId, entity -> handleCapability(entity, message));
         }
         context.setPacketHandled(true);
     }
@@ -50,6 +55,7 @@ public class SyncModelInfo {
     private static void handleCapability(Entity entity, SyncModelInfo msg) {
         entity.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             cap.updateModelAndTexture(msg.modelId, msg.selectTexture);
+            cap.setDisabled(msg.disable);
             DispatchServerDrivenProperty.handle(entity, msg.properties);
         });
     }

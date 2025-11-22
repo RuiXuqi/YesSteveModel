@@ -38,6 +38,11 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     private final BooleanList updateHandlerArgs = new BooleanArrayList(1);
 
     /**
+     * 用于禁用 YSM 模型，因为有玩家想强制显示原版玩家模型
+     */
+    private boolean disabled = false;
+
+    /**
      * 专为 tacz 枪械事件使用的，用来将枪械动画重置
      */
     private boolean tacGunAnimationNeedReload = false;
@@ -55,6 +60,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         fireInitEvent = false;
         wrappedUpdateHandler = null;
         tacGunAnimationNeedReload = false;
+        disabled = false;
         super.reset();
     }
 
@@ -103,6 +109,18 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         this.textureName = textureName;
         updateModelId(modelId);
         updateTexture();
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public boolean isInitializedAndEnabled() {
+        return isInitialized() && !disabled;
     }
 
     @Override

@@ -2,8 +2,8 @@ package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.event.api.SpecialPlayerRenderEvent;
@@ -59,6 +59,9 @@ public class RenderFirstPlayerBackground {
         }
         ALREADY_RENDERED = true;
         player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            if (!cap.isInitializedAndEnabled()) {
+                return;
+            }
             String modelId = cap.getModelId();
             ClientModel model = cap.getModelContainer();
             if (model == null || !model.playerModel().armModel().hasFirstPersonBackground) {

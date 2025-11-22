@@ -23,6 +23,10 @@ public class ModelInfoCapability {
     private boolean mandatory;
     private Int2ReferenceOpenHashMap<Object2FloatOpenHashMap<String>> molangStorage;
     private ServerDrivenPlayerPropertiesTracker propertiesTracker;
+    /**
+     * 用于禁用 YSM 模型，因为有玩家想强制显示原版玩家模型
+     */
+    private boolean disabled;
 
     /* 以下字段不参与持久化 */
     private boolean dirty;
@@ -35,6 +39,7 @@ public class ModelInfoCapability {
         this.molangStorage = new Int2ReferenceOpenHashMap<>();
         this.propertiesTracker = new ServerDrivenPlayerPropertiesTracker();
         this.molangVarsConsumers = Queues.newArrayDeque();
+        this.disabled = false;
     }
 
     public void setModelAndTexture(String modelId, String selectTexture) {
@@ -58,6 +63,7 @@ public class ModelInfoCapability {
         this.mandatory = source.mandatory;
         this.propertiesTracker = source.propertiesTracker;
         this.molangVarsConsumers.addAll(source.molangVarsConsumers);
+        this.disabled = source.disabled;
         source.molangVarsConsumers.clear();
         markDirty();
     }
@@ -73,6 +79,13 @@ public class ModelInfoCapability {
     public void setSelectTexture(String selectTexture) {
         this.selectTexture = selectTexture;
         markDirty();
+    }
+
+    public void setDisabled(boolean disabled) {
+        if (this.disabled != disabled) {
+            this.disabled = disabled;
+            markDirty();
+        }
     }
 
     public void playAnimation(ServerPlayer player, String animation) {
@@ -94,7 +107,7 @@ public class ModelInfoCapability {
                 }
                 task.accept(molangVars);
             }
-            return new SyncModelInfo(entity.getId(), modelId, selectTexture,
+            return new SyncModelInfo(entity.getId(), modelId, selectTexture, disabled,
                     propertiesTracker.full(entity, broadcast).molangVars(model.info().hashShort(), molangVars));
         });
     }
@@ -128,7 +141,7 @@ public class ModelInfoCapability {
     }
 
     public void trimRoamingStorage(IntSet hashSet) {
-         var iter = molangStorage.int2ReferenceEntrySet().fastIterator();
+        var iter = molangStorage.int2ReferenceEntrySet().fastIterator();
         while (iter.hasNext()) {
             var entry = iter.next();
             if (!hashSet.contains(entry.getIntKey())) {
@@ -139,6 +152,10 @@ public class ModelInfoCapability {
 
     public ServerDrivenPlayerPropertiesTracker getPropertiesTracker() {
         return propertiesTracker;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
     }
 
     public void markDirty() {
@@ -170,6 +187,7 @@ public class ModelInfoCapability {
         tag.putString("model_id", this.modelId);
         tag.putString("select_texture", this.selectTexture);
         tag.putBoolean("mandatory", mandatory);
+        tag.putBoolean("disabled", disabled);
 
         CompoundTag storageTag = new CompoundTag();
         molangStorage.int2ReferenceEntrySet().fastForEach(storageEntry -> {
@@ -191,6 +209,7 @@ public class ModelInfoCapability {
             this.selectTexture = this.selectTexture.substring(0, this.selectTexture.length() - 4);
         }
         this.mandatory = nbt.getBoolean("mandatory");
+        this.disabled = nbt.getBoolean("disabled");
 
         this.molangStorage.clear();
         var storageTag = nbt.getCompound("molang_storage");

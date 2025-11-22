@@ -30,10 +30,13 @@ public class ReplacePlayerRenderEvent {
         if (event.getEntity().isSpectator()) {
             return;
         }
-        if(!playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP).map(CustomPlayerEntity::isInitialized).orElse(false)) {
-            return;
+        if (playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP)
+                .map(CustomPlayerEntity::isInitializedAndEnabled)
+                .orElse(false)) {
+            event.setCanceled(true);
+            RegisterEntityRenderersEvent.getPlayerRenderer().render(
+                    event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(),
+                    event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
         }
-        event.setCanceled(true);
-        RegisterEntityRenderersEvent.getPlayerRenderer().render(event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
     }
 }

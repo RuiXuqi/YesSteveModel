@@ -325,6 +325,8 @@
   "message.yes_steve_model.model.set.success": "§6§l[§aYSM§6§l] §rSet '%s' models for player '%s'",
   "message.yes_steve_model.model.set.need_auth": "§6§l[§aYSM§6§l] §rUnable set '%s' models for player '%s', need model auth",
   "message.yes_steve_model.model.need_auth": "§6§l[Warning§6§l] §rThe current model lacks permissions, contact the administrator to obtain permissions！",
+  "message.yes_steve_model.model.disable.true": "§6§l[§aYSM§6§l] §rDisabled show YSM model for player '%s'",
+  "message.yes_steve_model.model.disable.false": "§6§l[§aYSM§6§l] §rEnabled show YSM model for player '%s'",
   "message.yes_steve_model.model.animation_roulette.play": "§6§l[§aYSM§6§l] §rPlay '%s' animation",
   "message.yes_steve_model.model.debug_animation.true": "§6§l[§aYSM§6§l] §rAnimation debug enable",
   "message.yes_steve_model.model.debug_animation.false": "§6§l[§aYSM§6§l] §rAnimation debug disable",

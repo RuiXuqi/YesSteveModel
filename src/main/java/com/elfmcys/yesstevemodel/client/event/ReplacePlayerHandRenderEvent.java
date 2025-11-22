@@ -32,9 +32,11 @@ public class ReplacePlayerHandRenderEvent {
         if (!(event.getPlayer() instanceof LocalPlayer player)) {
             return;
         }
-        event.setCanceled(true);
 
         player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            if (!cap.isInitializedAndEnabled()) {
+                return;
+            }
             HumanoidArm arm = event.getArm();
             ClientModel model = cap.getModelContainer();
             if (model == null || !hasArmBone(arm, model.playerModel().armModel())) {
@@ -45,6 +47,7 @@ public class ReplacePlayerHandRenderEvent {
             float partialTick = Minecraft.getInstance().getPartialTick();
             CustomFirstPersonArmRenderer armRenderer = RegisterEntityRenderersEvent.getFirstPersonArmRenderer();
             armRenderer.render(player, model, cap, arm, poseStack, multiBufferSource, event.getPackedLight(), partialTick);
+            event.setCanceled(true);
         });
     }
 

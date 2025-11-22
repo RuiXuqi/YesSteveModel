@@ -31,17 +31,29 @@ import java.util.concurrent.TimeUnit;
 public class ModelCommand {
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().excludeFieldsWithoutExposeAnnotation().create();
     private static final String MODEL_NAME = "model";
+
     private static final String RELOAD_NAME = "reload";
     private static final String SET_NAME = "set";
+    private static final String DISABLE_NAME = "disable";
+
     private static final String TARGETS_NAME = "targets";
     private static final String MODEL_ID_NAME = "model_id";
     private static final String TEXTURE_ID_NAME = "texture_id";
     private static final String IGNORE_AUTH_NAME = "ignore_auth";
 
+    private static final String PLAYERS_NAME = "players";
+    private static final String VALUE_NAME = "value";
+
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
         LiteralArgumentBuilder<CommandSourceStack> model = Commands.literal(MODEL_NAME).requires(src -> CommandUtil.hasPermission(src, 2));
+
         LiteralArgumentBuilder<CommandSourceStack> reload = Commands.literal(RELOAD_NAME);
         model.then(reload.executes(ModelCommand::reloadAllPack));
+
+        LiteralArgumentBuilder<CommandSourceStack> disable = Commands.literal(DISABLE_NAME);
+        RequiredArgumentBuilder<CommandSourceStack, EntitySelector> players = Commands.argument(PLAYERS_NAME, EntityArgument.players());
+        RequiredArgumentBuilder<CommandSourceStack, Boolean> value = Commands.argument(VALUE_NAME, BoolArgumentType.bool());
+        model.then(disable.then(players.then(value.executes(ModelCommand::disableModel))));
 
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal(SET_NAME);
         RequiredArgumentBuilder<CommandSourceStack, EntitySelector> targets = Commands.argument(TARGETS_NAME, EntityArgument.players());
@@ -132,6 +144,24 @@ public class ModelCommand {
             // 成功加入队列
             context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.reload.start"), true);
         }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int disableModel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        Collection<ServerPlayer> players = EntityArgument.getPlayers(context, PLAYERS_NAME);
+        boolean value = BoolArgumentType.getBool(context, VALUE_NAME);
+        String tipKey;
+
+        if (value) {
+            tipKey = "message.yes_steve_model.model.disable.true";
+        } else {
+            tipKey = "message.yes_steve_model.model.disable.false";
+        }
+
+        players.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+            cap.setDisabled(value);
+            context.getSource().sendSuccess(() -> Component.translatable(tipKey, player.getScoreboardName()), true);
+        }));
         return Command.SINGLE_SUCCESS;
     }
 }

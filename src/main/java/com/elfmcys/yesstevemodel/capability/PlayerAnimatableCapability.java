@@ -1,10 +1,10 @@
 package com.elfmcys.yesstevemodel.capability;
 
+import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.RemoteRoamingStruct;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.client.animation.molang.roaming.LocalRoamingStruct;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
@@ -14,7 +14,10 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SubmitRoamingVarsChanges;
 import com.elfmcys.yesstevemodel.network.message.data.RoamingVarsChanges;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2FloatMap;
+import it.unimi.dsi.fastutil.ints.Int2FloatMaps;
+import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import net.minecraft.client.player.LocalPlayer;
@@ -150,8 +153,8 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     public void handleRoamingVarsChanges() {
         if (isLocalPlayer() && this.currentHashShort != 0
-                && this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct
-                && localRoamingStruct.isDirty()) {
+            && this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct
+            && localRoamingStruct.isDirty()) {
             var changes = localRoamingStruct.popChanges();
             var nameArray = new String[changes.variables.size()];
             var valueArray = new float[changes.variables.size()];
@@ -175,6 +178,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     public void copyFrom(PlayerAnimatableCapability source) {
         this.storageMap.putAll(source.storageMap);
         updateModelAndTexture(source.getModelId(), source.getTextureName());
+        this.setDisabled(source.isDisabled());
         source.storageMap.clear();
         source.roamingStruct = null;
     }
