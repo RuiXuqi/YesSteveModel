@@ -378,7 +378,7 @@
   "error.yes_steve_model.unsupported_platform": "§6§l[§aYSM§6§l] §e不支持当前平台：%s",
   "error.yes_steve_model.unsatisfied_build": "§6§l[§aYSM§6§l] §e该构建版本不支持当前平台：%s",
   "error.yes_steve_model.unsupported_launcher": "§6§l[§aYSM§6§l] §e暂不支持当前启动器",
-  "error.yes_steve_model.old_launcher": "§6§l[§aYSM§6§l] §e当前你使用的 %s 启动器版本过旧，请更新至 %s 及以上版本",
+  "error.yes_steve_model.old_launcher": "§6§l[§aYSM§6§l] §e当前你使用的 %s§e 启动器版本过旧，请更新至 %s§e 及以上版本",
   "error.yes_steve_model.parse_molang_exp": "Molang 表达式解析失败：",
   "commands.yes_steve_model.auth_model.add.info": "为玩家 '%2$s' 添加 '%1$s' 模型",
   "commands.yes_steve_model.auth_model.remove.info": "移除玩家 '%2$s' 的 '%1$s' 模型",

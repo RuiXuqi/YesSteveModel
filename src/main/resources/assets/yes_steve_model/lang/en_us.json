@@ -378,7 +378,7 @@
   "error.yes_steve_model.unsupported_platform": "§6§l[§aYSM§6§l] §eCurrent platform is unsupported: %s",
   "error.yes_steve_model.unsatisfied_build": "§6§l[§aYSM§6§l] §eThis build does not support current platform: %s",
   "error.yes_steve_model.unsupported_launcher": "§6§l[§aYSM§6§l] §eCurrent launcher is unsupported",
-  "error.yes_steve_model.old_launcher": "§6§l[§aYSM§6§l] §eCurrent %s launcher is is too old, needs version %s and above launcher",
+  "error.yes_steve_model.old_launcher": "§6§l[§aYSM§6§l] §eCurrent %s§e launcher is is too old, needs version %s§e and above launcher",
   "error.yes_steve_model.parse_molang_exp": "Failed to parse molang expression: ",
   "commands.yes_steve_model.auth_model.add.info": "Add '%1$s' model for player '%2$s'",
   "commands.yes_steve_model.auth_model.remove.info": "Remove '%1$s' model for player '%2$s'",
