@@ -66,6 +66,11 @@ public final class NativeLibUtil {
     private static final String ZALITH_VERSION_CODE_ENV = "ZALITH_VERSION_CODE";
 
     /**
+     * Zalith 2 启动器最低支持版本号
+     */
+    private static final int ZALITH_2_MIN_VERSION = 190000;
+
+    /**
      * 当前环境是否可以加载运行 Native 库
      */
     private static boolean AVAILABLE = false;
@@ -409,8 +414,14 @@ public final class NativeLibUtil {
         // Zalith 版本信息
         String zalithVersion = System.getenv(ZALITH_VERSION_CODE_ENV);
         if (StringUtils.isNotBlank(zalithVersion)) {
-            UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.old_launcher", "Zalith 2", "2.0.0_beta-20251118a");
-            UNSUPPORTED_MSG_STR = "[YSM] Current Zalith 2 launcher is old version";
+            int version = Integer.parseInt(zalithVersion);
+            if (version < ZALITH_2_MIN_VERSION) {
+                UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.old_launcher", "Zalith 1", "1.4.1.1");
+                UNSUPPORTED_MSG_STR = "[YSM] Current Zalith 1 launcher is old version";
+            } else {
+                UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.old_launcher", "Zalith 2", "2.0.0_beta-20251118a");
+                UNSUPPORTED_MSG_STR = "[YSM] Current Zalith 2 launcher is old version";
+            }
             return;
         }
 
