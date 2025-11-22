@@ -21,6 +21,8 @@ public class ExtraPlayerConfigScreen extends Screen {
     private float yawOffset;
     private boolean isChangePos = false;
     private boolean isChangeScale = false;
+    private int controlSize = 5;
+    private int yawChangeButton = GLFW.GLFW_MOUSE_BUTTON_RIGHT;
 
     public ExtraPlayerConfigScreen() {
         super(Component.literal("YSM Extra Player Render Config GUI"));
@@ -28,6 +30,10 @@ public class ExtraPlayerConfigScreen extends Screen {
         this.posY = ExtraPlayerScreenConfig.PLAYER_POS_Y.get();
         this.scale = ExtraPlayerScreenConfig.PLAYER_SCALE.get().floatValue();
         this.yawOffset = ExtraPlayerScreenConfig.PLAYER_YAW_OFFSET.get().floatValue();
+        if (AndroidCompat.isAndroid()) {
+            this.controlSize = 16;
+            this.yawChangeButton = GLFW.GLFW_MOUSE_BUTTON_LEFT;
+        }
     }
 
     @Override
@@ -81,8 +87,8 @@ public class ExtraPlayerConfigScreen extends Screen {
 
         graphics.fillGradient(startX, startY, endX, endY, 0x4fffffff, 0x4fffffff);
 
-        graphics.fillGradient(startX - 5, startY - 5, startX + 5, startY + 5, 0xFF00FF9F, 0xFF00FF9F);
-        graphics.fillGradient(endX - 5, endY - 5, endX + 5, endY + 5, 0xFF00009F, 0xFF00009F);
+        graphics.fillGradient(startX - this.controlSize, startY - this.controlSize, startX + this.controlSize, startY + this.controlSize, 0xFF00FF9F, 0xFF00FF9F);
+        graphics.fillGradient(endX - this.controlSize, endY - this.controlSize, endX + this.controlSize, endY + this.controlSize, 0xFF00009F, 0xFF00009F);
 
         int y = 15;
         MutableComponent component = Component.translatable("gui.yes_steve_model.extra_player_render.tips");
@@ -104,15 +110,15 @@ public class ExtraPlayerConfigScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean xIn = this.posX - 5 < mouseX && mouseX < this.posX + 5;
-        boolean yIn = this.posY - 5 < mouseY && mouseY < this.posY + 5;
+        boolean xIn = this.posX - this.controlSize < mouseX && mouseX < this.posX + this.controlSize;
+        boolean yIn = this.posY - this.controlSize < mouseY && mouseY < this.posY + this.controlSize;
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && xIn && yIn) {
             this.isChangePos = true;
         }
         int endX = (int) (this.posX + this.scale * 1);
         int endY = (int) (this.posY + this.scale * 2);
-        boolean xIn2 = endX - 5 < mouseX && mouseX < endX + 5;
-        boolean yIn2 = endY - 5 < mouseY && mouseY < endY + 5;
+        boolean xIn2 = endX - this.controlSize < mouseX && mouseX < endX + this.controlSize;
+        boolean yIn2 = endY - this.controlSize < mouseY && mouseY < endY + this.controlSize;
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && xIn2 && yIn2) {
             this.isChangeScale = true;
         }
@@ -139,8 +145,9 @@ public class ExtraPlayerConfigScreen extends Screen {
             this.posY = (int) mouseY;
             return true;
         }
-        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            this.yawOffset += (deltaX * 2);
+        // 手机下是左键，桌面端是右键
+        if (button == this.yawChangeButton) {
+            this.yawOffset += (float) (deltaX * 2);
             return true;
         }
         return false;
