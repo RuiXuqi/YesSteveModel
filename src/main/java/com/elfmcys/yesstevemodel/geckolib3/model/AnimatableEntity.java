@@ -352,6 +352,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.seekTime = 0;
         this.rateLimiter.reset();
         this.manager.reset();
+        this.stateTracker.reset();
+        this.codedAnimationStates.clear();
     }
 
     protected void clearGeoModel() {

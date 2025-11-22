@@ -33,6 +33,8 @@ public class PlayerStateTracker extends HumanoidStateTracker<Player> {
 
     @Override
     public void reset() {
+        super.reset();
+
         effects.clear();
 
         remoteFlying = false;
