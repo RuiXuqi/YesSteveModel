@@ -193,6 +193,9 @@ dependencies {
     // 简单帽子
     modImplementation "maven.modrinth:simple-hats:1.20.1-0.3.2-forge"
 
+    // 手机端的仿触屏模组
+    // modImplementation "maven.modrinth:touchcontroller:0.2.1-beta14+forge-1.20.1"
+
     // 引入 MixinExtras 以解决一些棘手的 Mixin 冲突问题（比如 @Redirect 不能嵌套）
     // Fabric / NeoForge 中自带 MixinExtras，无需打包
     modCompileOnly "io.github.llamalad7:mixinextras-common:0.3.6"

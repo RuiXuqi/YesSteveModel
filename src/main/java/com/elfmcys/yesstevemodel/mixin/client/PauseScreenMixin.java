@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 @Mixin(PauseScreen.class)
 public abstract class PauseScreenMixin extends Screen {
     protected PauseScreenMixin(Component title) {
@@ -18,9 +20,11 @@ public abstract class PauseScreenMixin extends Screen {
 
     @Inject(method = "init()V", at = @At(value = "TAIL"))
     private void ysmInit(CallbackInfo ci) {
-        Button button = AndroidCompat.addYsmSkinButton((PauseScreen) (Object) this);
-        if (button != null) {
-            this.addRenderableWidget(button);
+        List<Button> buttons = AndroidCompat.addYsmSkinButton((PauseScreen) (Object) this);
+        if (buttons != null && !buttons.isEmpty()) {
+            for (Button b : buttons) {
+                this.addRenderableWidget(b);
+            }
         }
     }
 }

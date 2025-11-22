@@ -7,6 +7,7 @@
   "gui.yes_steve_model.auth_models": "Auth Models",
   "gui.yes_steve_model.star_models": "Star Models",
   "gui.yes_steve_model.config": "Open Config GUI",
+  "gui.yes_steve_model.hide_or_show": "Hide/Show",
   "gui.yes_steve_model.skin": "Open YSM Skin GUI",
   "gui.yes_steve_model.download": "Open Download GUI",
   "gui.yes_steve_model.show_model_id_first": "Show Model ID First",

@@ -3,6 +3,8 @@ package com.elfmcys.yesstevemodel.client.gui;
 import com.elfmcys.yesstevemodel.config.ExtraPlayerScreenConfig;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -26,6 +28,32 @@ public class ExtraPlayerConfigScreen extends Screen {
         this.posY = ExtraPlayerScreenConfig.PLAYER_POS_Y.get();
         this.scale = ExtraPlayerScreenConfig.PLAYER_SCALE.get().floatValue();
         this.yawOffset = ExtraPlayerScreenConfig.PLAYER_YAW_OFFSET.get().floatValue();
+    }
+
+    @Override
+    protected void init() {
+        this.clearWidgets();
+
+
+        int yOffset = -30;
+        if (AndroidCompat.isAndroid()) {
+            Component reset = Component.translatable("controls.reset");
+            this.addRenderableWidget(Button.builder(reset, button -> this.reset())
+                    .bounds(this.width / 2 - 50, this.height - 35, 100, 30)
+                    .build());
+            yOffset = -60;
+        }
+
+        Component name = Component.translatable("gui.yes_steve_model.hide_or_show");
+        int nameWidth = this.font.width(name) + 24;
+        this.addRenderableWidget(new Checkbox((this.width - nameWidth) / 2, this.height + yOffset, nameWidth, 20,
+                name, ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.get(), true) {
+            @Override
+            public void onPress() {
+                super.onPress();
+                ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.set(this.selected());
+            }
+        });
     }
 
     @Override
@@ -67,9 +95,11 @@ public class ExtraPlayerConfigScreen extends Screen {
 
         graphics.pose().popPose();
 
-        if (getMinecraft().player != null) {
+        if (getMinecraft().player != null && !ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER.get()) {
             RenderUtil.renderExtraPlayerEntity(graphics, getMinecraft().player, this.posX, this.posY, this.scale, this.yawOffset, -500, minecraft.getFrameTime());
         }
+
+        super.render(graphics, pMouseX, pMouseY, frameDeltaTime);
     }
 
     @Override
@@ -119,12 +149,16 @@ public class ExtraPlayerConfigScreen extends Screen {
     @Override
     public boolean charTyped(char typedChar, int keyCode) {
         if (Character.toLowerCase(typedChar) == RESET_KEY && hasAltDown()) {
-            this.posX = 10;
-            this.posY = 10;
-            this.scale = 40;
-            this.yawOffset = 5;
+            this.reset();
         }
         return super.charTyped(typedChar, keyCode);
+    }
+
+    private void reset() {
+        this.posX = 10;
+        this.posY = 10;
+        this.scale = 40;
+        this.yawOffset = 5;
     }
 
     @Override

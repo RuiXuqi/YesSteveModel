@@ -1,13 +1,16 @@
 package com.elfmcys.yesstevemodel.client.gui;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
-import com.elfmcys.yesstevemodel.util.NativeLibUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * 为了兼容 Android 平台运行 Java 版 MC
@@ -20,16 +23,40 @@ public class AndroidCompat {
     }
 
     @Nullable
-    public static Button addYsmSkinButton(PauseScreen screen) {
-        if (isAndroid()) {
-            Component name = Component.translatable("gui.yes_steve_model.skin");
-            return Button.builder(name, button -> {
+    public static List<Button> addYsmSkinButton(PauseScreen screen) {
+        if (AndroidCompat.isAndroid()) {
+            Minecraft mc = Minecraft.getInstance();
+
+            Component skinName = Component.translatable("gui.yes_steve_model.skin");
+            Button skinButton = Button.builder(skinName, button -> {
                 if (ClientConfig.DISCLAIMER_SHOW.get()) {
-                    Minecraft.getInstance().setScreen(new DisclaimerScreen());
+                    mc.setScreen(new DisclaimerScreen());
                 } else {
-                    Minecraft.getInstance().setScreen(new PlayerModelScreen());
+                    mc.setScreen(new PlayerModelScreen());
                 }
-            }).bounds(screen.width / 2 - 100, screen.height - 30, 200, 20).build();
+            }).bounds(screen.width / 2 - 69, screen.height - 35, 138, 30).build();
+            skinButton.setTooltip(Tooltip.create(Component.translatable("key.yes_steve_model.player_model.desc")));
+
+            Component configIcon = Component.literal("\uD83D\uDD27");
+            Button extraPlayerButton = Button.builder(configIcon, button -> mc.setScreen(new ExtraPlayerConfigScreen()))
+                    .bounds(screen.width / 2 - 120, screen.height - 35, 50, 30).build();
+            extraPlayerButton.setTooltip(Tooltip.create(Component.translatable("key.yes_steve_model.open_extra_player_render.desc")));
+
+            Component icon = Component.literal("\uD83D\uDE04");
+            Button rouletteButton = Button.builder(icon, button -> {
+                if (mc.player != null) {
+                    mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+                        String modelId = cap.getModelId();
+                        var model = cap.getModelContainer();
+                        if (model != null && !model.info().properties().extraAnimationOrderMap().isEmpty()) {
+                            mc.setScreen(new AnimationRouletteScreen(modelId, model, cap));
+                        }
+                    });
+                }
+            }).bounds(screen.width / 2 + 69, screen.height - 35, 50, 30).build();
+            rouletteButton.setTooltip(Tooltip.create(Component.translatable("key.yes_steve_model.animation_roulette.desc")));
+
+            return List.of(skinButton, extraPlayerButton, rouletteButton);
         }
         return null;
     }
