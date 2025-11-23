@@ -185,6 +185,7 @@ public final class CapabilityEvent {
                         return;
                     }
                     if (cap.isDirty()) {
+                        cap.getPropertiesTracker().tick(player, false, lowBandwidthUsage);
                         cap.buildPacketForDispatch(player, true).ifPresent(packet -> {
                             cap.clearDirty();
                             NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
@@ -192,7 +193,6 @@ public final class CapabilityEvent {
                                 CapabilityEvent.onVehicleSetModel(player.getVehicle(), player);
                             }
                         });
-                        cap.getPropertiesTracker().tick(player, cap.isDirty(), lowBandwidthUsage);
                     } else {
                         cap.getPropertiesTracker().tick(player, true, lowBandwidthUsage);
                     }

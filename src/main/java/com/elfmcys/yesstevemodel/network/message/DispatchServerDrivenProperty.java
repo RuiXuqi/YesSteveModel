@@ -57,6 +57,8 @@ public class DispatchServerDrivenProperty {
     public void clear(int entityId) {
         this.entityId = entityId;
         this.variant = 0;
+        this.effects = null;
+        this.molangVarsServerBound = null;
     }
 
     public DispatchServerDrivenProperty flying(boolean flying) {
@@ -67,7 +69,14 @@ public class DispatchServerDrivenProperty {
 
     public DispatchServerDrivenProperty addEffect(MobEffect effect, int level) {
         this.variant |= ((short) 1 << 2);
-        this.effects = Object2ByteMaps.singleton(effect, (byte) level);
+        if (this.effects == null) {
+            this.effects = Object2ByteMaps.singleton(effect, (byte) level);
+        } else if (this.effects.size() == 1) {
+            this.effects = new Object2ByteOpenHashMap<>(this.effects);
+            this.effects.put(effect, (byte) level);
+        } else {
+            this.effects.put(effect, (byte) level);
+        }
         return this;
     }
 
@@ -78,8 +87,7 @@ public class DispatchServerDrivenProperty {
     }
 
     public DispatchServerDrivenProperty removeEffect(MobEffect effect) {
-        this.variant |= ((short) 1 << 2);
-        this.effects = Object2ByteMaps.singleton(effect, (byte) 0);
+        addEffect(effect, 0);
         return this;
     }
 
