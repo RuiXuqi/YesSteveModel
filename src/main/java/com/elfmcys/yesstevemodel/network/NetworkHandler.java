@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @SuppressWarnings("removal")
 public final class NetworkHandler {
-    public static final String VERSION = "2.5.2";
+    public static final String VERSION = "2.5.3";
     public static final ResourceLocation CHANNEL_NAME = new ResourceLocation(YesSteveModel.MOD_ID, VERSION.replace('.', '_'));
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(CHANNEL_NAME, () -> VERSION, p -> true, p -> true);
     private static final AttributeKey<String> ATTRIBUTE_CHANNEL_VERSION = AttributeKey.valueOf(YesSteveModel.MOD_ID + "_channel_version");
