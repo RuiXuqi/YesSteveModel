@@ -140,7 +140,7 @@ public final class NativeLibUtil {
             return true;
         } catch (Throwable e) {
             YesSteveModel.LOGGER.error("Failed to load native lib", e);
-            setUnsupportedPlatformMsg("Incompatible system");
+            setUnsupportedPlatformMsg("Incompatible system (" + e.getMessage() + ")");
             return false;
         }
     }
