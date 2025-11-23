@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -55,10 +56,11 @@ public class ExtraAnimationKey {
         if (!InputCheckUtil.isInGame()) {
             return;
         }
+        LocalPlayer player = Minecraft.getInstance().player;
         for (KeyMapping key : EXTRA_ANIMATION_KEYS) {
             if (event.getAction() == GLFW.GLFW_PRESS && InputCheckUtil.keyIsMatch(event, key)
-                && !PlayerMoveEvent.isMoveKey() && Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+                && player != null && !PlayerMoveEvent.isMoveKey(player)) {
+                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     var model = cap.getModelContainer();
                     int index = EXTRA_ANIMATION_KEYS.indexOf(key);
                     ModelProperties properties = model.info().properties();

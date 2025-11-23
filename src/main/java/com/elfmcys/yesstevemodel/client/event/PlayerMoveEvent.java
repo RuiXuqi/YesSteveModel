@@ -5,10 +5,11 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
+import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
@@ -24,10 +25,29 @@ public class PlayerMoveEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
+        if (event.getAction() == GLFW.GLFW_PRESS && LOCK_ROULETTE_KEY.matches(event.getKey(), event.getScanCode())) {
+            LOCK_EXTRA_ANIMATION = !LOCK_EXTRA_ANIMATION;
+        }
+    }
+
+    /**
+     * 改用 TickEvent.ClientTickEvent 监听按键状态，避免与其他模组（如 Touch Controller） 冲突时漏判按键。
+     */
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (!YesSteveModel.isAvailable()) {
+            return;
+        }
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+        if (LOCK_EXTRA_ANIMATION) {
+            return;
+        }
         LocalPlayer player = Minecraft.getInstance().player;
-        if (isMoveKey() && player != null) {
+        if (player != null && isMoveKey(player)) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                if (!LOCK_EXTRA_ANIMATION && cap.isPlayingExtraAnimation()) {
+                if (cap.isPlayingExtraAnimation()) {
                     cap.stopExtraAnimation();
                     if (NetworkHandler.isRemoteChannelPresent()) {
                         NetworkHandler.sendToServer(SetPlayAnimation.stop());
@@ -35,16 +55,16 @@ public class PlayerMoveEvent {
                 }
             });
         }
-
-        if (event.getAction() == GLFW.GLFW_PRESS && LOCK_ROULETTE_KEY.matches(event.getKey(), event.getScanCode())) {
-            LOCK_EXTRA_ANIMATION = !LOCK_EXTRA_ANIMATION;
-        }
     }
 
-    public static boolean isMoveKey() {
-        Options options = Minecraft.getInstance().options;
-        return options.keyUp.isDown() || options.keyDown.isDown() || options.keyLeft.isDown() || options.keyRight.isDown()
-               || options.keyJump.isDown() || options.keyShift.isDown();
+    public static boolean isMoveKey(LocalPlayer player) {
+        Input input = player.input;
+        return hasImpulse(input.leftImpulse) || hasImpulse(input.forwardImpulse)
+               || input.jumping || input.shiftKeyDown;
+    }
+
+    private static boolean hasImpulse(float impulse) {
+        return Math.abs(impulse) > 1.0E-5F;
     }
 
     public static void switchLock() {
