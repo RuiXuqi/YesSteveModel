@@ -73,13 +73,13 @@ public class ServerDrivenPlayerPropertiesTracker {
                 packet.flying(fly);
             }
         }
-        if (health != player.getHealth()) {
+        if (health != (int) player.getHealth()) {
             health = (int) player.getHealth();
             if (sync) {
                 packet.health(health);
             }
         }
-        if (maxHealth != player.getMaxHealth()) {
+        if (maxHealth != (int) player.getMaxHealth()) {
             maxHealth = (int) player.getMaxHealth();
             if (sync) {
                 packet.maxHealth(maxHealth);
