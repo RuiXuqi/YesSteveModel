@@ -193,6 +193,10 @@ dependencies {
     // 简单帽子
     modImplementation "maven.modrinth:simple-hats:1.20.1-0.3.2-forge"
 
+    // Better Combat
+    modImplementation "maven.modrinth:better-combat:1.8.6+1.20.1-forge"
+    modRuntimeOnly "maven.modrinth:cloth-config:11.1.136+forge"
+
     // 手机端的仿触屏模组
     // modImplementation "maven.modrinth:touchcontroller:0.2.1-beta14+forge-1.20.1"
 
@@ -211,9 +215,6 @@ dependencies {
     modRuntimeOnly "maven.modrinth:mantle:1.11.28"
     modRuntimeOnly "maven.modrinth:tinkers-construct:3.9.0.6"
     modImplementation "curse.maven:shoulder-surfing-reloaded-243190:6543482"
-
-    // modRuntimeOnly "maven.modrinth:cloth-config:11.1.136+forge"
-    // modRuntimeOnly "maven.modrinth:better-combat:1.8.6+1.20.1-forge"
 }
 
 jar {
