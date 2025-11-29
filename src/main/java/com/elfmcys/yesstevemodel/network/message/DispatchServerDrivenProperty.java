@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 import org.apache.commons.lang3.StringUtils;
+import org.joml.Math;
 
 import java.util.function.Supplier;
 
@@ -117,19 +118,19 @@ public class DispatchServerDrivenProperty {
 
     public DispatchServerDrivenProperty xxa(float xxa) {
         this.variant |= ((short) 1 << 7);
-        this.xxa = (byte) (xxa * 127);
+        this.xxa = (byte) Math.round(Math.clamp(xxa, -1f, 1f) * 127);
         return this;
     }
 
     public DispatchServerDrivenProperty yya(float yya) {
         this.variant |= ((short) 1 << 8);
-        this.yya = (byte) (yya * 127);
+        this.yya = (byte) Math.round(Math.clamp(yya, -1f, 1f) * 127);
         return this;
     }
 
     public DispatchServerDrivenProperty zza(float zza) {
         this.variant |= ((short) 1 << 9);
-        this.zza = (byte) (zza * 127);
+        this.zza = (byte) Math.round(Math.clamp(zza, -1f, 1f) * 127);
         return this;
     }
 
