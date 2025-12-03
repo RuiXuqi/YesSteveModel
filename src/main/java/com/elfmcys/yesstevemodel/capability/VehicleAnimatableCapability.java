@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.capability;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.roaming.RemoteRoamingStruct;
 import com.elfmcys.yesstevemodel.client.entity.CustomVehicleEntity;
-import it.unimi.dsi.fastutil.ints.Int2FloatArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2FloatMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,15 +24,11 @@ public class VehicleAnimatableCapability extends CustomVehicleEntity {
     }
 
     public void initRoamingVars(@NotNull Int2FloatOpenHashMap vars) {
-        if (roamingStruct == null) {
-            // 无条件同步服务端数据
-            roamingStruct = new RemoteRoamingStruct(vars);
-        } else {
-            roamingStruct.update(vars);
-        }
+        // 无条件同步服务端数据
+        roamingStruct = new RemoteRoamingStruct(vars);
     }
 
-    public void updateRoamingVars(@NotNull Int2FloatArrayMap vars) {
+    public void updateRoamingVars(@NotNull Int2FloatMap vars) {
         if (roamingStruct == null) {
             roamingStruct = new RemoteRoamingStruct(new Int2FloatOpenHashMap());
         }

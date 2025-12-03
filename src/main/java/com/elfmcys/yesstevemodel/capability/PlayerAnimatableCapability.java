@@ -139,6 +139,14 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
         return storageMap.containsKey(hashShort);
     }
 
+    private void updateVehicleRoamingVars(int modelHashShort, Int2FloatMap vars) {
+        if (modelHashShort == currentHashShort && entity.getVehicle() != null && entity.getVehicle().getFirstPassenger() == entity) {
+            entity.getVehicle().getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(vehicleCap -> {
+                vehicleCap.updateRoamingVars(vars);
+            });
+        }
+    }
+
     public void updateRemoteRoamingVars(int modelHashShort, Int2FloatMap vars) {
         // 为了尝试兼容 replay 模组，服务端会额外向 LocalPlayer 发送更新包，非回放时要丢弃
         if (!isLocalPlayer() && !vars.isEmpty()) {
@@ -148,6 +156,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             } else {
                 storage.pendingChanges.enqueue(vars);
             }
+            updateVehicleRoamingVars(modelHashShort, vars);
         }
     }
 
@@ -156,6 +165,8 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
             && this.roamingStruct instanceof LocalRoamingStruct localRoamingStruct
             && localRoamingStruct.isDirty()) {
             var changes = localRoamingStruct.popChanges();
+            updateVehicleRoamingVars(changes.modelHashShort, changes.variables);
+            
             var nameArray = new String[changes.variables.size()];
             var valueArray = new float[changes.variables.size()];
             int i = 0;
