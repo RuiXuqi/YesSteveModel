@@ -175,7 +175,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     @Override
     protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
-        // 已知场景内、iris 阴影不会修改实体参数；
+        // 在场景内或 iris 阴影渲染时不会修改实体参数；
         // FirstPersonMod 会隐藏头部、原版 inventory 会修改身体和头部旋转、纸娃娃可能会基于 molang 应用不同的效果
         return animEvent.isRenderingInLevelExclusive() || IrisCompat.isRenderingShadow();
     }

@@ -2,11 +2,13 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.animation.predicate.*;
+import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
@@ -106,6 +108,12 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
                 addAnimationController(new HybridAnimationController(this, controllerName, 0, new ArmorPredicate(slot)));
             }
         }
+    }
+
+    @Override
+    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
+        // 例外：local player 渲染 iris 阴影时应恒为第三人称，不能视为 immutable
+        return animEvent.isRenderingInLevelExclusive() || (!localPlayer && IrisCompat.isRenderingShadow());
     }
 
     @Nullable
