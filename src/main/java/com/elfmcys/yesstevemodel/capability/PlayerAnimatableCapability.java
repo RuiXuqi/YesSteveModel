@@ -188,7 +188,7 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
 
     public void copyFrom(PlayerAnimatableCapability source) {
         this.storageMap.putAll(source.storageMap);
-        updateModelAndTexture(source.getModelId(), source.getTextureName());
+        updateModelAndTexture(source.getModelId(), source.textureName);
         this.setDisabled(source.isDisabled());
         source.storageMap.clear();
         source.roamingStruct = null;

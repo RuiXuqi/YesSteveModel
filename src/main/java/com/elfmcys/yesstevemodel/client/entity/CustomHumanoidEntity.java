@@ -29,7 +29,7 @@ import java.util.List;
  * 使用玩家模型的实体
  */
 public abstract class CustomHumanoidEntity<T extends LivingEntity> extends CustomEntity<T> {
-    private String textureName;
+    protected String textureName;
     private int textureIndex;
 
     private final Vector2f headRot = new Vector2f();
