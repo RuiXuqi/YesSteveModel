@@ -17,6 +17,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue CAN_SWITCH_MODEL;
     public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_ID;
     public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_TEXTURE;
+    // Native Access: 同步开始时读取
+    public static ForgeConfigSpec.IntValue ACCEPT_SOUND_FX;
 
     // 禁止在玩家客户端 GUI 界面显示的模型 ID
     public static ForgeConfigSpec.ConfigValue<List<String>> CLIENT_NOT_DISPLAY_MODELS;
@@ -55,6 +57,13 @@ public class ServerConfig {
         builder.comment("Suppress network synchronization of partial features to reduce bandwidth usage");
         builder.comment("Only effective when there are tons of players");
         LOW_BANDWIDTH_USAGE = builder.define("LowBandwidthUsage", false);
+
+        builder.comment("Skip sound effect processing to reduce server bandwidth and client memory usage");
+        builder.comment("0: Accept all sounds (Default)");
+        builder.comment("1: Accept short sounds only (Shorter than 4s and smaller than 40KB)");
+        builder.comment("2: Reject all sounds (Not recommended)");
+        builder.comment("Note: Takes effect after model reloading. Increasing this option does not cause model resynchronization, whereas decreasing it does.");
+        ACCEPT_SOUND_FX = builder.defineInRange("AcceptSoundFX", 0, 0, 2);
 
         builder.pop();
     }

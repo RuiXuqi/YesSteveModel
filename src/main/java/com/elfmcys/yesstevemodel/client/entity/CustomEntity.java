@@ -190,7 +190,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     public Optional<AudioStreamProvider> getSoundStream(String name) {
         if (resourceHolder.soundHolder != null) {
             var soundData = getModelContainer().assets().sounds().get(name);
-            if (soundData != null && soundData.soundFormat() != SoundFormat.UNDEFINED) {
+            if (soundData != null && soundData.byteBuffer() != null && soundData.soundFormat() != SoundFormat.UNDEFINED) {
                 var holder = resourceHolder.soundHolder;
                 return Optional.of(() -> holder.openStream(soundData));
             }
