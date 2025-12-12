@@ -22,8 +22,10 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber
+@SuppressWarnings("removal")
 public final class CommandRegistry {
     public static final SuggestionProvider<CommandSourceStack> ALL_MODELS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "models"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider) {
@@ -59,16 +61,21 @@ public final class CommandRegistry {
             String modelId = source.getArgument("model_id", String.class);
             if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
                 if (ServerModelManager.getModels().containsKey(modelId)) {
-                    List<String> textures = ServerModelManager.getModels().get(modelId).playerModel().textures();
-                    return SharedSuggestionProvider.suggest(textures.stream()
-                                    .map(CommandRegistry::filterSuggestionStr).toList()
-                            , builder);
+                    List<String> textures = ServerModelManager.getModels().get(modelId).playerModel().textures().stream()
+                            .map(CommandRegistry::filterSuggestionStr)
+                            .collect(Collectors.toList());
+                    textures.add(0, "-");
+                    return SharedSuggestionProvider.suggest(textures, builder);
                 }
             } else {
                 if (ClientModelManager.getModels().containsKey(modelId)) {
-                    return SharedSuggestionProvider.suggest(ClientModelManager.getModel(modelId).map(model -> model.playerModel().textures().keyList().stream()
-                                    .map(CommandRegistry::filterSuggestionStr).toList())
-                            .orElseGet(Lists::newArrayList), builder);
+                    List<String> textures = ClientModelManager.getModel(modelId)
+                            .map(model -> model.playerModel().textures().keyList().stream()
+                                .map(CommandRegistry::filterSuggestionStr)
+                                .collect(Collectors.toList()))
+                            .orElseGet(Lists::newArrayList);
+                    textures.add(0, "-");
+                    return SharedSuggestionProvider.suggest(textures, builder);
                 }
             }
         }

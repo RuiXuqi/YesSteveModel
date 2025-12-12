@@ -23,9 +23,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class ModelCommand {
@@ -76,10 +78,17 @@ public class ModelCommand {
         Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, TARGETS_NAME);
         String modelId = StringArgumentType.getString(context, MODEL_ID_NAME);
         String textureName = StringArgumentType.getString(context, TEXTURE_ID_NAME);
-        if (!ServerModelManager.getModels().containsKey(modelId)) {
+        var model = ServerModelManager.getModels().get(modelId);
+        if (model == null) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.yes_steve_model.export.not_exist",
                     modelId), true);
             return Command.SINGLE_SUCCESS;
+        }
+        if (Objects.equals(textureName, "-")) {
+            textureName = model.info().properties().defaultTexture();
+            if (StringUtils.isBlank(textureName) || !model.playerModel().textures().contains(textureName)) {
+                textureName = model.playerModel().textures().get(0);
+            }
         }
 
         ServerModel info = ServerModelManager.getModels().get(modelId);
@@ -87,9 +96,10 @@ public class ModelCommand {
             return Command.SINGLE_SUCCESS;
         }
 
+        String finalTextureName = textureName;
         if (ignoreAuth) {
             targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-                cap.setModelAndTexture(modelId, textureName);
+                cap.setModelAndTexture(modelId, finalTextureName);
                 cap.setMandatory(true);
                 context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
                         modelId, player.getScoreboardName()), true);
@@ -100,7 +110,7 @@ public class ModelCommand {
         targets.forEach(player -> player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap ->
                 player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(authCap -> {
                     if (!ServerModelManager.getAuthModels().contains(modelId) || authCap.containModel(modelId)) {
-                        cap.setModelAndTexture(modelId, textureName);
+                        cap.setModelAndTexture(modelId, finalTextureName);
                         cap.setMandatory(true);
                         context.getSource().sendSuccess(() -> Component.translatable("message.yes_steve_model.model.set.success",
                                 modelId, player.getScoreboardName()), true);
