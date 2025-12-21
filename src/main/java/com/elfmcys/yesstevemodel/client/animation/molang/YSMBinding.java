@@ -240,7 +240,7 @@ public class YSMBinding extends ContextBinding {
     }
 
     private static boolean inShieldBlockCooldown(IContext<Player> context) {
-        if (context.animatableEntity() instanceof PlayerAnimatableCapability cap && !cap.isLocalPlayer()) {
+        if (context.animatableEntity() instanceof PlayerAnimatableCapability cap) {
             return cap.getStateTracker().inShieldBlockCooldown();
         } else {
             return false;
