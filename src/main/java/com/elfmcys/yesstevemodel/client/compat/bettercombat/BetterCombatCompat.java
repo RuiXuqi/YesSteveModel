@@ -21,7 +21,7 @@ public class BetterCombatCompat {
         return INSTALLED;
     }
 
-    public static boolean shouldHideHead(CustomPlayerEntity entity) {
+    public static boolean shouldSkipRendering(CustomPlayerEntity entity) {
         return INSTALLED && PersonView.isFirstPersonView(entity);
     }
 }

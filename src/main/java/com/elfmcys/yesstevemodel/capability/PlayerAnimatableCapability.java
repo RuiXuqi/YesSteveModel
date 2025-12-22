@@ -92,10 +92,6 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
                     }
                 }
             }
-
-            if (BetterCombatCompat.isInstalled() && model.firstPersonHead() != null) {
-                model.firstPersonHead().setHidden(BetterCombatCompat.shouldHideHead(this));
-            }
         }
     }
 

@@ -2,7 +2,7 @@ package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -31,7 +31,7 @@ public class ReplacePlayerRenderEvent {
             return;
         }
         if (playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                .map(CustomPlayerEntity::isInitializedAndEnabled)
+                .map(cap -> cap.isInitializedAndEnabled() && !BetterCombatCompat.shouldSkipRendering(cap))
                 .orElse(false)) {
             event.setCanceled(true);
             RegisterEntityRenderersEvent.getPlayerRenderer().render(
