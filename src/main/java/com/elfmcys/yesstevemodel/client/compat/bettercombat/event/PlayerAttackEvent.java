@@ -8,8 +8,6 @@ import net.minecraft.world.InteractionHand;
 public class PlayerAttackEvent implements BetterCombatClientEvents.PlayerAttackStart {
     @Override
     public void onPlayerAttackStart(LocalPlayer player, AttackHand hand) {
-        player.swingTime = -1;
-        player.swinging = true;
-        player.swingingArm = hand.isOffHand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        player.swing(hand.isOffHand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
     }
 }
