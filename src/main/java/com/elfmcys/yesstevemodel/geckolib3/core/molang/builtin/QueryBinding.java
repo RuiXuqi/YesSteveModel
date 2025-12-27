@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerStateTracker;
+import com.elfmcys.yesstevemodel.client.animation.molang.functions.Rot2Camera;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.query.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.AnimationContext;
@@ -43,6 +44,7 @@ public class QueryBinding extends ContextBinding {
         function("equipped_item_any_tag", new EquippedItemAnyTags());
         function("position", new Position());
         function("position_delta", new PositionDelta());
+        function("rotation_to_camera", new Rot2Camera());
 
         function("max_durability", new ItemMaxDurability());
         function("remaining_durability", new ItemRemainingDurability());
