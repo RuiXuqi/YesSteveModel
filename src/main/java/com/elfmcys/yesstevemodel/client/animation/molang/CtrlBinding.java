@@ -4,6 +4,7 @@ import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.animation.Priority;
 import com.elfmcys.yesstevemodel.client.animation.molang.functions.*;
 import com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated.SophisticatedCompat;
+import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.create.CreateCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
@@ -86,6 +87,7 @@ public class CtrlBinding extends ContextBinding {
         SlashBladeCompat.addBinding(this);
         SophisticatedCompat.addBinding(this);
         CreateCompat.addBinding(this);
+        BetterCombatCompat.addBinding(this);
 
         // 硬编码预测函数用
         constValue("state_continue", STATE_CONTINUE);

@@ -169,7 +169,7 @@ dependencies {
     modImplementation 'curse.maven:timeless-and-classics-zero-1028108:6654541-sources-6654543'
 
     // swem 需要
-    modRuntimeOnly "curse.maven:playeranimator-658587:4587214"
+    modImplementation "curse.maven:playeranimator-658587:4587214"
     modImplementation "curse.maven:geckolib-388172:5460309"
     modImplementation "curse.maven:swem-582697:${swem_id}"
 
