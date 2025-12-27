@@ -1,8 +1,8 @@
 {
-  "metadata.name": "魔女酒狐",
-  "metadata.tips": "来自星海的狐之魔女，传说她居住在一个薰衣草盛开的地方。\n（装备头盔可佩戴魔女帽，背后的法杖可通过轮盘动画隐藏。）",
-  "metadata.authors.0.name": "星海ELIYA",
-  "metadata.authors.0.role": "修改",
+  "metadata.name": "魔法酒狐",
+  "metadata.tips": "来自星海的狐之魔女，传说她居住在一个薰衣草盛开的地方。\n（装备头盔可佩戴魔女帽，弓箭与剑类武器替换为法杖，背后的法杖和弓箭蓄力法阵可通过轮盘动画隐藏。）",
+  "metadata.authors.0.name": "星海境",
+  "metadata.authors.0.role": "模型/动画修改",
   "metadata.authors.0.comment": "繁星凝望着海洋，海洋拥抱着风帆。",
   "metadata.authors.1.role": "帽子模型",
   "properties.extra_animation.extra0": "隐藏/显示法杖",

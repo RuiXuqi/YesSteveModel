@@ -909,12 +909,12 @@
 				{
 					"name": "clothe",
 					"parent": "UpBody",
-					"pivot": [0.11315, 9.23914, 1.00366]
+					"pivot": [0.11315, 12.48914, 1.50366]
 				},
 				{
 					"name": "RightClothe",
 					"parent": "clothe",
-					"pivot": [-2.2781, 9.95361, -0.31174]
+					"pivot": [-2.2781, 9.95361, 1.18826]
 				},
 				{
 					"name": "RM",
@@ -944,7 +944,7 @@
 				{
 					"name": "LeftClothe",
 					"parent": "clothe",
-					"pivot": [2.2781, 9.95361, -0.31174]
+					"pivot": [2.2781, 9.95361, 1.43826]
 				},
 				{
 					"name": "LM",
@@ -974,7 +974,7 @@
 				{
 					"name": "FrontClothe",
 					"parent": "clothe",
-					"pivot": [-2.2781, 9.95361, -0.31174]
+					"pivot": [-0.0281, 9.95361, -0.31174]
 				},
 				{
 					"name": "FFM",
@@ -1018,7 +1018,7 @@
 				{
 					"name": "BackClothe",
 					"parent": "clothe",
-					"pivot": [-2.2781, 9.95361, 3.31174]
+					"pivot": [-0.0281, 9.95361, 3.31174]
 				},
 				{
 					"name": "BM",
@@ -1051,7 +1051,7 @@
 				{
 					"name": "DownBody",
 					"parent": "AllBody",
-					"pivot": [0, 0, 0]
+					"pivot": [0, 11, 1.5]
 				},
 				{
 					"name": "RightLeg",

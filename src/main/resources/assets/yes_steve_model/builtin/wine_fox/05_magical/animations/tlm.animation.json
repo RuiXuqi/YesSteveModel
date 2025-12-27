@@ -315,6 +315,10 @@
 				},
 				"LeftLowerLeg": {
 					"rotation": ["82.5+math.sin(90+query.anim_time*180)*2", 0, 0]
+				},
+				"mofazhang2": {
+					"rotation": [40, 0, 0],
+					"position": [-1, -18.10156, -3]
 				}
 			}
 		},
@@ -427,7 +431,7 @@
 					"rotation": [0, -85, 15]
 				},
 				"RightHand": {
-					"rotation": [0, 85, -15]
+					"rotation": [0, 5, -15]
 				},
 				"LF2": {
 					"rotation": [7.5, 0, 0]
@@ -481,6 +485,10 @@
 				},
 				"Leg": {
 					"rotation": [-35, 0, 0]
+				},
+				"mofazhang2": {
+					"rotation": [40, 0, 0],
+					"position": [0, -15, -4]
 				}
 			}
 		},
@@ -647,6 +655,13 @@
 				},
 				"Leg": {
 					"rotation": [-35, 0, 0]
+				},
+				"mofazhang2": {
+					"rotation": [40, 0, 0],
+					"position": [0, -15, -4]
+				},
+				"rightshou": {
+					"rotation": [0, -72.5, 0]
 				}
 			}
 		},

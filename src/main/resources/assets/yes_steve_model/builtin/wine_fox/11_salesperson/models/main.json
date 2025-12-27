@@ -18,7 +18,7 @@
 				{
 					"name": "MAllBody",
 					"parent": "Root",
-					"pivot": [0, 0, 0]
+					"pivot": [0, 25, 0]
 				},
 				{
 					"name": "AllBody",

@@ -1,8 +1,8 @@
 {
   "metadata.name": "Magical Wine Fox",
-  "metadata.tips": "A fox witch from the starry sea, legend says she lives in a place where lavender blooms.\n(Equipping a helmet allows wearing the witch hat, the magic staff behind can be hidden through wheel animations.)",
-  "metadata.authors.0.name": "ELIYA",
-  "metadata.authors.0.role": "Modified",
+  "metadata.tips": "A fox witch from the starry sea, legend says she lives in a place where lavender blooms.\n(Equipping a helmet allows wearing the witch hat; bows and sword-type weapons are replaced by a staff; the staff and the charging circle for bows behind can be hidden through wheel animations.)",
+  "metadata.authors.0.name": "Xinghai Jing",
+  "metadata.authors.0.role": "Model/Anim Modified",
   "metadata.authors.0.comment": "Stars gaze at the ocean, the ocean embraces the sails.",
   "metadata.authors.1.role": "Hat Model",
   "properties.extra_animation.extra0": "Hide/Show Staff",
