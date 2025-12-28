@@ -16,5 +16,11 @@
   "properties.extra_animation_buttons.staff.config_forms.0.title": "隐藏/显示法杖",
   "properties.extra_animation_buttons.staff.config_forms.0.description": "隐藏&显示",
   "properties.extra_animation_buttons.charge_circle.config_forms.0.title": "关闭/开启蓄力法阵特效",
-  "properties.extra_animation_buttons.charge_circle.config_forms.0.description": "关闭&开启"
+  "properties.extra_animation_buttons.charge_circle.config_forms.0.description": "关闭&开启",
+  "files.player.texture.magic": "§5星空法狐",
+  "files.player.texture.winefox": "§6原初火狐",
+  "files.player.texture.ice": "§b冰霜雪狐",
+  "files.player.texture.flower": "§d百花仙狐",
+  "files.player.texture.blood": "§4猩红血狐",
+  "files.player.texture.water": "§9源流水狐"
 }

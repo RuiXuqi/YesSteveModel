@@ -3564,7 +3564,7 @@
 				{
 					"name": "cloth",
 					"parent": "MUpperBody",
-					"pivot": [0, 23.9644, 0],
+					"pivot": [0, 19.9644, 0],
 					"cubes": [
 						{
 							"origin": [-0.09531, 20.10198, -2.21841],

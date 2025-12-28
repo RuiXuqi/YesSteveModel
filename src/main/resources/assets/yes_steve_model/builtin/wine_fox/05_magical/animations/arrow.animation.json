@@ -3,6 +3,7 @@
 	"animations": {
 		"parallel0": {
 			"loop": true,
+			"animation_length": 1,
 			"bones": {
 				"UpPl": {
 					"scale": [1, 1, 1.7]
@@ -45,6 +46,12 @@
 				},
 				"Brand": {
 					"rotation": [3.8413, 0.75188, -139.19595]
+				},
+				"ysmGlowfazhen": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"1.0": [360, 0, 0]
+					}
 				}
 			}
 		}

@@ -4645,6 +4645,9 @@
 				},
 				"MLongLeftHair": {
 					"rotation": [-6, 0, 0]
+				},
+				"qunziC2": {
+					"rotation": [-65, 0, 0]
 				}
 			}
 		},

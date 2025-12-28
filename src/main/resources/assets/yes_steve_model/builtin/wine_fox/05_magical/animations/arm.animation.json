@@ -1578,7 +1578,7 @@
 			}
 		},
 		"swing:sword": {
-			"animation_length": 4,
+			"animation_length": 3,
 			"bones": {
 				"UpBody": {
 					"rotation": {
@@ -1744,6 +1744,14 @@
 					"scale": 0
 				},
 				"mofazhang": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.2083": [30, 0, 0]
+					},
+					"position": {
+						"0.0": [0, 0, 0],
+						"0.2083": [0, 1.13281, 0]
+					},
 					"scale": 1
 				},
 				"ysmGlowdamofazhen2": {
@@ -1768,12 +1776,15 @@
 					"scale": 0
 				},
 				"ysmGlowmofazhen14": {
-					"position": [0, 12, 10],
+					"position": {
+						"0.0": [0, 2, 15],
+						"1.625": [0, 2, 12]
+					},
 					"scale": {
 						"0.0": [0, 0, 0],
 						"0.125": [2, 2, 2],
-						"0.25": [1.5, 1.5, 1.5],
-						"1.125": [1.5, 1.5, 1.5],
+						"0.25": [1, 1, 1],
+						"1.125": [1, 1, 1],
 						"1.3333": [3, 3, 3],
 						"1.5417": [0, 0, 0]
 					}
@@ -1787,32 +1798,32 @@
 				},
 				"LeftForeArm": {
 					"rotation": {
-						"0.0": [-79.31891, -18.40884, -66.83514],
-						"1.25": [-79.31891, -18.40884, -66.83514],
+						"0.0": [-71.59829, -10.69366, -96.83651],
+						"1.25": [-71.59829, -10.69366, -96.83651],
 						"1.5": [0, 0, 0]
 					}
 				},
 				"MRoot": {
 					"position": {
 						"0.0": [0, 10, 0],
-						"1.75": [0, 10, 0],
-						"3.5": [0, 3, 0]
+						"2.75": [0, 10, 0],
+						"3.0": [0, 3, 0]
 					}
 				},
 				"Root": {
 					"position": [0, "1+0.5*math.sin(360*query.life_time)", 0]
 				},
 				"MAllbody": {
-					"rotation": ["(9 * query.ground_speed + 0.3 * ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)) * (ysm.input_vertical < -0.05 ? -1 : 1)", 0, 0]
+					"rotation": ["(math.clamp(query.ground_speed*9,0,60))*(ysm.input_vertical<-0.05?-1:1)", 0, 0]
 				},
 				"AllBody": {
 					"rotation": [0, "-0.5*ysm.second_order('鞘翅yaw', -ysm.head_yaw, 1, 0.8, 0)", "0.2*ysm.second_order('鞘翅yaw', -ysm.head_yaw, 1, 0.8, 0)"]
 				},
 				"AllHead": {
-					"rotation": ["(9 * query.ground_speed + 0.3 * ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)) * (ysm.input_vertical < -0.05 ? 1 : -1)", 0, 0]
+					"rotation": ["(math.clamp(query.ground_speed*9,0,60))*(ysm.input_vertical<-0.05?1:-1)", 0, 0]
 				},
 				"Arm": {
-					"rotation": ["(9 * query.ground_speed + 0.3 * ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)) * (ysm.input_vertical < -0.05 ? 1 : -1)", 0, 0]
+					"rotation": ["(math.clamp(query.ground_speed*9,0,60))*(ysm.input_vertical<-0.05?1:-1)", 0, 0]
 				},
 				"clothe": {
 					"rotation": {
@@ -1892,6 +1903,34 @@
 						"0.7083": [51.25, 0, 0],
 						"0.75": [50.59, 0, 0]
 					}
+				},
+				"mofazhang3": {
+					"scale": 0
+				},
+				"FOX": {
+					"position": [0, 15, 0]
+				},
+				"Head2": {
+					"rotation": [0, 0, 0]
+				},
+				"RightArm2": {
+					"rotation": [0, 0, 25]
+				},
+				"LeftArm2": {
+					"rotation": [0, 0, -25]
+				},
+				"LeftLeg2": {
+					"rotation": [0, 0, -25]
+				},
+				"RightLeg2": {
+					"rotation": [0, 0, 25]
+				},
+				"MTail": {
+					"rotation": [
+						"(math.clamp(query.ground_speed*100,0,50))*(ysm.input_vertical<-0.05?1:0)",
+						0,
+						"(math.clamp(query.ground_speed*100,0,180))*(ysm.input_vertical<-0.05?1:0)"
+					]
 				}
 			},
 			"timeline": {
@@ -3361,7 +3400,7 @@
 						"0.0": [-90.35464, -6.99714, 72.58225],
 						"3.0": [-90.35, -7, 72.58],
 						"3.875": [-90.35, -7, 72.58],
-						"4.0": [-3.91768, -4.8931, 12.30666]
+						"4.0": [13.58232, -4.8931, 12.30666]
 					},
 					"position": [-1, 0, 0]
 				},
@@ -3369,9 +3408,8 @@
 					"rotation": {
 						"0.0": [0, 0, 5],
 						"3.0": [0, 0, 5],
-						"3.25": [0, -22.5, 30],
 						"3.875": [0, -22.5, 30],
-						"4.0": [11.48581, -75.04681, -11.94688]
+						"4.0": [-24.86147, -73.81799, 25.68677]
 					}
 				},
 				"mofazhang2": {
@@ -3382,13 +3420,13 @@
 						"0.0": [0, 0, -80],
 						"3.0": [0, 0, -80],
 						"3.875": [0, 0, -80],
-						"4.0": [0, 20, -80]
+						"4.0": [0, 50, -80]
 					},
 					"position": {
 						"0.0": [-1, -0.41406, 8],
 						"3.0": [-1, -0.41406, 8],
 						"3.875": [-1, -0.41406, 8],
-						"4.0": [-1, 0.59, 2]
+						"4.0": [-1, 0.44547, -1.35937]
 					},
 					"scale": 1
 				},
@@ -3416,28 +3454,36 @@
 						"3.0": [0, 0, 0],
 						"3.25": [-20, 52.5, 0],
 						"3.875": [-20, 52.5, 0],
-						"4.0": [129.38536, 78.88471, 127.45103]
+						"4.0": [139.38536, 78.88471, 127.45103]
 					}
 				},
 				"RightHandLocator": {
 					"scale": 0
 				},
 				"ysmGlowmofazhen14": {
-					"position": [0, 12, 10],
+					"position": [0, 2, 10],
 					"scale": {
 						"0.0": [0, 0, 0],
 						"0.125": [2, 2, 2],
 						"0.25": [1.5, 1.5, 1.5],
-						"3.6667": [1.5, 1.5, 1.5],
+						"3.0": [1.5, 1.5, 1.5],
 						"3.875": [3, 3, 3],
 						"4.0833": [0, 0, 0]
 					}
 				},
 				"LeftArm": {
-					"rotation": [-37.5, 0, 0]
+					"rotation": {
+						"0.0": [-37.5, 0, 0],
+						"3.875": [-37.5, 0, 0],
+						"4.0": [-2.38443, -0.75155, -17.48436]
+					}
 				},
 				"LeftForeArm": {
-					"rotation": [-69.55418, 11.73507, -85.6639]
+					"rotation": {
+						"0.0": [-69.55418, 11.73507, -85.6639],
+						"3.875": [-69.55, 11.74, -85.66],
+						"4.0": [-30.7223, 66.55123, -32.93318]
+					}
 				},
 				"MRoot": {
 					"position": {
@@ -3450,16 +3496,16 @@
 					"position": [0, "1+0.5*math.sin(360*query.life_time)", 0]
 				},
 				"MAllbody": {
-					"rotation": ["(9 * query.ground_speed + 0.3 * ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)) * (ysm.input_vertical < -0.05 ? -1 : 1)", 0, 0]
+					"rotation": ["(math.clamp(query.ground_speed*9,0,60))*(ysm.input_vertical<-0.05?-1:1)", 0, 0]
 				},
 				"AllBody": {
 					"rotation": [0, "-0.5*ysm.second_order('鞘翅yaw', -ysm.head_yaw, 1, 0.8, 0)", "0.2*ysm.second_order('鞘翅yaw', -ysm.head_yaw, 1, 0.8, 0)"]
 				},
 				"AllHead": {
-					"rotation": ["(9 * query.ground_speed + 0.3 * ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)) * (ysm.input_vertical < -0.05 ? 1 : -1)", 0, 0]
+					"rotation": ["(math.clamp(query.ground_speed*9,0,60))*(ysm.input_vertical<-0.05?1:-1)", 0, 0]
 				},
 				"Arm": {
-					"rotation": ["(9 * query.ground_speed + 0.3 * ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)) * (ysm.input_vertical < -0.05 ? 1 : -1)", 0, 0]
+					"rotation": ["(math.clamp(query.ground_speed*9,0,60))*(ysm.input_vertical<-0.05?1:-1)", 0, 0]
 				},
 				"clothe": {
 					"rotation": {
@@ -3543,9 +3589,77 @@
 				"ysmGlowdamofazhen3": {
 					"scale": {
 						"0.0": [1, 1, 1],
+						"4.5": [1, 1, 1],
+						"4.9583": [0, 0, 0]
+					}
+				},
+				"ysmGlowmofazhen19": {
+					"scale": {
+						"0.0": [1, 1, 1],
+						"4.5": [1, 1, 1],
+						"4.9583": [0, 0, 0]
+					}
+				},
+				"ysmGlowmofazhen15": {
+					"position": {
+						"3.875": [0, 0, 0],
+						"4.0833": [0, -28.5, 0]
+					},
+					"scale": {
 						"3.875": [1, 1, 1],
 						"4.0833": [0, 0, 0]
 					}
+				},
+				"ysmGlowmofazhen16": {
+					"position": {
+						"3.875": [0, 0, 0],
+						"4.0833": [-28.5, 0, 0]
+					},
+					"scale": {
+						"3.875": [1, 1, 1],
+						"4.0833": [0, 0, 0]
+					}
+				},
+				"ysmGlowmofazhen17": {
+					"position": {
+						"3.875": [0, 0, 0],
+						"4.0833": [28.5, 0, 0]
+					},
+					"scale": {
+						"3.875": [1, 1, 1],
+						"4.0833": [0, 0, 0]
+					}
+				},
+				"ysmGlowmofazhen18": {
+					"position": {
+						"3.875": [0, 0, 0],
+						"4.0833": [0, 28.5, 0]
+					},
+					"scale": {
+						"3.875": [1, 1, 1],
+						"4.0833": [0, 0, 0]
+					}
+				},
+				"mofazhang3": {
+					"scale": 0
+				},
+				"FOX": {
+					"position": [0, 15, 0]
+				},
+				"Head2": {
+					"rotation": [0, 0, 0]
+				},
+				"RightArm2": {
+					"rotation": [0, 0, 25]
+				},
+				"LeftArm2": {
+					"rotation": [0, 0, -25]
+				},
+				"LeftLeg2": {
+					"rotation": [0, 0, -25]
+				},
+				"RightLeg2": {
+					"rotation": [0, 0, 25]
 				}
 			},
 			"timeline": {

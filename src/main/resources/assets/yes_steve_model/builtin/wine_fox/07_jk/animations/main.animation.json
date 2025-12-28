@@ -4522,6 +4522,9 @@
 				},
 				"MLongLeftHair": {
 					"rotation": [-6, 0, 0]
+				},
+				"cloth": {
+					"rotation": [-53, 0, 0]
 				}
 			}
 		},
