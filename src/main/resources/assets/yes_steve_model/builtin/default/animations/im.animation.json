@@ -1,0 +1,71 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "hold_mainhand$immersive_melodies:bagpipe": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:bagpipe": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:didgeridoo": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:didgeridoo": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:flute": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:flute": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:lute": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:lute": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:piano": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:piano": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:triangle": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:triangle": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:trumpet": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:trumpet": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:tiny_drum": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:tiny_drum": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:vielle": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:vielle": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:ender_bass": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:ender_bass": {
+      "loop": true
+    },
+    "hold_mainhand$immersive_melodies:handpan": {
+      "loop": true
+    },
+    "hold_offhand$immersive_melodies:handpan": {
+      "loop": true
+    }
+  }
+}

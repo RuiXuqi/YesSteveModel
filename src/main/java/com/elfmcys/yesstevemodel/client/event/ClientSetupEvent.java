@@ -8,6 +8,7 @@ import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
 import com.elfmcys.yesstevemodel.client.compat.create.CreateCompat;
 import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
+import com.elfmcys.yesstevemodel.client.compat.immersivemelodies.ImmersiveMelodiesCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.simplehat.SimpleHatsCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
@@ -57,6 +58,7 @@ public class ClientSetupEvent {
             CreateCompat.init();
             SophisticatedCompat.init();
             SimpleHatsCompat.init();
+            ImmersiveMelodiesCompat.init();
 
             // 一定要放在最后
             initCoreClient();
