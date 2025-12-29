@@ -312,14 +312,18 @@ public final class RenderUtil {
             itemStacks = new ItemStack[EquipmentSlot.values().length];
             int i = 0;
             for (EquipmentSlot slot : EquipmentSlot.values()) {
-                itemStacks[i] = player.getItemBySlot(slot);
                 if (slot == EquipmentSlot.MAINHAND) {
                     player.getInventory().items.set(player.getInventory().selected, ItemStack.EMPTY);
                 } else if (slot == EquipmentSlot.OFFHAND) {
                     player.getInventory().offhand.set(0, ItemStack.EMPTY);
                 } else {
-                    player.getInventory().armor.set(slot.getIndex(), ItemStack.EMPTY);
+                    var armor = player.getInventory().armor;
+                    if (armor.size() <= slot.getIndex()) {
+                        continue;
+                    }
+                    armor.set(slot.getIndex(), ItemStack.EMPTY);
                 }
+                itemStacks[i] = player.getItemBySlot(slot);
                 i++;
             }
         } else {
@@ -375,7 +379,11 @@ public final class RenderUtil {
                 } else if (slot == EquipmentSlot.OFFHAND) {
                     player.getInventory().offhand.set(0, itemStack);
                 } else {
-                    player.getInventory().armor.set(slot.getIndex(), itemStack);
+                    var armor = player.getInventory().armor;
+                    if (armor.size() <= slot.getIndex()) {
+                        continue;
+                    }
+                    armor.set(slot.getIndex(), itemStack);
                 }
                 i++;
             }
