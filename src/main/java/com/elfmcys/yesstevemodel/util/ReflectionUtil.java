@@ -1,21 +1,17 @@
 package com.elfmcys.yesstevemodel.util;
 
-import java.lang.reflect.Field;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Optional;
 
 public class ReflectionUtil {
-    public static Optional<Field> getField(Class<?> clazz, String name, Class<?> type) {
-        do {
-            try {
-                var field = clazz.getDeclaredField(name);
-                if (field.getType() != type) {
-                    break;
-                }
-                return Optional.of(field);
-            } catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass();
-            }
-        } while (clazz != null);
+    public static Optional<VarHandle> getField(Class<?> clazz, String name, Class<?> type) {
+        try {
+            return Optional.of(MethodHandles.privateLookupIn(clazz, MethodHandles.lookup())
+                    .findVarHandle(clazz, name, type));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
         return Optional.empty();
     }
 }
