@@ -8,7 +8,7 @@ import java.text.DecimalFormat;
 import java.util.function.BiConsumer;
 
 public class DebugInfo {
-    private static final DecimalFormat FORMATTER = new DecimalFormat("#.########");
+    private static final DecimalFormat FORMATTER = new DecimalFormat("#.#####");
     private final ReferenceArrayList<DebugItem> items = new ReferenceArrayList<>();
 
     public void add(Phase phase, String name, IValue exp) {
@@ -62,8 +62,6 @@ public class DebugInfo {
                 var ret = value.evalUnsafe(evaluator);
                 if (ret == null) {
                     result = "null";
-                } else if (ret instanceof String) {
-                    result = "'" + ret + "'";
                 } else if (ret instanceof Number) {
                     result = FORMATTER.format(ret);
                 } else {
