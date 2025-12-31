@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.animation.predicate;
 import com.elfmcys.yesstevemodel.client.animation.EntityTickStates;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionalSwing;
+import com.elfmcys.yesstevemodel.client.compat.ironsspellbooks.IronsSpellBooksCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
@@ -22,6 +23,12 @@ public class SwingPredicate implements IAnimationPredicate<CustomHumanoidEntity<
         LivingEntity entity = event.getAnimatableEntity().getEntity();
         if (entity == null || event.getAnimatableEntity() instanceof IPreviewEntity) {
             return PlayState.STOP;
+        }
+
+        // 铁魔法兼容
+        PlayState playState = IronsSpellBooksCompat.playAnimation(event, entity);
+        if (playState != null) {
+            return playState;
         }
 
         int formatVer = event.getAnimatableEntity().getModelContainer().info().formatVer();

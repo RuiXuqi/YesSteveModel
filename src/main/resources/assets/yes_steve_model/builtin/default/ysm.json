@@ -108,6 +108,7 @@
         "slashblade": "animations/slashblade.animation.json",
         "tlm": "animations/tlm.animation.json",
         "immersive_melodies": "animations/im.animation.json",
+        "irons_spell_books": "animations/iss.animation.json",
         "fp_arm": "animations/fp.arm.animation.json"
       },
       "animation_controllers": [],

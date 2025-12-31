@@ -1,0 +1,41 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "iss:instant_projectile": {
+      "loop": false
+    },
+    "iss:long_cast_finish": {
+      "loop": false
+    },
+    "iss:charge_spit": {
+      "loop": false
+    },
+    "iss:instant_slash": {
+      "loop": false
+    },
+    "iss:charged_throw": {
+      "loop": false
+    },
+    "iss:charge_wavy": {
+      "loop": false
+    },
+    "iss:long_cast": {
+      "loop": false
+    },
+    "iss:continuous_overhead": {
+      "loop": false
+    },
+    "iss:continuous_thrust": {
+      "loop": false
+    },
+    "iss:charge_arrow": {
+      "loop": false
+    },
+    "iss:charge_raised_hand": {
+      "loop": false
+    },
+    "iss:charge_spit_finish": {
+      "loop": false
+    }
+  }
+}
