@@ -27,7 +27,7 @@ public class JadePlugin implements IWailaPlugin {
         public void appendTooltip(ITooltip tooltip, EntityAccessor entityAccessor, IPluginConfig config) {
             if (entityAccessor.getEntity() instanceof Player player) {
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    if (cap.isInitialized()) {
+                    if (cap.isInitializedAndEnabled()) {
                         tooltip.add(Component.translatable("top.yes_steve_model.model_info.id")
                                 .append(cap.getModelContainer().getDisplayName(ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
                     }
