@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.event;
 import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
+import com.elfmcys.yesstevemodel.client.compat.ironsspellbooks.IronsSpellBooksCompat;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -31,7 +32,7 @@ public class ReplacePlayerRenderEvent {
             return;
         }
         if (playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                .map(cap -> cap.isInitializedAndEnabled() && !BetterCombatCompat.shouldSkipRendering(cap))
+                .map(cap -> cap.isInitializedAndEnabled() && !BetterCombatCompat.shouldSkipRendering(cap) && !IronsSpellBooksCompat.shouldSkipRendering(cap))
                 .orElse(false)) {
             event.setCanceled(true);
             RegisterEntityRenderersEvent.getPlayerRenderer().render(
