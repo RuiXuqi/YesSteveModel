@@ -1,5 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.ironsspellbooks;
 
+import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
@@ -44,6 +45,7 @@ public class IronsSpellBooksCompatInner {
         if (event.getAnimatableEntity().getAnimation(animationName) != null) {
             return IAnimationPredicate.playAnimation(event, animationName);
         }
+        YesSteveModel.LOGGER.error(animationName);
         return null;
     }
 }
