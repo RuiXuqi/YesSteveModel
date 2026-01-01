@@ -15,12 +15,16 @@ public class IronsSpellBooksCompatInner {
     private static final String PREFIX = "iss:";
 
     static void addInnerBinding(CtrlBinding binding) {
-        binding.clientPlayerVar("iss_animation", ctx -> getAnimation(ctx.entity()));
+        binding.clientPlayerVar("iss_animation", ctx -> getAnimation(ctx.entity(), null));
     }
 
-    static String getAnimation(LivingEntity entity) {
+    static String getAnimation(LivingEntity entity, @Nullable AnimationEvent<CustomHumanoidEntity<?>> event) {
         var animation = ClientMagicData.castingAnimationPlayerLookup.get(entity.getUUID());
         if (animation != null && animation.isActive()) {
+            // 每次动画开始时重置动画状态
+            if (event != null && animation.getTick() == 0) {
+                event.getCodedController().indicateReload();
+            }
             var result = animation.getData().extraData.getOrDefault("name", StringUtils.EMPTY);
             if (result instanceof String str) {
                 return str;
@@ -32,13 +36,9 @@ public class IronsSpellBooksCompatInner {
 
     @Nullable
     static PlayState playAnimation(AnimationEvent<CustomHumanoidEntity<?>> event, LivingEntity entity) {
-        String animation = getAnimation(entity);
+        String animation = getAnimation(entity, event);
         if (StringUtils.isBlank(animation)) {
             return null;
-        }
-        // 起手重置动画
-        if (event.getCodedController().isAnimFinished()) {
-            event.getCodedController().indicateReload();
         }
         String animationName = PREFIX + animation;
         if (event.getAnimatableEntity().getAnimation(animationName) != null) {
