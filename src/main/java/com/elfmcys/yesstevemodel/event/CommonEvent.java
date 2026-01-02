@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -17,6 +18,7 @@ public final class CommonEvent {
     @SubscribeEvent
     public static void onSetupEvent(FMLCommonSetupEvent event) {
         if (!YesSteveModel.isAvailable()) {
+            event.enqueueWork(() -> ModLoader.get().addWarning(YesSteveModel.getUnavailableWarning()));
             return;
         }
         event.enqueueWork(() -> {

@@ -6,6 +6,9 @@ import com.sun.jna.Platform;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.ModLoadingStage;
+import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -84,6 +87,8 @@ public final class NativeLibUtil {
      * 不支持当前平台的提示信息
      */
     private static Component UNSUPPORTED_MSG;
+    private static String UNSUPPORTED_MSG_KEY;
+    private static Object[] UNSUPPORTED_MSG_CTX;
     private static String UNSUPPORTED_MSG_STR;
 
     /**
@@ -383,12 +388,16 @@ public final class NativeLibUtil {
             hint = SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH;
         }
         UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.unsupported_platform", hint);
+        UNSUPPORTED_MSG_KEY = "error.yes_steve_model.unsupported_platform_ext";
+        UNSUPPORTED_MSG_CTX = new Object[]{hint};
         UNSUPPORTED_MSG_STR = "[YSM] Current platform is unsupported: " + hint;
     }
 
     private static void setUnsupportedBuildMsg() {
         String hint = SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH;
         UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.unsatisfied_build", hint);
+        UNSUPPORTED_MSG_KEY = "error.yes_steve_model.unsatisfied_build_ext";
+        UNSUPPORTED_MSG_CTX = new Object[]{hint};
         UNSUPPORTED_MSG_STR = "[YSM] This build does not support current platform: " + hint;
     }
 
@@ -397,6 +406,8 @@ public final class NativeLibUtil {
         String fclVersion = System.getenv(FCL_VERSION_CODE_ENV);
         if (StringUtils.isNotBlank(fclVersion)) {
             UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.old_launcher", "FCL", "1.2.6.7");
+            UNSUPPORTED_MSG_KEY = "error.yes_steve_model.old_launcher_ext";
+            UNSUPPORTED_MSG_CTX = new Object[]{"FCL", "1.2.6.7"};
             UNSUPPORTED_MSG_STR = "[YSM] Current FCL launcher is old version";
             return;
         }
@@ -407,9 +418,13 @@ public final class NativeLibUtil {
             int version = Integer.parseInt(zalithVersion);
             if (version < ZALITH_2_MIN_VERSION) {
                 UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.old_launcher", "Zalith 1", "1.4.1.1");
+                UNSUPPORTED_MSG_KEY = "error.yes_steve_model.old_launcher_ext";
+                UNSUPPORTED_MSG_CTX = new Object[]{"Zalith 1", "1.4.1.1"};
                 UNSUPPORTED_MSG_STR = "[YSM] Current Zalith 1 launcher is old version";
             } else {
                 UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.old_launcher", "Zalith 2", "2.0.0_beta-20251118a");
+                UNSUPPORTED_MSG_KEY = "error.yes_steve_model.old_launcher_ext";
+                UNSUPPORTED_MSG_CTX = new Object[]{"Zalith 2", "2.0.0_beta-20251118a"};
                 UNSUPPORTED_MSG_STR = "[YSM] Current Zalith 2 launcher is old version";
             }
             return;
@@ -417,6 +432,14 @@ public final class NativeLibUtil {
 
         UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.unsupported_launcher");
         UNSUPPORTED_MSG_STR = "[YSM] Current launcher is unsupported";
+    }
+
+    @SuppressWarnings("removal")
+    public static ModLoadingWarning getUnavailableWarning() {
+        return new ModLoadingWarning(
+                ModLoadingContext.get().getActiveContainer().getModInfo(),
+                ModLoadingStage.SIDED_SETUP,
+                UNSUPPORTED_MSG_KEY, UNSUPPORTED_MSG_CTX);
     }
 
     /**

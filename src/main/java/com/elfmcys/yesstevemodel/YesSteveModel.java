@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -68,6 +69,10 @@ public class YesSteveModel {
         if (player != null) {
             player.sendSystemMessage(getUnavailableMessage());
         }
+    }
+
+    public static ModLoadingWarning getUnavailableWarning() {
+        return NativeLibUtil.getUnavailableWarning();
     }
 
     public static Component getUnavailableMessage() {
