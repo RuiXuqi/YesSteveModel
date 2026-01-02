@@ -85,6 +85,17 @@
 						"0.0": [0, 0, 0],
 						"0.0833": [0, 0, 0]
 					}
+				},
+				"RightHandLocator": {
+					"rotation": {
+						"0.0": [0, 0, 0],
+						"0.0833": [0, 30, 0],
+						"0.25": [0, 5, 0]
+					},
+					"position": {
+						"0.0": [0, 0, 0],
+						"0.0833": [0, 0, 0]
+					}
 				}
 			}
 		},
@@ -142,6 +153,16 @@
 						"0.0": [0, -45, 0],
 						"0.1667": [0, 0, 0]
 					}
+				},
+				"RightHandLocator": {
+					"rotation": {
+						"0.0": [17.78356, 9.39129, 3.45118],
+						"0.1667": [42.5, 0, 0]
+					},
+					"position": {
+						"0.0": [0, 0, 0],
+						"0.1667": [0, 1, 0]
+					}
 				}
 			}
 		},
@@ -172,11 +193,15 @@
 				},
 				"RightForeArm": {
 					"rotation": [0, 0, 0]
+				},
+				"RightHandLocator": {
+					"rotation": [0, -15, -90],
+					"position": [-0.17969, -1.51562, 5]
 				}
 			}
 		},
 		"iss:continuous_overhead": {
-			"animation_length": 4,
+			"animation_length": 3,
 			"bones": {
 				"UpBody": {
 					"rotation": {
@@ -264,18 +289,10 @@
 					}
 				},
 				"LeftArm": {
-					"rotation": {
-						"0.0": [-37.5, 0, 0],
-						"3.875": [-37.5, 0, 0],
-						"4.0": [-2.38443, -0.75155, -17.48436]
-					}
+					"rotation": [-37.5, 0, 0]
 				},
 				"LeftForeArm": {
-					"rotation": {
-						"0.0": [-69.55418, 11.73507, -85.6639],
-						"3.875": [-69.55, 11.74, -85.66],
-						"4.0": [-30.7223, 66.55123, -32.93318]
-					}
+					"rotation": [-69.55418, 11.73507, -85.6639]
 				},
 				"MRoot": {
 					"position": [0, 10, 0]
@@ -458,7 +475,7 @@
 			}
 		},
 		"iss:charged_throw": {
-			"animation_length": 1.0417,
+			"animation_length": 1.5,
 			"bones": {
 				"UpperBody": {
 					"rotation": [0, 15, 0]
@@ -504,6 +521,9 @@
 				"ysmGlowmofazhen3": {
 					"position": [0, 0, -6],
 					"scale": 0.7
+				},
+				"RightHandLocator": {
+					"rotation": [68.49291, 7.92534, 12.64074]
 				}
 			}
 		},
@@ -755,6 +775,18 @@
 						"0.2083": [0, -82.5, 0],
 						"1.0": [0, -81.5, 0]
 					}
+				},
+				"mofazhang2": {
+					"scale": 0
+				},
+				"ysmGlowmofazhen2": {
+					"scale": 0
+				},
+				"ysmGlowmofazhen3": {
+					"scale": 0
+				},
+				"RightHandLocator": {
+					"scale": 0
 				}
 			}
 		},
@@ -788,11 +820,14 @@
 				},
 				"LeftForeArm": {
 					"rotation": [-92.77945, -24.9742, -88.82404]
+				},
+				"RightHandLocator": {
+					"rotation": [65.35283, -7.05055, 58.3742]
 				}
 			}
 		},
 		"iss:charge_raised_hand": {
-			"animation_length": 0.5,
+			"animation_length": 1,
 			"bones": {
 				"RightArm": {
 					"rotation": [-88.06155, 3.73171, -17.10967],
@@ -816,8 +851,8 @@
 				"LeftForeArm": {
 					"rotation": [-107.5, 0, 0]
 				},
-				"mofazhang": {
-					"scale": 1
+				"RightHandLocator": {
+					"rotation": [0, 90, 0]
 				}
 			}
 		},
@@ -852,6 +887,10 @@
 						"0.125": [1, 1, 1],
 						"0.25": [0.5, 0.5, 0.5]
 					}
+				},
+				"RightHandLocator": {
+					"rotation": [85.92462, 14.11007, 5.04574],
+					"position": [0, 0, 0]
 				}
 			}
 		},
