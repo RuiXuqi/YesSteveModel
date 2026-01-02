@@ -27,7 +27,7 @@ public class TacCtrlBinding {
         // 新版新增
         binding.livingEntityVar("tac_fire_mode", ctx -> {
             FireMode fireMode = IGun.getMainHandFireMode(ctx.entity());
-            return fireMode != null ? fireMode.name() : StringUtils.EMPTY;
+            return fireMode != FireMode.UNKNOWN ? fireMode.name() : StringUtils.EMPTY;
         });
     }
 

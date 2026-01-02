@@ -407,7 +407,7 @@
   "error.yes_steve_model.parse_molang_exp": "Molang 표현식을 해석하는 데 실패했습니다: ",
   "top.yes_steve_model.model_info.id": "YSM 모델: ",
   "config.jade.plugin_yes_steve_model.model_info": "YSM 모델 정보 표시",
-  "modmenu.nameTranslation.yes_steve_model": "플레이어 모델 커스터마이징 (예스 스티브 모델)",
+  "modmenu.nameTranslation.yes_steve_model": "예스 스티브 모델",
   "modmenu.descriptionTranslation.yes_steve_model": "기본 플레이어 모델을 교체하여 외형과 애니메이션을 자유롭게 변경할 수 있게 해주는 모드입니다. 베드락 에디션 형식의 모델과 애니메이션 파일을 지원하며.",
   "modmenu.summaryTranslation.yes_steve_model": "플레이어 외형 및 애니메이션 변경"
 }

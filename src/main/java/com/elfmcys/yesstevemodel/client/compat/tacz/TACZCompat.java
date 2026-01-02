@@ -5,7 +5,6 @@ import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
@@ -47,6 +46,7 @@ public class TACZCompat {
         binding.livingEntityVar("tac_is_reload", ctx -> false);
         binding.livingEntityVar("tac_is_melee", ctx -> false);
         binding.livingEntityVar("tac_is_draw", ctx -> false);
+        binding.livingEntityVar("tac_fire_mode", ctx -> StringUtils.EMPTY);
     }
 
     public static void renderOffsetHand(ItemStack offhandItem, GeoModelState geoModel, LivingEntity livingEntity, PoseStack poseStack, int packedLight, float partialTicks) {
