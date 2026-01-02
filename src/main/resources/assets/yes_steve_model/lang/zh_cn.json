@@ -409,5 +409,8 @@
   "key.yes_steve_model.open_extra_player_render.desc": "打开额外玩家渲染配置",
   "subtitle.yes_steve_model.custom": "YSM 自定义声音",
   "top.yes_steve_model.model_info.id": "YSM模型：",
-  "config.jade.plugin_yes_steve_model.model_info": "显示 YSM 模型信息"
+  "config.jade.plugin_yes_steve_model.model_info": "显示 YSM 模型信息",
+  "modmenu.nameTranslation.yes_steve_model": "玩家模型自定义（Yes Steve Model）",
+  "modmenu.descriptionTranslation.yes_steve_model": "该模组允许替换默认的玩家模型，自由修改外观与动画。支持基岩版格式的模型与动画文件",
+  "modmenu.summaryTranslation.yes_steve_model": "玩家外观与动画修改"
 }

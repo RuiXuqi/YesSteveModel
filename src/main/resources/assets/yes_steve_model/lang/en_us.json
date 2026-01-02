@@ -409,5 +409,8 @@
   "key.yes_steve_model.open_extra_player_render.desc": "Extra Player Render Config",
   "subtitle.yes_steve_model.custom": "YSM Custom Sound",
   "top.yes_steve_model.model_info.id": "YSM Model: ",
-  "config.jade.plugin_yes_steve_model.model_info": "Show YSM Model Info"
+  "config.jade.plugin_yes_steve_model.model_info": "Show YSM Model Info",
+  "modmenu.nameTranslation.yes_steve_model": "Player Model Customization (Yes Steve Model)",
+  "modmenu.descriptionTranslation.yes_steve_model": "This mod allows replacing the default player model and freely modifying appearance and animations. It supports Bedrock Edition format model and animation files.",
+  "modmenu.summaryTranslation.yes_steve_model": "Player appearance and animation modification"
 }
