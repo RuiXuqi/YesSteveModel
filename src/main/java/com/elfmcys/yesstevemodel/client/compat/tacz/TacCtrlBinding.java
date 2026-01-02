@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
 import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.entity.IGunOperator;
 import com.tacz.guns.api.item.IGun;
+import com.tacz.guns.api.item.gun.FireMode;
 import com.tacz.guns.resource.index.CommonGunIndex;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +23,12 @@ public class TacCtrlBinding {
         binding.livingEntityVar("tac_is_reload", ctx -> IGunOperator.fromLivingEntity(ctx.entity()).getSynReloadState().getCountDown() > 0);
         binding.livingEntityVar("tac_is_melee", ctx -> IGunOperator.fromLivingEntity(ctx.entity()).getSynMeleeCoolDown() > 0);
         binding.livingEntityVar("tac_is_draw", ctx -> IGunOperator.fromLivingEntity(ctx.entity()).getSynDrawCoolDown() > 0);
+
+        // 新版新增
+        binding.livingEntityVar("tac_fire_mode", ctx -> {
+            FireMode fireMode = IGun.getMainHandFireMode(ctx.entity());
+            return fireMode != null ? fireMode.name() : StringUtils.EMPTY;
+        });
     }
 
     private static String getGunType(IContext<LivingEntity> context) {
