@@ -140,7 +140,7 @@ public final class NativeLibUtil {
             return true;
         } catch (Throwable e) {
             YesSteveModel.LOGGER.error("Failed to load native lib", e);
-            setUnsupportedPlatformMsg("Incompatible system (" + e.getMessage() + ")");
+            setUnsupportedPlatformMsg("Unsatisfied runtime environment (" + e.getMessage() + ")");
             return false;
         }
     }
@@ -225,11 +225,8 @@ public final class NativeLibUtil {
             return detectGnuLinuxConfig(modVersion, isX64);
         } else if (libcType == LibcType.BIONIC) {
             return detectAndroidConfig(isAArch64);
-        } else if (libcType == LibcType.MUSL) {
-            setUnsupportedPlatformMsg("Linux with MUSL libc");
-            return null;
         } else {
-            setUnsupportedPlatformMsg("Linux with unknown libc");
+            setUnsupportedPlatformMsg("Linux with unsupported libc");
             return null;
         }
     }
@@ -354,27 +351,20 @@ public final class NativeLibUtil {
     private static LibcType detectLibc() {
         try {
             NativeLibrary lib = NativeLibrary.getInstance(Platform.C_LIBRARY_NAME);
-            if (lib == null) {
-                return LibcType.UNKNOWN;
+            if (lib != null) {
+                // 检测 Android Bionic
+                if (hasFunction(lib, "android_set_abort_message")) {
+                    return LibcType.BIONIC;
+                }
+                // 检测 GNU libc
+                if (hasFunction(lib, "gnu_get_libc_version")) {
+                    return LibcType.GNU;
+                }
             }
-
-            // 检测 Android Bionic
-            if (hasFunction(lib, "android_set_abort_message")) {
-                return LibcType.BIONIC;
-            }
-
-            // 检测 GNU libc
-            if (hasFunction(lib, "gnu_get_libc_version")) {
-                return LibcType.GNU;
-            }
-
-            // 其他情况默认为 MUSL
-            return LibcType.MUSL;
-
         } catch (Throwable e) {
             YesSteveModel.LOGGER.error("Unable to detect libc type", e);
-            return LibcType.UNKNOWN;
         }
+        return LibcType.UNSUPPORTED;
     }
 
     /**
@@ -444,9 +434,9 @@ public final class NativeLibUtil {
      */
     private enum LibcType {
         /**
-         * 未知类型
+         * 不支持的类型
          */
-        UNKNOWN,
+        UNSUPPORTED,
         /**
          * GNU C Library (glibc) - 标准 Linux 下的 C 标准库实现
          */
