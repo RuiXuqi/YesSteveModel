@@ -1,8 +1,6 @@
 package com.elfmcys.yesstevemodel.client.compat.bettercombat;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
-import com.elfmcys.yesstevemodel.util.PersonView;
 import net.minecraftforge.fml.loading.LoadingModList;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,10 +17,6 @@ public class BetterCombatCompat {
 
     public static boolean isInstalled() {
         return INSTALLED;
-    }
-
-    public static boolean shouldSkipRendering(CustomPlayerEntity entity) {
-        return INSTALLED && PersonView.isFirstPersonView(entity);
     }
 
     public static void addBinding(CtrlBinding binding) {

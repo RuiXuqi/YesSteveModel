@@ -2,10 +2,8 @@ package com.elfmcys.yesstevemodel.client.compat.ironsspellbooks;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
-import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.util.PersonView;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.fml.ModList;
 
@@ -19,8 +17,8 @@ public class IronsSpellBooksCompat {
         IS_LOADED = ModList.get().isLoaded(ID);
     }
 
-    public static boolean shouldSkipRendering(CustomPlayerEntity entity) {
-        return IS_LOADED && PersonView.isFirstPersonView(entity);
+    public static boolean isInstalled() {
+        return IS_LOADED;
     }
 
     public static void addBinding(CtrlBinding binding) {

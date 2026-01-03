@@ -1,10 +1,13 @@
 package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
+import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.ironsspellbooks.IronsSpellBooksCompat;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
+import com.elfmcys.yesstevemodel.util.PersonView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -32,12 +35,19 @@ public class ReplacePlayerRenderEvent {
             return;
         }
         if (playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                .map(cap -> cap.isInitializedAndEnabled() && !BetterCombatCompat.shouldSkipRendering(cap) && !IronsSpellBooksCompat.shouldSkipRendering(cap))
+                .map(cap -> !shouldSkipRendering(cap))
                 .orElse(false)) {
             event.setCanceled(true);
             RegisterEntityRenderersEvent.getPlayerRenderer().render(
                     event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(),
                     event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
         }
+    }
+
+    private static boolean shouldSkipRendering(PlayerAnimatableCapability cap) {
+        return !cap.isInitializedAndEnabled()
+                || (PersonView.isFirstPersonView(cap)
+                    && !FirstPersonCompat.isRenderingPlayer()
+                    && (BetterCombatCompat.isInstalled() || IronsSpellBooksCompat.isInstalled()));
     }
 }
