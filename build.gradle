@@ -202,6 +202,7 @@ dependencies {
 
     // 铁魔法
     modImplementation "maven.modrinth:irons-spells-n-spellbooks:1.20.1-3.4.0.11-forge"
+    // modImplementation "curse.maven:irons-spells-n-spellbooks-855414:7402504"
 
     // JEI / EMI
     modImplementation "maven.modrinth:jei:15.20.0.112-forge"

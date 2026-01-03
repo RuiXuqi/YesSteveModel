@@ -6,7 +6,12 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import io.redspace.ironsspellbooks.player.ClientMagicData;
+import dev.kosmx.playerAnim.api.layered.IAnimation;
+import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
+import dev.kosmx.playerAnim.api.layered.ModifierLayer;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
+import io.redspace.ironsspellbooks.api.spells.SpellAnimations;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,17 +25,19 @@ public class IronsSpellBooksCompatInner {
     }
 
     static String getAnimation(LivingEntity entity, @Nullable AnimationEvent<CustomHumanoidEntity<?>> event) {
-        var animation = ClientMagicData.castingAnimationPlayerLookup.get(entity.getUUID());
-        if (animation != null && animation.isActive()) {
-            // 每次动画开始时重置动画状态
-            if (event != null && animation.getTick() == 0) {
-                event.getCodedController().indicateReload();
+        if (entity instanceof AbstractClientPlayer player) {
+            var layer = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData(player).get(SpellAnimations.ANIMATION_RESOURCE);
+            if (layer != null && layer.isActive() && layer.getAnimation() instanceof KeyframeAnimationPlayer keyframe) {
+                // 每次动画开始时重置动画状态
+                if (event != null && keyframe.getTick() == 0) {
+                    event.getCodedController().indicateReload();
+                }
+                var result = keyframe.getData().extraData.getOrDefault("name", StringUtils.EMPTY);
+                if (result instanceof String str) {
+                    return str;
+                }
+                return StringUtils.EMPTY;
             }
-            var result = animation.getData().extraData.getOrDefault("name", StringUtils.EMPTY);
-            if (result instanceof String str) {
-                return str;
-            }
-            return StringUtils.EMPTY;
         }
         return StringUtils.EMPTY;
     }
