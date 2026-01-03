@@ -21,6 +21,7 @@ import com.elfmcys.yesstevemodel.util.PersonView;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -87,9 +88,6 @@ public class YSMBinding extends ContextBinding {
         var("dimension_name", ctx -> ctx.level().dimension().location().toString());
         var("fps", ctx -> Minecraft.getInstance().getFps());
         var("time_delta", ctx -> ctx.animatableEntity().getStateTracker().getRenderTickDelta() / 20);
-
-        var("hit_target_id", YSMBinding::getHitId);
-        var("hit_target_type", YSMBinding::getHitType);
 
         entityVar("ground_speed2", YSMBinding::getGroundSpeed2);
 
@@ -166,6 +164,9 @@ public class YSMBinding extends ContextBinding {
         clientPlayerVar("elytra_rot_y", ctx -> Math.toDegrees(ctx.entity().elytraRotY));
         clientPlayerVar("elytra_rot_z", ctx -> Math.toDegrees(ctx.entity().elytraRotZ));
 
+        localPlayerVar("hit_target_id", YSMBinding::getHitId);
+        localPlayerVar("hit_target_type", YSMBinding::getHitType);
+
         function("first_order", new FirstOrderFunction());
         function("second_order", new SecondOrderFunction());
         function("particle", new ParticleFunction(false));
@@ -194,7 +195,7 @@ public class YSMBinding extends ContextBinding {
         CuriosCompat.addMolangBinding(this);
     }
 
-    private static String getHitId(IContext<Object> context) {
+    private static String getHitId(IContext<LocalPlayer> context) {
         HitResult hitResult = Minecraft.getInstance().hitResult;
         if (hitResult instanceof BlockHitResult result) {
             if (result.getType() == HitResult.Type.MISS) {
@@ -226,7 +227,7 @@ public class YSMBinding extends ContextBinding {
         return "";
     }
 
-    private static String getHitType(IContext<Object> context) {
+    private static String getHitType(IContext<LocalPlayer> context) {
         HitResult hitResult = Minecraft.getInstance().hitResult;
         if (hitResult == null) {
             return StringUtils.EMPTY;
