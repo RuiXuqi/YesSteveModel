@@ -44,7 +44,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -83,6 +87,10 @@ public class YSMBinding extends ContextBinding {
         var("dimension_name", ctx -> ctx.level().dimension().location().toString());
         var("fps", ctx -> Minecraft.getInstance().getFps());
         var("time_delta", ctx -> ctx.animatableEntity().getStateTracker().getRenderTickDelta() / 20);
+
+        var("hit_target_id", YSMBinding::getHitId);
+        var("hit_target_type", YSMBinding::getHitType);
+
         entityVar("ground_speed2", YSMBinding::getGroundSpeed2);
 
         entityVar("input_vertical", MoveInputVariable::getVertical);
@@ -184,6 +192,50 @@ public class YSMBinding extends ContextBinding {
 
         // 模组联动
         CuriosCompat.addMolangBinding(this);
+    }
+
+    private static String getHitId(IContext<Object> context) {
+        HitResult hitResult = Minecraft.getInstance().hitResult;
+        if (hitResult instanceof BlockHitResult result) {
+            if (result.getType() == HitResult.Type.MISS) {
+                return "";
+            }
+            ClientLevel level = Minecraft.getInstance().level;
+            if (level == null) {
+                return "";
+            }
+            BlockState blockState = level.getBlockState(result.getBlockPos());
+            ResourceLocation id = ForgeRegistries.BLOCKS.getKey(blockState.getBlock());
+            if (id != null) {
+                return id.toString();
+            } else {
+                return "";
+            }
+        }
+
+        if (hitResult instanceof EntityHitResult result) {
+            Entity entity = result.getEntity();
+            ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
+            if (id != null) {
+                return id.toString();
+            } else {
+                return "";
+            }
+        }
+
+        return "";
+    }
+
+    private static String getHitType(IContext<Object> context) {
+        HitResult hitResult = Minecraft.getInstance().hitResult;
+        if (hitResult == null) {
+            return StringUtils.EMPTY;
+        }
+        return switch (hitResult.getType()) {
+            case BLOCK -> "block";
+            case ENTITY -> "entity";
+            default -> StringUtils.EMPTY;
+        };
     }
 
     private static String getHookedIn(IContext<FishingHook> ctx) {
