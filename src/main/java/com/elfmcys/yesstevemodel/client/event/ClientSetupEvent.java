@@ -44,6 +44,7 @@ public class ClientSetupEvent {
         event.enqueueWork(() -> {
             CuriosCompat.init();
             FirstPersonCompat.init();
+            RealCameraCompat.init();
             BetterCombatCompat.init();
             IrisCompat.init();
             OptifineCompat.init();
