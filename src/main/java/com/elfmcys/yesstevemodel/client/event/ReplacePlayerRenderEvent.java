@@ -4,7 +4,7 @@ import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
-import com.elfmcys.yesstevemodel.client.compat.RealCameraCompat;
+import com.elfmcys.yesstevemodel.client.compat.realcamera.RealCameraCompat;
 import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.yesstevemodel.client.compat.ironsspellbooks.IronsSpellBooksCompat;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
@@ -49,7 +49,7 @@ public class ReplacePlayerRenderEvent {
 
     private static boolean shouldSkipRendering(PlayerAnimatableCapability cap) {
         return PersonView.isFirstPersonView(cap)
-                    && !(FirstPersonCompat.isRenderingPlayer() || RealCameraCompat.isInstalled())
+                    && !(FirstPersonCompat.isRenderingPlayer() || RealCameraCompat.isActive())
                     && (BetterCombatCompat.isInstalled() || IronsSpellBooksCompat.isInstalled());
     }
 }

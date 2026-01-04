@@ -1,4 +1,4 @@
-package com.elfmcys.yesstevemodel.client.compat;
+package com.elfmcys.yesstevemodel.client.compat.realcamera;
 
 import net.minecraftforge.fml.ModList;
 
@@ -10,7 +10,10 @@ public class RealCameraCompat {
         INSTALLED = ModList.get().isLoaded(MOD_ID);
     }
 
-    public static boolean isInstalled() {
-        return INSTALLED;
+    public static boolean isActive() {
+        if (INSTALLED) {
+            return RealCameraCompatInner.isActive();
+        }
+        return false;
     }
 }

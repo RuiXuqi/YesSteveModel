@@ -11,6 +11,7 @@ import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
 import com.elfmcys.yesstevemodel.client.compat.immersivemelodies.ImmersiveMelodiesCompat;
 import com.elfmcys.yesstevemodel.client.compat.ironsspellbooks.IronsSpellBooksCompat;
 import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.compat.realcamera.RealCameraCompat;
 import com.elfmcys.yesstevemodel.client.compat.simplehat.SimpleHatsCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swarfare.SWarfareCompat;
