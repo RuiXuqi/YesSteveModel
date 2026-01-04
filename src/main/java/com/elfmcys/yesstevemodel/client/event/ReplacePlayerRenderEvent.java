@@ -35,20 +35,21 @@ public class ReplacePlayerRenderEvent {
         if (event.getEntity().isSpectator()) {
             return;
         }
-        if (playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP)
-                .map(cap -> !shouldSkipRendering(cap))
-                .orElse(false)) {
-            event.setCanceled(true);
-            RegisterEntityRenderersEvent.getPlayerRenderer().render(
-                    event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(),
-                    event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
-        }
+        playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            if (cap.isInitializedAndEnabled()) {
+                event.setCanceled(true);
+                if (!shouldSkipRendering(cap)) {
+                    RegisterEntityRenderersEvent.getPlayerRenderer().render(
+                            event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(),
+                            event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
+                }
+            }
+        });
     }
 
     private static boolean shouldSkipRendering(PlayerAnimatableCapability cap) {
-        return !cap.isInitializedAndEnabled()
-                || (PersonView.isFirstPersonView(cap)
+        return PersonView.isFirstPersonView(cap)
                     && !(FirstPersonCompat.isRenderingPlayer() || RealCameraCompat.isInstalled())
-                    && (BetterCombatCompat.isInstalled() || IronsSpellBooksCompat.isInstalled()));
+                    && (BetterCombatCompat.isInstalled() || IronsSpellBooksCompat.isInstalled());
     }
 }
