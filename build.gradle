@@ -208,6 +208,9 @@ dependencies {
     modImplementation "maven.modrinth:jei:15.20.0.112-forge"
     modImplementation "maven.modrinth:emi:1.1.22+1.20.1+forge"
 
+    modRuntimeOnly "maven.modrinth:moonlight:1.20-2.16.19-forge"
+    modRuntimeOnly "maven.modrinth:mmmmmmmmmmmm:1.20-2.0.9-forge"
+
     // 手机端的仿触屏模组
     // modImplementation "maven.modrinth:touchcontroller:0.2.1-beta14+forge-1.20.1"
 
