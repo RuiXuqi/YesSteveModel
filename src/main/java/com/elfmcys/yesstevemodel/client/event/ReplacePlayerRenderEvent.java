@@ -37,19 +37,13 @@ public class ReplacePlayerRenderEvent {
         }
         playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             if (cap.isInitializedAndEnabled()) {
-                event.setCanceled(true);
-                if (!shouldSkipRendering(cap)) {
+                if (!PersonView.isFirstPersonView(cap) || FirstPersonCompat.isRenderingPlayer() || RealCameraCompat.isActive()) {
+                    event.setCanceled(true);
                     RegisterEntityRenderersEvent.getPlayerRenderer().render(
                             event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(),
                             event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
                 }
             }
         });
-    }
-
-    private static boolean shouldSkipRendering(PlayerAnimatableCapability cap) {
-        return PersonView.isFirstPersonView(cap)
-                    && !(FirstPersonCompat.isRenderingPlayer() || RealCameraCompat.isActive())
-                    && (BetterCombatCompat.isInstalled() || IronsSpellBooksCompat.isInstalled());
     }
 }
