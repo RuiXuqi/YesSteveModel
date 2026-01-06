@@ -181,7 +181,9 @@ public final class RenderUtil {
             if (guiAnim.hasPreview("sleep")) {
                 renderBed(pScale, pitch, yaw, bufferSource);
             }
-            renderGround(pScale, pitch, yaw, bufferSource);
+            if (showGround) {
+                renderGround(pScale, pitch, yaw, bufferSource);
+            }
             bufferSource.endBatch();
             renderer.renderAnimatableEntity(entity, 0, partialTicks, poseStack, bufferSource, 0xf000f0);
         });
