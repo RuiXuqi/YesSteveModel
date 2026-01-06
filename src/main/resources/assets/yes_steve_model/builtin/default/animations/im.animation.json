@@ -484,7 +484,7 @@
 					"position": [-0.09241, 1.81602, 1.0975]
 				},
 				"UpBody": {
-					"rotation": ["-20+20*ysm.second_order('pitch',ctrl.im_pitch,1.5,1,1)", 0, "math.sin(-90+q.anim_time*120)*2"]
+					"rotation": ["(ctrl.im_time>0)?(-20+20*ysm.second_order('pitch',ctrl.im_pitch,1.5,1,1)):25", 0, "math.sin(-90+q.anim_time*120)*2"]
 				},
 				"AllHead": {
 					"rotation": [0, 0, "math.sin(-160+q.anim_time*120)*2"]
@@ -527,7 +527,7 @@
 					"rotation": [-125, 0, 0]
 				},
 				"UpBody": {
-					"rotation": ["-20+20*ysm.second_order('pitch',ctrl.im_pitch,1.5,1,1)", 0, "-(math.sin(-90+q.anim_time*120)*2)"]
+					"rotation": ["(ctrl.im_time>0)?(-20+20*ysm.second_order('pitch',ctrl.im_pitch,1.5,1,1)):25", 0, "-(math.sin(-90+q.anim_time*120)*2)"]
 				},
 				"AllHead": {
 					"rotation": [0, 0, "-(math.sin(-160+q.anim_time*120)*2)"]
