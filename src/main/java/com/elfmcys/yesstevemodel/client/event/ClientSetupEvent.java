@@ -48,6 +48,7 @@ public class ClientSetupEvent {
             RealCameraCompat.init();
             BetterCombatCompat.init();
             IrisCompat.init();
+            ARCompat.init();
             OptifineCompat.init();
             CosmeticArmorCompat.init();
             ElytraSlotCompat.init();
