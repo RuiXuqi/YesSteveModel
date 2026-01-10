@@ -2,6 +2,7 @@ package com.elfmcys.yesstevemodel.geckolib3.core.molang.context;
 
 import com.elfmcys.yesstevemodel.client.sound.instance.SoundInstanceManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IContextVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.ITempVariableStorage;
@@ -45,6 +46,9 @@ public interface IContext<TEntity> {
     ITempVariableStorage tempStorage();
 
     IScopedVariableStorage scopedStorage();
+
+    @Nullable
+    IContextVariableStorage contextStorage();
 
     IForeignVariableStorage foreignStorage();
 

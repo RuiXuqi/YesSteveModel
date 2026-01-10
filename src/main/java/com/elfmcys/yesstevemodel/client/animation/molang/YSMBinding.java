@@ -186,6 +186,7 @@ public class YSMBinding extends ContextBinding {
         function("keyboard", new InputCheck.Keyboard());
         function("mouse", new InputCheck.Mouse());
         function("sync", new Sync());
+        function("defer", new Defer());
 
         projectileVar("projectile_owner", ctx -> ctx.createChild(ctx.entity().getOwner()));
 

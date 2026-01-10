@@ -178,11 +178,13 @@ public class AnimationPlayer {
         if (this.state == AnimationState.RUNNING && currentLoopType == LoopType.PLAY_ONCE && animTicks >= currentAnim.animationLength) {
             resetEventKeyframes(evaluator, allowEmitting);
             setupEndingTransition(renderTicks);
+            animationContext.reset(evaluator);
             animTicks = getAnimTicks(renderTicks);
         }
 
         if (this.state == AnimationState.IDLE) {
             // 没有动画正在播放时，尝试切换下一个动画
+            animationContext.reset(evaluator);
             if (!loadNextAnim()) {
                 return;
             }
@@ -221,6 +223,7 @@ public class AnimationPlayer {
 
                 if (currentLoopType == LoopType.LOOP) {
                     // 对于循环动画，本轮播放结束后重置 tick offset，开始下一轮循环
+                    animationContext.reset(evaluator);
                     if (currentAnim.animationLength > 0) {
                         animTicks = animTicks % currentAnim.animationLength;
                     } else {
@@ -271,6 +274,10 @@ public class AnimationPlayer {
         if (this.soundKeyFrameExecutor != null) {
             this.soundKeyFrameExecutor.reset();
         }
+    }
+
+    public void finalizeAnimationContext(ExpressionEvaluator<?> evaluator) {
+        animationContext.reset(evaluator);
     }
 
     /**

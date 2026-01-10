@@ -1,8 +1,8 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.molang.binding;
 
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable.ContextVariableBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.MathBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.builtin.QueryBinding;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable.ForeignVariableBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable.ScopedVariableBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.variable.TempVariableBinding;
 import com.elfmcys.yesstevemodel.molang.runtime.binding.ObjectBinding;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class PrimaryBinding implements ObjectBinding {
     protected final Object2ReferenceOpenHashMap<String, Object> bindings = new Object2ReferenceOpenHashMap<>();
     protected final ScopedVariableBinding scopedBinding = new ScopedVariableBinding();
-    protected final ForeignVariableBinding foreignBinding = new ForeignVariableBinding();
+    protected final ContextVariableBinding ctxBinding = new ContextVariableBinding();
     protected final TempVariableBinding tempBinding = new TempVariableBinding();
 
     private final List<TransientObject> transientObjects;
@@ -37,8 +37,8 @@ public class PrimaryBinding implements ObjectBinding {
         bindings.put("variable", scopedBinding);
         bindings.put("v", scopedBinding);
 
-        bindings.put("context", foreignBinding);
-        bindings.put("c", foreignBinding);
+        bindings.put("context", ctxBinding);
+        bindings.put("c", ctxBinding);
 
         bindings.put("temp", tempBinding);
         bindings.put("t", tempBinding);

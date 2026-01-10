@@ -13,6 +13,7 @@ public class MolangEventWrapper {
     public static final int PLAYER_INIT = StringPool.computeIfAbsent("player_init");
     public static final int PLAYER_UPDATE = StringPool.computeIfAbsent("player_update");
     public static final int SYNC = StringPool.computeIfAbsent("sync");
+    public static final int DEFER = StringPool.computeIfAbsent("defer");
 
     public static IValue wrap(List<IValue> handlers, FloatArrayList args) {
         return wrap(handlers, args != null ? args : FloatLists.emptyList());

@@ -5,10 +5,7 @@ import com.elfmcys.yesstevemodel.capability.ProjectileAnimatableCapabilityProvid
 import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.sound.instance.SoundInstanceManager;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IForeignVariableStorage;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.IScopedVariableStorage;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.ITempVariableStorage;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.MolangMemory;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.storage.*;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
@@ -141,6 +138,11 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     @Override
     public IForeignVariableStorage foreignStorage() {
         return foreignStorage;
+    }
+
+    @Override
+    public @Nullable IContextVariableStorage contextStorage() {
+        return animationContext;
     }
 
     @Override

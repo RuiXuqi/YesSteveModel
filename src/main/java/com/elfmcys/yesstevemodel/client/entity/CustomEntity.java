@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.entity;
 import com.elfmcys.yesstevemodel.client.ClientModelManager;
 import com.elfmcys.yesstevemodel.client.animation.AnimationParallelTicker;
 import com.elfmcys.yesstevemodel.client.animation.debug.CustomDebugSource;
+import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.animation.molang.PhysicsManager;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.gui.overlay.DebugAnimationScreen;
@@ -26,6 +27,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
@@ -42,6 +44,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     private PhysicsManager alterPhysicsManager;
     @Nullable
     private DebugInfo debugInfo;
+    @Nullable
+    private List<IValue> deferHandler;
 
     @Nullable
     private Future<AnimationEvent<?>> asyncTask;
@@ -61,6 +65,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         modelFallback = false;
         lastCheckUpdateTime = 0;
         alterPhysicsManager = null;
+        deferHandler = null;
         super.reset();
     }
 
@@ -74,6 +79,11 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
             }
             return alterPhysicsManager;
         }
+    }
+
+    @Nullable
+    public List<IValue> getMolangDeferHandler() {
+        return deferHandler;
     }
 
     public void setDebugInfo(@Nullable DebugInfo debugInfo) {
@@ -103,6 +113,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         if (alterPhysicsManager != null) {
             alterPhysicsManager.reset();
         }
+
+        deferHandler = getEventHandler(MolangEventWrapper.DEFER);
     }
 
     public void checkModelUpdate() {
