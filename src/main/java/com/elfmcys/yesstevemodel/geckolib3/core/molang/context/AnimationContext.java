@@ -65,9 +65,10 @@ public class AnimationContext implements IContextVariableStorage {
         }
     }
 
-    public void reset(ExpressionEvaluator<?> evaluator) {
+    public void reset(ExpressionEvaluator<MolangContext<?>> evaluator) {
         if (deferCount > 0) {
-            if (evaluator.entity() instanceof MolangContext<?> ctx && ctx.animatableEntity() instanceof CustomEntity<?> animatable) {
+            var ctx = evaluator.entity();
+            if (ctx.animatableEntity() instanceof CustomEntity<?> animatable) {
                 var deferHandler = animatable.getMolangDeferHandler();
                 if (deferHandler != null) {
                     ctx.setAllowEmitting(true);

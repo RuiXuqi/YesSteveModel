@@ -276,8 +276,10 @@ public class AnimationPlayer {
         }
     }
 
-    public void finalizeAnimationContext(ExpressionEvaluator<?> evaluator) {
+    public void finalizeAnimationContext(ExpressionEvaluator<MolangContext<?>> evaluator) {
+        evaluator.entity().setAnimationContext(animationContext);
         animationContext.reset(evaluator);
+        evaluator.entity().setAnimationContext(null);
     }
 
     /**

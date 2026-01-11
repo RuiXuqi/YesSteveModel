@@ -209,7 +209,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         }
         // 停用多余的动画播放器
         for (var i = newState.animations().size(); i < this.activeAnimationPlayerSize; i++) {
-            this.animationPlayers.get(i).animationPlayer().reset();
+            var player = this.animationPlayers.get(i).animationPlayer;
+            player.finalizeAnimationContext(evaluator);
+            player.reset();
         }
         // 初始化动画播放器
         this.activeAnimationPlayerSize = newState.animations().size();
@@ -223,6 +225,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             }
 
             holder.conditionHolder().setApplyCondition(animPair.getRight());
+            holder.animationPlayer().finalizeAnimationContext(evaluator);
             holder.animationPlayer().setBeginningTransition(newState.blendTransition().startNew());
             holder.animationPlayer().indicateReload();
             holder.animationPlayer().setAnimation(animPair.getLeft());
