@@ -51,6 +51,7 @@
   "gui.yes_steve_model.config.disable_player_render": "Disable extra player render",
   "gui.yes_steve_model.config.disable_projectile_model": "Prevents rendering of projectile model",
   "gui.yes_steve_model.config.disable_vehicle_model": "Prevents rendering of vehicle model",
+  "gui.yes_steve_model.config.disable_external_first_person_anim": "Disable external first person animation.",
   "gui.yes_steve_model.config.disable_loading_state_screen": "Disable loading state screen",
   "gui.yes_steve_model.config.loading_state_position": "Loading state screen position",
   "gui.yes_steve_model.config.use_compatibility_renderer": "Use compatibility renderer",

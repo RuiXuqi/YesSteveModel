@@ -51,6 +51,7 @@
   "gui.yes_steve_model.config.disable_player_render": "禁用额外玩家渲染",
   "gui.yes_steve_model.config.disable_projectile_model": "阻止渲染自定义投掷物模型",
   "gui.yes_steve_model.config.disable_vehicle_model": "阻止渲染自定义载具模型",
+  "gui.yes_steve_model.config.disable_external_first_person_anim": "禁用其他模组第一人称动画",
   "gui.yes_steve_model.config.disable_loading_state_screen": "禁用加载状态界面",
   "gui.yes_steve_model.config.loading_state_position": "加载状态界面位置",
   "gui.yes_steve_model.config.use_compatibility_renderer": "使用兼容渲染器",

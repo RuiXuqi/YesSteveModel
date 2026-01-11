@@ -10,6 +10,7 @@ public class ClientConfig {
     public static ForgeConfigSpec.BooleanValue DISABLE_SELF_HANDS;
     public static ForgeConfigSpec.BooleanValue DISABLE_PROJECTILE_MODEL;
     public static ForgeConfigSpec.BooleanValue DISABLE_VEHICLE_MODEL;
+    public static ForgeConfigSpec.BooleanValue DISABLE_EXTERNAL_FIRST_PERSON_ANIM;
     public static ForgeConfigSpec.BooleanValue USE_COMPATIBILITY_RENDERER;
     public static ForgeConfigSpec.DoubleValue SOUND_VOLUME;
     public static ForgeConfigSpec.BooleanValue SHOW_MODEL_ID_FIRST;
@@ -45,6 +46,9 @@ public class ClientConfig {
 
         builder.comment("Prevents rendering of vehicle model");
         DISABLE_VEHICLE_MODEL = builder.define("DisableVehicleModel", false);
+
+        builder.comment("Disable first person animation from other mods.");
+        DISABLE_EXTERNAL_FIRST_PERSON_ANIM = builder.define("DisableExternalFirstPersonAnim", false);
 
         builder.comment("If rendering errors occur, try turning on this.");
         USE_COMPATIBILITY_RENDERER = builder.define("UseCompatibilityRenderer", false);

@@ -46,6 +46,7 @@ public class ClientSetupEvent {
             CuriosCompat.init();
             FirstPersonCompat.init();
             RealCameraCompat.init();
+            PlayerAnimatorCompat.init();
             BetterCombatCompat.init();
             IrisCompat.init();
             ARCompat.init();

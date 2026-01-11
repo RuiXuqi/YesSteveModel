@@ -1,12 +1,10 @@
 package com.elfmcys.yesstevemodel.client.event;
 
 import com.elfmcys.yesstevemodel.YesSteveModel;
-import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.compat.FirstPersonCompat;
+import com.elfmcys.yesstevemodel.client.compat.PlayerAnimatorCompat;
 import com.elfmcys.yesstevemodel.client.compat.realcamera.RealCameraCompat;
-import com.elfmcys.yesstevemodel.client.compat.bettercombat.BetterCombatCompat;
-import com.elfmcys.yesstevemodel.client.compat.ironsspellbooks.IronsSpellBooksCompat;
 import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.util.PersonView;
 import net.minecraft.client.Minecraft;
@@ -37,7 +35,10 @@ public class ReplacePlayerRenderEvent {
         }
         playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             if (cap.isInitializedAndEnabled()) {
-                if (!PersonView.isFirstPersonView(cap) || FirstPersonCompat.isRenderingPlayer() || RealCameraCompat.isActive()) {
+                if (!PersonView.isFirstPersonView(cap)
+                        || FirstPersonCompat.isRenderingPlayer()
+                        || RealCameraCompat.isActive()
+                        || (ClientConfig.DISABLE_EXTERNAL_FIRST_PERSON_ANIM.get() || !PlayerAnimatorCompat.hasThirdPersonModelAnim(playerSelf))) {
                     event.setCanceled(true);
                     RegisterEntityRenderersEvent.getPlayerRenderer().render(
                             event.getEntity(), event.getEntity().getYRot(), event.getPartialTick(),
