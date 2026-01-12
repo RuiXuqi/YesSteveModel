@@ -30,11 +30,11 @@ public class ImmersiveMelodiesCompat {
      * 没有安装此模组时，这些 molang 应该存在，否则会报错
      */
     private static void addEmptyBinding(CtrlBinding binding) {
-        binding.clientPlayerVar("im_pitch", ctx -> 0f);
-        binding.clientPlayerVar("im_volume", ctx -> 0f);
-        binding.clientPlayerVar("im_current", ctx -> 0f);
-        binding.clientPlayerVar("im_delta", ctx -> 0L);
-        binding.clientPlayerVar("im_time", ctx -> 0L);
+        binding.livingEntityVar("im_pitch", ctx -> 0f);
+        binding.livingEntityVar("im_volume", ctx -> 0f);
+        binding.livingEntityVar("im_current", ctx -> 0f);
+        binding.livingEntityVar("im_delta", ctx -> 0L);
+        binding.livingEntityVar("im_time", ctx -> 0L);
     }
 
     /**
