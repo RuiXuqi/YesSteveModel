@@ -256,7 +256,7 @@ public class ClientModelManager {
 
     // Native Access
     @SuppressWarnings("unused")
-    private static void addModel(ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
+    private static void addModel(@Nullable ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
         if (isDefault) {
             DEFAULT_MODEL_INIT = () -> {
                 addModelInternal(modelData, modelPath, true, false);
@@ -281,24 +281,26 @@ public class ClientModelManager {
         }
     }
 
-    private static void addModelInternal(ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
-        ClientModel model;
-        try {
-            model = ClientModelBuilder.build(modelData, isDefault, isNeedAuth);
-        } catch (Exception e) {
-            if (isDefault) {
-                throw e;
+    private static void addModelInternal(@Nullable ClientModelData modelData, String modelPath, boolean isDefault, boolean isNeedAuth) {
+        if (modelData != null) {
+            ClientModel model;
+            try {
+                model = ClientModelBuilder.build(modelData, isDefault, isNeedAuth);
+            } catch (Exception e) {
+                if (isDefault) {
+                    throw e;
+                }
+                YesSteveModel.LOGGER.error(new StringFormattedMessage("Failed to process {}", modelPath), e);
+                return;
             }
-            YesSteveModel.LOGGER.error(new StringFormattedMessage("Failed to process {}", modelPath), e);
-            return;
-        }
-        NEW_MODEL_QUEUE.add(Pair.of(model, modelPath));
-        if (isDefault) {
-            DEFAULT_MODEL = model;
-            Minecraft.getInstance().execute(() -> {
-                DEFAULT_TEXTURE_HOLDER = CustomTextureManager.register(model.playerModel().textures().getValueAt(0), true);
-            });
-            return;
+            NEW_MODEL_QUEUE.add(Pair.of(model, modelPath));
+            if (isDefault) {
+                DEFAULT_MODEL = model;
+                Minecraft.getInstance().execute(() -> {
+                    DEFAULT_TEXTURE_HOLDER = CustomTextureManager.register(model.playerModel().textures().getValueAt(0), true);
+                });
+                return;
+            }
         }
 
         Minecraft.getInstance().execute(() -> {
