@@ -29,7 +29,7 @@ public class MathUtil {
         end.add(initRot, temp);
         var endQuat = MathUtil.getQuatFromEulerZYX(temp);
 
-        beginQuat.slerp(endQuat, percentCompleted, endQuat);
+        beginQuat.nlerp(endQuat, percentCompleted, endQuat);
 
         getEulerAnglesZYX(endQuat, temp);
         temp.sub(initRot, dst);
