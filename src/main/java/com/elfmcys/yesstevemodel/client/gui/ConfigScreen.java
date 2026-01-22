@@ -43,7 +43,7 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 133, "disable_player_render", ExtraPlayerScreenConfig.DISABLE_PLAYER_RENDER));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 155, "disable_projectile_model", ClientConfig.DISABLE_PROJECTILE_MODEL));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 177, "disable_vehicle_model", ClientConfig.DISABLE_VEHICLE_MODEL));
-        addRenderableWidget(new ConfigCheckBox(x + 5, y + 199, "disable_special_first_person_anim", ClientConfig.DISABLE_EXTERNAL_FIRST_PERSON_ANIM));
+        addRenderableWidget(new ConfigCheckBox(x + 5, y + 199, "disable_external_first_person_anim", ClientConfig.DISABLE_EXTERNAL_FIRST_PERSON_ANIM));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 221, "disable_loading_state_screen", LoadingStateScreenConfig.DISABLE_LOADING_STATE_SCREEN));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 243, "use_compatibility_renderer", ClientConfig.USE_COMPATIBILITY_RENDERER));
 
