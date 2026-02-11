@@ -47,7 +47,7 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 221, "disable_loading_state_screen", LoadingStateScreenConfig.DISABLE_LOADING_STATE_SCREEN));
         addRenderableWidget(new ConfigCheckBox(x + 5, y + 243, "use_compatibility_renderer", ClientConfig.USE_COMPATIBILITY_RENDERER));
 
-        addRenderableWidget(new PositionButton(x + 5, y + 243));
+        addRenderableWidget(new PositionButton(x + 5, y + 264));
     }
 
     @Override
