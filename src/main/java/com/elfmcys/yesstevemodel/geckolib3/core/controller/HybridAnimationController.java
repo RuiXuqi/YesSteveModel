@@ -18,6 +18,7 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     private final CodedAnimationController<T> codedAnimationController;
     private final BedrockAnimationController<T> bedrockAnimationController;
 
+    private boolean isBedrock;
     private IAnimationController<T> activeController;
 
     public HybridAnimationController(T animatableEntity, String name, float transitionLengthTicks, IAnimationPredicate<T> animationPredicate) {
@@ -39,17 +40,23 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
 
     @Override
     public String getState() {
-        return this.activeController.getState();
+        if (isBedrock) {
+            return this.bedrockAnimationController.isBuiltinState() ? ("[builtin] " + this.codedAnimationController.getState()) : this.bedrockAnimationController.getState();
+        } else {
+            return this.codedAnimationController.getState();
+        }
     }
 
     @Override
     public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
         var animationControllerData = animatableEntity.getAnimationControllerData(this.name);
         if (animationControllerData != null) {
+            this.isBedrock = true;
             this.bedrockAnimationController.updateModel(modelBones, animationControllerData);
-            this.codedAnimationController.clear();
+            this.codedAnimationController.updateModel(modelBones, eventHandlers);
             this.activeController = this.bedrockAnimationController;
         } else {
+            this.isBedrock = false;
             this.codedAnimationController.updateModel(modelBones, eventHandlers);
             this.bedrockAnimationController.clear();
             this.activeController = this.codedAnimationController;
@@ -58,7 +65,22 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
 
     @Override
     public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
-        this.activeController.process(event, evaluator, allowEmitting);
+        if (this.isBedrock) {
+            this.bedrockAnimationController.process(event, evaluator, allowEmitting);
+            if (this.bedrockAnimationController.isBuiltinState()) {
+                if (this.activeController != this.codedAnimationController) {
+                    this.codedAnimationController.setBeginningTransition(this.bedrockAnimationController.getStateData().blendTransition().startNew());
+                    this.activeController = this.codedAnimationController;
+                }
+                this.codedAnimationController.process(event, evaluator, allowEmitting);
+            } else if (this.activeController != this.bedrockAnimationController) {
+                this.codedAnimationController.finalizeAnimationContext(evaluator);
+                this.codedAnimationController.reset();
+                this.activeController = this.bedrockAnimationController;
+            }
+        } else {
+            this.codedAnimationController.process(event, evaluator, allowEmitting);
+        }
     }
 
     @Override
@@ -73,8 +95,11 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
 
     @Override
     public void clear() {
-        if (this.activeController != null) {
-            this.activeController.clear();
+        if (isBedrock) {
+            this.bedrockAnimationController.clear();
+            this.codedAnimationController.clear();
+        } else {
+            this.codedAnimationController.clear();
         }
     }
 }

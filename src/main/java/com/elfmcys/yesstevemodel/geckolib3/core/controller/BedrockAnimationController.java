@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 
 
 public class BedrockAnimationController<T extends AnimatableEntity<?>> implements IAnimationController<T> {
+    private static final String BUILTIN_STATE_NAME = "ysm-builtin";
+
     private final T animatableEntity;
     private final String name;
     private final float initTransitionLengthTicks;
@@ -45,6 +47,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private AnimationControllerState state;
     @Nullable
     private String stateName;
+    private boolean builtinState;
 
     private final ReferenceArrayList<AnimationPlayerHolder> animationPlayers = new ReferenceArrayList<>(8);
     private int activeAnimationPlayerSize = 0;
@@ -79,49 +82,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         evaluator.entity().setControllerContext(ctx);
         var renderTicks = event.renderTicks;
 
-        if (this.state == null) {
-            // 初始化默认状态
-            var stateName = this.data.initialState();
-            var initialState = this.data.states().get(stateName);
-            if (initialState == null) {
-                return;
-            }
-            this.stateName = stateName;
-            updateState(initialState, evaluator);
-        } else {
-            // 更新当前状态
-            int appliedController = 0;
-            ctx.setAnyAnimationFinished(false);
-            ctx.setAllAnimationsFinished(true);
-            for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
-                var holder = this.animationPlayers.get(i);
-                if (holder.conditionHolder.shouldApply()) {
-                    appliedController++;
-                    if (holder.animationPlayer.currentAnimFinished()) {
-                        ctx.setAnyAnimationFinished(true);
-                    } else {
-                        ctx.setAllAnimationsFinished(false);
-                    }
-                }
-            }
-            if (appliedController == 0) {
-                ctx.setAnyAnimationFinished(true);
-            }
-
-            for (var transition : state.transitions()) {
-                if (!transition.getRight().evalAsBoolean(evaluator)) {
-                    continue;
-                }
-                var stateName = transition.getLeft();
-                var newState = this.data.states().get(stateName);
-                if (newState == null) {
-                    return;
-                }
-                this.stateName = stateName;
-                updateState(newState, evaluator);
-
-                break;
-            }
+        // 转换到空状态后额外更新一次
+        if (updateState(evaluator) && this.activeAnimationPlayerSize == 0) {
+            updateState(evaluator);
         }
 
         // 更新动画
@@ -157,6 +120,15 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         return stateName == null ? "(null)" : stateName;
     }
 
+    @Nullable
+    public AnimationControllerState getStateData() {
+        return this.state;
+    }
+
+    public boolean isBuiltinState() {
+        return builtinState;
+    }
+
     @Override
     public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
         var data = this.animatableEntity.getAnimationControllerData(this.name);
@@ -177,8 +149,58 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.modelBones = modelBones;
     }
 
+    private boolean updateState(ExpressionEvaluator<MolangContext<?>> evaluator) {
+        if (this.state == null) {
+            // 初始化默认状态
+            var stateName = this.data.initialState();
+            var initialState = this.data.states().get(stateName);
+            if (initialState == null) {
+                return false;
+            }
+            this.stateName = stateName;
+            this.builtinState = stateName.equals(BUILTIN_STATE_NAME);
+            transition(initialState, evaluator);
+            return true;
+        } else {
+            // 更新当前状态
+            int appliedController = 0;
+            ctx.setAnyAnimationFinished(false);
+            ctx.setAllAnimationsFinished(true);
+            for (var i = 0; i < this.activeAnimationPlayerSize; i++) {
+                var holder = this.animationPlayers.get(i);
+                if (holder.conditionHolder.shouldApply()) {
+                    appliedController++;
+                    if (holder.animationPlayer.currentAnimFinished()) {
+                        ctx.setAnyAnimationFinished(true);
+                    } else {
+                        ctx.setAllAnimationsFinished(false);
+                    }
+                }
+            }
+            if (appliedController == 0) {
+                ctx.setAnyAnimationFinished(true);
+            }
+
+            for (var transition : state.transitions()) {
+                if (!transition.getRight().evalAsBoolean(evaluator)) {
+                    continue;
+                }
+                var stateName = transition.getLeft();
+                var newState = this.data.states().get(stateName);
+                if (newState == null) {
+                    return false;
+                }
+                this.stateName = stateName;
+                this.builtinState = stateName.equals(BUILTIN_STATE_NAME);
+                transition(newState, evaluator);
+                return true;
+            }
+        }
+        return false;
+    }
+
     @SuppressWarnings("DataFlowIssue")
-    private void updateState(AnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
+    private void transition(AnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
         ctx.soundManager().stopAllPlayingSounds();
 
         evaluator.entity().setAllowEmitting(true);
@@ -203,19 +225,21 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.activeBlendAnimationQueues.clear();
         this.isActiveQueuesDirty = true;
 
+        var animationSize = this.builtinState ? 0 : newState.animations().size();
+
         // 扩容动画播放器列表
-        for (var i = this.animationPlayers.size(); i < newState.animations().size(); i++) {
+        for (var i = this.animationPlayers.size(); i < animationSize; i++) {
             this.animationPlayers.add(new AnimationPlayerHolder(this.animatableEntity, this.initTransitionLengthTicks));
         }
         // 停用多余的动画播放器
-        for (var i = newState.animations().size(); i < this.activeAnimationPlayerSize; i++) {
+        for (var i = animationSize; i < this.activeAnimationPlayerSize; i++) {
             var player = this.animationPlayers.get(i).animationPlayer;
             player.finalizeAnimationContext(evaluator);
             player.reset();
         }
         // 初始化动画播放器
-        this.activeAnimationPlayerSize = newState.animations().size();
-        for (var i = 0; i < newState.animations().size(); i++) {
+        this.activeAnimationPlayerSize = animationSize;
+        for (var i = 0; i < animationSize; i++) {
             var holder = this.animationPlayers.get(i);
             var animPair = newState.animations().get(i);
 

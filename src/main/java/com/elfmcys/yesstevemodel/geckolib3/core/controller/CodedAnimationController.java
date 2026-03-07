@@ -5,6 +5,7 @@ import com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.IBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.transition.LinearBlendTransition;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.AnimationVec3;
@@ -163,6 +164,14 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         if (this.animationPlayer.getBeginningTransitionLength() != sec) {
             this.animationPlayer.setBeginningTransition(new LinearBlendTransition(sec));
         }
+    }
+
+    public void setBeginningTransition(IBlendTransition blendTransition) {
+        this.animationPlayer.setBeginningTransition(blendTransition);
+    }
+
+    public void finalizeAnimationContext(ExpressionEvaluator<MolangContext<?>> evaluator) {
+        this.animationPlayer.finalizeAnimationContext(evaluator);
     }
 
     @Override
