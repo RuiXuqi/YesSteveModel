@@ -41,3 +41,10 @@ issueTrackerURL="https://github.com/YesSteveModel/YSM-Wiki-Issues/issues"
     versionRange="[3.4.1,)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.yes_steve_model]]
+    modId="sophisticatedbackpacks"
+    mandatory=false
+    versionRange="[3.24.25.1566,)"
+    ordering="NONE"
+    side="BOTH"

@@ -11,8 +11,6 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.p3pp3rf1y.sophisticatedbackpacks.client.render.BackpackModelManager;
-import net.p3pp3rf1y.sophisticatedbackpacks.client.render.IBackpackModel;
 
 import static net.p3pp3rf1y.sophisticatedbackpacks.client.render.BackpackLayerRenderer.renderBackpack;
 
@@ -20,7 +18,6 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
     private final EntityModel<Player> model;
 
     YsmBackpackLayerRenderer() {
-        BackpackModelManager.initModels();
         this.model = getEmptyModel();
     }
 
@@ -52,12 +49,11 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
         // 渲染
         if (backpack != null) {
             poseStack.pushPose();
-            IBackpackModel model = BackpackModelManager.getBackpackModel(backpack.getItem());
             translateToBackpack(poseStack, geoModel);
             poseStack.mulPose(Axis.XP.rotationDegrees(180));
             poseStack.mulPose(Axis.YP.rotationDegrees(180));
             poseStack.translate(0, -0.1, 0);
-            renderBackpack(this.model, player, poseStack, bufferIn, packedLightIn, backpack, false, model);
+            renderBackpack(this.model, player, poseStack, bufferIn, packedLightIn, backpack, false);
             poseStack.popPose();
         }
     }
