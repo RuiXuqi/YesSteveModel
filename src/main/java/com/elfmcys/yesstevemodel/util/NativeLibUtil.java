@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -145,7 +146,7 @@ public final class NativeLibUtil {
             return true;
         } catch (Throwable e) {
             YesSteveModel.LOGGER.error("Failed to load native lib", e);
-            setUnsupportedPlatformMsg("Unsatisfied runtime environment (" + e.getMessage() + ")");
+            setUnsatisfiedRuntimeEnvironmentMsg(e.getMessage());
             return false;
         }
     }
@@ -391,6 +392,13 @@ public final class NativeLibUtil {
         UNSUPPORTED_MSG_KEY = "error.yes_steve_model.unsupported_platform_ext";
         UNSUPPORTED_MSG_CTX = new Object[]{hint};
         UNSUPPORTED_MSG_STR = "[YSM] Current platform is unsupported: " + hint;
+    }
+
+    private static void setUnsatisfiedRuntimeEnvironmentMsg(@NotNull String hint) {
+        UNSUPPORTED_MSG = Component.translatable("error.yes_steve_model.unsatisfied_runtime_env", hint);
+        UNSUPPORTED_MSG_KEY = "error.yes_steve_model.unsatisfied_runtime_env_ext";
+        UNSUPPORTED_MSG_CTX = new Object[]{hint};
+        UNSUPPORTED_MSG_STR = "[YSM] Unsatisfied runtime environment: " + hint;
     }
 
     private static void setUnsupportedBuildMsg() {
