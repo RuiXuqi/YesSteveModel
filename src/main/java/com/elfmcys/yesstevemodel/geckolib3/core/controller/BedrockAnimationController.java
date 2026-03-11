@@ -112,9 +112,11 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
                 if (subData != null) {
                     if (subController == null) {
                         subController = new BedrockAnimationController<>(this.animatableEntity, name, initTransitionLengthTicks);
+                        subController.updateModel(modelBones, subData);
+                    } else {
+                        subController.updateControllerData(subData);
                     }
                     subController.setHierarchy(subHierarchy, hierarchyDepth + 1);
-                    subController.updateModel(modelBones, subData);
                 }
             }
             if (subController != null) {
@@ -197,6 +199,10 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             this.blendAnimationQueues.put(bone.name, new BlendBoneAnimationQueue(bone));
         }
         this.modelBones = modelBones;
+    }
+
+    private void updateControllerData(AnimationControllerData animationControllerData) {
+        this.data = animationControllerData;
     }
 
     private void setHierarchy(String hierarchy, int hierarchyDepth) {
