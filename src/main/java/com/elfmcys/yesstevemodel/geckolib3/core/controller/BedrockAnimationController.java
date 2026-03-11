@@ -16,6 +16,7 @@ import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceLists;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,7 @@ import java.util.function.Consumer;
 
 
 public class BedrockAnimationController<T extends AnimatableEntity<?>> implements IAnimationController<T> {
-    private static final String BUILTIN_STATE_NAME = "ysm-builtin";
+    private static final int MAX_HIERARCHY_DEPTH = 5;
 
     private final T animatableEntity;
     private final String name;
@@ -47,7 +48,6 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private AnimationControllerState state;
     @Nullable
     private String stateName;
-    private boolean builtinState;
 
     private final ReferenceArrayList<AnimationPlayerHolder> animationPlayers = new ReferenceArrayList<>(8);
     private int activeAnimationPlayerSize = 0;
@@ -55,6 +55,13 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     private final Int2ReferenceOpenHashMap<BlendBoneAnimationQueue> blendAnimationQueues = new Int2ReferenceOpenHashMap<>(64);
     private final ReferenceArrayList<BlendBoneAnimationQueue> activeBlendAnimationQueues = new ReferenceArrayList<>(16);
     private boolean isActiveQueuesDirty = false;
+
+    @Nullable
+    private String hierarchy;
+    private int hierarchyDepth;
+    @Nullable
+    private BedrockAnimationController<T> subController;
+    private final IntOpenHashSet skipPathSet = new IntOpenHashSet(4);
 
     /**
      * 实例化基岩版动画控制器 <br>
@@ -69,10 +76,13 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.animatableEntity = animatableEntity;
         this.name = name;
         this.initTransitionLengthTicks = transitionLengthTicks;
+        this.hierarchy = null;
+        this.hierarchyDepth = 1;
         this.ctx = new ControllerContext(true);
     }
 
     @Override
+    @SuppressWarnings("DataFlowIssue")
     public void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting) {
         if (this.data == null) {
             return;
@@ -82,9 +92,35 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         evaluator.entity().setControllerContext(ctx);
         var renderTicks = event.renderTicks;
 
-        // 转换到空状态后额外更新一次
-        if (updateState(evaluator) && this.activeAnimationPlayerSize == 0) {
-            updateState(evaluator);
+        // 转换到空状态时连续跳转
+        skipPathSet.clear();
+        var update = false;
+        while (true) {
+            if (updateState(evaluator)) {
+                update = true;
+                if (this.activeAnimationPlayerSize == 0) {
+                    continue;
+                }
+            }
+            break;
+        }
+
+        if (state != null && state.subEntryName() != null && hierarchyDepth != MAX_HIERARCHY_DEPTH) {
+            if (update) {
+                var subHierarchy = hierarchyDepth > 1 ? String.format("%s.%s", hierarchy, state.subEntryName()) : state.subEntryName();
+                var subData = this.animatableEntity.getAnimationControllerData(String.format("%s.%s", this.name, subHierarchy));
+                if (subData != null) {
+                    if (subController == null) {
+                        subController = new BedrockAnimationController<>(this.animatableEntity, name, initTransitionLengthTicks);
+                    }
+                    subController.setHierarchy(subHierarchy, hierarchyDepth + 1);
+                    subController.updateModel(modelBones, subData);
+                }
+            }
+            if (subController != null) {
+                subController.process(event, evaluator, allowEmitting);
+            }
+            return;
         }
 
         // 更新动画
@@ -116,8 +152,22 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     @Override
-    public String getState() {
-        return stateName == null ? "(null)" : stateName;
+    public String getStateName() {
+        if (state != null) {
+            if (state.subEntryName() != null && subController != null) {
+                return subController.getStateName();
+            }
+            return stateName;
+        }
+        return "(null)";
+    }
+
+    private void setStateName(String name) {
+        if (hierarchyDepth > 1) {
+            stateName = String.format("[%s] %s", hierarchy, name);
+        } else {
+            stateName = name;
+        }
     }
 
     @Nullable
@@ -126,7 +176,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
     }
 
     public boolean isBuiltinState() {
-        return builtinState;
+        return state != null && state.isBuiltin();
     }
 
     @Override
@@ -149,6 +199,11 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.modelBones = modelBones;
     }
 
+    private void setHierarchy(String hierarchy, int hierarchyDepth) {
+        this.hierarchy = hierarchy;
+        this.hierarchyDepth = hierarchyDepth;
+    }
+
     private boolean updateState(ExpressionEvaluator<MolangContext<?>> evaluator) {
         if (this.state == null) {
             // 初始化默认状态
@@ -157,8 +212,8 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             if (initialState == null) {
                 return false;
             }
-            this.stateName = stateName;
-            this.builtinState = stateName.equals(BUILTIN_STATE_NAME);
+            skipPathSet.add(initialState.pooledName());
+            setStateName(initialState.name());
             transition(initialState, evaluator);
             return true;
         } else {
@@ -182,16 +237,15 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
             }
 
             for (var transition : state.transitions()) {
-                if (!transition.getRight().evalAsBoolean(evaluator)) {
+                if (!transition.right().evalAsBoolean(evaluator)) {
                     continue;
                 }
-                var stateName = transition.getLeft();
+                var stateName = transition.leftInt();
                 var newState = this.data.states().get(stateName);
-                if (newState == null) {
+                if (newState == null || !skipPathSet.add(newState.pooledName())) {
                     return false;
                 }
-                this.stateName = stateName;
-                this.builtinState = stateName.equals(BUILTIN_STATE_NAME);
+                setStateName(newState.name());
                 transition(newState, evaluator);
                 return true;
             }
@@ -199,22 +253,29 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         return false;
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private void transition(AnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
+    private void transition(@Nullable AnimationControllerState newState, ExpressionEvaluator<MolangContext<?>> evaluator) {
+        if (newState == null && this.state == null) {
+            return;
+        }
         ctx.soundManager().stopAllPlayingSounds();
 
         evaluator.entity().setAllowEmitting(true);
         if (this.state != null) {
+            if (this.state.subEntryName() != null && this.subController != null) {
+                this.subController.transition(null, evaluator);
+            }
             for (var exp : this.state.onExit()) {
                 exp.eval(evaluator);
             }
         }
-        for (var exp : newState.onEntry()) {
-            exp.eval(evaluator);
-        }
-        for (var se : newState.soundEffects()) {
-            if (!StringUtils.isNoneBlank(se)) {
-                ctx.soundManager().playSound(evaluator.entity().animatableEntity(), 0, se, false, null);
+        if (newState != null) {
+            for (var exp : newState.onEntry()) {
+                exp.eval(evaluator);
+            }
+            for (var se : newState.soundEffects()) {
+                if (!StringUtils.isNoneBlank(se)) {
+                    ctx.soundManager().playSound(evaluator.entity().animatableEntity(), 0, se, false, null);
+                }
             }
         }
         evaluator.entity().setAllowEmitting(false);
@@ -225,7 +286,7 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.activeBlendAnimationQueues.clear();
         this.isActiveQueuesDirty = true;
 
-        var animationSize = this.builtinState ? 0 : newState.animations().size();
+        var animationSize = newState == null || newState.isBuiltin() || newState.subEntryName() != null ? 0 : newState.animations().size();
 
         // 扩容动画播放器列表
         for (var i = this.animationPlayers.size(); i < animationSize; i++) {
@@ -258,9 +319,15 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
 
     @Override
     public void visitBoneAnimationQueues(Consumer<IBoneAnimationQueue> visitor) {
-        for (var queue : this.activeBlendAnimationQueues) {
-            if (queue.shouldApply()) {
-                visitor.accept(queue);
+        if (this.state != null) {
+            if (this.state.subEntryName() != null && this.subController != null) {
+                this.subController.visitBoneAnimationQueues(visitor);
+            } else {
+                for (var queue : this.activeBlendAnimationQueues) {
+                    if (queue.shouldApply()) {
+                        visitor.accept(queue);
+                    }
+                }
             }
         }
     }
@@ -273,6 +340,9 @@ public class BedrockAnimationController<T extends AnimatableEntity<?>> implement
         this.activeAnimationPlayerSize = 0;
         this.activeBlendAnimationQueues.clear();
         this.blendAnimationQueues.clear();
+        if (this.hierarchyDepth == 1) {
+            this.subController = null;
+        }
         for (var holder : this.animationPlayers) {
             holder.animationPlayer.clear();
         }

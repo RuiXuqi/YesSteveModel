@@ -1,26 +1,30 @@
 package com.elfmcys.yesstevemodel.geckolib3.core.builder.controller;
 
-import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
+import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 
-import java.util.Map;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 // Native Access
 public class AnimationControllerData {
-    private final String initialState;
-    private final Map<String, AnimationControllerState> states;
+    private final int initialState;
+    private final Int2ReferenceMap<AnimationControllerState> states;
 
     // Native Access
-    public AnimationControllerData(String initialState, Map<String, AnimationControllerState> states) {
-        this.initialState = initialState;
-        this.states = Object2ReferenceMaps.unmodifiable(new Object2ReferenceOpenHashMap<>(states));
+    public AnimationControllerData(String initialState, AnimationControllerState[] states) {
+        this.initialState = StringPool.computeIfAbsent(initialState);
+        this.states = Int2ReferenceMaps.unmodifiable(new Int2ReferenceOpenHashMap<>(Arrays.stream(states)
+                .collect(Collectors.toMap(AnimationControllerState::pooledName, state -> state))));
     }
 
-    public String initialState() {
+    public int initialState() {
         return initialState;
     }
 
-    public Map<String, AnimationControllerState> states() {
+    public Int2ReferenceMap<AnimationControllerState> states() {
         return states;
     }
 }

@@ -143,7 +143,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
 
     @Override
     @SuppressWarnings("DataFlowIssue")
-    public String getState() {
+    public String getStateName() {
         // 硬编码控制器没有状态，返回自己名称+正在播放的动画
         if (animationPlayer.getState() == AnimationState.IDLE) {
             return "Coded";

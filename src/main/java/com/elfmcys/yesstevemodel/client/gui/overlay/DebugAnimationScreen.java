@@ -145,7 +145,7 @@ public class DebugAnimationScreen {
         // 渲染状态机信息
         DEBUG_CONTROLLERS.forEach(name -> {
             IAnimationController controller = target.getAnimationData().getAnimationController(name);
-            renderCustomText(gui, graphics, y, name, controller != null ? controller.getState() : "(N/A)", screenWidth, screenHeight);
+            renderCustomText(gui, graphics, y, name, controller != null ? controller.getStateName() : "(N/A)", screenWidth, screenHeight);
         });
     }
 

@@ -39,11 +39,11 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     }
 
     @Override
-    public String getState() {
+    public String getStateName() {
         if (isBedrock) {
-            return this.bedrockAnimationController.isBuiltinState() ? ("[builtin] " + this.codedAnimationController.getState()) : this.bedrockAnimationController.getState();
+            return this.bedrockAnimationController.isBuiltinState() ? ("[builtin] " + this.codedAnimationController.getStateName()) : this.bedrockAnimationController.getStateName();
         } else {
-            return this.codedAnimationController.getState();
+            return this.codedAnimationController.getStateName();
         }
     }
 

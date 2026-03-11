@@ -20,7 +20,7 @@ public interface IAnimationController<T extends AnimatableEntity<?>> {
     /**
      * 获取控制器当时所处状态
      */
-    String getState();
+    String getStateName();
 
     /**
      * 更新模型
