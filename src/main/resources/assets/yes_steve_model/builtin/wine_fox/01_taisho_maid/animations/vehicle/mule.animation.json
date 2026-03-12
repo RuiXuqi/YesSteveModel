@@ -48,22 +48,19 @@
 		"parallel0": {
 			"loop": true,
 			"bones": {
-				"ysmGlowFrontHeadlights": {
+				"GtLeftFrontWheel": {
 					"scale": 0
 				},
-				"RightFrontWheel": {
+				"GtLeftBackWheel": {
 					"scale": 0
 				},
-				"RightBackWheel": {
+				"GtRightFrontWheel": {
 					"scale": 0
 				},
-				"LeftBackWheel": {
+				"GtRightBackWheel": {
 					"scale": 0
 				},
-				"LeftFrontWheel": {
-					"scale": 0
-				},
-				"XingLiJia": {
+				"GtAddon": {
 					"scale": 0
 				}
 			}

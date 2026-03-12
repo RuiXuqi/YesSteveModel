@@ -2001,7 +2001,7 @@
 						"1.5833": {
 							"post": [
 								"(ctrl.elytra_fly==true?-10:0)+(11.2282-0.2*ysm.head_pitch)",
-								"((ysm.head_yaw>0)?(-0.9*sm.head_yaw):(0))+(ctrl.elytra_fly==true?0:35.1606)",
+								"((ysm.head_yaw>0)?(-0.9*ysm.head_yaw):(0))+(ctrl.elytra_fly==true?0:35.1606)",
 								0.49284
 							],
 							"lerp_mode": "catmullrom"

@@ -6,9 +6,9 @@
 				"identifier": "geometry.unknown",
 				"texture_width": 512,
 				"texture_height": 512,
-				"visible_bounds_width": 6,
-				"visible_bounds_height": 4.5,
-				"visible_bounds_offset": [0, 1.75, 0]
+				"visible_bounds_width": 9,
+				"visible_bounds_height": 5,
+				"visible_bounds_offset": [0, 1.5, 0]
 			},
 			"bones": [
 				{
@@ -7931,7 +7931,7 @@
 				{
 					"name": "PassengerLocator",
 					"parent": "Car",
-					"pivot": [9.42647, 11.05357, 1.01346]
+					"pivot": [8.92647, 11.55357, 0.26346]
 				}
 			]
 		}
