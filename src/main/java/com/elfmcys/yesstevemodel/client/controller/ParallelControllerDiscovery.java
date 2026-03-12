@@ -4,9 +4,8 @@ import com.elfmcys.yesstevemodel.client.entity.CustomEntity;
 import com.elfmcys.yesstevemodel.client.model.CommonAsset;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
-import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceRBTreeMap;
 import org.apache.commons.lang3.function.TriFunction;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -37,28 +36,28 @@ public class ParallelControllerDiscovery<T extends CustomEntity<?>, TModel> impl
 
     @Override
     public ControllerFactory<T> process(TModel model, CommonAsset assets) {
-        var names = new ObjectRBTreeSet<Pair<String, String>>();
+        var names = new Object2ReferenceRBTreeMap<String, String>();
         Object2ReferenceMaps.fastForEach(resourceAdapter.getControllers(model, assets), entry -> {
             if (controllerNamePattern.test(entry.getKey())) {
-                names.add(Pair.of(entry.getKey(), null));
+                names.put(entry.getKey(), null);
             }
         });
         Object2ReferenceMaps.fastForEach(assets.eventHandlers(), entry -> {
             if (eventNamePattern.test(entry.getKey())) {
                 var controllerName = entry.getKey().replace("_ctrl_", ".");
-                names.add(Pair.of(controllerName, null));
+                names.put(controllerName, null);
             }
         });
         Object2ReferenceMaps.fastForEach(resourceAdapter.getAnimations(model, assets), entry -> {
             if (!entry.getValue().isEmpty() && animationNamePattern.test(entry.getKey())) {
                 var controllerName = String.format("%s.%s_%s", category, name, entry.getKey().substring(name.length()));
-                names.add(Pair.of(controllerName, entry.getKey()));
+                names.put(controllerName, entry.getKey());
             }
         });
         return ((animatable, consumer) -> {
-            for (var name : names) {
-                consumer.accept(controllerFunc.apply(name.getLeft(), animatable, name.getRight()));
-            }
+            Object2ReferenceMaps.fastForEach(names, entry -> {
+                consumer.accept(controllerFunc.apply(entry.getKey(), animatable, entry.getValue()));
+            });
         });
     }
 }

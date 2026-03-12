@@ -30,6 +30,7 @@ public class ArmorControllerDiscovery<T extends CustomEntity<?>> implements Cont
         List<Pair<String, EquipmentSlot>> slots = new ArrayList<>();
         var condition = resourceAdapter.getArmorCondition(playerModel, assets);
         var controllers = resourceAdapter.getControllers(playerModel, assets);
+        var animations = resourceAdapter.getAnimations(playerModel, assets);
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             var controllerName = String.format("%s.%s_%s", category, name, slot.getName());
             if (controllers.containsKey(controllerName)) {
@@ -40,7 +41,7 @@ public class ArmorControllerDiscovery<T extends CustomEntity<?>> implements Cont
                 slots.add(Pair.of(controllerName, slot));
                 continue;
             }
-            if (slot.getType() == EquipmentSlot.Type.ARMOR && condition.hasTest(slot)) {
+            if (slot.getType() == EquipmentSlot.Type.ARMOR && (condition.hasTest(slot) || animations.containsKey(slot.getName() + ":default"))) {
                 slots.add(Pair.of(controllerName, slot));
                 continue;
             }
