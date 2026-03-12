@@ -20,7 +20,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -123,7 +123,7 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
     }
 
     @Override
-    public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
+    public void updateModel(List<BoneTopLevelSnapshot> modelBones, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
         this.animationPlayer.updateModel(modelBones);
         this.animationPlayer.setBeginningTransition(new LinearBlendTransition(defaultTransitionTicks));
         this.molangPredicate = null;

@@ -10,6 +10,8 @@ import net.minecraft.world.entity.projectile.Projectile;
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
 public class ProjectileMainPredicate implements IAnimationPredicate<CustomProjectileEntity> {
+    public static final String[] ANIM_LIST = new String[]{"water", "ground", "fly", "fire"};
+
     @Override
     public PlayState test(AnimationEvent<CustomProjectileEntity> event, ExpressionEvaluator<?> evaluator) {
         Projectile projectile = event.getAnimatableEntity().getEntity();

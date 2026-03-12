@@ -88,4 +88,8 @@ public class SWarfareCompat {
         }
         return null;
     }
+
+    public static boolean isInstalled() {
+        return INSTALLED;
+    }
 }

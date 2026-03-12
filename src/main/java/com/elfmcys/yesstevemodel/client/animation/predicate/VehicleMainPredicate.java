@@ -9,6 +9,8 @@ import net.minecraft.world.entity.Entity;
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playAnimation;
 
 public class VehicleMainPredicate implements IAnimationPredicate<CustomVehicleEntity> {
+    public static final String[] ANIM_LIST = new String[]{"water", "ground", "fly"};
+
     @Override
     public PlayState test(AnimationEvent<CustomVehicleEntity> event, ExpressionEvaluator<?> evaluator) {
         Entity entity = event.getAnimatableEntity().getEntity();

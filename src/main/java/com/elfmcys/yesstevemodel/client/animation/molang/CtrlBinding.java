@@ -13,12 +13,12 @@ import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
 import com.elfmcys.yesstevemodel.client.compat.slashblade.SlashBladeCompat;
 import com.elfmcys.yesstevemodel.client.compat.swem.SwemCompat;
 import com.elfmcys.yesstevemodel.client.compat.tacz.TACZCompat;
+import com.elfmcys.yesstevemodel.client.controller.collections.PlayerControllerCollection;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.client.entity.IPreviewEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.binding.ContextBinding;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.IContext;
-import com.elfmcys.yesstevemodel.util.ControllerUtils;
 import com.elfmcys.yesstevemodel.util.LazyValue;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.Minecraft;
@@ -111,7 +111,7 @@ public class CtrlBinding extends ContextBinding {
 
     private static boolean checkExtraAnimationState(IContext<Object> ctx) {
         if (ctx.animatableEntity() instanceof CustomPlayerEntity entity && entity.isPlayingExtraAnimation()) {
-            return entity.getCodedAnimationStates(ControllerUtils.CAP_CONTROLLER) != AnimationState.IDLE;
+            return entity.getCodedAnimationStates(PlayerControllerCollection.CAP_CONTROLLER) != AnimationState.IDLE;
         }
         return false;
     }

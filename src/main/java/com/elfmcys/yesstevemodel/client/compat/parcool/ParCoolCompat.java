@@ -3,13 +3,15 @@ package com.elfmcys.yesstevemodel.client.compat.parcool;
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
+import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.loading.LoadingModList;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.PARCOOL_CONTROLLER;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 public class ParCoolCompat {
     private static final String MOD_ID = "parcool";
@@ -24,9 +26,11 @@ public class ParCoolCompat {
         return INSTALLED;
     }
 
-    public static void addParcoolPredicate(CustomPlayerEntity entity) {
+    public static Optional<BiFunction<String, CustomPlayerEntity, IAnimationController<CustomPlayerEntity>>> animationPredicate() {
         if (INSTALLED) {
-            entity.addAnimationController(new HybridAnimationController<>(entity, PARCOOL_CONTROLLER, 0.1f, new ParCoolPredicate()));
+            return Optional.of((name, entity) -> new HybridAnimationController<>(entity, name, 0.1f, new ParCoolPredicate()));
+        } else {
+            return Optional.empty();
         }
     }
 

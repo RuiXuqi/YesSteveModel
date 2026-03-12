@@ -13,6 +13,8 @@ import com.github.tartaricacid.touhoulittlemaid.entity.passive.MaidGameRecordMan
 import static com.elfmcys.yesstevemodel.client.animation.predicate.IAnimationPredicate.playLoopAnimation;
 
 public class MaidMiscPredicate implements IAnimationPredicate<CustomYsmMaidEntity> {
+    public static final String[] ANIM_LIST = new String[]{"game_win", "game_lost", "beg"};
+
     @Override
     public PlayState test(AnimationEvent<CustomYsmMaidEntity> event, ExpressionEvaluator<?> evaluator) {
         EntityMaid maid = event.getAnimatableEntity().getEntity();

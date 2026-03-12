@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("removal")
 public class ConditionArmor {
     private static final Pattern ID_PRE_REG = Pattern.compile("^(.+?)\\$(.*?)$");
     private static final Pattern TAG_PRE_REG = Pattern.compile("^(.+?)#(.*?)$");
@@ -106,6 +107,10 @@ public class ConditionArmor {
             return EMPTY;
         }
         return tagListTest.stream().filter(item::is).findFirst().map(itemTagKey -> slot.getName() + "#" + itemTagKey.location()).orElse(EMPTY);
+    }
+
+    public boolean hasTest(EquipmentSlot slot) {
+        return tagTest.containsKey(slot) ||  idTest.containsKey(slot);
     }
 
     @Nullable

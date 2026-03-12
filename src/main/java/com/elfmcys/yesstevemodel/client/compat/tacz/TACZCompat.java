@@ -101,7 +101,7 @@ public class TACZCompat {
         return null;
     }
 
-    private static boolean isInstalled() {
+    public static boolean isInstalled() {
         return INSTALLED;
     }
 }

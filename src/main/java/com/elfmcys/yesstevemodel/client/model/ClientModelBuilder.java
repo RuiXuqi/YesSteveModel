@@ -5,13 +5,11 @@ import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManage
 import com.elfmcys.yesstevemodel.client.model.data.ClientModelData;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationControllerFile;
 import com.elfmcys.yesstevemodel.geckolib3.file.AnimationFile;
 import com.elfmcys.yesstevemodel.info.ModelMetadata;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -31,10 +29,10 @@ public class ClientModelBuilder {
     public static ClientModel build(ClientModelData data, boolean isDefault, boolean isNeedAuth) {
         List<AbstractTexture> allTextures = new ArrayList<>();
 
-        var playerModel = buildPlayerModel(data, isDefault, allTextures);
-        var projectileModels = buildProjectileModels(data, isDefault, allTextures);
-        var vehicleModels = buildVehicleModels(data, isDefault, allTextures);
         var assets = buildCommonAssets(data);
+        var playerModel = buildPlayerModel(data, assets, isDefault, allTextures);
+        var projectileModels = buildProjectileModels(data, assets, isDefault, allTextures);
+        var vehicleModels = buildVehicleModels(data, assets, isDefault, allTextures);
 
         var clientModelInfo = buildClientModelInfo(data, isNeedAuth, allTextures);
 
@@ -48,7 +46,7 @@ public class ClientModelBuilder {
         return model;
     }
 
-    public static PlayerModel buildPlayerModel(ClientModelData data, boolean isDefault, List<AbstractTexture> allTextures) {
+    public static PlayerModel buildPlayerModel(ClientModelData data, CommonAsset assets, boolean isDefault, List<AbstractTexture> allTextures) {
         var player = data.playerModel();
 
         var mainModel = player.geoModels().get(0);
@@ -92,11 +90,11 @@ public class ClientModelBuilder {
                 ? data.info().properties().defaultTexture() : player.textures().getKeyAt(0);
 
         return new PlayerModel(mainModel, armModel, animations, fpArmAnimations, conditionManager, fpArmConditionManager,
-                animationControllers, player.textures(), defaultTexture, player.textures().get(defaultTexture));
+                animationControllers, player.textures(), defaultTexture, player.textures().get(defaultTexture), assets);
     }
 
 
-    private static Map<ResourceLocation, ProjectileModel> buildProjectileModels(ClientModelData data, boolean isDefault, List<AbstractTexture> allTextures) {
+    private static Map<ResourceLocation, ProjectileModel> buildProjectileModels(ClientModelData data, CommonAsset assets, boolean isDefault, List<AbstractTexture> allTextures) {
         Object2ReferenceOpenHashMap<ResourceLocation, ProjectileModel> map = new Object2ReferenceOpenHashMap<>();
 
         for (var projectile : data.projectileModel()) {
@@ -111,7 +109,7 @@ public class ClientModelBuilder {
                 }
             }
 
-            Map<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
+            Object2ReferenceMap<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
             if (controllerFile != null) {
                 controllers = new Object2ReferenceOpenHashMap<>(controllerFile.animationControllers());
             }
@@ -119,7 +117,7 @@ public class ClientModelBuilder {
             allTextures.add(projectile.texture());
             allTextures.addAll(projectile.texture().getPBRTextures().values());
 
-            var model = new ProjectileModel(geoModel, animations, controllers, projectile.texture());
+            var model = new ProjectileModel(geoModel, animations, controllers, projectile.texture(), assets);
             for (var id : ModelIdUtil.getEntityIdMatch(projectile.match())) {
                 map.put(id, model);
             }
@@ -128,7 +126,7 @@ public class ClientModelBuilder {
         return map;
     }
 
-    private static Map<ResourceLocation, VehicleModel> buildVehicleModels(ClientModelData data, boolean isDefault, List<AbstractTexture> allTextures) {
+    private static Map<ResourceLocation, VehicleModel> buildVehicleModels(ClientModelData data, CommonAsset assets, boolean isDefault, List<AbstractTexture> allTextures) {
         Object2ReferenceOpenHashMap<ResourceLocation, VehicleModel> map = new Object2ReferenceOpenHashMap<>();
 
         for (var vehicle : data.vehicleModel()) {
@@ -143,7 +141,7 @@ public class ClientModelBuilder {
                 }
             }
 
-            Map<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
+            Object2ReferenceMap<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
             if (controllerFile != null) {
                 controllers = new Object2ReferenceOpenHashMap<>(controllerFile.animationControllers());
             }
@@ -151,7 +149,7 @@ public class ClientModelBuilder {
             allTextures.add(vehicle.texture());
             allTextures.addAll(vehicle.texture().getPBRTextures().values());
 
-            var model = new VehicleModel(geoModel, animations, controllers, vehicle.texture());
+            var model = new VehicleModel(geoModel, animations, controllers, vehicle.texture(), assets);
             for (var id : ModelIdUtil.getEntityIdMatch(vehicle.match())) {
                 map.put(id, model);
             }
@@ -176,8 +174,8 @@ public class ClientModelBuilder {
         return new ClientModelInfo(name, isNeedAuth, data.authorAvatars(), guiImages);
     }
 
-    private static Int2ReferenceOpenHashMap<IValue> buildUserFunctionMap(ClientModelData data) {
-        var map = new Int2ReferenceOpenHashMap<IValue>(data.assets().userFunctions().size());
+    private static Object2ReferenceOpenHashMap<String, IValue> buildUserFunctionMap(ClientModelData data) {
+        var map = new Object2ReferenceOpenHashMap<String, IValue>(data.assets().userFunctions().size());
         for (var entry : data.assets().userFunctions().entrySet()) {
             var name = entry.getKey();
             var splitterIndex = name.indexOf('@');
@@ -186,18 +184,18 @@ public class ClientModelBuilder {
             } else if (splitterIndex != -1) {
                 name = name.substring(0, splitterIndex);
             }
-            map.put(StringPool.computeIfAbsent(name), entry.getValue());
+            map.put(name, entry.getValue());
         }
         return map;
     }
 
-    private static Int2ReferenceOpenHashMap<List<IValue>> buildEventHandlers(ClientModelData data) {
-        var map = new Int2ReferenceOpenHashMap<List<IValue>>();
+    private static Object2ReferenceOpenHashMap<String, List<IValue>> buildEventHandlers(ClientModelData data) {
+        var map = new Object2ReferenceOpenHashMap<String, List<IValue>>();
         for (var entry : data.assets().userFunctions().entrySet()) {
             var splitterIndex = entry.getKey().indexOf('@');
             if (splitterIndex != -1 && splitterIndex + 1 < entry.getKey().length()) {
                 var eventTypeName = entry.getKey().substring(splitterIndex + 1);
-                var eventType = StringPool.computeIfAbsent(eventTypeName.toLowerCase());
+                var eventType = eventTypeName.toLowerCase();
                 map.computeIfAbsent(eventType, k -> new ReferenceArrayList<>()).add(entry.getValue());
             }
         }

@@ -21,7 +21,7 @@ import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.google.common.collect.Maps;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -44,7 +44,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     protected final TEntity entity;
     private GeoModelState currentModel;
-    private Int2ReferenceMap<List<IValue>> eventHandlers;
+    private Object2ReferenceMap<String, List<IValue>> eventHandlers;
 
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
     protected float lastFrameTime = -1;
@@ -101,7 +101,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return seekTime;
     }
 
-    public void addAnimationController(IAnimationController<? extends AnimatableEntity<TEntity>> value) {
+    @SuppressWarnings("rawtypes")
+    public <T extends AnimatableEntity<TEntity>> void addAnimationController(IAnimationController value) {
         this.manager.addAnimationController(value);
     }
 
@@ -121,7 +122,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     public abstract Animation getAnimation(String name);
 
     @Nullable
-    public IValue getUserFunction(int name) {
+    public IValue getUserFunction(String name) {
         return null;
     }
 
@@ -130,7 +131,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     @Nullable
-    public final List<IValue> getEventHandler(int name) {
+    public final List<IValue> getEventHandler(String name) {
         return this.eventHandlers.get(name);
     }
 
@@ -336,10 +337,12 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return this.animationProcessor;
     }
 
+    protected abstract void onSetupAnimationController();
+
     /**
      * 设置模型
      */
-    protected void loadGeoModel(@NotNull GeoModel model, Int2ReferenceMap<List<IValue>> eventHandlers) {
+    protected void loadGeoModel(@NotNull GeoModel model, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
         this.currentModel = new GeoModelState(model);
         this.eventHandlers = eventHandlers;
         this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
@@ -354,6 +357,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.manager.reset();
         this.stateTracker.reset();
         this.codedAnimationStates.clear();
+        onSetupAnimationController();
     }
 
     protected void clearGeoModel() {
@@ -429,5 +433,8 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     public AnimationState getCodedAnimationStates(String controllerName) {
         return this.codedAnimationStates.getOrDefault(controllerName, AnimationState.IDLE);
+    }
+
+    public interface AnimationControllerFactory extends Consumer<Consumer<IAnimationController<?>>> {
     }
 }

@@ -30,4 +30,8 @@ public class GunFirePredicate implements IAnimationPredicate<CustomHumanoidEntit
         }
         return PlayState.STOP;
     }
+
+    public static boolean available() {
+        return TACZCompat.isInstalled() || SWarfareCompat.isInstalled();
+    }
 }

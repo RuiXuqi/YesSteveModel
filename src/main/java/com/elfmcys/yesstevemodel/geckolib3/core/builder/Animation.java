@@ -48,4 +48,8 @@ public class Animation {
         this.particleKeyFrames = ReferenceArrayList.wrap(particleKeyFrames);
         this.customInstructionKeyframes = ReferenceArrayList.wrap(customInstructionKeyframes);
     }
+
+    public boolean isEmpty() {
+        return boneAnimations.isEmpty() && soundKeyFrames.isEmpty() && particleKeyFrames.isEmpty() && customInstructionKeyframes.isEmpty();
+    }
 }

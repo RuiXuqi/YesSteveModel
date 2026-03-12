@@ -146,7 +146,7 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     }
 
     @Override
-    public @Nullable IValue getUserFunction(int name) {
+    public @Nullable IValue getUserFunction(String name) {
         return animatableEntity.getUserFunction(name);
     }
 

@@ -194,7 +194,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     @Override
     @Nullable
-    public final IValue getUserFunction(int name) {
+    public final IValue getUserFunction(String name) {
         return getModelContainer().assets().userFunctions().get(name);
     }
 

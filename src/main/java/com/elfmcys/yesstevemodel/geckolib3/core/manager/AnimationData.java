@@ -15,8 +15,8 @@ import java.util.List;
 public class AnimationData {
     public static final float DEFAULT_ENDING_TRANSITION_LENGTH = 3;
 
-    private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(48);
-    private final Object2ReferenceOpenHashMap<String, IAnimationController> animationControllersMap = new Object2ReferenceOpenHashMap<>(48);
+    private final List<IAnimationController> animationControllers = new ReferenceArrayList<>(0);
+    private final Object2ReferenceOpenHashMap<String, IAnimationController> animationControllersMap = new Object2ReferenceOpenHashMap<>(0);
     public float lastTick;
     public float startTick = -1;
     // 全局尾过渡动画的长度，一定不能小于 1
@@ -27,7 +27,6 @@ public class AnimationData {
 
     public void addAnimationController(IAnimationController value) {
         animationControllers.add(value);
-        animationControllersMap.put(value.getName(), value);
     }
 
     public float getResetSpeed() {
@@ -48,6 +47,11 @@ public class AnimationData {
     }
 
     public IAnimationController getAnimationController(String name) {
+        if (animationControllersMap.isEmpty() && !animationControllers.isEmpty()) {
+            for (IAnimationController value : animationControllers) {
+                animationControllersMap.put(value.getName(), value);
+            }
+        }
         return animationControllersMap.get(name);
     }
 
@@ -55,5 +59,7 @@ public class AnimationData {
         lastTick = 0;
         startTick = -1;
         resetTickLength = DEFAULT_ENDING_TRANSITION_LENGTH;
+        animationControllers.clear();
+        animationControllersMap.clear();
     }
 }

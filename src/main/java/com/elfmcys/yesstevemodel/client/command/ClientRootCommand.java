@@ -74,7 +74,7 @@ public class ClientRootCommand {
 
                 // 自定义函数
                 for (var name : cap.getModelContainer().assets().userFunctions().keySet()) {
-                    vars.add(String.format("fn.%s", StringPool.getString(name)));
+                    vars.add(String.format("fn.%s", name));
                 }
 
                 return SharedSuggestionProvider.suggest(vars, builder);

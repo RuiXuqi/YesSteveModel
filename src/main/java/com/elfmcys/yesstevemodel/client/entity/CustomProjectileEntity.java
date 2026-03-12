@@ -1,15 +1,11 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
-import com.elfmcys.yesstevemodel.client.animation.predicate.EmptyPredicate;
-import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
-import com.elfmcys.yesstevemodel.client.animation.predicate.ProjectileMainPredicate;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.ProjectileModel;
 import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
 import com.elfmcys.yesstevemodel.client.texture.TextureHolder;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -17,30 +13,22 @@ import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
-
 public class CustomProjectileEntity extends CustomEntity<Projectile> {
     private ProjectileModel projectileModel;
 
     public CustomProjectileEntity(Projectile projectile) {
         super(projectile, true);
-        registerControllers();
     }
 
-    @SuppressWarnings("unchecked,rawtypes,deprecation")
-    private void registerControllers() {
-        addAnimationController(new HybridAnimationController(this, PROJECTILE_PRE_MAIN_CONTROLLER, 0, new EmptyPredicate()));
-        addAnimationController(new HybridAnimationController(this, PROJECTILE_MAIN_CONTROLLER, 0.1f, new ProjectileMainPredicate()));
-        addAnimationController(new HybridAnimationController(this, PROJECTILE_POST_MAIN_CONTROLLER, 0, new EmptyPredicate()));
-        for (int i = 0; i < 8; i++) {
-            String controllerName = PROJECTILE_PARALLEL_CONTROLLER + i;
-            String animationName = String.format("parallel%d", i);
-            addAnimationController(new HybridAnimationController<>(this, controllerName, 0,
-                    new ParallelPredicate<>(animationName), true));
+    @Override
+    protected void onSetupAnimationController() {
+        if (projectileModel != null) {
+            projectileModel.controllerFactory().accept(this);
         }
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
         if (!isFallback) {
             var projectileModel = model.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());

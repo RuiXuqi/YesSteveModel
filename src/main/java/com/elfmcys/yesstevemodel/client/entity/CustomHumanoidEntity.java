@@ -193,10 +193,9 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         return getModelContainer().playerModel().animations().get(name);
     }
 
-    @Nullable
     @Override
-    public AnimationControllerData getAnimationControllerData(String animationControllerName) {
-        return getModelContainer().playerModel().animationControllers().get(animationControllerName);
+    public @Nullable AnimationControllerData getAnimationControllerData(String name) {
+        return getModelContainer().playerModel().animationControllers().get(name);
     }
 
     public String getTextureName() {

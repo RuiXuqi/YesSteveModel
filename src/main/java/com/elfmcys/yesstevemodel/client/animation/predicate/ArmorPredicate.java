@@ -47,4 +47,9 @@ public class ArmorPredicate implements IAnimationPredicate<CustomHumanoidEntity<
         }
         return PlayState.STOP;
     }
+
+    public static boolean available(CustomHumanoidEntity<?> entity, EquipmentSlot slot) {
+        var conditionArmor = entity.getConditionManager().getArmor();
+        return conditionArmor.hasTest(slot) || entity.getAnimation(slot.getName() + ":default") != null;
+    }
 }

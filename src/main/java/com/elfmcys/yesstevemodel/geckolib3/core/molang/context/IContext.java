@@ -53,7 +53,7 @@ public interface IContext<TEntity> {
     IForeignVariableStorage foreignStorage();
 
     @Nullable
-    IValue getUserFunction(int name);
+    IValue getUserFunction(String name);
 
     Object callUserFunction(ExecutionContext<?> context, IValue value, List<?> args);
 

@@ -17,6 +17,8 @@ import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -34,7 +36,7 @@ public class AnimationProcessor<TEntity extends Entity> {
 
     private final AnimatableEntity<TEntity> animatable;
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelBones = new ReferenceArrayList<>();
-    private Int2ReferenceMap<List<IValue>> eventHandlers = Int2ReferenceMaps.emptyMap();
+    private Object2ReferenceMap<String, List<IValue>> eventHandlers = Object2ReferenceMaps.emptyMap();
     private final Int2ReferenceOpenHashMap<BoneTopLevelSnapshot> modelBonesMap = new Int2ReferenceOpenHashMap<>();
     private final ReferenceArrayList<BoneTopLevelSnapshot> activeModelBones = new ReferenceArrayList<>();      // 即使更新开销大也比链表更优
 
@@ -212,7 +214,7 @@ public class AnimationProcessor<TEntity extends Entity> {
         this.activeModelBones.clear();
         this.modelBones.clear();
         this.molangMemory.initialize(null);
-        this.eventHandlers = Int2ReferenceMaps.emptyMap();
+        this.eventHandlers = Object2ReferenceMaps.emptyMap();
         this.pendingMolangTask.clear();
         this.globalSoundManager.stopAllPlayingSounds();
         for (var controller : this.animatable.getAnimationData().getAnimationControllers()) {
@@ -220,7 +222,7 @@ public class AnimationProcessor<TEntity extends Entity> {
         }
     }
 
-    public void loadModel(Int2ReferenceMap<IBone> boneMap, Int2ReferenceMap<List<IValue>> eventHandlers) {
+    public void loadModel(Int2ReferenceMap<IBone> boneMap, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
         clearModel();
         this.modelBones.ensureCapacity(boneMap.size());
         Int2ReferenceMaps.fastForEach(boneMap, entry -> {

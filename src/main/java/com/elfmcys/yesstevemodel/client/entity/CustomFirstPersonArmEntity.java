@@ -2,21 +2,14 @@ package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.capability.PlayerAnimatableCapability;
 import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
-import com.elfmcys.yesstevemodel.client.animation.predicate.EmptyPredicate;
-import com.elfmcys.yesstevemodel.client.animation.predicate.FPArmArmorPredicate;
-import com.elfmcys.yesstevemodel.client.animation.predicate.ParallelPredicate;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.controller.AnimationControllerData;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
-
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
 public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     private final PlayerAnimatableCapability mainModelEntity;
@@ -24,8 +17,12 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     public CustomFirstPersonArmEntity(LocalPlayer player, PlayerAnimatableCapability mainModelEntity) {
         super(player, false);
         this.mainModelEntity = mainModelEntity;
-        registerControllers();
         updateModelId(mainModelEntity.getModelId());
+    }
+
+    @Override
+    protected void onSetupAnimationController() {
+        getModelContainer().playerModel().fpArmControllerFactory().accept(this);
     }
 
     public PlayerAnimatableCapability getMainModelEntity() {
@@ -35,23 +32,6 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     @Override
     protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
         return true;
-    }
-
-    @SuppressWarnings("all")
-    private void registerControllers() {
-        addAnimationController(new HybridAnimationController(this, FP_ARM_MISC_CONTROLLER, 0, new EmptyPredicate()));
-        for (int i = 0; i < 8; i++) {
-            String controllerName = FP_ARM_PARALLEL_CONTROLLER + i;
-            String animationName = String.format("parallel%d", i);
-            addAnimationController(new HybridAnimationController(this, controllerName, 0,
-                    new ParallelPredicate(animationName), true));
-        }
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                String controllerName = FP_ARM_ARMOR_CONTROLLER + slot.getName();
-                addAnimationController(new HybridAnimationController(this, controllerName, 0, new FPArmArmorPredicate(slot)));
-            }
-        }
     }
 
     @Override

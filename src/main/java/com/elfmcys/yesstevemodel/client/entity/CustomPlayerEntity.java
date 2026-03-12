@@ -1,29 +1,21 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
-import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
-import com.elfmcys.yesstevemodel.client.compat.carryon.CarryOnCompat;
-import com.elfmcys.yesstevemodel.client.compat.parcool.ParCoolCompat;
+import com.elfmcys.yesstevemodel.client.controller.collections.PlayerControllerCollection;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.CodedAnimationController;
-import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
-import com.elfmcys.yesstevemodel.util.ControllerUtils;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-
-import static com.elfmcys.yesstevemodel.util.ControllerUtils.*;
 
 public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> implements IRoamingEntity {
     protected final boolean localPlayer;
@@ -40,7 +32,11 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
         if (player instanceof LocalPlayer) {
             setInitialized();
         }
-        registerControllers();
+    }
+
+    @Override
+    protected void onSetupAnimationController() {
+        getModelContainer().playerModel().playerControllerFactory().accept(this);
     }
 
     @Override
@@ -50,64 +46,6 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
         isExtraAnimationDirty = false;
         syncHandler = null;
         super.reset();
-    }
-
-    /**
-     * 越往后优先级越高
-     */
-    @SuppressWarnings("all")
-    public void registerControllers() {
-        for (int i = 0; i < 8; i++) {
-            String controllerName = PRE_PARALLEL_CONTROLLER + i;
-            String animationName = String.format("pre_parallel%d", i);
-            addAnimationController(new HybridAnimationController(this, controllerName, 0, new ParallelPredicate(animationName)));
-        }
-
-        ParCoolCompat.addParcoolPredicate(this);
-        addAnimationController(new HybridAnimationController(this, VEHICLE_CONTROLLER, 0.1f, new VehiclePredicate()));
-
-        addAnimationController(new HybridAnimationController(this, PRE_MAIN_CONTROLLER, 0, new EmptyPredicate()));
-        addAnimationController(new HybridAnimationController(this, MAIN_CONTROLLER, 0.1f, new PlayerMainPredicate()));
-        addAnimationController(new HybridAnimationController(this, POST_MAIN_CONTROLLER, 0, new EmptyPredicate()));
-
-        addAnimationController(new HybridAnimationController(this, PRE_HOLD_CONTROLLER, 0, new EmptyPredicate()));
-        addAnimationController(new HybridAnimationController(this, HOLD_OFFHAND_CONTROLLER, 0.1f, new OffhandPredicate()));
-        addAnimationController(new HybridAnimationController(this, HOLD_MAINHAND_CONTROLLER, 0.1f, new MainhandPredicate()));
-        addAnimationController(new HybridAnimationController(this, POST_HOLD_CONTROLLER, 0, new EmptyPredicate()));
-
-        addAnimationController(new HybridAnimationController(this, GUN_FIRE_CONTROLLER, 0f, new GunFirePredicate()));
-
-        addAnimationController(new HybridAnimationController(this, PRE_SWING_CONTROLLER, 0, new EmptyPredicate()));
-        addAnimationController(new HybridAnimationController(this, SWING_CONTROLLER, 0, new SwingPredicate()));
-        addAnimationController(new HybridAnimationController(this, POST_SWING_CONTROLLER, 0, new EmptyPredicate()));
-
-        addAnimationController(new HybridAnimationController(this, PRE_USE_CONTROLLER, 0, new EmptyPredicate()));
-        addAnimationController(new HybridAnimationController(this, USE_CONTROLLER, 0.1f, new UsePredicate()));
-        addAnimationController(new HybridAnimationController(this, POST_USE_CONTROLLER, 0, new EmptyPredicate()));
-
-        addAnimationController(new HybridAnimationController(this, PASSENGER_CONTROLLER, 0.1f, new PassengerPredicate()));
-        CarryOnCompat.addCarryOnPredicate(this);
-
-        // 下面不需要自定义动画控制器
-        addAnimationController(new CodedAnimationController(this, CAP_CONTROLLER, 0, new CapPredicate()));
-        if (this instanceof IPreviewEntity) {
-            addAnimationController(new CodedAnimationController(this, HOVER_CONTROLLER, 0, new HoverPredicate()));
-            addAnimationController(new CodedAnimationController(this, FOCUS_CONTROLLER, 0, new FocusPredicate()));
-        }
-
-        for (int i = 0; i < 8; i++) {
-            String controllerName = PARALLEL_CONTROLLER + i;
-            String animationName = String.format("parallel%d", i);
-            addAnimationController(new HybridAnimationController(this, controllerName, 0,
-                    new ParallelPredicate(animationName), true));
-        }
-
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-                String controllerName = ARMOR_CONTROLLER + slot.getName();
-                addAnimationController(new HybridAnimationController(this, controllerName, 0, new ArmorPredicate(slot)));
-            }
-        }
     }
 
     @Override
@@ -172,7 +110,7 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
     protected void postAnimationSetup(float seekTime, boolean shouldTick) {
         super.postAnimationSetup(seekTime, shouldTick);
         if (localPlayer && shouldTick) {
-            if (isPlayingExtraAnimation() && getCodedAnimationStates(ControllerUtils.CAP_CONTROLLER) == AnimationState.IDLE) {
+            if (isPlayingExtraAnimation() && getCodedAnimationStates(PlayerControllerCollection.CAP_CONTROLLER) == AnimationState.IDLE) {
                 stopExtraAnimation();
                 if (NetworkHandler.isRemoteChannelPresent()) {
                     NetworkHandler.sendToServer(SetPlayAnimation.stop());

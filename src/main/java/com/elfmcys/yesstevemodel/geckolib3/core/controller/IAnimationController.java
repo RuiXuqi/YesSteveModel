@@ -6,7 +6,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -25,7 +25,7 @@ public interface IAnimationController<T extends AnimatableEntity<?>> {
     /**
      * 更新模型
      */
-    void updateModel(List<BoneTopLevelSnapshot> modelRendererList, Int2ReferenceMap<List<IValue>> eventHandlers);
+    void updateModel(List<BoneTopLevelSnapshot> modelRendererList, Object2ReferenceMap<String, List<IValue>> eventHandlers);
 
     void process(AnimationEvent<T> event, ExpressionEvaluator<MolangContext<?>> evaluator, boolean allowEmitting);
 

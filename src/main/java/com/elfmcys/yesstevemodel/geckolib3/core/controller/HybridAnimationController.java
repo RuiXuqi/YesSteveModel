@@ -7,7 +7,7 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -48,7 +48,7 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
     }
 
     @Override
-    public void updateModel(List<BoneTopLevelSnapshot> modelBones, Int2ReferenceMap<List<IValue>> eventHandlers) {
+    public void updateModel(List<BoneTopLevelSnapshot> modelBones, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
         var animationControllerData = animatableEntity.getAnimationControllerData(this.name);
         if (animationControllerData != null) {
             this.isBedrock = true;
