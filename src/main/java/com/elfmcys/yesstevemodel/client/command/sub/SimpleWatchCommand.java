@@ -43,7 +43,7 @@ public class SimpleWatchCommand {
         LiteralArgumentBuilder<CommandSourceStack> clear = Commands.literal(CLEAR_NAME);
 
         Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> exp = () -> Commands.argument(EXPRESSION_NAME, StringArgumentType.greedyString()).suggests(ALL_VARS);
-        Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> controller = () -> Commands.argument(CONTROLLER_NAME, StringArgumentType.string()).suggests(ALL_CONTROLLERS);
+        Supplier<RequiredArgumentBuilder<CommandSourceStack, String>> controller = () -> Commands.argument(CONTROLLER_NAME, StringArgumentType.greedyString()).suggests(ALL_CONTROLLERS);
 
         watch.then(var.then(exp.get().executes(SimpleWatchCommand::addExpression)));
         watch.then(state.then(controller.get().executes(SimpleWatchCommand::addControllerState)));
