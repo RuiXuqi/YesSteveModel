@@ -42,13 +42,26 @@ public class ParallelControllerDiscovery<T extends CustomEntity<?>, TModel> impl
                 names.put(entry.getKey(), null);
             }
         });
+        var animations = resourceAdapter.getAnimations(model, assets);
         Object2ReferenceMaps.fastForEach(assets.eventHandlers(), entry -> {
             if (eventNamePattern.test(entry.getKey())) {
                 var controllerName = entry.getKey().replace("_ctrl_", ".");
+                try {
+                    var animationSuffix = controllerName.substring(category.length() + name.length() + 2);
+                    var index = Integer.parseInt(animationSuffix);
+                    if (index >= 0 && index <= 7) {
+                        var animationName = name + animationSuffix;
+                        if (animations.containsKey(animationName)) {
+                            names.put(controllerName, animationName);
+                            return;
+                        }
+                    }
+                } catch (NumberFormatException ignored) {
+                }
                 names.put(controllerName, null);
             }
         });
-        Object2ReferenceMaps.fastForEach(resourceAdapter.getAnimations(model, assets), entry -> {
+        Object2ReferenceMaps.fastForEach(animations, entry -> {
             if (!entry.getValue().isEmpty() && animationNamePattern.test(entry.getKey())) {
                 var controllerName = String.format("%s.%s_%s", category, name, entry.getKey().substring(name.length()));
                 names.put(controllerName, entry.getKey());
