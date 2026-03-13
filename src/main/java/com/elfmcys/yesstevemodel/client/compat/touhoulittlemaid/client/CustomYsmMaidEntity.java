@@ -13,6 +13,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Consumer;
+
 /**
  * 基于 CustomPlayerEntity 复制来的，基本上没做删除，试想尝试让女仆能调用轮盘动画之类的,所以就先预留着
  */
@@ -25,8 +27,9 @@ public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implem
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onSetupAnimationController() {
-        getModelContainer().playerModel().maidControllerFactory().accept(this);
+        ((Consumer<CustomYsmMaidEntity>) getModelContainer().playerModel().maidControllerFactory()).accept(this);
     }
 
     @Override

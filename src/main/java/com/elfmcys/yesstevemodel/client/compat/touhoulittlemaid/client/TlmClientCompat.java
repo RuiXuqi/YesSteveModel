@@ -2,11 +2,14 @@ package com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.TLMBinding;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.GeoMaidAnimatedRegister;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.MaidControllerCollection;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.molang.TLMBindingInner;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.predicate.MaidVehiclePredicate;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.input.OpenRouletteScreen;
 import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.render.CustomYsmMaidRenderer;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
+import com.elfmcys.yesstevemodel.client.model.CommonAsset;
+import com.elfmcys.yesstevemodel.client.model.PlayerModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.PlayState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.world.entity.Entity;
@@ -21,6 +24,9 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class TlmClientCompat {
@@ -53,6 +59,13 @@ public class TlmClientCompat {
                 GeoMaidAnimatedRegister.registerAnimationState();
             }
         });
+    }
+
+    public static Object buildControllerFactory(PlayerModel model, CommonAsset assets) {
+        if (INSTALLED) {
+            return MaidControllerCollection.build(model, assets);
+        }
+        return null;
     }
 
     public static boolean isInstalled() {

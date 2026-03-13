@@ -2,8 +2,7 @@ package com.elfmcys.yesstevemodel.client.model;
 
 import com.elfmcys.yesstevemodel.client.animation.condition.ConditionManager;
 import com.elfmcys.yesstevemodel.client.animation.condition.FPArmConditionManager;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;
-import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.animation.MaidControllerCollection;
+import com.elfmcys.yesstevemodel.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.yesstevemodel.client.controller.collections.FPArmControllerCollection;
 import com.elfmcys.yesstevemodel.client.controller.collections.PlayerControllerCollection;
 import com.elfmcys.yesstevemodel.client.entity.CustomFirstPersonArmEntity;
@@ -29,8 +28,8 @@ public class PlayerModel {
     private final String defaultTextureName;
     private final AbstractTexture defaultTexture;
     private final Consumer<CustomPlayerEntity> playerControllerFactory;
-    private final Consumer<CustomYsmMaidEntity> maidControllerFactory;
     private final Consumer<CustomFirstPersonArmEntity> fpArmControllerFactory;
+    private final Object maidControllerFactory;
 
     public PlayerModel(GeoModel mainModel, GeoModel armModel, Object2ReferenceMap<String, Animation> animations, Object2ReferenceMap<String, Animation> fpArmAnimations,
                        ConditionManager conditionManager, FPArmConditionManager fpArmConditionManager, Object2ReferenceMap<String, AnimationControllerData> animationControllers,
@@ -46,8 +45,8 @@ public class PlayerModel {
         this.defaultTextureName = defaultTextureName;
         this.defaultTexture = defaultTexture;
         this.playerControllerFactory = PlayerControllerCollection.build(this, assets);
-        this.maidControllerFactory = MaidControllerCollection.build(this, assets);
         this.fpArmControllerFactory = FPArmControllerCollection.build(this, assets);
+        this.maidControllerFactory = TlmClientCompat.buildControllerFactory(this, assets);
     }
 
     public GeoModel mainModel() {
@@ -94,11 +93,11 @@ public class PlayerModel {
         return playerControllerFactory;
     }
 
-    public Consumer<CustomYsmMaidEntity> maidControllerFactory() {
-        return maidControllerFactory;
-    }
-
     public Consumer<CustomFirstPersonArmEntity> fpArmControllerFactory() {
         return fpArmControllerFactory;
+    }
+
+    public Object maidControllerFactory() {
+        return maidControllerFactory;
     }
 }
