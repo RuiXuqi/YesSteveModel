@@ -14,7 +14,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.BeginningTransiti
 import com.elfmcys.yesstevemodel.geckolib3.core.keyframe.point.EndingTransitionPoint;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.ControllerContext;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.context.MolangContext;
-import com.elfmcys.yesstevemodel.geckolib3.core.molang.util.StringPool;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
@@ -127,12 +126,10 @@ public class CodedAnimationController<T extends AnimatableEntity<?>> implements 
         this.animationPlayer.updateModel(modelBones);
         this.animationPlayer.setBeginningTransition(new LinearBlendTransition(defaultTransitionTicks));
         this.molangPredicate = null;
-        var predictEventName = StringPool.getName(this.name.replace(".", "_ctrl_"));
-        if (predictEventName != StringPool.NONE) {
-            var handlers = eventHandlers.get(predictEventName);
-            if (handlers != null && !handlers.isEmpty()) {
-                this.molangPredicate = handlers.get(0);
-            }
+        var predictEventName = this.name.replace(".", "_ctrl_");
+        var handlers = eventHandlers.get(predictEventName);
+        if (handlers != null && !handlers.isEmpty()) {
+            this.molangPredicate = handlers.get(0);
         }
     }
 
