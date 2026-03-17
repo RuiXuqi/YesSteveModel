@@ -72,8 +72,11 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.rateLimiter.setLimit(getFrameRateLimit());
     }
 
-    protected void reset() {
-        clearGeoModel();
+    protected void resetGeoModel() {
+        currentModel = null;
+        eventHandlers = null;
+        animationProcessor.clearModel();
+        physicsManager.reset();
         rateLimiter.reset();
         manager.reset();
         stateTracker.reset();
@@ -85,7 +88,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         currentFrameRendered = false;
         lastFrameUpdated = false;
         seekTime = 0;
-        initialize = false;
         codedAnimationStates.clear();
     }
 
@@ -343,35 +345,20 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      * 设置模型
      */
     protected void loadGeoModel(@NotNull GeoModel model, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
+        resetGeoModel();
         this.currentModel = new GeoModelState(model);
         this.eventHandlers = eventHandlers;
+        onSetupAnimationController();
         this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
         onLoadGeoModel(this.currentModel);
-        this.currentFrameTicked = false;
-        this.currentFrameShouldTick = true;
-        this.lastMutableRender = false;
-        this.lastFrameUpdated = false;
-        this.lastFrameTime = -1;
-        this.seekTime = 0;
-        this.rateLimiter.reset();
-        this.manager.reset();
-        this.stateTracker.reset();
-        this.codedAnimationStates.clear();
-        onSetupAnimationController();
-    }
-
-    protected void clearGeoModel() {
-        this.currentModel = null;
-        this.eventHandlers = null;
-        this.animationProcessor.clearModel();
-        this.physicsManager.reset();
     }
 
     public void reloadGeoModel() {
         if (this.currentModel != null) {
-            this.currentModel = new GeoModelState(this.currentModel.model());
-            this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
-            onLoadGeoModel(this.currentModel);
+            var model = this.currentModel.model();
+            var eventHandlers = this.eventHandlers;
+            resetGeoModel();
+            loadGeoModel(model, eventHandlers);
         }
     }
 
@@ -387,7 +374,6 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      * 更新当前使用的模型后调用
      */
     protected void onLoadGeoModel(GeoModelState model) {
-        physicsManager.reset();
     }
 
     /**

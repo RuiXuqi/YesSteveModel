@@ -54,21 +54,37 @@ public final class PlayerAnimatableCapability extends CustomPlayerEntity {
     }
 
     @Override
+    protected void onLoadModelContainer(ClientModel newModel) {
+        super.onLoadModelContainer(newModel);
+        currentHashShort = getModelContainer().info().hashShort();
+    }
+
+    @Override
+    protected void resetModelContainer() {
+        currentHashShort = 0;
+        super.resetModelContainer();
+    }
+
+    @Override
     public void onLoadGeoModel(GeoModelState model) {
         super.onLoadGeoModel(model);
-        var hashShort = getModelContainer().info().hashShort();
-        currentHashShort = hashShort;
         // 切换模型后如果没有本地缓存，在服务端 roaming 下发之前需要丢弃本地更改
-        var storage = storageMap.get(hashShort);
+        var storage = storageMap.get(currentHashShort);
         if (storage != null && storage.vars != null) {
             if (isLocalPlayer()) {
-                roamingStruct = new LocalRoamingStruct(hashShort, storage.vars);
+                roamingStruct = new LocalRoamingStruct(currentHashShort, storage.vars);
             } else {
                 roamingStruct = new RemoteRoamingStruct(storage.vars);
             }
         } else {
             roamingStruct = null;
         }
+    }
+
+    @Override
+    protected void resetGeoModel() {
+        roamingStruct = null;
+        super.resetGeoModel();
     }
 
     @Override

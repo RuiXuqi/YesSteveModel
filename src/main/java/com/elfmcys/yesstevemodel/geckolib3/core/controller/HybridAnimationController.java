@@ -31,6 +31,7 @@ public class HybridAnimationController<T extends AnimatableEntity<?>> implements
         this.animatableEntity = animatableEntity;
         this.codedAnimationController = new CodedAnimationController<>(animatableEntity, name, transitionLengthTicks, animationPredicate, blendRotation);
         this.bedrockAnimationController = new BedrockAnimationController<>(animatableEntity, name, transitionLengthTicks);
+        this.activeController = this.codedAnimationController;
     }
 
     @Override

@@ -217,9 +217,6 @@ public class AnimationProcessor<TEntity extends Entity> {
         this.eventHandlers = Object2ReferenceMaps.emptyMap();
         this.pendingMolangTask.clear();
         this.globalSoundManager.stopAllPlayingSounds();
-        for (var controller : this.animatable.getAnimationData().getAnimationControllers()) {
-            controller.clear();
-        }
     }
 
     public void loadModel(Int2ReferenceMap<IBone> boneMap, Object2ReferenceMap<String, List<IValue>> eventHandlers) {

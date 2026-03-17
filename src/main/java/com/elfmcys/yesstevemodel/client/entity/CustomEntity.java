@@ -18,7 +18,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.processor.DebugInfo;
 import com.elfmcys.yesstevemodel.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
-import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.util.ModelIdUtil;
 import com.elfmcys.yesstevemodel.util.RenderUtil;
 import com.elfmcys.yesstevemodel.util.ThreadTools;
@@ -57,16 +56,25 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         }
     }
 
-    @Override
-    protected void reset() {
+    public void reset() {
         modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+        initialize = false;
+        resetModelContainer();
+    }
+
+    protected void resetModelContainer() {
         currentModelContainer = null;
         resourceHolder = null;
         modelFallback = false;
         lastCheckUpdateTime = 0;
+        resetGeoModel();
+    }
+
+    @Override
+    protected void resetGeoModel() {
         alterPhysicsManager = null;
         deferHandler = null;
-        super.reset();
+        super.resetGeoModel();
     }
 
     @Override
@@ -107,16 +115,6 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         }
     }
 
-    @Override
-    protected void onLoadGeoModel(GeoModelState model) {
-        super.onLoadGeoModel(model);
-        if (alterPhysicsManager != null) {
-            alterPhysicsManager.reset();
-        }
-
-        deferHandler = getEventHandler(MolangEventWrapper.DEFER);
-    }
-
     public void checkModelUpdate() {
         if (lastCheckUpdateTime < entity.tickCount) {
             checkModelContainerUpdate();
@@ -153,13 +151,8 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
                 loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
             }
         } else if (currentModelContainer != null) {
-            onClearModelContainer();
-            currentModelContainer = null;
+            resetModelContainer();
         }
-    }
-
-    protected void onClearModelContainer() {
-        clearGeoModel();
     }
 
     @Nullable
@@ -171,6 +164,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     protected void onLoadModelContainer(ClientModel newModel) {
         resourceHolder.soundHolder = SoundDataManager.register(newModel);
+        deferHandler = newModel.assets().eventHandlers().get(MolangEventWrapper.DEFER);
     }
 
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个

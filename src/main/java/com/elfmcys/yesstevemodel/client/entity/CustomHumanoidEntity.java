@@ -53,15 +53,21 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
-    protected void reset() {
+    public void reset() {
         textureName = null;
         textureIndex = 0;
+        super.reset();
+    }
+
+    @Override
+    protected void resetGeoModel() {
         headRot.set(0);
         fireInitEvent = false;
         wrappedUpdateHandler = null;
         tacGunAnimationNeedReload = false;
         disabled = false;
-        super.reset();
+        fireInitEvent = true;
+        super.resetGeoModel();
     }
 
     @Override
@@ -127,6 +133,12 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     protected void onLoadModelContainer(ClientModel newModel) {
         super.onLoadModelContainer(newModel);
         updateTexture();
+        var updateHandlers = newModel.assets().eventHandlers().get(MolangEventWrapper.PLAYER_UPDATE);
+        if (updateHandlers != null) {
+            wrappedUpdateHandler = MolangEventWrapper.wrap(updateHandlers, updateHandlerArgs);
+        } else {
+            wrappedUpdateHandler = null;
+        }
     }
 
     @Override
@@ -135,14 +147,6 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         if (model != null && !model.headBones().isEmpty()) {
             var head = model.headBones().get(model.headBones().size() - 1);
             headRot.set(head.getRotationX(), head.getRotationY());
-        }
-
-        fireInitEvent = true;
-        var updateHandlers = getEventHandler(MolangEventWrapper.PLAYER_UPDATE);
-        if (updateHandlers != null) {
-            wrappedUpdateHandler = MolangEventWrapper.wrap(updateHandlers, updateHandlerArgs);
-        } else {
-            wrappedUpdateHandler = null;
         }
     }
 

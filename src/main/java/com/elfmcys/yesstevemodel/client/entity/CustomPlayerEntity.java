@@ -3,10 +3,10 @@ package com.elfmcys.yesstevemodel.client.entity;
 import com.elfmcys.yesstevemodel.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.yesstevemodel.client.compat.IrisCompat;
 import com.elfmcys.yesstevemodel.client.controller.collections.PlayerControllerCollection;
+import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
-import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
 import com.elfmcys.yesstevemodel.network.NetworkHandler;
 import com.elfmcys.yesstevemodel.network.message.SetPlayAnimation;
@@ -40,12 +40,12 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
     }
 
     @Override
-    protected void reset() {
+    protected void resetGeoModel() {
         isPlayingExtraAnimation = false;
         extraAnimationName = "idle";
         isExtraAnimationDirty = false;
         syncHandler = null;
-        super.reset();
+        super.resetGeoModel();
     }
 
     @Override
@@ -64,9 +64,9 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
     }
 
     @Override
-    protected void onLoadGeoModel(GeoModelState model) {
-        super.onLoadGeoModel(model);
-        syncHandler = getEventHandler(MolangEventWrapper.SYNC);
+    protected void onLoadModelContainer(ClientModel newModel) {
+        super.onLoadModelContainer(newModel);
+        syncHandler = newModel.assets().eventHandlers().get(MolangEventWrapper.SYNC);
     }
 
     public void playExtraAnimation(String animationName) {

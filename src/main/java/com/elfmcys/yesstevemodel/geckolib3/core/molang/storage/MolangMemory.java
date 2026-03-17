@@ -45,16 +45,17 @@ public class MolangMemory implements IScopedVariableStorage, IForeignVariableSto
     public void initialize(@Nullable PooledStringHashSet publicVariableNames) {
         scopedMap.clear();
 
-        PooledStringHashMap<VariableValueHolder> newPublicMap = new PooledStringHashMap<>();
-        if (publicVariableNames != null) {
+        if (publicVariableNames != null && !publicVariableNames.isEmpty()) {
+            PooledStringHashMap<VariableValueHolder> newPublicMap = new PooledStringHashMap<>(publicVariableNames.size());
             for (int publicVariableName : publicVariableNames) {
                 VariableValueHolder value = new VariableValueHolder();
                 scopedMap.put(publicVariableName, value);
                 newPublicMap.put(publicVariableName, value);
             }
+            this.publicMap = newPublicMap;
+        } else {
+            this.publicMap = new PooledStringHashMap<>(0);
         }
-        newPublicMap.trim();
-        this.publicMap = newPublicMap;
     }
 
     public void visitScopedVariableNames(Consumer<String> visitor) {

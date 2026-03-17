@@ -1,6 +1,5 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
-import com.elfmcys.yesstevemodel.client.animation.predicate.*;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.VehicleModel;
 import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
@@ -49,9 +48,9 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     }
 
     @Override
-    protected void onClearModelContainer() {
-        super.onClearModelContainer();
+    public void resetModelContainer() {
         this.vehicleModel = null;
+        super.resetModelContainer();
     }
 
     @Override

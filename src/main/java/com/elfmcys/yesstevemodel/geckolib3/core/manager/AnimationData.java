@@ -59,6 +59,9 @@ public class AnimationData {
         lastTick = 0;
         startTick = -1;
         resetTickLength = DEFAULT_ENDING_TRANSITION_LENGTH;
+        for (var controller : animationControllers) {
+            controller.clear();
+        }
         animationControllers.clear();
         animationControllersMap.clear();
     }
