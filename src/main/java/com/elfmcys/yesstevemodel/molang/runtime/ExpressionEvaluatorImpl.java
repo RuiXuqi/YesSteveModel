@@ -90,15 +90,13 @@ public final class ExpressionEvaluatorImpl<TEntity> implements ExpressionEvaluat
                     }
                     StructAccessExpression exp = (StructAccessExpression) a;
                     Object value = exp.left().visit(evaluator);
-                    if (value == null) {
-                        if (exp.left() instanceof AssignableVariableExpression) {
-                            AssignableVariable variable = ((AssignableVariableExpression) exp.left()).target();
-                            Struct struct = new HashMapStruct();
-                            struct.putProperty(exp.path(), val);
-                            variable.assign(evaluator, struct);
-                        }
-                    } else if (value instanceof Struct) {
+                    if (value instanceof Struct) {
                         ((Struct) value).putProperty(exp.path(), val);
+                    } else if (exp.left() instanceof AssignableVariableExpression) {
+                        AssignableVariable variable = ((AssignableVariableExpression) exp.left()).target();
+                        Struct struct = new HashMapStruct();
+                        struct.putProperty(exp.path(), val);
+                        variable.assign(evaluator, struct);
                     }
                 }
                 // TODO: (else case) This isn't fail-fast, we can only assign to access expressions
