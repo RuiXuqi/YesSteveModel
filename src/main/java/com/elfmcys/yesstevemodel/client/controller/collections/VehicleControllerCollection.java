@@ -18,6 +18,8 @@ import java.util.function.Consumer;
 
 public class VehicleControllerCollection {
     private static final String CATEGORY = "vehicle";
+    public static final String NAME_ORIGIN = CATEGORY + ".origin";
+
     private static final AnimationControllerCollection<CustomVehicleEntity, VehicleModel> COLLECTION = new AnimationControllerCollection<>();
 
     @SuppressWarnings("rawtypes,unchecked,deprecation")
@@ -28,6 +30,7 @@ public class VehicleControllerCollection {
         single("pre_main", null, true, (name, entity) -> new HybridAnimationController(entity, name, 0, new EmptyPredicate()));
         single("main", VehicleMainPredicate.ANIM_LIST, true, (name, entity) -> new HybridAnimationController(entity, name, 0.1f, new VehicleMainPredicate()));
         single("move", VehicleMovePredicate.ANIM_LIST, true, (name, entity) -> new HybridAnimationController(entity, name, 0.1f, new VehicleMovePredicate()));
+        simple("origin", (name, entity) -> new VehicleOriginController(entity, name));
         single("ride", VehicleRidePredicate.ANIM_LIST, true, (name, entity) -> new HybridAnimationController(entity, name, 0.1f, new VehicleRidePredicate()));
         single("post_main", null, true, (name, entity) -> new HybridAnimationController(entity, name, 0, new EmptyPredicate()));
 

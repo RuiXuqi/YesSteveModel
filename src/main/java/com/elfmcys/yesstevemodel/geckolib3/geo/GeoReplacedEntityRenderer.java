@@ -1,6 +1,7 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
 import com.elfmcys.yesstevemodel.api.ILivingRenderer;
+import com.elfmcys.yesstevemodel.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.yesstevemodel.client.entity.CustomHumanoidEntity;
 import com.elfmcys.yesstevemodel.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.yesstevemodel.geckolib3.model.provider.data.EntityModelData;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 import java.util.List;
 import java.util.Optional;
@@ -93,6 +95,16 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
             }
 
             setupRotations(entity, poseStack, data.lerpedAge, data.lerpBodyRot, partialTick);
+
+            if (animatableEntity.getEntity().getVehicle() != null) {
+                animatableEntity.getEntity().getVehicle().getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+                    var rot = cap.getRotation();
+                    if (rot != null) {
+                        poseStack.mulPose(new Quaternionf().rotateZYX(rot.z, 0, rot.x).invert());
+                    }
+                });
+            }
+
             preRenderCallback(entity, poseStack, partialTick);
             poseStack.translate(0, 0.01f, 0);
 

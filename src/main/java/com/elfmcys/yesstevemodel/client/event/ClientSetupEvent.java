@@ -65,6 +65,8 @@ public class ClientSetupEvent {
             SimpleHatsCompat.init();
             ImmersiveMelodiesCompat.init();
             IronsSpellBooksCompat.init();
+            SimplePlaneCompat.init();
+            ImmersiveAircraftCompat.init();
 
             // 一定要放在最后
             initCoreClient();

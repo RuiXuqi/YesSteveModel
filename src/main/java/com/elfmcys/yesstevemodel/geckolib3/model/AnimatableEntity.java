@@ -349,7 +349,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         this.currentModel = new GeoModelState(model);
         this.eventHandlers = eventHandlers;
         onSetupAnimationController();
-        this.animationProcessor.loadModel(currentModel.boneMap(), eventHandlers);
+        this.animationProcessor.loadModel(currentModel, eventHandlers);
         onLoadGeoModel(this.currentModel);
     }
 

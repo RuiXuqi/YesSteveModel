@@ -1,5 +1,7 @@
 package com.elfmcys.yesstevemodel.client.entity;
 
+import com.elfmcys.yesstevemodel.client.controller.VehicleOriginController;
+import com.elfmcys.yesstevemodel.client.controller.collections.VehicleControllerCollection;
 import com.elfmcys.yesstevemodel.client.model.ClientModel;
 import com.elfmcys.yesstevemodel.client.model.VehicleModel;
 import com.elfmcys.yesstevemodel.client.texture.CustomTextureManager;
@@ -12,9 +14,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public class CustomVehicleEntity extends CustomEntity<Entity> {
     private VehicleModel vehicleModel;
+    private VehicleOriginController originController;
 
     public CustomVehicleEntity(Entity vehicle) {
         super(vehicle, true);
@@ -24,7 +28,16 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     protected void onSetupAnimationController() {
         if (vehicleModel != null) {
             vehicleModel.controllerFactory().accept(this);
+            originController = (VehicleOriginController) getAnimationData().getAnimationController(VehicleControllerCollection.NAME_ORIGIN);
         }
+    }
+
+    @Nullable
+    public Vector3f getRotation() {
+        if (originController != null) {
+            return originController.getRotation();
+        }
+        return null;
     }
 
     @Override
@@ -50,6 +63,7 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     @Override
     public void resetModelContainer() {
         this.vehicleModel = null;
+        this.originController = null;
         super.resetModelContainer();
     }
 

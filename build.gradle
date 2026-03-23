@@ -214,6 +214,9 @@ dependencies {
     // Real Camera
     modImplementation "maven.modrinth:real-camera:0.7.4-beta-1.20.1-forge"
 
+    modImplementation "maven.modrinth:immersive-aircraft:GsVmbbkj"
+    modImplementation "maven.modrinth:simple-planes:1.20.1-5.3.0"
+
     // 手机端的仿触屏模组
     // modImplementation "maven.modrinth:touchcontroller:0.2.1-beta14+forge-1.20.1"
 

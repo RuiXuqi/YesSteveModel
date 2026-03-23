@@ -12,9 +12,9 @@ import com.elfmcys.yesstevemodel.geckolib3.core.molang.value.IValue;
 import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.core.util.MathUtil;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
+import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.yesstevemodel.molang.runtime.Struct;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
@@ -219,14 +219,22 @@ public class AnimationProcessor<TEntity extends Entity> {
         this.globalSoundManager.stopAllPlayingSounds();
     }
 
-    public void loadModel(Int2ReferenceMap<IBone> boneMap, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
+    public void loadModel(GeoModelState model, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
         clearModel();
-        this.modelBones.ensureCapacity(boneMap.size());
-        Int2ReferenceMaps.fastForEach(boneMap, entry -> {
-            BoneTopLevelSnapshot bone = new BoneTopLevelSnapshot(entry.getValue());
-            this.modelBonesMap.put(entry.getIntKey(), bone);
-            this.modelBones.add(bone);
-        });
+        if (!model.boneMap().isEmpty()) {
+            this.modelBones.ensureCapacity(model.boneMap().size());
+            this.modelBones.add(null);
+            var rootName = model.model().sortedBones.get(0).pooledName();
+            Int2ReferenceMaps.fastForEach(model.boneMap(), entry -> {
+                BoneTopLevelSnapshot snapshot = new BoneTopLevelSnapshot(entry.getValue());
+                this.modelBonesMap.put(entry.getValue().getPooledName(), snapshot);
+                if (entry.getIntKey() == rootName) {
+                    this.modelBones.set(0, snapshot);
+                } else {
+                    this.modelBones.add(snapshot);
+                }
+            });
+        }
         this.modelDirty = true;
         this.eventHandlers = eventHandlers;
     }
