@@ -53,24 +53,6 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
-    public void reset() {
-        textureName = null;
-        textureIndex = 0;
-        super.reset();
-    }
-
-    @Override
-    protected void resetGeoModel() {
-        headRot.set(0);
-        fireInitEvent = false;
-        wrappedUpdateHandler = null;
-        tacGunAnimationNeedReload = false;
-        disabled = false;
-        fireInitEvent = true;
-        super.resetGeoModel();
-    }
-
-    @Override
     protected void codeAnimation(AnimationEvent<? extends AnimatableEntity<T>> animationEvent, boolean shouldUpdate) {
         GeoModelState model = getLoadedGeoModel();
         if (model != null && !model.headBones().isEmpty()) {
@@ -142,12 +124,34 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
     }
 
     @Override
+    protected void resetModelContainer() {
+        super.resetModelContainer();
+        wrappedUpdateHandler = null;
+    }
+
+    @Override
     protected void onLoadGeoModel(GeoModelState model) {
         super.onLoadGeoModel(model);
         if (model != null && !model.headBones().isEmpty()) {
             var head = model.headBones().get(model.headBones().size() - 1);
             headRot.set(head.getRotationX(), head.getRotationY());
         }
+    }
+
+    @Override
+    protected void resetGeoModel() {
+        super.resetGeoModel();
+        headRot.set(0);
+        tacGunAnimationNeedReload = false;
+        fireInitEvent = true;
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        textureName = null;
+        textureIndex = 0;
+        disabled = false;
     }
 
     @Override

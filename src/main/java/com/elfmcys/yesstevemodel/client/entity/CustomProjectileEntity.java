@@ -51,8 +51,8 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
 
     @Override
     public void resetModelContainer() {
-        projectileModel = null;
         super.resetModelContainer();
+        projectileModel = null;
     }
 
     @Override

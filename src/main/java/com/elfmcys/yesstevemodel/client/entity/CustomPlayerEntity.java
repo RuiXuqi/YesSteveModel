@@ -40,15 +40,6 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
     }
 
     @Override
-    protected void resetGeoModel() {
-        isPlayingExtraAnimation = false;
-        extraAnimationName = "idle";
-        isExtraAnimationDirty = false;
-        syncHandler = null;
-        super.resetGeoModel();
-    }
-
-    @Override
     protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
         // 例外：local player 渲染 iris 阴影时应恒为第三人称，不能视为 immutable
         return animEvent.isRenderingInLevelExclusive() || (!localPlayer && IrisCompat.isRenderingShadow());
@@ -67,6 +58,20 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
     protected void onLoadModelContainer(ClientModel newModel) {
         super.onLoadModelContainer(newModel);
         syncHandler = newModel.assets().eventHandlers().get(MolangEventWrapper.SYNC);
+    }
+
+    @Override
+    protected void resetModelContainer() {
+        super.resetModelContainer();
+        syncHandler = null;
+    }
+
+    @Override
+    protected void resetGeoModel() {
+        super.resetGeoModel();
+        isPlayingExtraAnimation = false;
+        extraAnimationName = "idle";
+        isExtraAnimationDirty = false;
     }
 
     public void playExtraAnimation(String animationName) {

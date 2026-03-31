@@ -56,27 +56,6 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         }
     }
 
-    public void reset() {
-        modelId = ModelIdUtil.DEFAULT_MODEL_ID;
-        initialize = false;
-        resetModelContainer();
-    }
-
-    protected void resetModelContainer() {
-        currentModelContainer = null;
-        resourceHolder = null;
-        modelFallback = false;
-        lastCheckUpdateTime = 0;
-        resetGeoModel();
-    }
-
-    @Override
-    protected void resetGeoModel() {
-        alterPhysicsManager = null;
-        deferHandler = null;
-        super.resetGeoModel();
-    }
-
     @Override
     public PhysicsManager getPhysicsManager() {
         if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingInPaperDoll()) {
@@ -165,6 +144,27 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     protected void onLoadModelContainer(ClientModel newModel) {
         resourceHolder.soundHolder = SoundDataManager.register(newModel);
         deferHandler = newModel.assets().eventHandlers().get(MolangEventWrapper.DEFER);
+    }
+
+    protected void resetModelContainer() {
+        currentModelContainer = null;
+        deferHandler = null;
+        resourceHolder = null;
+        modelFallback = false;
+        resetGeoModel();
+    }
+
+    @Override
+    protected void resetGeoModel() {
+        super.resetGeoModel();
+        alterPhysicsManager = null;
+        lastCheckUpdateTime = 0;
+    }
+
+    public void reset() {
+        modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+        initialize = false;
+        resetModelContainer();
     }
 
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个

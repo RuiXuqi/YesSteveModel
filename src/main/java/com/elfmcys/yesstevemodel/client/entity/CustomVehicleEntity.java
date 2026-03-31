@@ -62,9 +62,9 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
 
     @Override
     public void resetModelContainer() {
+        super.resetModelContainer();
         this.vehicleModel = null;
         this.originController = null;
-        super.resetModelContainer();
     }
 
     @Override
