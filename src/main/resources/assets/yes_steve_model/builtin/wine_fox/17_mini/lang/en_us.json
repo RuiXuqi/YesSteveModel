@@ -33,9 +33,8 @@
   "properties.extra_animation_buttons.表情.config_forms.0.labels.1": "Crying",
   "properties.extra_animation_buttons.表情.config_forms.0.labels.0": "Default",
   "properties.extra_animation.up": "Raise Hand",
-  "properties.extra_animation.new3": "",
-  "properties.extra_animation.new2": "",
-  "properties.extra_animation.new": "",
-  "properties.extra_animation.3": "",
-  "properties.extra_animation.2": ""
+  "properties.extra_animation.2": "Dance",
+  "properties.extra_animation.3": "Swing",
+  "properties.extra_animation.new": "Cute Sway",
+  "properties.extra_animation.new2": "Shake Head"
 }

@@ -30,12 +30,11 @@
   "properties.extra_animation_buttons.表情.config_forms.1.labels.2": "∧",
   "properties.extra_animation_buttons.表情.config_forms.1.labels.3": "ww",
   "properties.extra_animation_buttons.表情.config_forms.1.labels.4": "流口水",
-  "properties.extra_animation_classify.动作.extra_animation.2": "",
-  "properties.extra_animation_classify.动作.extra_animation.3": "",
   "properties.extra_animation_classify.动作.extra_animation.up": "举手",
-  "properties.extra_animation_classify.动作.extra_animation.new": "",
-  "properties.extra_animation_classify.动作.extra_animation.new2": "",
-  "properties.extra_animation_classify.动作.extra_animation.new3": "",
-  "properties.extra_animation.#动作": "动作"
+  "properties.extra_animation.#动作": "动作",
+  "properties.extra_animation.2": "舞蹈",
+  "properties.extra_animation.3": "摇摆",
+  "properties.extra_animation.up": "举手",
+  "properties.extra_animation.new": "可爱摇",
+  "properties.extra_animation.new2": "摇头"
 }
-

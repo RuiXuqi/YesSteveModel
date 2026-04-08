@@ -3687,12 +3687,22 @@
 						"7.3333": [0, 0, -1],
 						"11.9583": [0, 0, -1.01],
 						"12.0": [0, 0, 0]
+					},
+					"scale": {
+						"7.2917": [0, 0, 0],
+						"7.3333": [1, 1, 1],
+						"11.9583": [1, 1, 1],
+						"12.0": [0, 0, 0]
 					}
 				},
 				"mwbq": {
 					"position": {
 						"11.9583": [0, 0, 0],
 						"12.0": [0, 0, -1]
+					},
+					"scale": {
+						"11.9583": [0, 0, 0],
+						"12.0": [1, 1, 1]
 					}
 				},
 				"Face": {
@@ -26205,52 +26215,6 @@
 						"0.25": [12.5, 0, 0],
 						"0.5": [0, 0, 0]
 					}
-				},
-				"Face": {
-					"scale": "v.hh==0"
-				},
-				"KUKU": {
-					"position": [0, 0, -1],
-					"scale": "v.hh==1"
-				},
-				"biyan": {
-					"position": [0, 0, -1],
-					"scale": "v.hh==2"
-				},
-				"mwbq": {
-					"position": [0, 0, -1],
-					"scale": "v.hh==3"
-				},
-				"yun": {
-					"position": [0, 0, -0.7],
-					"scale": "v.hh==4"
-				},
-				"youbiyan": {
-					"position": [0, 0, -1],
-					"scale": "v.hh==5"
-				},
-				"zhuobiyan": {
-					"position": [0, 0, -1],
-					"scale": "v.hh==6"
-				},
-				"w": {
-					"position": [0, 0, -1],
-					"scale": "v.hhh==1"
-				},
-				"daov": {
-					"position": [0, 0, -1],
-					"scale": "v.hhh==2"
-				},
-				"v": {
-					"scale": "v.hhh==0"
-				},
-				"ww": {
-					"position": [0, 0, -1],
-					"scale": "v.hhh==3"
-				},
-				"LIUKOUSHUI": {
-					"position": [0, 0, -1],
-					"scale": "v.hhh==4"
 				}
 			}
 		},
@@ -26451,6 +26415,104 @@
 				},
 				"RightForeArm": {
 					"rotation": [-107.5, 0, 0]
+				}
+			}
+		},
+		"new4": {
+			"loop": true,
+			"bones": {
+				"Root": {
+					"rotation": ["ysm.second_order('鞘翅pitch', -ysm.head_pitch, 1, 0.8, 0)", 0, 0],
+					"position": [0, "9.5+math.sin(q.anim_time*180)", 1.6]
+				},
+				"Head": {
+					"rotation": [-7.5, 0, 0]
+				},
+				"Arm": {
+					"rotation": [-107.5, 0, 0],
+					"position": [0, 0, -0.8]
+				},
+				"LeftArm": {
+					"rotation": [0, 0, 7.5]
+				},
+				"LeftForeArm": {
+					"rotation": [0, 0, 22.5]
+				},
+				"RightArm": {
+					"rotation": [0, 0, -7.5]
+				},
+				"RightForeArm": {
+					"rotation": [0, 0, -25]
+				},
+				"LF2": {
+					"rotation": [0, 0, -60]
+				},
+				"LB2": {
+					"rotation": [0, 0, -62.5]
+				},
+				"LM2": {
+					"rotation": [0, 0, -60]
+				},
+				"RM2": {
+					"rotation": [0, 0, 67.5]
+				},
+				"RB2": {
+					"rotation": [0, 0, 62.5]
+				},
+				"RF2": {
+					"rotation": [0, 0, 65]
+				},
+				"BR2": {
+					"rotation": [60, 0, 0]
+				},
+				"BL2": {
+					"rotation": [60, 0, 0]
+				},
+				"BM2": {
+					"rotation": [67.5, 0, 0]
+				},
+				"FrontClothe": {
+					"rotation": [-65, 0, 0]
+				},
+				"FL1": {
+					"rotation": [25, 0, 0]
+				},
+				"FR1": {
+					"rotation": [27.5, 0, 0]
+				},
+				"FM1": {
+					"rotation": [20, 0, 0]
+				},
+				"FFM2_1": {
+					"rotation": [22.5, 0, 0]
+				},
+				"FFM1_1": {
+					"rotation": [22.5, 0, 0]
+				},
+				"FFM3_1": {
+					"rotation": [15, 0, 0]
+				},
+				"vv": {
+					"position": [0, -9, -3],
+					"scale": 1
+				},
+				"fangxp": {
+					"rotation": [-57.5, 0, 0]
+				},
+				"jiyi": {
+					"rotation": [0, 0, "q.anim_time*1500"]
+				},
+				"Leg": {
+					"rotation": [-87.5, 0, 0],
+					"position": [0, 3, -1.5]
+				},
+				"LeftLeg": {
+					"rotation": [0.22453, -0.83843, -19.98299],
+					"position": [-0.6, 0, 0]
+				},
+				"RightLeg": {
+					"rotation": [0.18064, 0.73861, 17.48477],
+					"position": [0.6, 0, 0]
 				}
 			}
 		}

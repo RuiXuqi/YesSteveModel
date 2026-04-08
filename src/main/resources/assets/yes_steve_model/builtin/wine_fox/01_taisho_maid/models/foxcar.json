@@ -7932,6 +7932,11 @@
 					"name": "PassengerLocator",
 					"parent": "Car",
 					"pivot": [8.92647, 11.55357, 0.26346]
+				},
+				{
+					"name": "PassengerLocator2",
+					"parent": "Car",
+					"pivot": [-8.92647, 11.55357, 0.26346]
 				}
 			]
 		}
