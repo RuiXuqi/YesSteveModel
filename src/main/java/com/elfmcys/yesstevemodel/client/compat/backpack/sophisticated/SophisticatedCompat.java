@@ -3,6 +3,7 @@ package com.elfmcys.yesstevemodel.client.compat.backpack.sophisticated;
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.compat.curios.CuriosCompat;
 import com.elfmcys.yesstevemodel.client.event.RegisterEntityRenderersEvent;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +19,7 @@ public class SophisticatedCompat {
      * 需要在资源加载后初始化
      */
     public static void init() {
-        INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null;
+        INSTALLED = !ClientConfig.DISABLE_SOPHISTICATED_BACKPACK_COMPAT.get() && LoadingModList.get().getModFileById(MOD_ID) != null;
     }
 
     public static void addLayer() {
