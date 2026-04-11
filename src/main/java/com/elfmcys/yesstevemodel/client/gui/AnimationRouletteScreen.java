@@ -237,28 +237,36 @@ public class AnimationRouletteScreen extends Screen {
     private void addConfigForms(ConfigForms configForm, int[] yOffset, int[] index) {
         if (configForm instanceof CheckboxForms checkboxForms) {
             this.executeMolang(configForm.value(), result -> {
-                FlatCheckbox checkbox = getFlatCheckbox(checkboxForms, result, yOffset, index);
-                this.addRenderableWidget(checkbox);
-                yOffset[0] += 14;
-                index[0]++;
-                // 最终和 110 的差就是最大滚动高度
-                this.maxScrollY = Math.max(0, yOffset[0] - 110);
+                minecraft.execute(() -> {
+                    FlatCheckbox checkbox = getFlatCheckbox(checkboxForms, result, yOffset, index);
+                    this.addRenderableWidget(checkbox);
+                    yOffset[0] += 14;
+                    index[0]++;
+                    // 最终和 110 的差就是最大滚动高度
+                    this.maxScrollY = Math.max(0, yOffset[0] - 110);
+                });
             });
         }
 
         if (configForm instanceof RangeForms rangeForms) {
             this.executeMolang(configForm.value(), result -> {
-                FlatSlider slider = getFlatSlider(rangeForms, result, yOffset, index);
-                this.addRenderableWidget(slider);
-                yOffset[0] += 17;
-                index[0]++;
-                // 最终和 110 的差就是最大滚动高度
-                this.maxScrollY = Math.max(0, yOffset[0] - 110);
+                minecraft.execute(() -> {
+                    FlatSlider slider = getFlatSlider(rangeForms, result, yOffset, index);
+                    this.addRenderableWidget(slider);
+                    yOffset[0] += 17;
+                    index[0]++;
+                    // 最终和 110 的差就是最大滚动高度
+                    this.maxScrollY = Math.max(0, yOffset[0] - 110);
+                });
             });
         }
 
         if (configForm instanceof RadioForms radioForms) {
-            this.executeMolang(configForm.value(), result -> addRatioButtons(radioForms, result, yOffset, index));
+            this.executeMolang(configForm.value(), result -> {
+                minecraft.execute(() -> {
+                    addRatioButtons(radioForms, result, yOffset, index);
+                });
+            });
         }
     }
 
