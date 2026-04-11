@@ -2,24 +2,49 @@ package com.elfmcys.yesstevemodel.client.compat.parcool;
 
 import com.elfmcys.yesstevemodel.client.animation.molang.CtrlBinding;
 import com.elfmcys.yesstevemodel.client.entity.CustomPlayerEntity;
+import com.elfmcys.yesstevemodel.config.ClientConfig;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.HybridAnimationController;
 import com.elfmcys.yesstevemodel.geckolib3.core.controller.IAnimationController;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.loading.LoadingModList;
-import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
 
 public class ParCoolCompat {
+    private static final ArtifactVersion MIN_VERSION = new DefaultArtifactVersion("3.4.1");
     private static final String MOD_ID = "parcool";
     private static boolean INSTALLED;
+    private static boolean INCOMPATIBLE;
 
     public static void init() {
-        ModFileInfo modFileById = LoadingModList.get().getModFileById(MOD_ID);
-        INSTALLED = modFileById != null;
+        if (ClientConfig.ENABLE_PARCOOL_COMPAT != null) {
+            if (!ClientConfig.ENABLE_PARCOOL_COMPAT.get()) {
+                INSTALLED = false;
+                return;
+            }
+        }
+
+        var modFile = LoadingModList.get().getModFileById(MOD_ID);
+        if (modFile != null) {
+            if (modFile.getMods().get(0).getVersion().compareTo(MIN_VERSION) >= 0) {
+                INSTALLED = true;
+            } else {
+                INCOMPATIBLE = true;
+            }
+        }
+    }
+
+    public static Optional<Pair<String, String>> getCompatibilityWarning() {
+        if (INCOMPATIBLE) {
+            return Optional.of(Pair.of(MOD_ID, MIN_VERSION.toString()));
+        }
+        return Optional.empty();
     }
 
     public static boolean isInstalled() {

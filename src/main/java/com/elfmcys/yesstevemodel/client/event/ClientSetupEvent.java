@@ -27,8 +27,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.ModLoadingStage;
+import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.loading.LoadingModList;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Optional;
 
 import static net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.DEBUG_TEXT;
 
@@ -68,9 +75,29 @@ public class ClientSetupEvent {
             SimplePlaneCompat.init();
             ImmersiveAircraftCompat.init();
 
+            checkCompatibility(ParCoolCompat.getCompatibilityWarning());
+            checkCompatibility(SophisticatedCompat.getCompatibilityWarning());
+            informIncompatible("epicfight", "Epic Fight");
+
             // 一定要放在最后
             initCoreClient();
         });
+    }
+
+    private static void checkCompatibility(Optional<Pair<String, String>> infoHolder) {
+        infoHolder.ifPresent(info -> {
+            ModLoader.get().addWarning(new ModLoadingWarning(
+                    LoadingModList.get().getModFileById(YesSteveModel.MOD_ID).getMods().get(0), ModLoadingStage.SIDED_SETUP,
+                    "error.yes_steve_model.incompatible_mod_version", info.getKey(), info.getValue()));
+        });
+    }
+
+    private static void informIncompatible(String modId, String modName) {
+        if (LoadingModList.get().getModFileById(modId) != null) {
+            ModLoader.get().addWarning(new ModLoadingWarning(
+                    LoadingModList.get().getModFileById(YesSteveModel.MOD_ID).getMods().get(0), ModLoadingStage.SIDED_SETUP,
+                    "error.yes_steve_model.incompatible_mod", modName));
+        }
     }
 
     @SubscribeEvent

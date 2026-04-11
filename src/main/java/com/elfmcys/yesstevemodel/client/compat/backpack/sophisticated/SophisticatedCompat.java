@@ -9,23 +9,46 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.loading.LoadingModList;
 import net.p3pp3rf1y.sophisticatedbackpacks.util.PlayerInventoryProvider;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class SophisticatedCompat {
+    private static final ArtifactVersion MIN_VERSION = new DefaultArtifactVersion("3.24.25");
     private static final String MOD_ID = "sophisticatedbackpacks";
     private static boolean INSTALLED;
+    private static boolean INCOMPATIBLE;
 
     /**
      * 需要在资源加载后初始化
      */
     public static void init() {
-        INSTALLED = !ClientConfig.DISABLE_SOPHISTICATED_BACKPACK_COMPAT.get() && LoadingModList.get().getModFileById(MOD_ID) != null;
+        if (!ClientConfig.ENABLE_SOPHISTICATED_BACKPACK_COMPAT.get()) {
+            return;
+        }
+
+        var modFile = LoadingModList.get().getModFileById(MOD_ID);
+        if (modFile != null) {
+            if (modFile.getMods().get(0).getVersion().compareTo(MIN_VERSION) >= 0) {
+                INSTALLED = true;
+            } else {
+                INCOMPATIBLE = true;
+            }
+        }
+    }
+
+    public static Optional<Pair<String, String>> getCompatibilityWarning() {
+        if (INCOMPATIBLE) {
+            return Optional.of(Pair.of("Sophisticated Backpacks", MIN_VERSION.toString()));
+        }
+        return Optional.empty();
     }
 
     public static void addLayer() {
-        // 以防加载顺序的不同，导致没有初始化
-        INSTALLED = LoadingModList.get().getModFileById(MOD_ID) != null;
-        if (isInstalled()) {
+        if (INSTALLED) {
             RegisterEntityRenderersEvent.getPlayerRenderer().addLayer(new YsmBackpackLayerRenderer());
         }
     }

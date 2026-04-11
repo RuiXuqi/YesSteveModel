@@ -14,7 +14,8 @@ public class ClientConfig {
     public static ForgeConfigSpec.BooleanValue USE_COMPATIBILITY_RENDERER;
     public static ForgeConfigSpec.DoubleValue SOUND_VOLUME;
     public static ForgeConfigSpec.BooleanValue SHOW_MODEL_ID_FIRST;
-    public static ForgeConfigSpec.BooleanValue DISABLE_SOPHISTICATED_BACKPACK_COMPAT;
+    public static ForgeConfigSpec.BooleanValue ENABLE_SOPHISTICATED_BACKPACK_COMPAT;
+    public static ForgeConfigSpec.BooleanValue ENABLE_PARCOOL_COMPAT;
 
     public static ForgeConfigSpec init() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -60,8 +61,11 @@ public class ClientConfig {
         builder.comment("Whether to display model ID first in the model selection screen, instead of the model name filled in by the model author.");
         SHOW_MODEL_ID_FIRST = builder.define("ShowModelIdFirst", false);
 
-        DISABLE_SOPHISTICATED_BACKPACK_COMPAT = builder.define("DisableSophisticatedBackpackCompat", false);
+        builder.pop();
 
+        builder.push("Integration");
+        ENABLE_SOPHISTICATED_BACKPACK_COMPAT = builder.define("SophisticatedBackpack", true);
+        ENABLE_PARCOOL_COMPAT = builder.define("Parcool", true);
         builder.pop();
     }
 }
