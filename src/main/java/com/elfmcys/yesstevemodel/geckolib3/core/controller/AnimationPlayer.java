@@ -5,7 +5,6 @@
 
 package com.elfmcys.yesstevemodel.geckolib3.core.controller;
 
-import com.elfmcys.yesstevemodel.YesSteveModel;
 import com.elfmcys.yesstevemodel.geckolib3.core.AnimationState;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.Animation;
 import com.elfmcys.yesstevemodel.geckolib3.core.builder.LoopType;
@@ -25,8 +24,6 @@ import com.elfmcys.yesstevemodel.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
 import com.elfmcys.yesstevemodel.geckolib3.util.OrderedSegmentSearcher;
 import com.elfmcys.yesstevemodel.molang.runtime.ExpressionEvaluator;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -34,16 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class AnimationPlayer {
-    /**
-     * 首次进入存档时，因为动画不存在会疯狂刷屏。
-     * <p>
-     * 但是为了方便调试，又必须打印出这段日志。故这里缓存一下同名内容，避免刷屏。
-     */
-    private static final Cache<String, Object> NOT_EXIST_ANIMATION_NAME_CACHE = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.SECONDS).build();
-
     /**
      * 模型所有骨骼
      */
@@ -143,17 +132,13 @@ public class AnimationPlayer {
         }
 
         resetToIdle();
+        this.lastSetAnim = new Pair<>(loopTypeOverride, animationName);
 
         var animation = animatableEntity.getAnimation(animationName);
         if (animation == null) {
-            if (NOT_EXIST_ANIMATION_NAME_CACHE.getIfPresent(animationName) == null) {
-                YesSteveModel.LOGGER.debug("Could not load animation: {}. Is it missing?", animationName);
-                NOT_EXIST_ANIMATION_NAME_CACHE.put(animationName, animationName);
-            }
             return;
         }
 
-        this.lastSetAnim = new Pair<>(loopTypeOverride, animationName);
         this.nextAnim = new Pair<>(loopTypeOverride != null ? loopTypeOverride : animation.loop, animation);
     }
 

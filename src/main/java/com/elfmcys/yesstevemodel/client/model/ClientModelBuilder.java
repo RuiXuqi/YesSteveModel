@@ -22,8 +22,6 @@ import java.util.Map;
 @SuppressWarnings("removal")
 public class ClientModelBuilder {
     private static final String FP_ARM_ANIMATION = "fp_arm";
-    private static final ResourceLocation ARROW = new ResourceLocation("minecraft:arrow");
-    private static final ResourceLocation BOAT = new ResourceLocation("minecraft:boat");
     private static ClientModel DEFAULT_MODEL;
 
     public static ClientModel build(ClientModelData data, boolean isDefault, boolean isNeedAuth) {
@@ -101,13 +99,7 @@ public class ClientModelBuilder {
             var geoModel = projectile.geoModel();
             AnimationFile animationFile = projectile.animationFile();
             AnimationControllerFile controllerFile = projectile.controllerFile();
-
             var animations = new Object2ReferenceOpenHashMap<>(animationFile != null ? animationFile.animations() : Object2ReferenceMaps.emptyMap());
-            if (!isDefault) {
-                for (var animEntry : DEFAULT_MODEL.projectileModels().get(ARROW).animations().entrySet()) {
-                    animations.computeIfAbsent(animEntry.getKey(), key -> animEntry.getValue());
-                }
-            }
 
             Object2ReferenceMap<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
             if (controllerFile != null) {
@@ -133,13 +125,7 @@ public class ClientModelBuilder {
             var geoModel = vehicle.geoModel();
             var animationFile = vehicle.animationFile();
             var controllerFile = vehicle.controllerFile();
-
             var animations = new Object2ReferenceOpenHashMap<>(animationFile != null ? animationFile.animations() : Object2ReferenceMaps.emptyMap());
-            if (!isDefault) {
-                for (var animEntry : DEFAULT_MODEL.vehicleModels().get(BOAT).animations().entrySet()) {
-                    animations.computeIfAbsent(animEntry.getKey(), key -> animEntry.getValue());
-                }
-            }
 
             Object2ReferenceMap<String, AnimationControllerData> controllers = Object2ReferenceMaps.emptyMap();
             if (controllerFile != null) {
