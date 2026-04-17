@@ -65,10 +65,11 @@ public class GeoModel {
 
     // Native Access
     @SuppressWarnings("all")
-    private long nativeId;
+    private final long nativeId;
+    private final boolean[] translucent;
 
     // Native Access
-    public GeoModel(GeoBone[] sortedBones, String[][] locatorHierarchy, boolean[] hasRendererFeature, @NotNull GeoModelProperties properties) {
+    public GeoModel(GeoBone[] sortedBones, String[][] locatorHierarchy, boolean[] hasRendererFeature, @NotNull GeoModelProperties properties, boolean[] translucent, long nativeId) {
         this.sortedBones = ObjectLists.unmodifiable(ObjectArrayList.wrap(sortedBones));
 
         this.leftHandBones = buildLocatorHierarchy(locatorHierarchy[0]);
@@ -115,6 +116,9 @@ public class GeoModel {
         hasFirstPersonRightArm = hasRendererFeature[1];
         hasFirstPersonBackground = hasRendererFeature[2];
 
+        this.nativeId = nativeId;
+        this.translucent = translucent;
+
         this.properties = properties;
 
         this.initialState = new GeoModelState(this).inputState();
@@ -136,6 +140,10 @@ public class GeoModel {
 
     public float @NotNull [] getInitialState() {
         return initialState;
+    }
+
+    public boolean isTranslucent(int textureIndex) {
+        return translucent[textureIndex];
     }
 
     private static native void free(long id);

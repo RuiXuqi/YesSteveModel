@@ -108,14 +108,15 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
             preRenderCallback(entity, poseStack, partialTick);
             poseStack.translate(0, 0.01f, 0);
 
+            var model = animatableEntity.getLoadedGeoModel();
+            var textureIndex = textureOverride == null ? animatableEntity.getTextureIndex() : 0;
             var bodyVisible = this.isBodyVisible(entity) && !entity.isInvisibleTo(mc.player);
             var glowing = mc.shouldEntityAppearGlowing(entity);
-            var renderType = getRenderType(textureOverride == null ? animatableEntity.getTextureLocation() : textureOverride, bodyVisible, glowing);
+            var renderType = getRenderType(textureOverride == null ? animatableEntity.getTextureLocation() : textureOverride,
+                    bodyVisible, glowing, model.model().isTranslucent(textureIndex));
 
-            var model = animatableEntity.getLoadedGeoModel();
             var renderLayersFirst = animatableEntity.renderLayersFirst();
             var renderColor = getRenderColor(animatableEntity, partialTick, poseStack, bufferSource, null, packedLight);
-            var textureIndex = textureOverride == null ? animatableEntity.getTextureIndex() : 0;
 
             preRender(model, animatableEntity, partialTick, poseStack, bufferSource, null,
                     packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),

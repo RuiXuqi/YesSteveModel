@@ -57,9 +57,13 @@ public interface IGeoRenderer<T extends AnimatableEntity<?>> {
     }
 
     @Nullable
-    default RenderType getRenderType(ResourceLocation texture, boolean visible, boolean glowing) {
+    default RenderType getRenderType(ResourceLocation texture, boolean visible, boolean glowing, boolean translucent) {
         if (visible) {
-            return CustomTranslucentRenderType.create(texture);
+            if (translucent) {
+                return CustomTranslucentRenderType.create(texture);
+            } else {
+                return RenderType.entityCutoutNoCull(texture);
+            }
         }
         if (glowing) {
             return RenderType.outline(texture);

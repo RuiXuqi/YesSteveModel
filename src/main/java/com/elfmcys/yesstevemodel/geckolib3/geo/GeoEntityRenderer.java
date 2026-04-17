@@ -1,8 +1,6 @@
 package com.elfmcys.yesstevemodel.geckolib3.geo;
 
-import com.elfmcys.yesstevemodel.geckolib3.core.util.Color;
 import com.elfmcys.yesstevemodel.geckolib3.model.AnimatableEntity;
-import com.elfmcys.yesstevemodel.geckolib3.model.GeoModelState;
 import com.elfmcys.yesstevemodel.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.yesstevemodel.geckolib3.util.IRenderCycle;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -32,13 +30,13 @@ public abstract class GeoEntityRenderer<TEntity extends Entity, T extends Animat
         var mc = Minecraft.getInstance();
         if (event != null && mc.player != null) {
             var entity = animatable.getEntity();
+            var model = animatable.getLoadedGeoModel();
             var bodyVisible = !entity.isInvisibleTo(mc.player);
             var glowing = mc.shouldEntityAppearGlowing(entity);
-            var renderType = getRenderType(animatable.getTextureLocation(), bodyVisible, glowing);
+            var renderType = getRenderType(animatable.getTextureLocation(), bodyVisible, glowing, model.model().isTranslucent(0));
 
             if (renderType != null || (bodyVisible || glowing)) {
                 var renderColor = getRenderColor(animatable, partialTick, poseStack, bufferSource, null, packedLight);
-                var model = animatable.getLoadedGeoModel();
                 this.dispatchedMat = new Matrix4f(poseStack.last().pose());
                 setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
                 poseStack.pushPose();
