@@ -27,6 +27,7 @@ import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
@@ -38,7 +39,7 @@ public class AnimationProcessor<TEntity extends Entity> {
     private final ReferenceArrayList<BoneTopLevelSnapshot> modelBones = new ReferenceArrayList<>();
     private Object2ReferenceMap<String, List<IValue>> eventHandlers = Object2ReferenceMaps.emptyMap();
     private final Int2ReferenceOpenHashMap<BoneTopLevelSnapshot> modelBonesMap = new Int2ReferenceOpenHashMap<>();
-    private final ReferenceArrayList<BoneTopLevelSnapshot> activeModelBones = new ReferenceArrayList<>();      // 即使更新开销大也比链表更优
+    private final ArrayDeque<BoneTopLevelSnapshot> activeModelBones = new ArrayDeque<>();      // 即使更新开销大也比链表更优
 
     private final MolangMemory molangMemory = new MolangMemory();
     private final SoundInstanceManager globalSoundManager = new SoundInstanceManager();
@@ -131,10 +132,9 @@ public class AnimationProcessor<TEntity extends Entity> {
         this.modelDirty = false;
 
         // 追踪哪些骨骼应用了动画，并最终将没有动画的骨骼过渡到默认值
-        // 反向遍历降低更新开销
-        var activeBoneIterator = activeModelBones.listIterator(activeModelBones.size());
-        while (activeBoneIterator.hasPrevious()) {
-            var snapshot = activeBoneIterator.previous();
+        var activeBoneIterator = activeModelBones.iterator();
+        while (activeBoneIterator.hasNext()) {
+            var snapshot = activeBoneIterator.next();
             var active = false;
 
             // 处理旋转尾过渡
