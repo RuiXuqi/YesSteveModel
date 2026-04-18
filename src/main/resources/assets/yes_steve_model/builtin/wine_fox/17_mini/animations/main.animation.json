@@ -4408,12 +4408,6 @@
 						"0.0833": [0, 0, 0]
 					}
 				},
-				"v": {
-					"position": {
-						"0.0": [0, 0, 0],
-						"0.0833": [0, 0, -1]
-					}
-				},
 				"Face": {
 					"scale": {
 						"0.0417": [1, 1, 1],
@@ -6351,6 +6345,111 @@
 						"0.2083": [0, 0, 0],
 						"0.25": ["math.lerp(0,math.sin(q.anim_time*1800)*0.2,math.exp(6*(0.25-q.anim_time)))", 0, 0]
 					}
+				},
+				"RightEyelid2": {
+					"scale": {
+						"0.0": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.0833": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2083": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2917": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				},
+				"RightPupil2": {
+					"position": {
+						"0.2083": [0, 0, 0],
+						"0.25": ["math.lerp(0,math.sin(q.anim_time*1800)*0.2,math.exp(6*(0.25-q.anim_time)))", 0, 0]
+					}
+				},
+				"RightEyelid4": {
+					"scale": {
+						"0.0": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.0833": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2083": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2917": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				},
+				"RightPupil4": {
+					"rotation": [0, 0, 0],
+					"position": {
+						"0.2083": [0, 0, 0],
+						"0.25": ["math.lerp(0,math.sin(q.anim_time*1800)*0.2,math.exp(6*(0.25-q.anim_time)))", 0, 0]
+					}
+				},
+				"RightEyelid5": {
+					"scale": {
+						"0.0": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.0833": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2083": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2917": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				},
+				"RightPupil5": {
+					"position": {
+						"0.2083": [0, 0, 0],
+						"0.25": ["math.lerp(0,math.sin(q.anim_time*1800)*0.2,math.exp(6*(0.25-q.anim_time)))", 0, 0]
+					}
+				},
+				"LeftEyelid3": {
+					"scale": {
+						"0.0": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.0833": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2083": {
+							"post": [1, 0, 1],
+							"lerp_mode": "catmullrom"
+						},
+						"0.2917": {
+							"post": [1, 1, 1],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				},
+				"LeftPupil3": {
+					"position": {
+						"0.2083": [0, 0, 0],
+						"0.25": ["math.lerp(0,math.sin(q.anim_time*1800)*0.2,math.exp(6*(0.25-q.anim_time)))", 0, 0]
+					}
 				}
 			}
 		},
@@ -6358,7 +6457,12 @@
 			"loop": true
 		},
 		"parallel1": {
-			"loop": true
+			"loop": true,
+			"bones": {
+				"Root": {
+					"scale": "v.player_root_size??1"
+				}
+			}
 		},
 		"parallel2": {
 			"loop": true
@@ -6751,11 +6855,59 @@
 				"LIUKOUSHUI": {
 					"position": [0, 0, -1],
 					"scale": "v.hhh==4"
+				},
+				"Eyelid": {
+					"scale": "v.yj==1"
+				},
+				"Eyelid4": {
+					"scale": "v.yj==0"
+				},
+				"Eyelid5": {
+					"scale": "v.yj==2"
+				},
+				"RightSideHair": {
+					"rotation": [
+						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+					]
+				},
+				"LeftSideHair": {
+					"rotation": [
+						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+					]
+				},
+				"Bangs": {
+					"rotation": [
+						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+					]
+				},
+				"bow": {
+					"rotation": [
+						"ysm.second_order('头发垂直', math.clamp(-3*q.vertical_speed+v.hv,-10,120), 2, 0.6, 0)+ysm.second_order('头发水平', math.clamp(q.ground_speed+v.hg,0,20), 2, 0.6, 0)",
+						0,
+						"ysm.second_order('头发角速度', math.clamp(0.02*q.yaw_speed,-60,60), 2, 0.6, 0)"
+					]
 				}
 			}
 		},
 		"pre_parallel5": {
-			"loop": true
+			"loop": true,
+			"bones": {
+				"RightSideHair": {
+					"rotation": [0, 0, "ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"]
+				},
+				"LeftSideHair": {
+					"rotation": [0, 0, "ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"]
+				},
+				"Bangs": {
+					"rotation": [0, 0, "ysm.second_order('头发角速度', math.clamp(0.05*q.yaw_speed,-60,60), 1.2, 0.4, 0)"]
+				}
+			}
 		},
 		"pre_parallel6": {
 			"loop": true

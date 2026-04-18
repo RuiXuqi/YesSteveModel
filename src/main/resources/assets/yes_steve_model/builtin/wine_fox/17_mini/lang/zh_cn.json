@@ -7,7 +7,7 @@
   "metadata.authors.1.name": "什么鸭",
   "metadata.authors.1.role": "动画",
   "metadata.authors.1.comment": "想要成为动画高手",
-  "properties.extra_animation.extra0": "表情",
+  "properties.extra_animation.extra0": "表情/模型大小",
   "properties.extra_animation.extra1": "打招呼",
   "properties.extra_animation.extra2": "拍手",
   "properties.extra_animation.extra3": "行为艺术",
@@ -36,5 +36,13 @@
   "properties.extra_animation.3": "摇摆",
   "properties.extra_animation.up": "举手",
   "properties.extra_animation.new": "可爱摇",
-  "properties.extra_animation.new2": "摇头"
+  "properties.extra_animation.new2": "摇头",
+  "properties.extra_animation.new4": "低皮质醇",
+  "properties.extra_animation_buttons.表情.config_forms.2.title": "身体大小",
+  "properties.extra_animation_buttons.表情.config_forms.2.description": "身体大小",
+  "properties.extra_animation_buttons.表情.config_forms.3.title": "眼睛类型",
+  "properties.extra_animation_buttons.表情.config_forms.3.description": "眼睛类型",
+  "properties.extra_animation_buttons.表情.config_forms.3.labels.0": "默认",
+  "properties.extra_animation_buttons.表情.config_forms.3.labels.1": "类型一",
+  "properties.extra_animation_buttons.表情.config_forms.3.labels.2": "类型二"
 }

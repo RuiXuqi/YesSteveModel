@@ -85,7 +85,7 @@
     "extra_animation_buttons": [
       {
         "id": "表情",
-        "name": "表情",
+        "name": "表情/模型大小",
         "config_forms": [
           {
             "type": "radio",
@@ -114,6 +114,26 @@
               "ww": "v.hhh=3",
               "流口水": "v.hhh=4"
             }
+          },
+          {
+            "type": "range",
+            "title": "身体大小",
+            "description": "身体大小",
+            "value": "v.player_root_size",
+            "step": 0.05,
+            "min": -1,
+            "max": 2
+          },
+          {
+            "type": "radio",
+            "title": "眼睛类型",
+            "description": "眼睛类型",
+            "value": "v.yj",
+            "labels": {
+              "默认": "v.yj=0",
+              "类型一": "v.yj=1",
+              "类型二": "v.yj=2"
+            }
           }
         ]
       }
@@ -127,7 +147,8 @@
           "3": "摇摆",
           "up": "举手",
           "new": "可爱摇",
-          "new2": "摇头"
+          "new2": "摇头",
+          "new4": "低皮质醇"
         }
       }
     ]
