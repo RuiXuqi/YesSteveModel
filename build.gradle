@@ -272,6 +272,13 @@ tasks.register('buildDevLib', Exec) {
     commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'dev', devLib
 }
 
+tasks.register('buildFastDevLib', Exec) {
+    description "runClient 之前需要手动运行此 task"
+    group buildTaskGroup
+    commandLine builderPath, 'build', projectDir, buildModLoader, buildGameVersion, 'dev-fast', devLib
+}
+
+
 tasks.register('buildWindowsTestJar', Exec) {
     description "构建 Windows 版未混淆模组，仅供内部测试，不能以任何方式公开"
     group buildTaskGroup
