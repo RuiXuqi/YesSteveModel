@@ -2,8 +2,8 @@ package com.elfmcys.ysm.client.sound.stream;
 
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.client.sound.decoder.DecoderManager;
-import com.elfmcys.ysm.client.sound.decoder.OpusDecoder;
 import com.elfmcys.ysm.client.sound.data.BuildingPcmCache;
+import com.elfmcys.ysm.natives.sound.OpusDecoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.jetbrains.annotations.NotNull;

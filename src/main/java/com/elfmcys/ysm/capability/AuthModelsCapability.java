@@ -1,5 +1,6 @@
 package com.elfmcys.ysm.capability;
 
+import com.elfmcys.ysm.model.domain.ModelHash;
 import com.google.common.collect.Sets;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -8,30 +9,30 @@ import net.minecraft.nbt.Tag;
 import java.util.Set;
 
 public class AuthModelsCapability {
-    private Set<String> authModels = Sets.newHashSet();
+    private Set<ModelHash> authModels = Sets.newHashSet();
 
-    public void addModel(String modelId) {
-        authModels.add(modelId);
+    public void addModel(ModelHash modelHash) {
+        authModels.add(modelHash);
     }
 
     public void copyFrom(AuthModelsCapability source) {
         this.authModels = source.authModels;
     }
 
-    public void removeModel(String modelId) {
-        authModels.remove(modelId);
+    public void removeModel(ModelHash modelHash) {
+        authModels.remove(modelHash);
     }
 
-    public boolean containModel(String modelId) {
-        return authModels.contains(modelId);
+    public boolean containModel(ModelHash modelHash) {
+        return authModels.contains(modelHash);
     }
 
-    public Set<String> getAuthModels() {
+    public Set<ModelHash> getAuthModels() {
         return authModels;
     }
 
-    public void setAuthModels(Set<String> authModels) {
-        this.authModels = authModels;
+    public void setAuthModels(Set<ModelHash> authModels) {
+        this.authModels = Sets.newHashSet(authModels);
     }
 
     public void clear() {
@@ -40,8 +41,8 @@ public class AuthModelsCapability {
 
     public ListTag serializeNBT() {
         ListTag listTag = new ListTag();
-        for (String modelId : authModels) {
-            listTag.add(StringTag.valueOf(modelId));
+        for (ModelHash modelHash : authModels) {
+            listTag.add(StringTag.valueOf(modelHash.toString()));
         }
         return listTag;
     }
@@ -49,7 +50,11 @@ public class AuthModelsCapability {
     public void deserializeNBT(ListTag nbt) {
         this.authModels.clear();
         for (Tag tag : nbt) {
-            authModels.add(tag.getAsString());
+            try {
+                authModels.add(ModelHash.parse(tag.getAsString()));
+            } catch (IllegalArgumentException ignored) {
+                // Old path-based authorization entries are intentionally not migrated.
+            }
         }
     }
 }

@@ -4,9 +4,11 @@ import com.elfmcys.ysm.client.animation.molang.PhysicsManager;
 import com.elfmcys.ysm.client.entity.CustomPlayerEntity;
 import com.elfmcys.ysm.client.entity.IPreviewEntity;
 import com.elfmcys.ysm.client.event.ClientTickEvent;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.ysm.geckolib3.core.molang.context.DebugSource;
+import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
+import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -34,12 +36,17 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
+    public boolean determineImmutableContext(RenderContext context) {
+        return true;
+    }
+
+    @Override
     public @NotNull PreviewAnimationInfo getPreviewInfo() {
         return guiAnimationInfo;
     }
 
     @Override
-    public PhysicsManager getPhysicsManager() {
+    public PhysicsManager getPhysicsManager(AnimationEvent<?> event) {
         return physicsManager;
     }
 
@@ -69,20 +76,15 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
-    public AnimationEvent<?> updateAnimation(float partialTicks, boolean renderingInLevelExclusive) {
+    protected GeoRenderData update(float partialTicks, RenderContext context) {
         if (entity instanceof FakePlayer fakePlayer && !fakePlayer.updateClientLevel()) {
             return null;
         }
-        return super.updateAnimation(partialTicks, renderingInLevelExclusive);
+        return super.update(partialTicks, context);
     }
 
     public static boolean isFakePlayer(Player player) {
         return player instanceof FakePlayer;
-    }
-
-    @Override
-    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
-        return true;
     }
 
     @Override
@@ -91,8 +93,8 @@ public final class CustomGuiPlayerEntity extends CustomPlayerEntity implements I
     }
 
     @Override
-    protected @NotNull HumanoidResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
-        return new HumanoidResourceHolder(model, isFallback, false, true, 15 * 20);
+    protected @NotNull HumanoidResourceHolder createResourceHolder(ModelRenderTargetLease lease, boolean isFallback) {
+        return new HumanoidResourceHolder(lease, isFallback, false, true, 15 * 20);
     }
 
     private static class FakePlayer extends AbstractClientPlayer {

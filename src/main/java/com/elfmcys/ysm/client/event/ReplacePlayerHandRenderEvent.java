@@ -2,7 +2,7 @@ package com.elfmcys.ysm.client.event;
 
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.client.renderer.CustomFirstPersonArmRenderer;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
@@ -38,24 +38,27 @@ public class ReplacePlayerHandRenderEvent {
                 return;
             }
             HumanoidArm arm = event.getArm();
-            ClientModel model = cap.getModelContainer();
-            if (model == null || !hasArmBone(arm, model.playerModel().armModel())) {
+            ModelRenderTarget model = cap.getModelRenderTarget();
+            var variant = cap.getModelVariant();
+            if (model == null || variant == null || !hasArmBone(arm, variant.armModel())) {
                 return;
             }
             PoseStack poseStack = event.getPoseStack();
             MultiBufferSource multiBufferSource = event.getMultiBufferSource();
             float partialTick = Minecraft.getInstance().getPartialTick();
             CustomFirstPersonArmRenderer armRenderer = RegisterEntityRenderersEvent.getFirstPersonArmRenderer();
-            armRenderer.render(player, model, cap, arm, poseStack, multiBufferSource, event.getPackedLight(), partialTick);
+            // armRenderer.render(player, model, cap, arm, poseStack, multiBufferSource, event.getPackedLight(), partialTick);
             event.setCanceled(true);
         });
     }
 
     private static boolean hasArmBone(HumanoidArm arm, GeoModel model) {
-        if (arm == HumanoidArm.LEFT) {
-            return model.hasFirstPersonLeftArm;
-        } else {
-            return model.hasFirstPersonRightArm;
-        }
+        // TODO
+//        if (arm == HumanoidArm.LEFT) {
+//            return model.hasFirstPersonLeftArm;
+//        } else {
+//            return model.hasFirstPersonRightArm;
+//        }
+        return false;
     }
 }

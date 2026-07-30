@@ -7,7 +7,7 @@ import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
 import com.elfmcys.ysm.molang.parser.ParseException;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.SubmitRouletteConfig;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -39,7 +39,7 @@ public class FlatSlider extends ForgeSlider implements IConfigFormsButton {
             this.animatableEntity.executeMolangExp(parsed, true, false, null);
             if (!CustomMolangParser.hasOnlyRoamingAssignment(molangExpress) && NetworkHandler.isRemoteChannelPresent() && !ServerConfig.LOW_BANDWIDTH_USAGE.get()) {
                 // 同步到周围的玩家
-                NetworkHandler.sendToServer(new SubmitRouletteConfig(molangExpress, this.animatableEntity.getEntity().getId()));
+                ClientProtocolGateway.submitRouletteExpression(this.animatableEntity.getEntity(), molangExpress);
             }
         } catch (ParseException exception) {
             YesSteveModel.LOGGER.error(exception);

@@ -33,7 +33,7 @@ public class MainhandPredicate implements IAnimationPredicate<CustomHumanoidEnti
             return PlayState.PAUSE;
         }
 
-        int formatVer = event.getAnimatableEntity().getModelContainer().info().formatVer();
+        int formatVer = event.getAnimatableEntity().getModelRenderTarget().info().formatVer();
 
         ItemStack mainHandItem = entity.getItemInHand(InteractionHand.MAIN_HAND);
         PlayState gunHoldAnimation = TACZCompat.playGunHoldAnimation(mainHandItem, event);

@@ -1,0 +1,37 @@
+package com.elfmcys.ysm.natives;
+
+import com.elfmcys.ysm.buffer.BufferType;
+import com.elfmcys.ysm.buffer.UniBuffer;
+import com.elfmcys.ysm.buffer.annotation.Owned;
+import com.elfmcys.ysm.natives.buffer.BufferArgument;
+import org.jetbrains.annotations.Nullable;
+
+public final class Zstd {
+    private static final int OP_COMPRESS = 1;
+    private static final int OP_DECOMPRESS = 2;
+
+    private Zstd() {
+    }
+
+    @Owned
+    public static UniBuffer compressAndHash(UniBuffer source, byte @Nullable [] hash, BufferType outputType, int level) {
+        var args = BufferArgument.packInput(source);
+        var result = nZstd(args.obj(), args.flags(), hash, level, outputType.id(), OP_COMPRESS);
+        if (result == null) {
+            throw new IllegalStateException("Native zstd compression returned no result");
+        }
+        return BufferArgument.unpackOutput(result);
+    }
+
+    @Owned
+    public static UniBuffer decompressAndValidate(UniBuffer source, int outputSize, byte @Nullable [] hash, BufferType outputType) {
+        var args = BufferArgument.packInput(source);
+        var result = nZstd(args.obj(), args.flags(), hash, outputSize, outputType.id(), OP_DECOMPRESS);
+        if (result == null) {
+            throw new IllegalStateException("Native zstd decompression returned no result");
+        }
+        return BufferArgument.unpackOutput(result);
+    }
+
+    private static native Object nZstd(Object source, long sourceFlags, byte @Nullable [] hashResult, int outputParam, int outputType, int op);
+}

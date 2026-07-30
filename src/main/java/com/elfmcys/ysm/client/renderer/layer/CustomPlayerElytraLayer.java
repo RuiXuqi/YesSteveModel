@@ -2,23 +2,16 @@ package com.elfmcys.ysm.client.renderer.layer;
 
 import com.elfmcys.ysm.client.entity.CustomPlayerEntity;
 import com.elfmcys.ysm.geckolib3.geo.GeoLayerRenderer;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
-import com.elfmcys.ysm.geckolib3.util.RenderUtils;
+import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.ysm.util.EquipmentUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.minecraft.client.model.ElytraModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 
 public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerEntity> {
@@ -30,32 +23,33 @@ public class CustomPlayerElytraLayer extends GeoLayerRenderer<CustomPlayerEntity
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        var player = animatableEntity.getEntity();
+    public void render(PoseStack poseStack, MultiBufferSource buffer, CustomPlayerEntity animatable, GeoRenderData renderData, int packedLight, int overlay) {
+        var player = animatable.getEntity();
         ItemStack stack = EquipmentUtil.getEquippedElytraItem(player);
-        GeoModelState geoModel = animatableEntity.getLoadedGeoModel();
-        if (!stack.isEmpty() && geoModel != null && !geoModel.elytraBones().isEmpty() && player instanceof AbstractClientPlayer clientPlayer) {
-            ResourceLocation texture;
-            if (clientPlayer.isElytraLoaded() && clientPlayer.getElytraTextureLocation() != null) {
-                texture = clientPlayer.getElytraTextureLocation();
-            } else if (clientPlayer.isCapeLoaded() && clientPlayer.getCloakTextureLocation() != null && player.isModelPartShown(PlayerModelPart.CAPE)) {
-                texture = clientPlayer.getCloakTextureLocation();
-            } else {
-                texture = WINGS_LOCATION;
-            }
-            poseStack.pushPose();
-            translateToElytra(poseStack, geoModel);
-            poseStack.translate(0, 1.5, 0);
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
-            poseStack.scale(2.0f, 2.0f, 2.0f);
-            this.elytraModel.setupAnim(player, pLimbSwing, pLimbSwingAmount, pAgeInTicks, pNetHeadYaw, pHeadPitch);
-            VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferIn, RenderType.armorCutoutNoCull(texture), false, stack.hasFoil());
-            this.elytraModel.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-            poseStack.popPose();
-        }
+        AnimatedGeoModel geoModel = animatable.getLoadedGeoModel();
+        // TODO
+//        if (!stack.isEmpty() && geoModel != null && !geoModel.elytraBones().isEmpty() && player instanceof AbstractClientPlayer clientPlayer) {
+//            ResourceLocation texture;
+//            if (clientPlayer.isElytraLoaded() && clientPlayer.getElytraTextureLocation() != null) {
+//                texture = clientPlayer.getElytraTextureLocation();
+//            } else if (clientPlayer.isCapeLoaded() && clientPlayer.getCloakTextureLocation() != null && player.isModelPartShown(PlayerModelPart.CAPE)) {
+//                texture = clientPlayer.getCloakTextureLocation();
+//            } else {
+//                texture = WINGS_LOCATION;
+//            }
+//            poseStack.pushPose();
+//            translateToElytra(poseStack, geoModel);
+//            poseStack.translate(0, 1.5, 0);
+//            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+//            poseStack.scale(2.0f, 2.0f, 2.0f);
+//            this.elytraModel.setupAnim(player, pLimbSwing, pLimbSwingAmount, pAgeInTicks, pNetHeadYaw, pHeadPitch);
+//            VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer(bufferIn, RenderType.armorCutoutNoCull(texture), false, stack.hasFoil());
+//            this.elytraModel.renderToBuffer(poseStack, vertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+//            poseStack.popPose();
+//        }
     }
 
-    protected void translateToElytra(PoseStack poseStack, GeoModelState geoModel) {
-        RenderUtils.prepMatrixForLocator(poseStack, geoModel.elytraBones());
-    }
+//    protected void translateToElytra(PoseStack poseStack, AnimatedGeoModel geoModel) {
+//        RenderUtils.prepMatrixForLocator(poseStack, geoModel.elytraBones());
+//    }
 }

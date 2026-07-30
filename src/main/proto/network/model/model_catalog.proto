@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package ysm.network.model;
+
+option java_outer_classname = "ModelCatalogProto";
+
+message ModelList {
+  bytes epoch = 1;
+  uint64 revision = 2;
+  repeated ModelEntry models = 3;
+  repeated ModelPackEntry packs = 4;
+}
+
+message ModelEntry {
+  bytes model_hash = 1;
+  bytes descriptor_hash = 2;
+  string namespace = 3;
+  string relative_path = 4;
+  // [0, verification chunk payload end): verification input plus its payload.
+  bytes container_preamble = 5;
+  bytes schema_manifest = 6;
+  AccessPolicy access_policy = 7;
+}
+
+enum AccessPolicy {
+  ACCESS_POLICY_UNSPECIFIED = 0;
+  ACCESS_POLICY_PUBLIC = 1;
+  ACCESS_POLICY_SESSION_AUTHORIZED = 2;
+}
+
+message ModelPackEntry {
+  string namespace = 1;
+  string hierarchy = 2;
+  string name = 3;
+  string description = 4;
+  repeated LocalizedPackText translations = 5;
+  bytes cover_hash = 6;
+  string cover_format = 7;
+  uint32 cover_size = 8;
+  AccessPolicy access_policy = 9;
+}
+
+message LocalizedPackText {
+  string locale = 1;
+  string name = 2;
+  string description = 3;
+}

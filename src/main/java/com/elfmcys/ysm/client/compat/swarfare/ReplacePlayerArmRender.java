@@ -5,7 +5,7 @@ import com.atsuishio.superbwarfare.client.renderer.CustomGunRenderer;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.client.event.RegisterEntityRenderersEvent;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.client.renderer.CustomFirstPersonArmRenderer;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
@@ -38,8 +38,9 @@ public class ReplacePlayerArmRender {
 
         player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
             HumanoidArm arm = event.getArm();
-            ClientModel model = cap.getModelContainer();
-            if (model == null || !hasArmBone(arm, model.playerModel().armModel())) {
+            ModelRenderTarget model = cap.getModelRenderTarget();
+            var variant = cap.getModelVariant();
+            if (model == null || variant == null || !hasArmBone(arm, variant.armModel())) {
                 return;
             }
             PoseStack poseStack = event.getStack();
@@ -65,15 +66,19 @@ public class ReplacePlayerArmRender {
                 poseStack.mulPose(Axis.ZP.rotationDegrees(180));
             }
 
-            armRenderer.render(player, model, cap, arm, poseStack, multiBufferSource, event.getPackedLightIn(), partialTick);
+            // armRenderer.render(player, model, cap, arm, poseStack, multiBufferSource, event.getPackedLightIn(), partialTick);
         });
     }
 
     private boolean hasArmBone(HumanoidArm arm, GeoModel model) {
+        // TODO
+        /*
         if (arm == HumanoidArm.LEFT) {
             return model.hasFirstPersonLeftArm;
         } else {
             return model.hasFirstPersonRightArm;
         }
+        */
+        return false;
     }
 }

@@ -2,8 +2,8 @@ package com.elfmcys.ysm.client.renderer.layer;
 
 import com.elfmcys.ysm.client.entity.CustomPlayerEntity;
 import com.elfmcys.ysm.geckolib3.geo.GeoLayerRenderer;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
-import com.elfmcys.ysm.geckolib3.util.RenderUtils;
+import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -28,21 +28,22 @@ public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerEn
     }
 
     @Override
-    public void render(PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        var player = animatableEntity.getEntity();
-        GeoModelState geoModel = animatableEntity.getLoadedGeoModel();
-        if (geoModel == null) {
-            return;
-        }
-        if (!geoModel.leftShoulderBones().isEmpty()) {
-            this.render(matrixStackIn, bufferIn, geoModel, packedLightIn, player, limbSwing, limbSwingAmount, netHeadYaw, headPitch, true);
-        }
-        if (!geoModel.rightShoulderBones().isEmpty()) {
-            this.render(matrixStackIn, bufferIn, geoModel, packedLightIn, player, limbSwing, limbSwingAmount, netHeadYaw, headPitch, false);
-        }
+    public void render(PoseStack poseStack, MultiBufferSource buffer, CustomPlayerEntity animatable, GeoRenderData renderData, int packedLight, int overlay) {
+//        var player = animatableEntity.getEntity();
+//        AnimatedGeoModel geoModel = animatableEntity.getLoadedGeoModel();
+//        if (geoModel == null) {
+//            return;
+//        }
+        // TODO
+//        if (!geoModel.leftShoulderBones().isEmpty()) {
+//            this.render(matrixStackIn, bufferIn, geoModel, packedLightIn, player, limbSwing, limbSwingAmount, netHeadYaw, headPitch, true);
+//        }
+//        if (!geoModel.rightShoulderBones().isEmpty()) {
+//            this.render(matrixStackIn, bufferIn, geoModel, packedLightIn, player, limbSwing, limbSwingAmount, netHeadYaw, headPitch, false);
+//        }
     }
 
-    private void render(PoseStack poseStack, MultiBufferSource buffer, GeoModelState geoModel, int packedLight, Player player, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch, boolean leftShoulder) {
+    private void render(PoseStack poseStack, MultiBufferSource buffer, AnimatedGeoModel geoModel, int packedLight, Player player, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch, boolean leftShoulder) {
         CompoundTag shoulderTag = leftShoulder ? player.getShoulderEntityLeft() : player.getShoulderEntityRight();
         EntityType.byString(shoulderTag.getString(ID)).filter(type -> type == EntityType.PARROT).ifPresent(type -> {
             poseStack.pushPose();
@@ -56,11 +57,12 @@ public class CustomParrotOnShoulderLayer extends GeoLayerRenderer<CustomPlayerEn
         });
     }
 
-    protected void translateToShoulder(PoseStack poseStack, GeoModelState geoModel, boolean leftShoulder) {
-        if (leftShoulder) {
-            RenderUtils.prepMatrixForLocator(poseStack, geoModel.leftShoulderBones());
-        } else {
-            RenderUtils.prepMatrixForLocator(poseStack, geoModel.rightShoulderBones());
-        }
+    protected void translateToShoulder(PoseStack poseStack, AnimatedGeoModel geoModel, boolean leftShoulder) {
+        // TODO
+//        if (leftShoulder) {
+//            RenderUtils.prepMatrixForLocator(poseStack, geoModel.leftShoulderBones());
+//        } else {
+//            RenderUtils.prepMatrixForLocator(poseStack, geoModel.rightShoulderBones());
+//        }
     }
 }

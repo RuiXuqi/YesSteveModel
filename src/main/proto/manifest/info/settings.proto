@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.info;
+
+import "common/string_pair.proto";
+import "common/image.proto";
+
+message Settings {
+  repeated mixel.common.StringPair extra_animation = 1;
+  repeated ExtraAnimationButton extra_animation_buttons = 2;
+  repeated ExtraAnimationClassify extra_animation_classify = 3;
+  string default_texture = 4;
+  string preview_animation = 5;
+  bool disable_preview_rotation = 6;
+  mixel.common.Image gui_foreground = 7;
+  mixel.common.Image gui_background = 8;
+}
+
+message ConfigForms {
+  string type = 1;
+  string title = 2;
+  string description = 3;
+  string value = 4;
+  float step = 5;
+  float min = 6;
+  float max = 7;
+  repeated mixel.common.StringPair labels = 8;
+}
+
+message ExtraAnimationButton {
+  string id = 1;
+  string name = 2;
+  string sound = 3;
+  repeated ConfigForms config_forms = 4;
+}
+
+message ExtraAnimationClassify {
+  string id = 1;
+  repeated mixel.common.StringPair extra_animation = 2;
+}

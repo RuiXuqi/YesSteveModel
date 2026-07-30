@@ -1,19 +1,19 @@
 package com.elfmcys.ysm.client.animation.molang.functions;
 
 import com.elfmcys.ysm.client.animation.molang.struct.Vec3fStruct;
-import com.elfmcys.ysm.geckolib3.core.processor.IBone;
+import com.elfmcys.ysm.geckolib3.core.processor.BoneView;
 import org.jetbrains.annotations.NotNull;
 
 public final class BoneScale extends BoneParamFunction {
     @Override
-    protected Vec3fStruct getParam(@NotNull IBone bone) {
+    protected Vec3fStruct getParam(@NotNull BoneView bone) {
         return new BoneScaleStruct(bone);
     }
 
     private static final class BoneScaleStruct extends Vec3fStruct {
-        private final IBone bone;
+        private final BoneView bone;
 
-        public BoneScaleStruct(IBone bone) {
+        public BoneScaleStruct(BoneView bone) {
             this.bone = bone;
         }
 

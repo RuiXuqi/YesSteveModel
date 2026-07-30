@@ -1,0 +1,109 @@
+def fastRunProperty = 'ysm.fast_run'
+def fastRunWhitelistProperty = 'ysm.fast_run_whitelist'
+def fastRun = ysmLocalBooleanProperty(fastRunProperty, false)
+def fastRunWhitelist = new LinkedHashSet<String>()
+def clientRuntimeConfigurations = [
+        'clientAdditionalRuntimeClasspath',
+        'client2AdditionalRuntimeClasspath'
+] as Set
+
+if (fastRun) {
+    def whitelistValue = ysmLocalProperties.getProperty(fastRunWhitelistProperty)
+    if (whitelistValue != null && !whitelistValue.isBlank()) {
+        whitelistValue.split(',', -1).each { entry ->
+            def coordinate = entry.trim()
+            if (!(coordinate ==~ /[^:,\s]+:[^:,\s]+/)) {
+                throw new GradleException(
+                        "${ysmLocalPropertiesFile.name}:${fastRunWhitelistProperty} " +
+                                "contains an invalid group:artifact entry: ${entry}")
+            }
+            fastRunWhitelist.add(coordinate)
+        }
+    }
+}
+
+configurations {
+    collabImplementation {
+        canBeResolved = false
+        canBeConsumed = false
+    }
+    collabRuntimeOnly {
+        canBeResolved = false
+        canBeConsumed = false
+    }
+    collabClientImplementation {
+        canBeResolved = false
+        canBeConsumed = false
+    }
+    collabClientRuntimeOnly {
+        canBeResolved = false
+        canBeConsumed = false
+    }
+    modCompileOnly.extendsFrom collabClientImplementation
+    if (!fastRun) {
+        modImplementation.extendsFrom collabImplementation
+        modRuntimeOnly.extendsFrom collabRuntimeOnly
+    }
+}
+
+if (!fastRun) {
+    def clientImplementation = configurations.collabClientImplementation
+    def clientRuntimeOnly = configurations.collabClientRuntimeOnly
+    configurations.configureEach { configuration ->
+        if (clientRuntimeConfigurations.contains(configuration.name)) {
+            configuration.extendsFrom clientImplementation, clientRuntimeOnly
+        }
+    }
+}
+
+if (fastRun) {
+    afterEvaluate {
+        def routes = [
+                [source: configurations.collabImplementation,
+                 whitelistedConfigurations: ['modImplementation'],
+                 defaultConfigurations: ['modCompileOnly']],
+                [source: configurations.collabRuntimeOnly,
+                 whitelistedConfigurations: ['modRuntimeOnly'],
+                 defaultConfigurations: []],
+                [source: configurations.collabClientImplementation,
+                 whitelistedConfigurations: clientRuntimeConfigurations,
+                 defaultConfigurations: []],
+                [source: configurations.collabClientRuntimeOnly,
+                 whitelistedConfigurations: clientRuntimeConfigurations,
+                 defaultConfigurations: []]
+        ]
+        def availableCoordinates = new LinkedHashSet<String>()
+        routes.each { route ->
+            route.source.dependencies.each { dependency ->
+                if (dependency.group == null || dependency.name == null) {
+                    throw new GradleException(
+                            "${route.source.name} dependency cannot be used by " +
+                                    "${fastRunWhitelistProperty}: ${dependency}")
+                }
+                availableCoordinates.add("${dependency.group}:${dependency.name}".toString())
+            }
+        }
+
+        def unknownCoordinates = new LinkedHashSet<String>(fastRunWhitelist)
+        unknownCoordinates.removeAll(availableCoordinates)
+        if (!unknownCoordinates.isEmpty()) {
+            throw new GradleException(
+                    "${ysmLocalPropertiesFile.name}:${fastRunWhitelistProperty} " +
+                            "contains unknown collaboration dependencies: " +
+                            unknownCoordinates.join(', ') + ". Available entries: " +
+                            availableCoordinates.join(', '))
+        }
+
+        routes.each { route ->
+            route.source.dependencies.each { dependency ->
+                def coordinate = "${dependency.group}:${dependency.name}".toString()
+                def targetConfigurations = fastRunWhitelist.contains(coordinate)
+                        ? route.whitelistedConfigurations
+                        : route.defaultConfigurations
+                targetConfigurations.each { targetConfiguration ->
+                    dependencies.add(targetConfiguration, dependency.copy())
+                }
+            }
+        }
+    }
+}

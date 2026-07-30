@@ -3,8 +3,7 @@ package com.elfmcys.ysm.client.gui.button;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.capability.StarModelsCapabilityProvider;
-import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.SetStarModel;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -27,8 +26,8 @@ public class StarButton extends FlatColorButton {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
-                String modelId = modelInfoCap.getModelId();
-                if (starModelsCap.containModel(modelId)) {
+                var modelHash = modelInfoCap.getModelHash();
+                if (modelHash != null && starModelsCap.containModel(modelHash)) {
                     graphics.blit(ICON, this.getX() + startX, this.getY() + startY, 16, 16, 16, 0, 16, 16, 256, 256);
                 } else {
                     graphics.blit(ICON, this.getX() + startX, this.getY() + startY, 16, 16, 0, 0, 16, 16, 256, 256);
@@ -42,13 +41,16 @@ public class StarButton extends FlatColorButton {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(modelInfoCap -> player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(starModelsCap -> {
-                String modelId = modelInfoCap.getModelId();
-                if (starModelsCap.containModel(modelId)) {
-                    starModelsCap.removeModel(modelId);
-                    NetworkHandler.sendToServer(SetStarModel.remove(modelId));
+                var modelHash = modelInfoCap.getModelHash();
+                if (modelHash == null) {
+                    return;
+                }
+                if (starModelsCap.containModel(modelHash)) {
+                    starModelsCap.removeModel(modelHash);
+                    ClientProtocolGateway.updateStar(modelHash, false);
                 } else {
-                    starModelsCap.addModel(modelId);
-                    NetworkHandler.sendToServer(SetStarModel.add(modelId));
+                    starModelsCap.addModel(modelHash);
+                    ClientProtocolGateway.updateStar(modelHash, true);
                 }
             }));
         }

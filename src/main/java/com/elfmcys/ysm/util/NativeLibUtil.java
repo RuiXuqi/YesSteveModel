@@ -1,6 +1,7 @@
 package com.elfmcys.ysm.util;
 
 import com.elfmcys.ysm.YesSteveModel;
+import com.elfmcys.ysm.natives.NativeLogging;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
 import net.minecraft.network.chat.Component;
@@ -34,14 +35,14 @@ public final class NativeLibUtil {
     /**
      * 各平台 jar 内 Native 库文件名
      */
-    private static final String WINDOWS_LIB_NAME = "ysm-core.dll";
-    private static final String LINUX_LIB_NAME = "libysm-core.so";
-    private static final String ANDROID_LIB_NAME = "libysm-core-android.so";
+    private static final String WINDOWS_LIB_NAME = "ysm.dll";
+    private static final String LINUX_LIB_NAME = "libysm.so";
+    private static final String ANDROID_LIB_NAME = "libysm-android.so";
 
     /**
      * 在开发环境中运行时，Native 库的路径环境变量
      */
-    private static final String DEV_LIB_ENV = "YSM_CORE_LIB";
+    private static final String DEV_LIB_ENV = "YSM_NATIVE_PATH";
 
     /**
      * X86 64 位架构标识
@@ -95,7 +96,7 @@ public final class NativeLibUtil {
     /**
      * 加载 Native 核心库
      */
-    public static void loadCoreLibrary() throws IOException {
+    public static void load() throws IOException {
         String libPath = getDevLibraryPath();
 
         if (libPath == null) {
@@ -143,6 +144,7 @@ public final class NativeLibUtil {
     private static boolean loadLibrary(String libPath) {
         try {
             System.load(libPath);
+            NativeLogging.syncLevel();
             return true;
         } catch (Throwable e) {
             YesSteveModel.LOGGER.error("Failed to load native lib", e);
@@ -216,7 +218,7 @@ public final class NativeLibUtil {
         return new PlatformConfig(
                 WINDOWS_LIB_NAME,
                 "ysm-core-" + modVersion + ".dll",
-                Path.of(System.getProperty("java.io.tmpdir"), "ysm")
+                Path.of(System.getProperty("java.io.tmpdir"), "ysm", "unstable")
         );
     }
 
@@ -250,7 +252,7 @@ public final class NativeLibUtil {
         return new PlatformConfig(
                 LINUX_LIB_NAME,
                 "libysm-core-" + modVersion + ".so",
-                Path.of(System.getProperty("user.home"), ".ysm")
+                Path.of(System.getProperty("user.home"), ".ysm", "unstable")
         );
     }
 
@@ -274,7 +276,7 @@ public final class NativeLibUtil {
         return new PlatformConfig(
                 ANDROID_LIB_NAME,
                 "libysm-core.so",
-                Path.of(modAndroidRuntimeDir)
+                Path.of(modAndroidRuntimeDir).resolve("unstable")
         );
     }
 
@@ -289,9 +291,10 @@ public final class NativeLibUtil {
             return preferredPath;
         } catch (Throwable t) {
             YesSteveModel.LOGGER.warn("Failed to create preferred directory, using fallback", t);
-            return FMLPaths.CONFIGDIR.get()
+            return FMLPaths.GAMEDIR.get()
                     .resolve(YesSteveModel.MOD_ID)
-                    .resolve("cache");
+                    .resolve("cache")
+                    .resolve("unstable");
         }
     }
 

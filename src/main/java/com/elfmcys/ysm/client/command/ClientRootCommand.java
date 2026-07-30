@@ -73,7 +73,7 @@ public class ClientRootCommand {
                 });
 
                 // 自定义函数
-                for (var name : cap.getModelContainer().assets().userFunctions().keySet()) {
+                for (var name : cap.getModelRenderTarget().assets().userFunctions().keySet()) {
                     vars.add(String.format("fn.%s", name));
                 }
 

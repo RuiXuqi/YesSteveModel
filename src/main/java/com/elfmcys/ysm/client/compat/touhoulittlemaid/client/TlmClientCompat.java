@@ -9,7 +9,7 @@ import com.elfmcys.ysm.client.compat.touhoulittlemaid.client.input.OpenRouletteS
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.client.render.CustomYsmMaidRenderer;
 import com.elfmcys.ysm.client.entity.CustomHumanoidEntity;
 import com.elfmcys.ysm.client.model.CommonAsset;
-import com.elfmcys.ysm.client.model.PlayerModel;
+import com.elfmcys.ysm.client.model.PlayerModelResources;
 import com.elfmcys.ysm.geckolib3.core.PlayState;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import net.minecraft.world.entity.Entity;
@@ -58,7 +58,7 @@ public class TlmClientCompat {
         });
     }
 
-    public static Object buildControllerFactory(PlayerModel model, CommonAsset assets) {
+    public static Object buildControllerFactory(PlayerModelResources model, CommonAsset assets) {
         if (INSTALLED) {
             return MaidControllerCollection.build(model, assets);
         }

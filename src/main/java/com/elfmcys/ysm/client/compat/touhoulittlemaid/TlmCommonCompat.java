@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.compat.touhoulittlemaid;
 
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.event.CopyYsmModelEvent;
-import com.elfmcys.ysm.network.message.data.RoamingVarsChanges;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,10 +44,8 @@ public class TlmCommonCompat {
         }
     }
 
-    public static void handleVariableChanges(Entity entity, RoamingVarsChanges changes) {
-        if (isInstalled()) {
-            TlmCommonCompatInner.handleVariableChanges(entity, changes);
-        }
+    public static boolean canControlMaid(Entity entity, ServerPlayer player) {
+        return isInstalled() && TlmCommonCompatInner.canControlMaid(entity, player);
     }
 
     @OnlyIn(Dist.CLIENT)

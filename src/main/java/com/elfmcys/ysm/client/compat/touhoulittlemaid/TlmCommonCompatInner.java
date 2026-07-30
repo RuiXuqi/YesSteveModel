@@ -6,18 +6,16 @@ import com.elfmcys.ysm.capability.VehicleModelInfoCapabilityProvider;
 import com.elfmcys.ysm.client.animation.molang.CustomMolangParser;
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
-import com.elfmcys.ysm.info.ModelProperties;
-import com.elfmcys.ysm.model.ServerModelManager;
+import com.elfmcys.ysm.model.server.ServerModelService;
 import com.elfmcys.ysm.molang.parser.ParseException;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.SyncProjectileModelInfo;
-import com.elfmcys.ysm.network.message.SyncVehicleModelInfo;
-import com.elfmcys.ysm.network.message.data.RoamingVarsChanges;
-import com.elfmcys.ysm.util.FifoHashMap;
+import com.elfmcys.ysm.network.forge.MinecraftStateHandler;
+import mixel.common.StringPairOuterClass;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +26,12 @@ import org.apache.commons.lang3.StringUtils;
 public class TlmCommonCompatInner {
     static boolean isMaid(Entity entity) {
         return entity instanceof EntityMaid;
+    }
+
+    static boolean canControlMaid(Entity entity, ServerPlayer player) {
+        return entity instanceof EntityMaid maid && maid.isOwnedBy(player)
+                && maid.isAlive() && maid.level() == player.level()
+                && maid.distanceToSqr(player) <= 64.0;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -55,9 +59,13 @@ public class TlmCommonCompatInner {
         if (maid.isYsmModel()) {
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 // TODO: 实现女仆的 roaming 变量
-                cap.init(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());
-                SyncProjectileModelInfo info = new SyncProjectileModelInfo(projectile.getId(), cap);
-                NetworkHandler.broadcastToVisiblePlayers(info, projectile);
+                ServerModelService.instance().snapshot()
+                        .flatMap(snapshot -> snapshot.findPath(maid.getYsmModelId()))
+                        .ifPresent(model -> {
+                            cap.init(model.descriptor().modelHash(), new Object2FloatOpenHashMap<>());
+                            var info = MinecraftStateHandler.projectile(projectile.getId(), cap);
+                            NetworkHandler.broadcastToVisiblePlayers(info, projectile);
+                        });
             });
         }
     }
@@ -69,8 +77,9 @@ public class TlmCommonCompatInner {
         if (maid.isYsmModel() && vehicle.getFirstPassenger() == entity) {
             vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 // TODO: 实现女仆的 roaming 变量
-                cap.update(maid.getYsmModelId(), new Object2FloatOpenHashMap<>());
-                SyncVehicleModelInfo info = new SyncVehicleModelInfo(vehicle.getId(), cap);
+                ServerModelService.instance().snapshot().flatMap(snapshot -> snapshot.findPath(maid.getYsmModelId()))
+                        .ifPresent(model -> cap.update(model.descriptor().modelHash(), new Object2FloatOpenHashMap<>()));
+                var info = MinecraftStateHandler.vehicle(vehicle.getId(), cap);
                 NetworkHandler.broadcastToVisiblePlayers(info, vehicle);
             });
         }
@@ -88,30 +97,28 @@ public class TlmCommonCompatInner {
             return;
         }
         String modelId = maid.getYsmModelId();
-        ServerModelManager.getModel(modelId).ifPresent(model -> {
-            ModelProperties properties = model.info().properties();
-            var classifyMap = properties.extraAnimationClassifyMap();
-            FifoHashMap<String, String> map;
-
-            if (StringUtils.isNotBlank(classifyId) && classifyMap.containsKey(classifyId)) {
-                map = classifyMap.get(classifyId);
-            } else {
-                map = properties.extraAnimationOrderMap();
+        ServerModelService.instance().snapshot().flatMap(snapshot -> snapshot.findPath(modelId)).ifPresent(model -> {
+            var settings = model.view().getManifest().getInfo().getSettings();
+            Iterable<StringPairOuterClass.StringPair> values =
+                    settings.hasExtraAnimation() ? settings.getExtraAnimation() : java.util.List.of();
+            if (StringUtils.isNotBlank(classifyId) && settings.hasExtraAnimationClassify()) {
+                for (var classify : settings.getExtraAnimationClassify()) {
+                    if (classify.getId().equals(classifyId)) {
+                        values = classify.hasExtraAnimation()
+                                ? classify.getExtraAnimation()
+                                : java.util.List.of();
+                        break;
+                    }
+                }
             }
-
-            if (map.size() > extraAnimIndex) {
-                maid.playRouletteAnim(map.getKeyAt(extraAnimIndex));
+            var index = 0;
+            for (var value : values) {
+                if (index++ == extraAnimIndex) {
+                    maid.playRouletteAnim(value.getKey());
+                    break;
+                }
             }
         });
     }
 
-    static void handleVariableChanges(Entity entity, RoamingVarsChanges changes) {
-        if (!(entity instanceof EntityMaid maid)) {
-            return;
-        }
-        if (!maid.isYsmModel()) {
-            return;
-        }
-        // TODO: 女仆 roaming 变量更新
-    }
 }

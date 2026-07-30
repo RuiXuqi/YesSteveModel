@@ -1,11 +1,11 @@
 package com.elfmcys.ysm.client.event;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.capability.PlayerAnimatableCapability;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
-import com.elfmcys.ysm.client.ClientModelManager;
+import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.client.sound.decoder.DecoderManager;
 import com.elfmcys.ysm.client.texture.CustomTextureManager;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
@@ -27,13 +27,16 @@ public class ClientTickEvent {
         }
         tickCount++;
         CustomTextureManager.tick();
-        ClientModelManager.tick();
+        ClientModelService.current().ifPresent(ClientModelService::tick);
         DecoderManager.tick();
         refreshRate = Minecraft.getInstance().getWindow().getRefreshRate();
 
         var player = Minecraft.getInstance().player;
         if (player != null) {
-            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(PlayerAnimatableCapability::handleRoamingVarsChanges);
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(capability -> {
+                capability.handleRoamingVarsChanges();
+                ClientProtocolGateway.tick(player, capability);
+            });
         }
     }
 

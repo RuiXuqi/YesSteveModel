@@ -3,6 +3,7 @@ package com.elfmcys.ysm.client.event;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.network.NetworkHandler;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,7 +24,8 @@ public class LocalPlayerRespawnEvent {
         event.getOldPlayer().reviveCaps();
         event.getOldPlayer().getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(oldCap ->
                 event.getNewPlayer().getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(newCap ->
-                        newCap.copyFrom(oldCap)));
+                        newCap.moveFrom(oldCap)));
         event.getOldPlayer().invalidateCaps();
+        ClientProtocolGateway.localPlayerCloned();
     }
 }

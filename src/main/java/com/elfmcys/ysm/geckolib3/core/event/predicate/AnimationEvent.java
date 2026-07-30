@@ -1,39 +1,36 @@
 package com.elfmcys.ysm.geckolib3.core.event.predicate;
 
 import com.elfmcys.ysm.geckolib3.core.controller.CodedAnimationController;
+import com.elfmcys.ysm.geckolib3.core.molang.context.DebugSource;
+import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
 import com.elfmcys.ysm.geckolib3.model.provider.data.EntityModelData;
 import org.jetbrains.annotations.NotNull;
 
 public class AnimationEvent<T extends AnimatableEntity<?>> {
     private final T animatable;
-    private final float limbSwing;
-    private final float limbSwingAmount;
     private final int entityTickCount;
     private final float requestedPartialTick;
     private final float partialTick;
-    private final boolean isMoving;
-    private final boolean renderingInLevelExclusive;
+    private final RenderContext renderContext;
     public float renderTicks;
     private final EntityModelData extraData;
+    private final DebugSource debugSource;
     protected CodedAnimationController<T> codedController;
 
     public AnimationEvent(T animatable,
-                          float limbSwing, float limbSwingAmount,
                           int entityTickCount, float requestedPartialTick, float partialTick,
-                          boolean isMoving,
-                          boolean renderingInLevelExclusive,
-                          @NotNull EntityModelData extraData) {
+                          RenderContext renderContext,
+                          @NotNull EntityModelData extraData,
+                          DebugSource debugSource) {
         this.animatable = animatable;
-        this.limbSwing = limbSwing;
-        this.limbSwingAmount = limbSwingAmount;
         this.entityTickCount = entityTickCount;
         this.requestedPartialTick = requestedPartialTick;
         this.partialTick = partialTick;
         this.renderTicks = entityTickCount + partialTick;
-        this.isMoving = isMoving;
-        this.renderingInLevelExclusive = renderingInLevelExclusive;
+        this.renderContext = renderContext;
         this.extraData = extraData;
+        this.debugSource = debugSource;
     }
 
     public float getRenderTicks() {
@@ -45,11 +42,11 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     }
 
     public float getLimbSwing() {
-        return limbSwing;
+        return extraData.limbSwing;
     }
 
     public float getLimbSwingAmount() {
-        return limbSwingAmount;
+        return extraData.limbSwingAmount;
     }
 
     public int getEntityTickCount() {
@@ -65,11 +62,15 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     }
 
     public boolean isMoving() {
-        return isMoving;
+        return extraData.isMoving;
     }
 
     public boolean isRenderingInLevelExclusive() {
-        return renderingInLevelExclusive;
+        return renderContext.level();
+    }
+
+    public RenderContext getRenderContext() {
+        return renderContext;
     }
 
     public CodedAnimationController<T> getCodedController() {
@@ -83,5 +84,9 @@ public class AnimationEvent<T extends AnimatableEntity<?>> {
     @NotNull
     public EntityModelData getExtraData() {
         return extraData;
+    }
+
+    public DebugSource getDebugSource() {
+        return debugSource;
     }
 }

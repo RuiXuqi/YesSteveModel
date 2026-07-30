@@ -6,7 +6,7 @@ import com.elfmcys.ysm.client.controller.*;
 import com.elfmcys.ysm.client.entity.CustomFirstPersonArmEntity;
 import com.elfmcys.ysm.client.entity.IPreviewEntity;
 import com.elfmcys.ysm.client.model.CommonAsset;
-import com.elfmcys.ysm.client.model.PlayerModel;
+import com.elfmcys.ysm.client.model.PlayerModelResources;
 import com.elfmcys.ysm.geckolib3.core.builder.Animation;
 import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.ysm.geckolib3.core.controller.HybridAnimationController;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 public class FPArmControllerCollection {
     private static final String CATEGORY = "fp.arm";
-    private static final AnimationControllerCollection<CustomFirstPersonArmEntity, PlayerModel> COLLECTION = new AnimationControllerCollection<>();
+    private static final AnimationControllerCollection<CustomFirstPersonArmEntity, PlayerModelResources> COLLECTION = new AnimationControllerCollection<>();
 
     @SuppressWarnings("rawtypes,unchecked,deprecation")
     private static void init() {
@@ -31,10 +31,8 @@ public class FPArmControllerCollection {
                 new HybridAnimationController(entity, name, 0, new FPArmArmorPredicate(slot)));
     }
 
-    public static Consumer<CustomFirstPersonArmEntity> build(PlayerModel model, CommonAsset assets) {
-        if (COLLECTION.isEmpty()) {
-            init();
-        }
+    public static Consumer<CustomFirstPersonArmEntity> build(PlayerModelResources model, CommonAsset assets) {
+        COLLECTION.initialize(FPArmControllerCollection::init);
         return COLLECTION.build(model, assets);
     }
 
@@ -44,7 +42,7 @@ public class FPArmControllerCollection {
 
     private static void simple(String name, boolean guiOnly, BiFunction<String, CustomFirstPersonArmEntity, IAnimationController<CustomFirstPersonArmEntity>> simpleFactory) {
         var controllerName = String.format("%s.%s", CATEGORY, name);
-        ControllerDiscovery<CustomFirstPersonArmEntity, PlayerModel> discovery = (model, asset) -> (animatable, consumer) -> {
+        ControllerDiscovery<CustomFirstPersonArmEntity, PlayerModelResources> discovery = (model, asset) -> (animatable, consumer) -> {
             consumer.accept(simpleFactory.apply(controllerName, animatable));
         };
         if (guiOnly) {
@@ -69,21 +67,21 @@ public class FPArmControllerCollection {
         COLLECTION.add(new ArmorControllerDiscovery<>(CATEGORY, name, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static class Adapter implements ResourceAdapter<PlayerModel> {
+    private static class Adapter implements ResourceAdapter<PlayerModelResources> {
         static final Adapter INSTANCE = new Adapter();
 
         @Override
-        public Object2ReferenceMap<String, AnimationControllerData> getControllers(PlayerModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, AnimationControllerData> getControllers(PlayerModelResources model, CommonAsset assets) {
             return model.animationControllers();
         }
 
         @Override
-        public Object2ReferenceMap<String, Animation> getAnimations(PlayerModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, Animation> getAnimations(PlayerModelResources model, CommonAsset assets) {
             return model.fpArmAnimations();
         }
 
         @Override
-        public ConditionArmor getArmorCondition(PlayerModel model, CommonAsset assets) {
+        public ConditionArmor getArmorCondition(PlayerModelResources model, CommonAsset assets) {
             return model.fpArmConditionManager().getArmor();
         }
     }

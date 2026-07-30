@@ -1,10 +1,26 @@
 package com.elfmcys.ysm.event;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.capability.*;
+import com.elfmcys.ysm.capability.AuthModelsCapability;
+import com.elfmcys.ysm.capability.AuthModelsCapabilityProvider;
+import com.elfmcys.ysm.capability.ClientLazyCapabilityProvider;
+import com.elfmcys.ysm.capability.ModelInfoCapability;
+import com.elfmcys.ysm.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.ysm.capability.ModelInfoSyncAssembler;
+import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
+import com.elfmcys.ysm.capability.ProjectileAnimatableCapabilityProvider;
+import com.elfmcys.ysm.capability.ProjectileModelInfoCapabilityProvider;
+import com.elfmcys.ysm.capability.StarModelsCapability;
+import com.elfmcys.ysm.capability.StarModelsCapabilityProvider;
+import com.elfmcys.ysm.capability.VehicleAnimatableCapabilityProvider;
+import com.elfmcys.ysm.capability.VehicleModelInfoCapabilityProvider;
 import com.elfmcys.ysm.config.ServerConfig;
+import com.elfmcys.ysm.model.server.ServerModelService;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.*;
+import com.elfmcys.ysm.network.forge.HandshakeHandler;
+import com.elfmcys.ysm.network.forge.MinecraftStateHandler;
+import com.elfmcys.ysm.proto.network.protocol.v0.PlayerStateV0;
+import com.elfmcys.ysm.network.forge.ControlHandler;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +36,8 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+
+import java.util.Optional;
 
 @Mod.EventBusSubscriber
 @SuppressWarnings("removal")
@@ -103,7 +121,7 @@ public final class CapabilityEvent {
         LazyOptional<AuthModelsCapability> newAuthModelsCap = getAuthModelsCap(event.getEntity());
         LazyOptional<StarModelsCapability> newStarModelsCap = getStarModelsCap(event.getEntity());
 
-        newModelInfoCap.ifPresent((newModelInfo) -> oldModelInfoCap.ifPresent(newModelInfo::copyFrom));
+        newModelInfoCap.ifPresent((newModelInfo) -> oldModelInfoCap.ifPresent(newModelInfo::moveFrom));
         newAuthModelsCap.ifPresent((newAuthModels) -> oldAuthModelsCap.ifPresent(newAuthModels::copyFrom));
         newStarModelsCap.ifPresent((newStarModels) -> oldStarModelsCap.ifPresent(newStarModels::copyFrom));
     }
@@ -119,20 +137,22 @@ public final class CapabilityEvent {
                 if (!NetworkHandler.isPlayerChannelPresent(trackPlayer) && !cap.isMandatory()) {
                     return;
                 }
-                cap.buildPacketForDispatch(trackPlayer, false).ifPresentOrElse(packet -> {
+                buildModelInfoPacket(trackPlayer, cap).ifPresentOrElse(packet -> {
                     NetworkHandler.sendToClientPlayer(packet, player);
                 }, cap::markDirty);
             });
         } else if (event.getTarget() instanceof Projectile projectile) {
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isInitialized()) {
-                    NetworkHandler.sendToClientPlayer(new SyncProjectileModelInfo(projectile.getId(), cap), event.getEntity());
+                    NetworkHandler.sendToClientPlayer(
+                            MinecraftStateHandler.projectile(projectile.getId(), cap), event.getEntity());
                 }
             });
         } else if (event.getTarget() != null) {
             event.getTarget().getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 if (cap.isInitialized()) {
-                    NetworkHandler.sendToClientPlayer(new SyncVehicleModelInfo(event.getTarget().getId(), cap), event.getEntity());
+                    NetworkHandler.sendToClientPlayer(
+                            MinecraftStateHandler.vehicle(event.getTarget().getId(), cap), event.getEntity());
                 }
             });
         }
@@ -150,17 +170,17 @@ public final class CapabilityEvent {
                     return;
                 }
                 modelInfoCap.stopAnimation(serverPlayer);
-                modelInfoCap.buildPacketForDispatch(serverPlayer, false).ifPresentOrElse(packet -> {
+                buildModelInfoPacket(serverPlayer, modelInfoCap).ifPresentOrElse(packet -> {
                     NetworkHandler.sendToClientPlayer(packet, serverPlayer);
                 }, modelInfoCap::markDirty);
             });
 
             getAuthModelsCap(serverPlayer).ifPresent(authModelsCap -> {
-                NetworkHandler.sendToClientPlayer(new SyncAuthModels(authModelsCap.getAuthModels()), serverPlayer);
+                NetworkHandler.sendToClientPlayer(ControlHandler.authorizedModels(authModelsCap.getAuthModels(), 1), serverPlayer);
             });
 
             getStarModelsCap(serverPlayer).ifPresent(starModelCap -> {
-                NetworkHandler.sendToClientPlayer(new SyncStarModels(starModelCap.getStarModels()), serverPlayer);
+                NetworkHandler.sendToClientPlayer(ControlHandler.starredModels(starModelCap.getStarModels(), 1), serverPlayer);
             });
         }
     }
@@ -180,13 +200,13 @@ public final class CapabilityEvent {
                 getModelInfoCap(player).ifPresent(cap -> {
                     if (!NetworkHandler.isPlayerChannelPresent(player) && !cap.isMandatory()) {
                         if (player.tickCount == 200 || player.tickCount == 600 || player.tickCount == 1800) {
-                            NetworkHandler.sendToClientPlayer(new ServerInfo(), player);
+                            HandshakeHandler.sendServerHello(player);
                         }
                         return;
                     }
                     if (cap.isDirty()) {
                         cap.getPropertiesTracker().tick(player, false, lowBandwidthUsage);
-                        cap.buildPacketForDispatch(player, true).ifPresent(packet -> {
+                        buildModelInfoPacket(player, cap).ifPresent(packet -> {
                             cap.clearDirty();
                             NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
                             if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
@@ -208,8 +228,9 @@ public final class CapabilityEvent {
             }
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 ownerCap.executeWithMolangVars(molangVars -> {
-                    cap.init(ownerCap.getModelId(), molangVars);
-                    NetworkHandler.broadcastToVisiblePlayers(new SyncProjectileModelInfo(projectile.getId(), cap), projectile);
+                    cap.init(ownerCap.getModelHash(), molangVars);
+                    NetworkHandler.broadcastToVisiblePlayers(
+                            MinecraftStateHandler.projectile(projectile.getId(), cap), projectile);
                 });
             });
         });
@@ -223,8 +244,9 @@ public final class CapabilityEvent {
             vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 // 失败就丢弃
                 ownerCap.getMolangVars().ifPresent(molangVars -> {
-                    cap.update(ownerCap.getModelId(), molangVars);
-                    NetworkHandler.broadcastToVisiblePlayers(new SyncVehicleModelInfo(vehicle.getId(), cap), vehicle);
+                    cap.update(ownerCap.getModelHash(), molangVars);
+                    NetworkHandler.broadcastToVisiblePlayers(
+                            MinecraftStateHandler.vehicle(vehicle.getId(), cap), vehicle);
                 });
             });
         });
@@ -232,6 +254,13 @@ public final class CapabilityEvent {
 
     private static LazyOptional<ModelInfoCapability> getModelInfoCap(Player player) {
         return player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP);
+    }
+
+    private static Optional<PlayerStateV0.PlayerStateUpdate> buildModelInfoPacket(
+            ServerPlayer player, ModelInfoCapability capability) {
+        return ServerModelService.current().flatMap(ServerModelService::snapshot)
+                .flatMap(snapshot -> ModelInfoSyncAssembler.build(
+                        player, capability, snapshot));
     }
 
     private static LazyOptional<AuthModelsCapability> getAuthModelsCap(Player player) {

@@ -1,7 +1,8 @@
 package com.elfmcys.ysm.command.sub;
 
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.ExecuteMolang;
+import com.elfmcys.ysm.proto.network.protocol.v0.CommonV0;
+import com.elfmcys.ysm.proto.network.protocol.v0.ControlV0;
 import com.elfmcys.ysm.util.CommandUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -13,7 +14,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
@@ -43,7 +43,8 @@ public class MolangCommand {
     }
 
     private static int executeMolangOnPlayer(String molangExp, Collection<ServerPlayer> players) {
-        ExecuteMolang packet = new ExecuteMolang(players.stream().mapToInt(Entity::getId).toArray(), molangExp);
+        var packet = ControlV0.ExecuteMolangEvent.newInstance().setExpression(molangExp);
+        players.forEach(player -> packet.addTargets(CommonV0.EntityRef.newInstance().setEntityId(player.getId())));
         NetworkHandler.broadcastToAllPlayers(packet);
         return Command.SINGLE_SUCCESS;
     }

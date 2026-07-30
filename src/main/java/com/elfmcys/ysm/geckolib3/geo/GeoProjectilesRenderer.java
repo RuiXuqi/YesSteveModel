@@ -1,10 +1,10 @@
 package com.elfmcys.ysm.geckolib3.geo;
 
+import com.elfmcys.ysm.geckolib3.core.util.Color;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
 import com.elfmcys.ysm.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.ysm.geckolib3.util.IRenderCycle;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,46 +15,43 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
 
 public abstract class GeoProjectilesRenderer<TEntity extends Projectile, T extends AnimatableEntity<TEntity>> extends EntityRenderer<TEntity> implements IGeoRenderer<T> {
-    protected Matrix4f dispatchedMat = new Matrix4f();
-    protected Matrix4f renderEarlyMat = new Matrix4f();
     private IRenderCycle currentModelRenderCycle = EModelRenderCycle.INITIAL;
-    protected MultiBufferSource rtb = null;
 
     public GeoProjectilesRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     public void render(T animatable, float yaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        var event = animatable.updateAnimation(partialTick);
         var mc = Minecraft.getInstance();
-        if (event != null && mc.player != null) {
+        var data = animatable.update(partialTick);
+        if (data != null && mc.player != null) {
             var entity = animatable.getEntity();
-            var model = animatable.getLoadedGeoModel();
             var bodyVisible = !entity.isInvisibleTo(mc.player);
             var glowing = mc.shouldEntityAppearGlowing(entity);
-            var renderType = getRenderType(animatable.getTextureLocation(), bodyVisible, glowing, model.model().isTranslucent(0));
+            var renderType = getRenderType(data.texture, bodyVisible, glowing, false);
 
             if (renderType != null && (bodyVisible || glowing)) {
-                var renderColor = getRenderColor(animatable, partialTick, poseStack, bufferSource, null, packedLight);
-                this.dispatchedMat = new Matrix4f(poseStack.last().pose());
                 setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
                 poseStack.pushPose();
-                poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
-                poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
-                render(model, animatable, partialTick, renderType, poseStack, bufferSource, 0, null, packedLight, getPackedOverlay(entity, 0), renderColor.getRed() / 255f, renderColor.getGreen() / 255f, renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-                poseStack.popPose();
+                try {
+                    poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90));
+                    poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
+                    renderEarly(data, animatable, poseStack);
+                    render(data, animatable, renderType, poseStack, bufferSource, null,
+                            packedLight, getPackedOverlay(entity, 0), Color.WHITE);
+                } finally {
+                    poseStack.popPose();
+                }
             }
         }
         super.render(animatable.getEntity(), yaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
-    public void renderEarly(T animatable, PoseStack poseStack, float partialTick, MultiBufferSource bufferSource, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.renderEarlyMat = new Matrix4f(poseStack.last().pose());
-        IGeoRenderer.super.renderEarly(animatable, poseStack, partialTick, bufferSource, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    public void renderEarly(GeoRenderData data, T animatable, PoseStack poseStack) {
+        IGeoRenderer.super.renderEarly(data, animatable, poseStack);
     }
 
     public static int getPackedOverlay(Entity entity, float uIn) {
@@ -70,15 +67,5 @@ public abstract class GeoProjectilesRenderer<TEntity extends Projectile, T exten
     @Override
     public void setCurrentModelRenderCycle(IRenderCycle currentModelRenderCycle) {
         this.currentModelRenderCycle = currentModelRenderCycle;
-    }
-
-    @Override
-    public void setCurrentRTB(MultiBufferSource bufferSource) {
-        this.rtb = bufferSource;
-    }
-
-    @Override
-    public MultiBufferSource getCurrentRTB() {
-        return this.rtb;
     }
 }

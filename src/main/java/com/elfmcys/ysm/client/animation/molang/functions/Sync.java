@@ -6,7 +6,7 @@ import com.elfmcys.ysm.geckolib3.core.molang.context.IContext;
 import com.elfmcys.ysm.geckolib3.core.molang.function.entity.PlayerEntityFunction;
 import com.elfmcys.ysm.molang.runtime.ExecutionContext;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.EmitMolangSync;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -26,7 +26,7 @@ public class Sync extends PlayerEntityFunction {
                 // 确认服务端已安装本模组
                 if (context.entity().entity() instanceof LocalPlayer) {
                     // 确认为 LocalPlayer 实体，向服务器发起同步
-                    NetworkHandler.sendToServer(new EmitMolangSync(packArguments(context, arguments)));
+                    ClientProtocolGateway.emitMolangSync(packArguments(context, arguments));
                     return null;
                 } else {
                     // 确认为 RemotePlayer 实体，不执行而是等待服务端下发

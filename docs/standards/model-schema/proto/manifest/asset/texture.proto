@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.asset;
+
+import "common/image.proto";
+
+message PBRTextureSet {
+  mixel.common.Image uv = 1;
+  optional mixel.common.Image normal = 2;
+  optional mixel.common.Image specular = 3;
+}

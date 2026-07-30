@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.compat.slashblade;
 
-import com.elfmcys.ysm.geckolib3.core.processor.IBone;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
+import com.elfmcys.ysm.geckolib3.core.processor.BoneView;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.ysm.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -45,12 +45,14 @@ public class SlashBladeRender {
         });
     }
 
-    public static void renderMainhandSlashBlade(LivingEntity livingEntity, GeoModelState model, PoseStack matrixStack,
+    public static void renderMainhandSlashBlade(LivingEntity livingEntity, AnimatedGeoModel model, PoseStack matrixStack,
                                                 MultiBufferSource bufferIn, int lightIn, ItemStack stack, float partialTicks) {
         if (SlashBladeCompat.isSlashBladeItem(stack)) {
-            List<IBone> leftWaistBones = model.leftWaistBones();
-            List<IBone> bladeBones = model.bladeBones();
-            List<IBone> sheathBones = model.sheathBones();
+            // TODO
+            /*
+            List<BoneView> leftWaistBones = model.leftWaistBones();
+            List<BoneView> bladeBones = model.bladeBones();
+            List<BoneView> sheathBones = model.sheathBones();
 
             // 如果没有 bladeBones 和 sheathBones，说明是旧版渲染
             if (bladeBones.isEmpty() || sheathBones.isEmpty() || leftWaistBones.isEmpty()) {
@@ -60,11 +62,12 @@ public class SlashBladeRender {
                     newMainhandSlashBlade(bladeState, matrixStack, bufferIn, lightIn, stack, leftWaistBones, bladeBones, sheathBones);
                 });
             }
+            */
         }
     }
 
     private static void newMainhandSlashBlade(ISlashBladeState bladeState, PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, ItemStack stack,
-                                              List<IBone> leftWaistBones, List<IBone> bladeBones, List<IBone> sheathBones) {
+                                              List<BoneView> leftWaistBones, List<BoneView> bladeBones, List<BoneView> sheathBones) {
 
         ResourceLocation texture = bladeState.getTexture().orElse(RESOURCE_DEFAULT_TEXTURE);
         WavefrontObject obj = BladeModelManager.getInstance().getModel(bladeState.getModel().orElse(RESOURCE_DEFAULT_MODEL));
@@ -75,7 +78,7 @@ public class SlashBladeRender {
             part = "blade";
         }
 
-        IBone leftWaist = leftWaistBones.get(leftWaistBones.size() - 1);
+        BoneView leftWaist = leftWaistBones.get(leftWaistBones.size() - 1);
         // 如果缩放不为 0 才渲染
         if (leftWaist.getScaleX() != 0 || leftWaist.getScaleY() != 0 || leftWaist.getScaleZ() != 0) {
             matrixStack.pushPose();
@@ -96,9 +99,9 @@ public class SlashBladeRender {
             matrixStack.popPose();
         }
 
-        IBone blade = bladeBones.get(bladeBones.size() - 1);
+        BoneView blade = bladeBones.get(bladeBones.size() - 1);
         // 如果缩放不为 0 才渲染
-        if (blade.getScaleX() != 0 || blade.getScaleY() != 0 || blade.getScaleZ() != 0) {
+        if (leftWaist.getScaleX() != 0 || leftWaist.getScaleY() != 0 || leftWaist.getScaleZ() != 0) {
             matrixStack.pushPose();
 
             // 移动到定位组
@@ -115,7 +118,9 @@ public class SlashBladeRender {
             matrixStack.popPose();
         }
 
-        IBone sheath = sheathBones.get(sheathBones.size() - 1);
+        BoneView sheath = sheathBones.get(sheathBones.size() - 1);
+        // TODO
+        /*
         // 如果缩放不为 0 才渲染
         if (sheath.getScaleX() != 0 || sheath.getScaleY() != 0 || sheath.getScaleZ() != 0) {
             matrixStack.pushPose();
@@ -133,10 +138,11 @@ public class SlashBladeRender {
 
             matrixStack.popPose();
         }
+        */
     }
 
-    private static void oldMainhandSlashBlade(LivingEntity livingEntity, GeoModelState model, PoseStack matrixStack, MultiBufferSource bufferIn,
-                                              int lightIn, ItemStack stack, float partialTicks, List<IBone> leftWaistBones) {
+    private static void oldMainhandSlashBlade(LivingEntity livingEntity, AnimatedGeoModel model, PoseStack matrixStack, MultiBufferSource bufferIn,
+                                              int lightIn, ItemStack stack, float partialTicks, List<BoneView> leftWaistBones) {
         matrixStack.pushPose();
         // 主手的刀渲染在左边
         if (!leftWaistBones.isEmpty()) {
@@ -176,7 +182,9 @@ public class SlashBladeRender {
         matrixStack.popPose();
     }
 
-    public static void renderOffhandSlashBlade(GeoModelState model, PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, ItemStack stack) {
+    public static void renderOffhandSlashBlade(AnimatedGeoModel model, PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, ItemStack stack) {
+        // TODO
+        /*
         if (SlashBladeCompat.isSlashBladeItem(stack)) {
             matrixStack.pushPose();
             // 副手的刀渲染在右边
@@ -193,13 +201,17 @@ public class SlashBladeRender {
             SlashBladeRender.renderSlashBlade(matrixStack, bufferIn, lightIn, stack);
             matrixStack.popPose();
         }
+        */
     }
 
-    private static void translateToWaist(HumanoidArm arm, PoseStack poseStack, GeoModelState geoModel) {
+    private static void translateToWaist(HumanoidArm arm, PoseStack poseStack, AnimatedGeoModel geoModel) {
+        // TODO
+        /*
         if (arm == HumanoidArm.LEFT) {
             RenderUtils.prepMatrixForLocator(poseStack, geoModel.leftWaistBones());
         } else {
             RenderUtils.prepMatrixForLocator(poseStack, geoModel.rightWaistBones());
         }
+        */
     }
 }

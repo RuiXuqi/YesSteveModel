@@ -12,14 +12,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
-// Native Access
 public class CustomMolangParser {
     private static final ConcurrentLinkedQueue<MolangParser> PARSER_POOL = new ConcurrentLinkedQueue<>();
     private static final Map<String, Object> EXTRA_BINDING = new HashMap<>();
     private static final Map<String, Object> COMMAND_HINT = new HashMap<>();
     private static final Pattern ROAMING_ASSIGNMENT_PATTERN = Pattern.compile("^([;\\s]*(v|variable)\\.roaming\\.[A-Za-z0-9_]+\\s*=[^;]+[;\\s]*)+$", Pattern.CASE_INSENSITIVE);
 
-    // Native Access
     public static MolangParser rentInstance() {
         MolangParser parser = PARSER_POOL.poll();
         if (parser == null) {
@@ -29,7 +27,6 @@ public class CustomMolangParser {
         }
     }
 
-    // Native Access
     public static void returnInstance(MolangParser parser) {
         parser.reset();
         PARSER_POOL.add(parser);

@@ -8,12 +8,10 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-// Native Access
 public class AnimationControllerData {
     private final int initialState;
     private final Int2ReferenceMap<AnimationControllerState> states;
 
-    // Native Access
     public AnimationControllerData(String initialState, AnimationControllerState[] states) {
         this.initialState = StringPool.computeIfAbsent(initialState);
         this.states = Int2ReferenceMaps.unmodifiable(new Int2ReferenceOpenHashMap<>(Arrays.stream(states)

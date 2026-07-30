@@ -2,78 +2,59 @@ package com.elfmcys.ysm.geckolib3.geo;
 
 import com.elfmcys.ysm.geckolib3.core.util.Color;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
 import com.elfmcys.ysm.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.ysm.geckolib3.util.IRenderCycle;
+import com.elfmcys.ysm.natives.render.NativeRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public interface IGeoRenderer<T extends AnimatableEntity<?>> {
-    MultiBufferSource getCurrentRTB();
-
-    default void setCurrentRTB(MultiBufferSource bufferSource) {
+    default void preRender(GeoRenderData data, T animatable, float partialTick, PoseStack poseStack,
+                           @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer,
+                           int packedLight, int packedOverlay, Color color) {
+        renderEarly(data, animatable, poseStack);
+        renderLate(data, animatable, partialTick, poseStack, bufferSource, buffer,
+                packedLight, packedOverlay, color);
     }
 
-    default void preRender(GeoModelState modelState, T animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
-                           @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        setCurrentRTB(bufferSource);
-        renderEarly(animatable, poseStack, partialTick, bufferSource, buffer, packedLight,
-                packedOverlay, red, green, blue, alpha);
-        renderLate(animatable, poseStack, partialTick, bufferSource, buffer, packedLight,
-                packedOverlay, red, green, blue, alpha);
-    }
-
-    default void render(GeoModelState modelState, T animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
-                        int textureIndex, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    default void render(GeoRenderData data, T animatable,
+                        RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource,
+                        @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, Color color) {
         if (buffer == null) {
-            buffer = bufferSource.getBuffer(type);
+            buffer = Objects.requireNonNull(bufferSource, "bufferSource").getBuffer(type);
         }
+        var modelState = data.modelState;
+        NativeRenderer.render(
+                buffer, poseStack.last(), modelState.getNativeState(), modelState.getVertexCount(),
+                packedLight, packedOverlay, color.getColor(), data.ctx.nativeType());
         animatable.countRender();
-        // 渲染所有骨骼
-        NativeRenderer.renderModel(buffer, poseStack.last(), modelState.model(), modelState.inputState(), modelState.outputState(), textureIndex, NativeRenderer.RENDER_MODE_ALL, packedLight, packedOverlay, red, green, blue, alpha);
-        // 由于此时我们至少渲染了一次，因此让我们将循环设置为重复
         setCurrentModelRenderCycle(EModelRenderCycle.REPEATED);
     }
 
-    default void renderEarly(T animatable, PoseStack poseStack, float partialTick,
-                             @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight,
-                             int packedOverlayIn, float red, float green, float blue, float alpha) {
+    default void renderEarly(GeoRenderData data, T animatable, PoseStack poseStack) {
         if (getCurrentModelRenderCycle() == EModelRenderCycle.INITIAL) {
-            float width = animatable.getWidthScale();
-            float height = animatable.getHeightScale();
-            poseStack.scale(width, height, width);
+            poseStack.scale(data.widthScale, data.heightScale, data.widthScale);
         }
     }
 
-    default void renderLate(T animatable, PoseStack poseStack, float partialTick, MultiBufferSource bufferSource,
-                            @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue,
-                            float alpha) {
+    default void renderLate(GeoRenderData data, T animatable, float partialTick, PoseStack poseStack,
+                            @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer,
+                            int packedLight, int packedOverlay, Color color) {
     }
 
     @Nullable
     default RenderType getRenderType(ResourceLocation texture, boolean visible, boolean glowing, boolean translucent) {
         if (visible) {
-            if (translucent) {
-                return CustomTranslucentRenderType.create(texture);
-            } else {
-                return RenderType.entityCutoutNoCull(texture);
-            }
+            return translucent ? CustomTranslucentRenderType.create(texture) : RenderType.entityCutoutNoCull(texture);
         }
-        if (glowing) {
-            return RenderType.outline(texture);
-        }
-        return null;
-    }
-
-    default Color getRenderColor(T animatable, float partialTick, PoseStack poseStack,
-                                 @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight) {
-        return Color.WHITE;
+        return glowing ? RenderType.outline(texture) : null;
     }
 
     @NotNull

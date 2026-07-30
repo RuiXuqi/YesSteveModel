@@ -5,7 +5,7 @@ import com.elfmcys.ysm.client.animation.predicate.*;
 import com.elfmcys.ysm.client.controller.*;
 import com.elfmcys.ysm.client.entity.CustomProjectileEntity;
 import com.elfmcys.ysm.client.model.CommonAsset;
-import com.elfmcys.ysm.client.model.ProjectileModel;
+import com.elfmcys.ysm.client.model.ProjectileModelResources;
 import com.elfmcys.ysm.geckolib3.core.builder.Animation;
 import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.ysm.geckolib3.core.controller.HybridAnimationController;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public class ProjectileControllerCollection {
     private static final String CATEGORY = "projectile";
-    private static final AnimationControllerCollection<CustomProjectileEntity, ProjectileModel> COLLECTION = new AnimationControllerCollection<>();
+    private static final AnimationControllerCollection<CustomProjectileEntity, ProjectileModelResources> COLLECTION = new AnimationControllerCollection<>();
 
     @SuppressWarnings("rawtypes,unchecked,deprecation")
     private static void init() {
@@ -30,43 +30,41 @@ public class ProjectileControllerCollection {
                 new HybridAnimationController(entity, name, 0, anim != null ? new ParallelPredicate(anim) : EmptyPredicate.INSTANCE, true));
     }
 
-    public static Consumer<CustomProjectileEntity> build(ProjectileModel model, CommonAsset assets) {
-        if (COLLECTION.isEmpty()) {
-            init();
-        }
+    public static Consumer<CustomProjectileEntity> build(ProjectileModelResources model, CommonAsset assets) {
+        COLLECTION.initialize(ProjectileControllerCollection::init);
         return COLLECTION.build(model, assets);
     }
 
-    private static ControllerDiscovery<CustomProjectileEntity, ProjectileModel> simple(String name, BiFunction<String, CustomProjectileEntity, IAnimationController<CustomProjectileEntity>> simpleFactory) {
+    private static ControllerDiscovery<CustomProjectileEntity, ProjectileModelResources> simple(String name, BiFunction<String, CustomProjectileEntity, IAnimationController<CustomProjectileEntity>> simpleFactory) {
         var controllerName = String.format("%s.%s", CATEGORY, name);
         return COLLECTION.add((model, container) -> (animatable, consumer) -> {
             consumer.accept(simpleFactory.apply(controllerName, animatable));
         });
     }
 
-    private static ControllerDiscovery<CustomProjectileEntity, ProjectileModel> single(String name, String[] animations, boolean hybrid, BiFunction<String, CustomProjectileEntity, IAnimationController<CustomProjectileEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomProjectileEntity, ProjectileModelResources> single(String name, String[] animations, boolean hybrid, BiFunction<String, CustomProjectileEntity, IAnimationController<CustomProjectileEntity>> controllerFunc) {
         return COLLECTION.add(new SingleControllerDiscovery<>(CATEGORY, name, animations, hybrid, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static ControllerDiscovery<CustomProjectileEntity, ProjectileModel> parallel(String name, TriFunction<String, CustomProjectileEntity, String, IAnimationController<CustomProjectileEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomProjectileEntity, ProjectileModelResources> parallel(String name, TriFunction<String, CustomProjectileEntity, String, IAnimationController<CustomProjectileEntity>> controllerFunc) {
         return COLLECTION.add(new ParallelControllerDiscovery<>(CATEGORY, name, false, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static class Adapter implements ResourceAdapter<ProjectileModel> {
+    private static class Adapter implements ResourceAdapter<ProjectileModelResources> {
         static final Adapter INSTANCE = new Adapter();
 
         @Override
-        public Object2ReferenceMap<String, AnimationControllerData> getControllers(ProjectileModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, AnimationControllerData> getControllers(ProjectileModelResources model, CommonAsset assets) {
             return model.controllers();
         }
 
         @Override
-        public Object2ReferenceMap<String, Animation> getAnimations(ProjectileModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, Animation> getAnimations(ProjectileModelResources model, CommonAsset assets) {
             return model.animations();
         }
 
         @Override
-        public ConditionArmor getArmorCondition(ProjectileModel model, CommonAsset assets) {
+        public ConditionArmor getArmorCondition(ProjectileModelResources model, CommonAsset assets) {
             return null;
         }
     }

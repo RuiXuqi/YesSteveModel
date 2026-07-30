@@ -1,12 +1,15 @@
 package com.elfmcys.ysm.client.entity;
 
-import com.elfmcys.ysm.client.model.ClientModel;
-import com.elfmcys.ysm.client.model.ProjectileModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
+import com.elfmcys.ysm.client.model.ProjectileModelResources;
+import com.elfmcys.ysm.client.model.ClientModelService;
+import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.client.texture.CustomTextureManager;
 import com.elfmcys.ysm.client.texture.TextureHolder;
 import com.elfmcys.ysm.geckolib3.core.builder.Animation;
 import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
+import mixel.manifest.asset.RenderTargetOuterClass;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -14,26 +17,44 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CustomProjectileEntity extends CustomEntity<Projectile> {
-    private ProjectileModel projectileModel;
+    private ProjectileModelResources projectileResources;
 
     public CustomProjectileEntity(Projectile projectile) {
         super(projectile, true);
     }
 
     @Override
+    protected String requestedRenderTargetId() {
+        var hash = getModelHash();
+        return hash == null ? null : ClientModelService.instance()
+                .findRenderTarget(hash,
+                        RenderTargetOuterClass.RenderTargetKind.RENDER_TARGET_KIND_PROJECTILE,
+                        entity.getType().builtInRegistryHolder().key().location()).orElse(null);
+    }
+
+    @Override
+    protected String fallbackRenderTargetId() {
+        return ClientModelService.instance()
+                .findDefaultRenderTarget(
+                        RenderTargetOuterClass.RenderTargetKind.RENDER_TARGET_KIND_PROJECTILE,
+                        entity.getType().builtInRegistryHolder().key().location()).orElse(null);
+    }
+
+    @Override
     protected void onSetupAnimationController() {
-        if (projectileModel != null) {
-            projectileModel.controllerFactory().accept(this);
+        if (projectileResources != null) {
+            projectileResources.controllerFactory().accept(this);
         }
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
+    protected @Nullable ResourceHolder createResourceHolder(ModelRenderTargetLease lease, boolean isFallback) {
+        var model = lease.renderTarget();
         if (!isFallback) {
-            var projectileModel = model.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
-            if (projectileModel != null) {
-                return new ProjectileResourceHolder(model, false, projectileModel);
+            var projectileResources = model.projectileResources();
+            if (projectileResources != null) {
+                return new ProjectileResourceHolder(lease, false, projectileResources);
             }
         }
         return null;
@@ -44,20 +65,20 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected void onLoadModelContainer(ClientModel newModel) {
-        super.onLoadModelContainer(newModel);
-        projectileModel = newModel.projectileModels().get(entity.getType().builtInRegistryHolder().key().location());
+    protected void onModelRenderTargetLoaded(ModelRenderTarget newModel) {
+        super.onModelRenderTargetLoaded(newModel);
+        projectileResources = newModel.projectileResources();
     }
 
     @Override
-    public void resetModelContainer() {
-        super.resetModelContainer();
-        projectileModel = null;
+    public void resetModelRenderTarget() {
+        super.resetModelRenderTarget();
+        projectileResources = null;
     }
 
     @Override
     protected GeoModel getYsmGeoModel() {
-        return projectileModel.model();
+        return projectileResources.model();
     }
 
     @Override
@@ -68,17 +89,17 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
 
     @Override
     public Animation getAnimation(String name) {
-        return projectileModel.animations().get(name);
+        return projectileResources.animations().get(name);
     }
 
     @Override
     public @Nullable AnimationControllerData getAnimationControllerData(String animationControllerName) {
-        return projectileModel.controllers().get(animationControllerName);
+        return projectileResources.controllers().get(animationControllerName);
     }
 
     @Override
     public boolean isModelPresent() {
-        return super.isModelPresent() && projectileModel != null && getResourceHolder().isLoaded();
+        return super.isModelPresent() && projectileResources != null && getResourceHolder().isLoaded();
     }
 
     @Override
@@ -94,9 +115,9 @@ public class CustomProjectileEntity extends CustomEntity<Projectile> {
     private static class ProjectileResourceHolder extends ResourceHolder {
         private final TextureHolder textureHolder;
 
-        protected ProjectileResourceHolder(ClientModel model, boolean fallback, ProjectileModel projectileModel) {
-            super(model, fallback);
-            textureHolder = CustomTextureManager.register(projectileModel.texture(), true);
+        protected ProjectileResourceHolder(ModelRenderTargetLease lease, boolean fallback, ProjectileModelResources projectileResources) {
+            super(lease, fallback);
+            textureHolder = CustomTextureManager.register(projectileResources.texture(), true);
         }
 
         @Override

@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.ModLoadingWarning;
 import net.minecraftforge.fml.common.Mod;
@@ -25,10 +26,12 @@ import java.io.IOException;
 @SuppressWarnings("removal")
 public class YesSteveModel {
     public static final String MOD_ID = "ysm";
+    public static ModContainer MOD;
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
     public YesSteveModel() throws IOException {
-        NativeLibUtil.loadCoreLibrary();
+        MOD = ModLoadingContext.get().getActiveContainer();
+        NativeLibUtil.load();
         if (!NativeLibUtil.isAvailable()) {
             LOGGER.error(getUnavailableMessageString());
             return;

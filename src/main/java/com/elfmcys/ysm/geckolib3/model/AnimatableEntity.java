@@ -11,12 +11,13 @@ import com.elfmcys.ysm.geckolib3.core.controller.IAnimationController;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.ysm.geckolib3.core.manager.AnimationData;
 import com.elfmcys.ysm.geckolib3.core.molang.context.DebugSource;
-import com.elfmcys.ysm.geckolib3.core.molang.context.MolangContext;
 import com.elfmcys.ysm.geckolib3.core.molang.storage.IForeignVariableStorage;
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
 import com.elfmcys.ysm.geckolib3.core.processor.AnimationProcessor;
-import com.elfmcys.ysm.geckolib3.core.processor.IBone;
+import com.elfmcys.ysm.geckolib3.core.processor.BoneView;
 import com.elfmcys.ysm.geckolib3.core.util.RateLimiter;
+import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
+import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.ysm.geckolib3.model.provider.data.EntityModelData;
 import com.elfmcys.ysm.util.RenderUtil;
@@ -30,6 +31,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,17 +42,21 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     private final AnimationProcessor<TEntity> animationProcessor;
     private final RateLimiter rateLimiter;
     private final EntityStateTracker<TEntity> stateTracker;
+    private final Map<RenderContext, GeoRenderData> renderDataPool = new HashMap<>();
     protected final PhysicsManager physicsManager;
 
     protected final TEntity entity;
-    private GeoModelState currentModel;
+    private AnimatedGeoModel currentModel;
     private Object2ReferenceMap<String, List<IValue>> eventHandlers;
+    private GeoRenderData mainRenderData;
 
     // 这两个变量不跟随动画一起更新，所以不能放进 stateTracker
     protected float lastFrameTime = -1;
     protected boolean lastMutableRender;
     protected boolean currentFrameTicked;
     protected boolean currentFrameShouldTick;
+
+    private boolean currentFrameExtracted = false;
 
     protected boolean lastFrameRendered = true;
     protected boolean currentFrameRendered = false;
@@ -73,6 +79,15 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     protected void resetGeoModel() {
+        if (mainRenderData != null) {
+            mainRenderData.modelState.close();
+            mainRenderData = null;
+        }
+        for (var data : renderDataPool.values()) {
+            data.modelState.close();
+        }
+        renderDataPool.clear();
+
         currentModel = null;
         eventHandlers = null;
         animationProcessor.clearModel();
@@ -86,6 +101,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         currentFrameShouldTick = false;
         lastFrameRendered = true;
         currentFrameRendered = false;
+        currentFrameExtracted = false;
         lastFrameUpdated = false;
         seekTime = 0;
         codedAnimationStates.clear();
@@ -137,17 +153,13 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return this.eventHandlers.get(name);
     }
 
-    public PhysicsManager getPhysicsManager() {
+    public PhysicsManager getPhysicsManager(AnimationEvent<?> event) {
         return physicsManager;
     }
 
     @Nullable
     public AnimationControllerData getAnimationControllerData(String animationControllerName) {
         return null;
-    }
-
-    public int getTextureIndex() {
-        return 0;
     }
 
     protected float getSwingMotionAniMathHelperreshold() {
@@ -177,7 +189,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
     }
 
     @Nullable
-    public IBone getBone(int boneName) {
+    public BoneView getBone(int boneName) {
         return animationProcessor.getBone(boneName);
     }
 
@@ -209,15 +221,58 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         return ClientTickEvent.getRefreshRate();
     }
 
-    public final @Nullable AnimationEvent<?> updateAnimation(float partialTicks) {
-        return updateAnimation(partialTicks, RenderUtil.isRenderingLevelExclusive());
+    public @Nullable GeoRenderData update(float partialTicks) {
+        return update(partialTicks, resolveRenderContext(RenderUtil.extractRenderContext()));
     }
 
     @Nullable
-    public AnimationEvent<?> updateAnimation(float partialTicks, boolean renderingInLevelExclusive) {
+    protected GeoRenderData update(float partialTicks, RenderContext context) {
         if (this.currentModel == null) {
             return null;
         }
+        var event = createAnimationEvent(partialTicks, context);
+        tickAnimation(event);
+
+        var renderData = getRenderData(context);
+        if (!context.immutable() || !currentFrameExtracted) {
+            if (context.immutable()) {
+                currentFrameExtracted = true;
+            }
+            extractRenderData(event, renderData);
+        }
+        return renderData;
+    }
+
+    protected GeoRenderData createRenderData() {
+        return new GeoRenderData();
+    }
+
+    protected void extractRenderData(AnimationEvent<?> event, GeoRenderData data) {
+        data.modelState.extract(currentModel);
+        data.ctx = event.getRenderContext();
+        data.texture = getTextureLocation();
+        data.widthScale = getWidthScale();
+        data.heightScale = getHeightScale();
+        data.partialTicks = event.getRequestedPartialTick();
+        data.animationData = event.getExtraData();
+    }
+
+    private GeoRenderData getRenderData(RenderContext context) {
+        GeoRenderData renderData;
+        if (context.immutable()) {
+            if (mainRenderData == null) {
+                renderData = createRenderData();
+                mainRenderData = renderData;
+            } else {
+                renderData = mainRenderData;
+            }
+        } else {
+            renderData = renderDataPool.computeIfAbsent(context, c -> createRenderData());
+        }
+        return renderData;
+    }
+
+    private AnimationEvent<AnimatableEntity<TEntity>> createAnimationEvent(float partialTicks, RenderContext context) {
         final Entity entity = this.entity;
         final LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
         int entityTickCount = this instanceof IPreviewEntity ? ClientTickEvent.getTickCount() : entity.tickCount;
@@ -267,22 +322,21 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
         entityModelData.netHeadYaw = -Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
         entityModelData.lerpBodyRot = lerpBodyRot;
         entityModelData.lerpedAge = entityTickCount + partialTicks;
+        entityModelData.limbSwing = limbSwing;
+        entityModelData.limbSwingAmount = limbSwingAmount;
+        entityModelData.isMoving =  (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold());
 
-        AnimationEvent<AnimatableEntity<TEntity>> event = new AnimationEvent<>(this,
-                limbSwing, limbSwingAmount,
+        return new AnimationEvent<>(this,
                 entityTickCount, partialTicks, realPartialTicks,
-                (limbSwingAmount <= -getSwingMotionAniMathHelperreshold() || limbSwingAmount <= getSwingMotionAniMathHelperreshold()),
-                renderingInLevelExclusive,
-                entityModelData);
-        MolangContext<?> ctx = new MolangContext<>(entity, this, event, entityModelData);
-        ctx.setDebugSource(getDebugSource());
-        this.tickAnimation(ctx, event);
-        return event;
+                context,
+                entityModelData,
+                getDebugSource());
     }
 
-    protected void tickAnimation(MolangContext<?> ctx, @NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
+    protected void tickAnimation(@NotNull AnimationEvent<AnimatableEntity<TEntity>> animationEvent) {
         var frameTime = animationEvent.renderTicks;
-        var mutableRender = !isImmutableRender(animationEvent);
+        var ctx = animationEvent.getRenderContext();
+        var mutableRender = !ctx.immutable();
 
         if (frameTime > lastFrameTime) {
             currentFrameTicked = false;
@@ -290,6 +344,7 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
             lastFrameTime = frameTime;
             rateLimiter.setLimit(getFrameRateLimit());
             lastFrameRendered = currentFrameRendered;
+            currentFrameExtracted = false;
             currentFrameRendered = false;
         } else {
             // 目前不允许倒退，可能会影响 replay 的回放
@@ -318,9 +373,9 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
                     currentFrameTicked = true;
                     stateTracker.update(animationEvent.getEntityTickCount(), this.seekTime, animationEvent.getPartialTick());
                 }
-                getPhysicsManager().update(this.seekTime);
+                getPhysicsManager(animationEvent).update(this.seekTime);
                 preAnimationSetup(this.seekTime, shouldTick);
-                getAnimationProcessor().tickAnimation(animationEvent, ctx, shouldTick, allowEmitting());
+                getAnimationProcessor().tickAnimation(animationEvent, shouldTick, allowEmitting());
                 postAnimationSetup(this.seekTime, shouldTick);
                 lastMutableRender = mutableRender;
             }
@@ -346,16 +401,22 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      */
     protected void loadGeoModel(@NotNull GeoModel model, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
         resetGeoModel();
-        this.currentModel = new GeoModelState(model);
+        this.currentModel = new AnimatedGeoModel(model);
         this.eventHandlers = eventHandlers;
         onSetupAnimationController();
         this.animationProcessor.loadModel(currentModel, eventHandlers);
         onLoadGeoModel(this.currentModel);
     }
 
+    protected final void setGeoModelInplace(@NotNull GeoModel model) {
+        if (currentModel != null && currentModel.getModel() != model) {
+            currentModel.setModelInplace(model);
+        }
+    }
+
     public void reloadGeoModel() {
         if (this.currentModel != null) {
-            var model = this.currentModel.model();
+            var model = this.currentModel.getModel();
             var eventHandlers = this.eventHandlers;
             resetGeoModel();
             loadGeoModel(model, eventHandlers);
@@ -366,21 +427,28 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
      * 获取当前正在使用的模型
      */
     @Nullable
-    public final GeoModelState getLoadedGeoModel() {
+    public final AnimatedGeoModel getLoadedGeoModel() {
         return currentModel;
     }
 
     /**
      * 更新当前使用的模型后调用
      */
-    protected void onLoadGeoModel(GeoModelState model) {
+    protected void onLoadGeoModel(AnimatedGeoModel model) {
     }
 
     /**
      * 渲染期间是否会保持实体属性不变
      */
-    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
-        return true;
+    protected final RenderContext resolveRenderContext(RenderContext context) {
+        return context.withImmutable(determineImmutableContext(context));
+    }
+
+    protected boolean determineImmutableContext(RenderContext context) {
+        if (context.inventory() || context.firstPersonMod() || context.paperDoll()) {
+            return false;
+        }
+        return context.level() || context.irisShadow() || context.offScreen();
     }
 
     public void countRender() {

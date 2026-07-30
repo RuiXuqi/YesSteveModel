@@ -10,12 +10,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class ModelIdUtil {
-    public static final String DEFAULT_MODEL_ID = "default";
-    public static final String DEFAULT_TEXTURE_NAME = "default";
     private static final Set<String> KNOWN_EXT = Sets.newHashSet(
             ".zip",
             ".7z",
-            ".ysm"
+            ".ysm",
+            ".mxc"
     );
 
     public static int getModelHashShort(String modelHash) {

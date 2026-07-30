@@ -25,7 +25,6 @@ public class AnimationParallelTicker {
         if (localPlayer == null) {
             return;
         }
-
         final var iterator = ANIMATABLE_LIST.iterator();
         while (iterator.hasNext()) {
             final CustomEntity<?> animatable = iterator.next().get();
@@ -37,6 +36,7 @@ public class AnimationParallelTicker {
                 // 原版 mc 不会 revive 客户端实体，此处假设其它模组也不会；
                 // 如果出现玩家动画不更新的 bug，优先排查这里。
                 iterator.remove();
+                animatable.reset();
                 continue;
             }
 

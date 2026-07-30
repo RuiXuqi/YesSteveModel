@@ -69,6 +69,10 @@ public class LocalRoamingStruct implements Struct {
         return ret;
     }
 
+    public Int2FloatOpenHashMap snapshotValues() {
+        return new Int2FloatOpenHashMap(values);
+    }
+
     public void visitNames(Consumer<String> nameVisitor) {
         for (var name : names) {
             var nameStr = StringPool.getString(name);

@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class FlatColorButton extends Button {
+    private static final int TOOLTIP_Z = 4000;
+
     private boolean isSelect = false;
     private List<Component> tooltips;
 
@@ -30,7 +32,13 @@ public class FlatColorButton extends Button {
 
     public void renderToolTip(GuiGraphics graphics, Screen screen, int pMouseX, int pMouseY) {
         if (this.isHovered && tooltips != null) {
-            graphics.renderComponentTooltip(screen.getMinecraft().font, tooltips, pMouseX, pMouseY);
+            graphics.pose().pushPose();
+            try {
+                graphics.pose().translate(0, 0, TOOLTIP_Z);
+                graphics.renderComponentTooltip(screen.getMinecraft().font, tooltips, pMouseX, pMouseY);
+            } finally {
+                graphics.pose().popPose();
+            }
         }
     }
 

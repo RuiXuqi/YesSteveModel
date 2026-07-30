@@ -1,11 +1,30 @@
 package com.elfmcys.ysm.geckolib3.core.keyframe.bone;
 
+import com.google.gson.JsonElement;
+
 import java.util.List;
 
-// Native Access：所有字段都有读取
 public interface EasingType {
     EasingType LINEAR = EasingType::buildLinearKeyFrame;
     EasingType CATMULLROM = EasingType::buildCatmullRomKeyFrame;
+
+    static EasingType fromJson(JsonElement json) {
+        if (json == null || json.isJsonNull() || !json.isJsonPrimitive()) {
+            return LINEAR;
+        }
+        var primitive = json.getAsJsonPrimitive();
+        if (!primitive.isString()) {
+            return LINEAR;
+        }
+        var value = primitive.getAsString();
+        if ("linear".equalsIgnoreCase(value)) {
+            return LINEAR;
+        }
+        if ("catmullrom".equalsIgnoreCase(value)) {
+            return CATMULLROM;
+        }
+        return LINEAR;
+    }
 
     BoneKeyFrame buildKeyFrame(List<RawBoneKeyFrame> keyFrames, int index);
 

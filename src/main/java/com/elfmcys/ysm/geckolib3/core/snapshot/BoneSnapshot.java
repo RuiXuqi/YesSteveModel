@@ -5,7 +5,7 @@
 
 package com.elfmcys.ysm.geckolib3.core.snapshot;
 
-import com.elfmcys.ysm.geckolib3.core.processor.IBone;
+import com.elfmcys.ysm.geckolib3.core.processor.BoneView;
 import org.joml.Vector3f;
 
 public class BoneSnapshot {
@@ -18,19 +18,19 @@ public class BoneSnapshot {
     public boolean hidden;
     public boolean childrenHidden;
 
-    public BoneSnapshot(IBone bone) {
+    public BoneSnapshot(BoneView bone) {
         copyFrom(bone);
         this.name = bone.getPooledName();
     }
 
-    public void copyFrom(IBone bone) {
-        var initRot = bone.getInitialRotation();
-
+    public void copyFrom(BoneView bone) {
         position.set(bone.getPositionX(), bone.getPositionY(), bone.getPositionZ());
-        rotation.set(bone.getRotationX() - initRot.x, bone.getRotationY() - initRot.y, bone.getRotationZ() - initRot.z);
+        rotation.set(bone.getRotationX() - bone.getInitialRotationX(),
+                bone.getRotationY() - bone.getInitialRotationY(),
+                bone.getRotationZ() - bone.getInitialRotationZ());
         scale.set(bone.getScaleX(), bone.getScaleY(), bone.getScaleZ());
 
-        hidden = bone.isHidden();
+        hidden = bone.areChildrenHidden();  // TODO
         childrenHidden = bone.areChildrenHidden();
     }
 

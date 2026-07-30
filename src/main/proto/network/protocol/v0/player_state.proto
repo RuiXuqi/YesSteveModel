@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package ysm.network.protocol.v0;
+
+import "network/protocol/v0/common.proto";
+
+option java_outer_classname = "PlayerStateV0";
+
+message PlayerStateReport {
+  uint64 sequence = 1;
+  EntityRef subject = 2;
+  StateWriteMode mode = 3;
+  optional GameplayState gameplay = 4;
+  optional EffectStateSet effects = 5;
+  optional AnimationState animation = 6;
+  optional RoamingState roaming = 7;
+}
+
+message PlayerStateUpdate {
+  EntityRef subject = 1;
+  uint64 revision = 2;
+  StateWriteMode mode = 3;
+  optional ModelSelectionState model = 4;
+  optional GameplayState gameplay = 5;
+  optional EffectStateSet effects = 6;
+  optional AnimationState animation = 7;
+  optional RoamingState roaming = 8;
+}
+
+message GameplayState {
+  optional bool flying = 1;
+  optional uint32 experience_level = 2;
+  optional uint32 food_level = 3;
+  optional uint32 health = 4;
+  optional uint32 max_health = 5;
+  optional sint32 move_x_q7 = 6;
+  optional sint32 move_y_q7 = 7;
+  optional sint32 move_z_q7 = 8;
+  optional bool shield_cooldown = 9;
+}
+
+message EffectStateSet {
+  repeated EffectState effects = 1;
+}
+
+message EffectState {
+  string effect_id = 1;
+  uint32 level = 2;
+}
+
+message AnimationState {
+  oneof state {
+    bool stopped = 1;
+    string animation_id = 2;
+  }
+}
+
+message RoamingState {
+  fixed32 model_key = 1;
+  repeated MolangVariable variables = 2;
+}
+
+message ModelSelectionState {
+  ModelReference model = 1;
+  string texture_id = 2;
+  bool disabled = 3;
+}

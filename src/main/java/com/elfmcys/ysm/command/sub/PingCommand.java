@@ -2,7 +2,7 @@ package com.elfmcys.ysm.command.sub;
 
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.ServerInfo;
+import com.elfmcys.ysm.network.forge.HandshakeHandler;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -24,7 +24,7 @@ public class PingCommand {
         var player = ctx.getSource().getPlayerOrException();
         player.sendSystemMessage(Component.translatable("message.yes_steve_model.client.ping_result", ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString()));
         if (!NetworkHandler.isPlayerChannelPresent(player)) {
-            NetworkHandler.sendToClientPlayer(new ServerInfo(), player);
+            HandshakeHandler.sendServerHello(player);
         }
         return Command.SINGLE_SUCCESS;
     }

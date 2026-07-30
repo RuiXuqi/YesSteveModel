@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.common;
+
+message Image {
+  uint32 blob_id = 1;
+  string format = 2;
+  uint32 width = 3;
+  uint32 height = 4;
+  uint32 frame_count = 5;
+}

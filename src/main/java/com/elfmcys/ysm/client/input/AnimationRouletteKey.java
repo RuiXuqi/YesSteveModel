@@ -49,7 +49,7 @@ public class AnimationRouletteKey {
             } else if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     String modelId = cap.getModelId();
-                    var model = cap.getModelContainer();
+                    var model = cap.getModelRenderTarget();
                     if (model != null && !model.info().properties().extraAnimationOrderMap().isEmpty()) {
                         if (Minecraft.getInstance().screen == null) {
                             Minecraft.getInstance().setScreen(new AnimationRouletteScreen(modelId, model, cap));

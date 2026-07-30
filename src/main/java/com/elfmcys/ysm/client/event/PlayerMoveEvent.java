@@ -3,7 +3,7 @@ package com.elfmcys.ysm.client.event;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.SetPlayAnimation;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
@@ -50,7 +50,7 @@ public class PlayerMoveEvent {
                 if (cap.isPlayingExtraAnimation()) {
                     cap.stopExtraAnimation();
                     if (NetworkHandler.isRemoteChannelPresent()) {
-                        NetworkHandler.sendToServer(SetPlayAnimation.stop());
+                        ClientProtocolGateway.stopSelfAnimation();
                     }
                 }
             });

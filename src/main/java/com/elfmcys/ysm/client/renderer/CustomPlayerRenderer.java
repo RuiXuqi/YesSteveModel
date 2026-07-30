@@ -123,7 +123,7 @@ public class CustomPlayerRenderer extends GeoReplacedEntityRenderer<Player, Cust
     }
 
     @Override
-    protected void setupRotations(Player player, PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
+    protected void setupRotations(Player player, @NotNull PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
         super.setupRotations(player, poseStack, pAgeInTicks, pRotationYaw, pPartialTicks);
         // 如果是坐在女仆的实体上，则需要偏移回去（哎，屎山代码+1006）
         Entity vehicle = player.getVehicle();

@@ -3,8 +3,6 @@ package com.elfmcys.ysm.geckolib3.core.controller.transition;
 public class LinearBlendTransition implements IBlendTransition {
     private final float ticks;
 
-    // Native Access
-    @SuppressWarnings("unused")
     public LinearBlendTransition(float length) {
         this.ticks = length * 20;
     }

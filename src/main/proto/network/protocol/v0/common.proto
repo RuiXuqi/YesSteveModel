@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package ysm.network.protocol.v0;
+
+option java_outer_classname = "CommonV0";
+
+message EntityRef {
+  uint32 entity_id = 1;
+  optional bytes player_id = 2;
+}
+
+message MolangVariable {
+  string name = 1;
+  float value = 2;
+}
+
+enum StateWriteMode {
+  STATE_WRITE_MODE_UNSPECIFIED = 0;
+  STATE_WRITE_MODE_FULL = 1;
+  STATE_WRITE_MODE_DELTA = 2;
+}
+message ModelReference {
+  oneof value {
+    bytes model_hash = 1;
+    bool builtin_default = 2;
+  }
+}

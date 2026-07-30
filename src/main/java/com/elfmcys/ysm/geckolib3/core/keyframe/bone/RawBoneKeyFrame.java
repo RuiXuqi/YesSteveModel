@@ -4,33 +4,30 @@ import com.elfmcys.ysm.geckolib3.core.molang.value.FloatValue;
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
 import com.elfmcys.ysm.geckolib3.core.molang.value.RotationValue;
 
-// 该类为了缓解 jni 的性能问题，有很多奇怪的设计，但不影响正常运作，也不要尝试“优化”
-// Native Access：所有字段都有写入，不要尝试添加 final
 @SuppressWarnings("FieldMayBeFinal,unused")
 public class RawBoneKeyFrame {
-    private double startTick;
-    private EasingType easingType;
+    public double startTick;
+    public EasingType easingType;
 
-    private double preX;
-    private IValue preXValue;
-    private double preY;
-    private IValue preYValue;
-    private double preZ;
-    private IValue preZValue;
+    public double preX;
+    public IValue preXValue;
+    public double preY;
+    public IValue preYValue;
+    public double preZ;
+    public IValue preZValue;
 
-    private double postX;
-    private IValue postXValue;
-    private double postY;
-    private IValue postYValue;
-    private double postZ;
-    private IValue postZValue;
+    public double postX;
+    public IValue postXValue;
+    public double postY;
+    public IValue postYValue;
+    public double postZ;
+    public IValue postZValue;
 
-    private boolean contiguous;
+    public boolean contiguous;
 
-    private Vector3v preValue;
-    private Vector3v postValue;
+    public Vector3v preValue;
+    public Vector3v postValue;
 
-    // 该构造函数只是个占位符，实际上不会调用
     public RawBoneKeyFrame() {
     }
 

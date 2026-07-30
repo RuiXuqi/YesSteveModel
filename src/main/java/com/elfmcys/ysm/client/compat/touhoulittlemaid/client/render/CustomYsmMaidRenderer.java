@@ -3,9 +3,8 @@ package com.elfmcys.ysm.client.compat.touhoulittlemaid.client.render;
 import com.elfmcys.ysm.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.capability.YsmMaidCapabilityProvider;
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.client.CustomYsmMaidEntity;
-import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
 import com.elfmcys.ysm.geckolib3.geo.GeoReplacedEntityRenderer;
-import com.elfmcys.ysm.geckolib3.model.provider.data.EntityModelData;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.GeoLayerRenderer;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntity;
@@ -65,15 +64,20 @@ public class CustomYsmMaidRenderer extends GeoReplacedEntityRenderer<EntityMaid,
     }
 
     @Override
-    protected void renderLayer(CustomYsmMaidEntity animatableEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AnimationEvent<?> event, EntityModelData data) {
+    protected void renderLayer(PoseStack poseStack, MultiBufferSource buffer, CustomYsmMaidEntity animatable, GeoRenderData renderData, int packedLight, int overlay) {
         for (GeoLayerRenderer<EntityMaid, CustomYsmMaidRenderer> maidLayer : maidLayers) {
-            maidLayer.render(poseStack, bufferSource, packedLight, animatableEntity.getEntity(), event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
-                    data.lerpedAge, data.netHeadYaw, data.headPitch);
+            maidLayer.render(poseStack, buffer, packedLight, animatable.getEntity(),
+                    renderData.animationData.limbSwing,
+                    renderData.animationData.limbSwingAmount,
+                    renderData.partialTicks,
+                    renderData.animationData.lerpedAge,
+                    renderData.animationData.netHeadYaw,
+                    renderData.animationData.headPitch);
         }
     }
 
     @Override
-    protected void setupRotations(EntityMaid maid, PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
+    protected void setupRotations(EntityMaid maid, @NotNull PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
         super.setupRotations(maid, poseStack, pAgeInTicks, pRotationYaw, pPartialTicks);
         // 如果女仆待命状态，需要下移三格
         if (maid.isMaidInSittingPose()) {

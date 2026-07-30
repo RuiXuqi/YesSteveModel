@@ -2,7 +2,15 @@ package com.elfmcys.ysm.client.event;
 
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.client.animation.AnimationRegister;
-import com.elfmcys.ysm.client.compat.*;
+import com.elfmcys.ysm.client.compat.ARCompat;
+import com.elfmcys.ysm.client.compat.CosmeticArmorCompat;
+import com.elfmcys.ysm.client.compat.ElytraSlotCompat;
+import com.elfmcys.ysm.client.compat.FirstPersonCompat;
+import com.elfmcys.ysm.client.compat.ImmersiveAircraftCompat;
+import com.elfmcys.ysm.client.compat.IrisCompat;
+import com.elfmcys.ysm.client.compat.OptifineCompat;
+import com.elfmcys.ysm.client.compat.PlayerAnimatorCompat;
+import com.elfmcys.ysm.client.compat.SimplePlaneCompat;
 import com.elfmcys.ysm.client.compat.backpack.sophisticated.SophisticatedCompat;
 import com.elfmcys.ysm.client.compat.bettercombat.BetterCombatCompat;
 import com.elfmcys.ysm.client.compat.carryon.CarryOnCompat;
@@ -21,8 +29,14 @@ import com.elfmcys.ysm.client.compat.touhoulittlemaid.client.TlmClientCompat;
 import com.elfmcys.ysm.client.gui.overlay.DebugAnimationScreen;
 import com.elfmcys.ysm.client.gui.overlay.ExtraPlayerScreen;
 import com.elfmcys.ysm.client.gui.overlay.LoadingStateScreen;
-import com.elfmcys.ysm.client.input.*;
-import net.minecraft.network.chat.Component;
+import com.elfmcys.ysm.client.input.AnimationRouletteKey;
+import com.elfmcys.ysm.client.input.DebugAnimationKey;
+import com.elfmcys.ysm.client.input.ExtraAnimationKey;
+import com.elfmcys.ysm.client.input.ExtraPlayerConfigKey;
+import com.elfmcys.ysm.client.input.PlayerModelScreenKey;
+import com.elfmcys.ysm.client.model.PlayerLocator;
+import com.elfmcys.ysm.client.model.ClientModelService;
+import com.elfmcys.ysm.config.ClientConfig;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -77,10 +91,15 @@ public class ClientSetupEvent {
 
             checkCompatibility(ParCoolCompat.getCompatibilityWarning());
             checkCompatibility(SophisticatedCompat.getCompatibilityWarning());
-            informIncompatible("epicfight", "Epic Fight");
+            if (ClientConfig.DISABLE_SELF_MODEL.get() &&
+                    ClientConfig.DISABLE_OTHER_MODEL.get() &&
+                    ClientConfig.DISABLE_SELF_HANDS.get()) {
+                informIncompatible("epicfight", "Epic Fight");
+            }
 
-            // 一定要放在最后
-            initCoreClient();
+            // Model render target data is now owned by the Java model service.
+            PlayerLocator.init();
+            ClientModelService.start();
         });
     }
 
@@ -125,12 +144,4 @@ public class ClientSetupEvent {
         event.registerAbove(DEBUG_TEXT.id(), "ysm_loading_state", new LoadingStateScreen());
     }
 
-    private static void initCoreClient() {
-        Component error = (Component) nInitCoreClient();
-        if (error != null) {
-            throw new RuntimeException("YSM Client Initialization Failed: " + error.getString(256));
-        }
-    }
-
-    public static native Object nInitCoreClient();
 }

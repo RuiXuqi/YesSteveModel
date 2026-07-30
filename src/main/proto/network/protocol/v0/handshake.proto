@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package ysm.network.protocol.v0;
+
+option java_outer_classname = "HandshakeV0";
+
+message ClientHello {
+  string protocol_version = 1;
+  reserved 2;
+  repeated uint32 supported_feature_ids = 3;
+  ProtocolLimits receive_limits = 5;
+  string implementation_version = 6;
+  repeated AnimationName available_default_animations = 7;
+}
+
+message ServerHello {
+  string protocol_version = 1;
+  reserved 2;
+  repeated uint32 enabled_feature_ids = 3;
+  ProtocolLimits receive_limits = 5;
+  PlayerStateReportPolicy state_report_policy = 6;
+  EntityRefPolicy entity_ref_policy = 7;
+  string implementation_version = 8;
+  repeated AnimationName required_default_animations = 9;
+}
+
+message AnimationName {
+  string domain = 1;
+  string name = 2;
+}
+
+message PlayerStateReportPolicy {
+  repeated PlayerStateSection requested_sections = 1;
+  uint32 min_delta_interval_ms = 2;
+  uint32 full_snapshot_interval_ms = 3;
+}
+
+enum PlayerStateSection {
+  PLAYER_STATE_SECTION_UNSPECIFIED = 0;
+  PLAYER_STATE_SECTION_GAMEPLAY = 1;
+  PLAYER_STATE_SECTION_EFFECTS = 2;
+  PLAYER_STATE_SECTION_ANIMATION = 3;
+  PLAYER_STATE_SECTION_ROAMING = 4;
+}
+
+message EntityRefPolicy {
+  PlayerIdMode player_id_mode = 1;
+}
+
+enum PlayerIdMode {
+  PLAYER_ID_MODE_UNSPECIFIED = 0;
+  PLAYER_ID_MODE_FORBIDDEN = 1;
+  PLAYER_ID_MODE_ON_MAPPING_CHANGE = 2;
+}
+
+message ProtocolLimits {
+  uint32 max_message_bytes = 1;
+  uint32 max_fragment_bytes = 2;
+  uint32 max_in_flight_transfers = 3;
+  uint64 max_encoded_asset_bytes = 4;
+  uint64 max_decoded_asset_bytes = 5;
+}

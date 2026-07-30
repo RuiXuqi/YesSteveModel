@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.info;
+
+message ModelSettings {
+  float height_scale = 1;
+  float width_scale = 2;
+  bool render_layers_first = 3;
+  bool force_culling = 4;
+  bool gui_no_lighting = 5;
+  bool merge_multiline_expr = 6;
+}

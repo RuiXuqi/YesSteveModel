@@ -29,7 +29,7 @@ public class OffhandPredicate implements IAnimationPredicate<CustomHumanoidEntit
             return PlayState.PAUSE;
         }
 
-        int formatVer = event.getAnimatableEntity().getModelContainer().info().formatVer();
+        int formatVer = event.getAnimatableEntity().getModelRenderTarget().info().formatVer();
 
         ItemStack offhandItem = entity.getItemInHand(InteractionHand.OFF_HAND);
         if (offhandItem.is(Items.CROSSBOW) && CrossbowItem.isCharged(offhandItem)) {

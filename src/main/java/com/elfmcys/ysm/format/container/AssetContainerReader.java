@@ -1,0 +1,211 @@
+package com.elfmcys.ysm.format.container;
+
+import com.elfmcys.ysm.buffer.NativeBuffer;
+import com.elfmcys.ysm.natives.Blake3;
+import com.google.common.io.LittleEndianDataInputStream;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.shorts.Short2ReferenceMaps;
+import it.unimi.dsi.fastutil.shorts.Short2ReferenceOpenHashMap;
+import org.apache.commons.io.input.BoundedInputStream;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.SerializationException;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
+import java.util.Arrays;
+
+/** Parses and validates container metadata. Chunk payload I/O belongs to ChunkDataSource implementations. */
+public final class AssetContainerReader {
+    private AssetContainerReader() {
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    public static AssetContainerView read(SeekableByteChannel file) throws IOException {
+        if (file.size() > AssetContainerConstant.MAX_FILE_SIZE) {
+            throw new IOException("File size too large");
+        }
+
+        var headLen = AssetContainerConstant.HEAD.length;
+        var reader = beginRead(file, 0,
+                headLen + AssetContainerConstant.MAX_SUMMARY_SIZE + 1,
+                4 * 1024);
+        var head = new byte[headLen];
+        reader.readFully(head);
+        if (Arrays.compare(AssetContainerConstant.HEAD, head) != 0) {
+            throw new UnsupportedEncodingException();
+        }
+
+        var headerOffset = headLen + 1;
+        while (reader.readByte() != 0) {
+            headerOffset++;
+        }
+
+        reader = beginRead(file, headerOffset, AssetContainerConstant.HEADER_SIZE,
+                AssetContainerConstant.HEADER_SIZE);
+        var headerSize = reader.readUnsignedShort();
+        if (headerSize < AssetContainerConstant.HEADER_SIZE) {
+            throw new SerializationException("Header size too small");
+        }
+        if (headerSize + headerOffset > file.size()) {
+            throw new SerializationException("Header data overflow");
+        }
+
+        reader = beginRead(file, headerOffset + 2, headerSize - 2, headerSize - 2);
+        var majorVer = reader.readUnsignedByte();
+        if (majorVer != AssetContainerConstant.CURRENT_MAJOR_VER) {
+            throw new UnsupportedEncodingException("Container version of " + majorVer + " is not supported");
+        }
+
+        var minorVer = reader.readUnsignedShort();
+        var patchVer = reader.readUnsignedShort();
+        var qualifierVer = BinaryUtil.readFixedString(reader,
+                AssetContainerConstant.HEADER_QUALIFIER_VERSION_SIZE);
+        if (minorVer != AssetContainerConstant.CURRENT_MINOR_VER
+                || patchVer != AssetContainerConstant.CURRENT_PATCH_VER
+                || !qualifierVer.equals(AssetContainerConstant.CURRENT_QUALIFIER_VER)) {
+            throw new UnsupportedEncodingException("Container version is not supported: "
+                    + majorVer + "." + minorVer + "." + patchVer
+                    + (qualifierVer.isEmpty() ? "" : "-" + qualifierVer));
+        }
+        var schema = BinaryUtil.readFixedString(reader, AssetContainerConstant.HEADER_SCHEMA_SIZE);
+
+        var schemaPropertyCount = reader.readShort();
+        var chunkCount = reader.readShort();
+        var tlvSize = reader.readInt();
+        var chunkTableSize = reader.readInt();
+
+        long tlvOffset = headerOffset + headerSize;
+        long chunkTableOffset = tlvOffset + tlvSize;
+        long chunkDataOffset = chunkTableOffset + chunkTableSize;
+        if (schemaPropertyCount < 0 || chunkCount < 0
+                || tlvSize < 0 || chunkTableSize < 0
+                || tlvOffset > Integer.MAX_VALUE || tlvOffset < 0
+                || chunkTableOffset > Integer.MAX_VALUE || chunkTableOffset < 0
+                || chunkDataOffset > Integer.MAX_VALUE || chunkDataOffset < 0) {
+            throw new SerializationException("Data overflow");
+        }
+
+        reader = beginRead(file, tlvOffset, tlvSize, 64);
+        var schemaProperties = new Short2ReferenceOpenHashMap<String>(schemaPropertyCount);
+        while (schemaPropertyCount-- > 0) {
+            var type = reader.readShort();
+            if (type < 0) {
+                throw new SerializationException("Schema property type must not be negative");
+            }
+            var value = BinaryUtil.readShortString(reader);
+            if (schemaProperties.put(type, value) != null) {
+                throw new SerializationException("Duplicate schema property type: " + type);
+            }
+        }
+        if (reader.read() != -1) {
+            throw new SerializationException("Schema property data size overflow");
+        }
+
+        var chunkTable = new Object2ReferenceOpenHashMap<String, AssetContainerView.ChunkInfo>(chunkCount);
+        var globalAlignmentShift = 0;
+        reader = beginRead(file, chunkTableOffset, chunkTableSize, 512);
+        var currentOffset = chunkDataOffset;
+        while (chunkCount-- > 0) {
+            var type = BinaryUtil.readShortString(reader);
+            var encoding = BinaryUtil.readShortString(reader);
+            var size = reader.readInt();
+            var decodeSize = reader.readInt();
+            var flags = reader.readInt();
+            var alignmentShift = reader.readUnsignedByte();
+            if (alignmentShift > AssetContainerConstant.MAX_CHUNK_ALIGN_SHIFT) {
+                throw new SerializationException("Alignment shift must not be greater than "
+                        + AssetContainerConstant.MAX_CHUNK_ALIGN_SHIFT);
+            }
+            var alignment = 1 << alignmentShift;
+            var hash = new byte[AssetContainerConstant.HASH_SIZE];
+            reader.readFully(hash);
+
+            long alignSize = (alignment - currentOffset % alignment) % alignment;
+            long offset = currentOffset + alignSize;
+            if (size < 0 || offset > Integer.MAX_VALUE) {
+                throw new SerializationException("Chunk data overflow");
+            }
+
+            if (chunkTable.isEmpty()) {
+                if (!type.equals(AssetContainerConstant.VERIFICATION_CHUNK_TYPE)) {
+                    throw new SerializationException("Verification chunk is not the first");
+                }
+                for (var value : hash) {
+                    if (value != 0) {
+                        throw new SerializationException("Illegal verification chunk hash");
+                    }
+                }
+            }
+
+            var info = new AssetContainerView.ChunkInfo(type, encoding, (int) offset, size,
+                    decodeSize, flags, (int) alignSize, alignmentShift, hash);
+            if (chunkTable.put(type, info) != null) {
+                throw new SerializationException("Duplicate chunk type: " + type);
+            }
+            globalAlignmentShift = Math.max(globalAlignmentShift, alignmentShift);
+            currentOffset = Math.addExact(offset, size);
+        }
+        if (reader.read() != -1) {
+            throw new SerializationException("Chunk table size overflow");
+        }
+        if (currentOffset < file.size()) {
+            throw new SerializationException("Illegal trailing data");
+        }
+
+        var verification = chunkTable.get(AssetContainerConstant.VERIFICATION_CHUNK_TYPE);
+        if (verification == null) {
+            throw new SerializationException("Verification chunk not found");
+        }
+        if (verification.alignmentShift() != 0) {
+            throw new SerializationException("Illegal verification chunk alignment");
+        }
+        try (var verificationInput = NativeBuffer.allocate((int) chunkDataOffset)) {
+            readFully(file, 0, verificationInput.nio());
+            var verificationPayload = new byte[verification.size()];
+            readFully(file, verification.offset(), ByteBuffer.wrap(verificationPayload));
+            if (verification.encoding().equals(AssetContainerConstant.HASH_NAME)) {
+                if (!Blake3.validateHash(verificationInput, verificationPayload)) {
+                    throw new SerializationException("Container verification failed");
+                }
+            } else if (verification.encoding().equals(AssetContainerConstant.ED25519_NAME)) {
+                throw new NotImplementedException("Ed25519 signature is not implemented");
+            } else {
+                throw new SerializationException("Unknown verification method");
+            }
+        }
+
+        var preambleSize = Math.addExact(verification.offset(), verification.size());
+        return new AssetContainerView(minorVer, patchVer, qualifierVer, schema,
+                globalAlignmentShift, preambleSize,
+                Short2ReferenceMaps.unmodifiable(schemaProperties),
+                Object2ReferenceMaps.unmodifiable(chunkTable));
+    }
+
+    public static AssetContainerView readPreamble(byte[] containerPreamble) throws IOException {
+        try (var channel = new ByteArraySeekableChannel(containerPreamble)) {
+            return read(channel);
+        }
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private static LittleEndianDataInputStream beginRead(SeekableByteChannel file, long offset,
+                                                          int maxSize, int bufferSize) throws IOException {
+        file.position(offset >= 0 ? offset : file.size() + offset);
+        return new LittleEndianDataInputStream(new BufferedInputStream(
+                new BoundedInputStream(Channels.newInputStream(file), maxSize), bufferSize));
+    }
+
+    private static void readFully(SeekableByteChannel file, long offset, ByteBuffer target) throws IOException {
+        file.position(offset);
+        while (target.hasRemaining()) {
+            if (file.read(target) < 0) {
+                throw new IOException("Unexpected end of container data");
+            }
+        }
+    }
+}

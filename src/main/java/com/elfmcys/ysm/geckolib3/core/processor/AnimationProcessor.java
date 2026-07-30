@@ -12,7 +12,7 @@ import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
 import com.elfmcys.ysm.geckolib3.core.snapshot.BoneTopLevelSnapshot;
 import com.elfmcys.ysm.geckolib3.core.util.MathUtil;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.elfmcys.ysm.molang.runtime.ExpressionEvaluator;
 import com.elfmcys.ysm.molang.runtime.Struct;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMaps;
@@ -55,12 +55,11 @@ public class AnimationProcessor<TEntity extends Entity> {
     }
 
     @SuppressWarnings("unchecked")
-    public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, MolangContext<?> ctx, boolean shouldTick, boolean allowEmitting) {
-        ctx.setMemory(this.molangMemory);
-        ctx.setRandom(this.random);
-        ctx.setGlobalSoundManager(this.globalSoundManager);
+    public void tickAnimation(AnimationEvent<AnimatableEntity<TEntity>> event, boolean shouldTick, boolean allowEmitting) {
+        var molangContext = new MolangContext<>(event.getAnimatableEntity().getEntity(), event,
+                                                molangMemory, random, globalSoundManager);
 
-        ExpressionEvaluator<MolangContext<?>> evaluator = ExpressionEvaluator.evaluator(ctx);
+        ExpressionEvaluator<MolangContext<?>> evaluator = ExpressionEvaluator.evaluator(molangContext);
         var renderTicks = event.renderTicks;
 
         if (renderTicks - lastTrimTime >= 1200) {
@@ -198,13 +197,11 @@ public class AnimationProcessor<TEntity extends Entity> {
             }
         }
 
-        ctx.setControllerContext(null);
-        ctx.setAnimationContext(null);
         postProcess(evaluator);
     }
 
     @Nullable
-    public IBone getBone(int boneName) {
+    public BoneView getBone(int boneName) {
         BoneTopLevelSnapshot bone = modelBonesMap.get(boneName);
         return bone != null ? bone.bone : null;
     }
@@ -219,13 +216,13 @@ public class AnimationProcessor<TEntity extends Entity> {
         this.globalSoundManager.stopAllPlayingSounds();
     }
 
-    public void loadModel(GeoModelState model, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
+    public void loadModel(AnimatedGeoModel model, Object2ReferenceMap<String, List<IValue>> eventHandlers) {
         clearModel();
-        if (!model.boneMap().isEmpty()) {
-            this.modelBones.ensureCapacity(model.boneMap().size());
+        if (!model.getSortedBones().isEmpty()) {
+            this.modelBones.ensureCapacity(model.getSortedBones().size());
             this.modelBones.add(null);
-            var rootName = model.model().sortedBones.get(0).pooledName();
-            Int2ReferenceMaps.fastForEach(model.boneMap(), entry -> {
+            var rootName = model.getSortedBones().get(0).getPooledName();
+            Int2ReferenceMaps.fastForEach(model.getBoneMap(), entry -> {
                 BoneTopLevelSnapshot snapshot = new BoneTopLevelSnapshot(entry.getValue());
                 this.modelBonesMap.put(entry.getValue().getPooledName(), snapshot);
                 if (entry.getIntKey() == rootName) {

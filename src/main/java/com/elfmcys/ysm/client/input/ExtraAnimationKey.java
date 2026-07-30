@@ -5,8 +5,7 @@ import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.client.event.PlayerMoveEvent;
 import com.elfmcys.ysm.client.gui.AnimationRouletteScreen;
 import com.elfmcys.ysm.info.ModelProperties;
-import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.SetPlayAnimation;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import com.elfmcys.ysm.util.InputCheckUtil;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -61,7 +60,7 @@ public class ExtraAnimationKey {
             if (event.getAction() == GLFW.GLFW_PRESS && InputCheckUtil.keyIsMatch(event, key)
                 && player != null && !PlayerMoveEvent.isMoveKey(player)) {
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    var model = cap.getModelContainer();
+                    var model = cap.getModelRenderTarget();
                     int index = EXTRA_ANIMATION_KEYS.indexOf(key);
                     ModelProperties properties = model.info().properties();
                     var animationMap = properties.extraAnimationOrderMap();
@@ -69,7 +68,7 @@ public class ExtraAnimationKey {
                         String keyName = animationMap.getKeyAt(index);
                         if ("#return".equals(keyName)) {
                             // #return 为停止播放轮盘动画
-                            NetworkHandler.sendToServer(SetPlayAnimation.stop());
+                            ClientProtocolGateway.stopSelfAnimation();
                         } else if (keyName.startsWith("#") && properties.extraAnimationClassifyMap().containsKey(keyName.substring(1))) {
                             addRootClassify(keyName.substring(1));
                             AnimationRouletteScreen screen = new AnimationRouletteScreen(
@@ -79,7 +78,7 @@ public class ExtraAnimationKey {
                             );
                             Minecraft.getInstance().setScreen(screen);
                         } else {
-                            NetworkHandler.sendToServer(new SetPlayAnimation(index, ""));
+                            ClientProtocolGateway.playSelfAnimation(keyName);
                         }
                     }
                 });

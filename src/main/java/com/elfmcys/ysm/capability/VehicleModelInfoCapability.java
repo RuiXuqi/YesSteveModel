@@ -1,28 +1,28 @@
 package com.elfmcys.ysm.capability;
 
-import com.elfmcys.ysm.util.ModelIdUtil;
+import com.elfmcys.ysm.model.domain.ModelHash;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 
 public class VehicleModelInfoCapability {
-    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+    private ModelHash modelHash;
     private boolean initialized = false;
     private Object2FloatOpenHashMap<String> molangVarsServerBound = new Object2FloatOpenHashMap<>();
 
-    public void update(String modelId, Object2FloatOpenHashMap<String> molangVarsServerBound) {
-        this.modelId = modelId;
+    public void update(ModelHash modelHash, Object2FloatOpenHashMap<String> molangVarsServerBound) {
+        this.modelHash = modelHash;
         this.initialized = true;
         this.molangVarsServerBound = molangVarsServerBound;
     }
 
     public void copyFrom(VehicleModelInfoCapability source) {
-        this.modelId = source.modelId;
+        this.modelHash = source.modelHash;
         this.initialized = source.initialized;
         this.molangVarsServerBound = source.molangVarsServerBound;
     }
 
-    public String getOwnerModelId() {
-        return modelId;
+    public ModelHash getOwnerModelHash() {
+        return modelHash;
     }
 
     public boolean isInitialized() {
@@ -35,7 +35,7 @@ public class VehicleModelInfoCapability {
 
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("owner_model_id", modelId);
+        tag.putString("owner_model_hash", modelHash == null ? "" : modelHash.toString());
         tag.putBoolean("initialized", initialized);
 
         CompoundTag varsTag = new CompoundTag();
@@ -48,7 +48,12 @@ public class VehicleModelInfoCapability {
     }
 
     public void deserializeNBT(CompoundTag nbt) {
-        this.modelId = nbt.getString("owner_model_id");
+        var stored = nbt.getString("owner_model_hash");
+        try {
+            this.modelHash = stored.isEmpty() ? null : ModelHash.parse(stored);
+        } catch (IllegalArgumentException ignored) {
+            this.modelHash = null;
+        }
         this.initialized = nbt.getBoolean("initialized");
 
         this.molangVarsServerBound.clear();

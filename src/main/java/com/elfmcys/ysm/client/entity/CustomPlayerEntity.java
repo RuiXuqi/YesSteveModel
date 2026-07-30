@@ -1,16 +1,17 @@
 package com.elfmcys.ysm.client.entity;
 
 import com.elfmcys.ysm.client.animation.molang.MolangEventWrapper;
-import com.elfmcys.ysm.client.compat.IrisCompat;
 import com.elfmcys.ysm.client.controller.collections.PlayerControllerCollection;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.geckolib3.core.AnimationState;
-import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
+import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.elfmcys.ysm.molang.runtime.Struct;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.SetPlayAnimation;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -36,13 +37,17 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
 
     @Override
     protected void onSetupAnimationController() {
-        getModelContainer().playerModel().playerControllerFactory().accept(this);
+        getModelRenderTarget().playerResources().playerControllerFactory().accept(this);
     }
 
     @Override
-    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
+    public boolean determineImmutableContext(RenderContext context) {
+        if (!super.determineImmutableContext(context)) {
+            return false;
+        }
         // 例外：local player 渲染 iris 阴影时应恒为第三人称，不能视为 immutable
-        return animEvent.isRenderingInLevelExclusive() || (!localPlayer && IrisCompat.isRenderingShadow());
+        return !context.irisShadow() || !localPlayer
+                || Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON;
     }
 
     @Nullable
@@ -55,14 +60,14 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
     }
 
     @Override
-    protected void onLoadModelContainer(ClientModel newModel) {
-        super.onLoadModelContainer(newModel);
+    protected void onModelRenderTargetLoaded(ModelRenderTarget newModel) {
+        super.onModelRenderTargetLoaded(newModel);
         syncHandler = newModel.assets().eventHandlers().get(MolangEventWrapper.SYNC);
     }
 
     @Override
-    protected void resetModelContainer() {
-        super.resetModelContainer();
+    protected void resetModelRenderTarget() {
+        super.resetModelRenderTarget();
         syncHandler = null;
     }
 
@@ -118,7 +123,7 @@ public abstract class CustomPlayerEntity extends CustomHumanoidEntity<Player> im
             if (isPlayingExtraAnimation() && getCodedAnimationStates(PlayerControllerCollection.CAP_CONTROLLER) == AnimationState.IDLE) {
                 stopExtraAnimation();
                 if (NetworkHandler.isRemoteChannelPresent()) {
-                    NetworkHandler.sendToServer(SetPlayAnimation.stop());
+                    ClientProtocolGateway.stopSelfAnimation();
                 }
             }
         }

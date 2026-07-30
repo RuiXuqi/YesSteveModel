@@ -9,7 +9,7 @@ import com.elfmcys.ysm.client.compat.touhoulittlemaid.client.animation.predicate
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.client.animation.predicate.YsmMaidMainPredicate;
 import com.elfmcys.ysm.client.controller.*;
 import com.elfmcys.ysm.client.model.CommonAsset;
-import com.elfmcys.ysm.client.model.PlayerModel;
+import com.elfmcys.ysm.client.model.PlayerModelResources;
 import com.elfmcys.ysm.geckolib3.core.builder.Animation;
 import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.ysm.geckolib3.core.controller.CodedAnimationController;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 public class MaidControllerCollection {
     private static final String CATEGORY = "player";
     private static final String CATEGORY_MAID = "maid";
-    private static final AnimationControllerCollection<CustomYsmMaidEntity, PlayerModel> COLLECTION = new AnimationControllerCollection<>();
+    private static final AnimationControllerCollection<CustomYsmMaidEntity, PlayerModelResources> COLLECTION = new AnimationControllerCollection<>();
 
     @SuppressWarnings("rawtypes,unchecked,deprecation")
     private static void init() {
@@ -68,51 +68,49 @@ public class MaidControllerCollection {
         maidSingle("statue", MaidStatuePredicate.ANIM_LIST, true, (name, entity) -> new HybridAnimationController(entity, name, 0, new MaidStatuePredicate()));
     }
 
-    public static Consumer<CustomYsmMaidEntity> build(PlayerModel model, CommonAsset assets) {
-        if (COLLECTION.isEmpty()) {
-            init();
-        }
+    public static Consumer<CustomYsmMaidEntity> build(PlayerModelResources model, CommonAsset assets) {
+        COLLECTION.initialize(MaidControllerCollection::init);
         return COLLECTION.build(model, assets);
     }
 
-    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModel> simple(String name, BiFunction<String, CustomYsmMaidEntity, IAnimationController<CustomYsmMaidEntity>> simpleFactory) {
+    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModelResources> simple(String name, BiFunction<String, CustomYsmMaidEntity, IAnimationController<CustomYsmMaidEntity>> simpleFactory) {
         var controllerName = String.format("%s.%s", CATEGORY, name);
         return COLLECTION.add((model, asset) -> (animatable, consumer) -> {
             consumer.accept(simpleFactory.apply(controllerName, animatable));
         });
     }
 
-    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModel> multi(String regex, BiFunction<String, CustomYsmMaidEntity, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModelResources> multi(String regex, BiFunction<String, CustomYsmMaidEntity, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
         return COLLECTION.add(new MultiControllerDiscovery<>(CATEGORY, regex, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModel> maidSingle(String name, String[] animations, boolean hybrid, BiFunction<String, CustomYsmMaidEntity, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModelResources> maidSingle(String name, String[] animations, boolean hybrid, BiFunction<String, CustomYsmMaidEntity, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
         return COLLECTION.add(new SingleControllerDiscovery<>(CATEGORY_MAID, name, animations, hybrid, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModel> parallel(String name, TriFunction<String, CustomYsmMaidEntity, String, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModelResources> parallel(String name, TriFunction<String, CustomYsmMaidEntity, String, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
         return COLLECTION.add(new ParallelControllerDiscovery<>(CATEGORY, name, true, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModel> armor(String name, TriFunction<String, CustomYsmMaidEntity, EquipmentSlot, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomYsmMaidEntity, PlayerModelResources> armor(String name, TriFunction<String, CustomYsmMaidEntity, EquipmentSlot, IAnimationController<CustomYsmMaidEntity>> controllerFunc) {
         return COLLECTION.add(new ArmorControllerDiscovery<>(CATEGORY, name, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static class Adapter implements ResourceAdapter<PlayerModel> {
+    private static class Adapter implements ResourceAdapter<PlayerModelResources> {
         static final Adapter INSTANCE = new Adapter();
 
         @Override
-        public Object2ReferenceMap<String, AnimationControllerData> getControllers(PlayerModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, AnimationControllerData> getControllers(PlayerModelResources model, CommonAsset assets) {
             return model.animationControllers();
         }
 
         @Override
-        public Object2ReferenceMap<String, Animation> getAnimations(PlayerModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, Animation> getAnimations(PlayerModelResources model, CommonAsset assets) {
             return model.animations();
         }
 
         @Override
-        public ConditionArmor getArmorCondition(PlayerModel model, CommonAsset assets) {
+        public ConditionArmor getArmorCondition(PlayerModelResources model, CommonAsset assets) {
             return model.conditionManager().getArmor();
         }
     }

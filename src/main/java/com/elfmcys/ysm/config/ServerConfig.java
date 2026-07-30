@@ -5,23 +5,16 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
 
-// Native Access
 public class ServerConfig {
-    // Native Access: 重载开始时读取
     public static ForgeConfigSpec.IntValue THREAD_COUNT;
-    // Native Access: 同步开始时读取
     public static ForgeConfigSpec.IntValue BANDWIDTH_LIMIT;
-    // Native Access: 同步开始时读取
-    public static ForgeConfigSpec.IntValue CLIENT_SYNC_TIMEOUT;
     public static ForgeConfigSpec.BooleanValue LOW_BANDWIDTH_USAGE;
     public static ForgeConfigSpec.BooleanValue CAN_SWITCH_MODEL;
-    public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_ID;
+    public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_PATH;
     public static ForgeConfigSpec.ConfigValue<String> DEFAULT_MODEL_TEXTURE;
-    // Native Access: 同步开始时读取
-    public static ForgeConfigSpec.IntValue ACCEPT_SOUND_FX;
 
-    // 禁止在玩家客户端 GUI 界面显示的模型 ID
-    public static ForgeConfigSpec.ConfigValue<List<String>> CLIENT_NOT_DISPLAY_MODELS;
+    // 禁止在玩家客户端 GUI 界面显示的模型相对路径
+    public static ForgeConfigSpec.ConfigValue<List<String>> CLIENT_NOT_DISPLAY_MODEL_PATHS;
 
     public static ForgeConfigSpec init() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -30,8 +23,8 @@ public class ServerConfig {
     }
 
     private static void init(ForgeConfigSpec.Builder builder) {
-        builder.comment("The default model ID when a player first enters the game");
-        DEFAULT_MODEL_ID = builder.define("DefaultModelId", "default");
+        builder.comment("The relative path of the default model when a player first enters the game");
+        DEFAULT_MODEL_PATH = builder.define("DefaultModelPath", "default");
 
         builder.comment("The default model texture when a player first enters the game");
         DEFAULT_MODEL_TEXTURE = builder.define("DefaultModelTexture", "default");
@@ -39,9 +32,9 @@ public class ServerConfig {
         builder.comment("Whether or not players are allowed to switch models");
         CAN_SWITCH_MODEL = builder.define("CanSwitchModel", true);
 
-        builder.comment("Models that are not displayed on the client model selection screen");
-        builder.comment("Example: [\"default\", \"misc_3_default_boy\", \"misc_1_alex\", \"misc_2_steve\", \"wine_fox_1_taisho_maid\", \"wine_fox_7_jk\"]");
-        CLIENT_NOT_DISPLAY_MODELS = builder.define("ClientNotDisplayModels", Lists.newArrayList());
+        builder.comment("Relative model paths that are not displayed on the client model selection screen");
+        builder.comment("Example: [\"model.mxc\", \"pack/private/legacy.ysm\"]");
+        CLIENT_NOT_DISPLAY_MODEL_PATHS = builder.define("ClientNotDisplayModelPaths", Lists.newArrayList());
 
         builder.push("server_scheduler");
 
@@ -51,19 +44,9 @@ public class ServerConfig {
         builder.comment("Bandwidth limitation during distributing models to players.(In Mbps)");
         BANDWIDTH_LIMIT = builder.defineInRange("BandwidthLimit", 5, 1, 999);
 
-        builder.comment("Timeout for players to respond to synchronization. Value not greater than 10 means AUTO.(In seconds)");
-        CLIENT_SYNC_TIMEOUT = builder.defineInRange("PlayerSyncTimeout", 0, 0, 120);
-
         builder.comment("Suppress network synchronization of partial features to reduce bandwidth usage");
         builder.comment("Only effective when there are tons of players");
         LOW_BANDWIDTH_USAGE = builder.define("LowBandwidthUsage", false);
-
-        builder.comment("Skip sound effect processing to reduce server bandwidth and client memory usage");
-        builder.comment("0: Accept all sounds (Default)");
-        builder.comment("1: Accept short sounds only (Shorter than 4s and smaller than 40KB)");
-        builder.comment("2: Reject all sounds (Not recommended)");
-        builder.comment("Note: Takes effect after model reloading. Increasing this option does not cause model resynchronization, whereas decreasing it does.");
-        ACCEPT_SOUND_FX = builder.defineInRange("AcceptSoundFX", 0, 0, 2);
 
         builder.pop();
     }

@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.client.gui.overlay;
 
-import com.elfmcys.ysm.client.ClientModelManager;
+import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.config.LoadingStateScreenConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -67,50 +67,17 @@ public class LoadingStateScreen implements IGuiOverlay {
             }
         }
 
-        // 根据当前状态渲染不同的提示
-        var state = ClientModelManager.getSyncState();
-
-        // IDLE 状态单独处理
-        if (state.getType() == ClientModelManager.SyncStateType.IDLE) {
-            int newModelQueueSize = ClientModelManager.getNewModelQueueSize();
-            if (newModelQueueSize > 0) {
-                int loadedModelSize = ClientModelManager.getModels().size();
-                int totalModelSize = loadedModelSize + newModelQueueSize;
-
-                MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title")
-                        .append(Component.translatable("gui.yes_steve_model.sync_hint.loading_models", newModelQueueSize, totalModelSize)
-                                .withStyle(ChatFormatting.YELLOW));
-                this.drawStringAtPosition(gui, guiGraphics, text, x, y, screenWidth);
-
-                float progress = (float) loadedModelSize / totalModelSize;
-                guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
-                guiGraphics.fill(barX, barY, barX + (int) (barWidth * progress), barY + barHeight, 0xFFFFFF00);
-            }
+        var service = ClientModelService.current().orElse(null);
+        if (service == null) {
             return;
         }
-
-        // 其他状态
-        MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title");
-        switch (state.getType()) {
-            case WAITING ->
-                    text.append(Component.translatable("gui.yes_steve_model.sync_hint.waiting").withStyle(ChatFormatting.AQUA));
-            case LOADING ->
-                    text.append(Component.translatable("gui.yes_steve_model.sync_hint.loading").withStyle(ChatFormatting.GOLD));
-            case PREPARING ->
-                    text.append(Component.translatable("gui.yes_steve_model.sync_hint.preparing").withStyle(ChatFormatting.LIGHT_PURPLE));
-            case SYNCING -> {
-                if (state.getReceived() == 0) {
-                    text.append(Component.translatable("gui.yes_steve_model.sync_hint.syncing").withStyle(ChatFormatting.RED));
-                } else {
-                    text.append(Component.literal(String.format("%s/%s", state.getReceived(), state.getTotal())).withStyle(ChatFormatting.GREEN));
-                    float progress = (float) state.getReceived() / state.getTotal();
-                    guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
-                    guiGraphics.fill(barX, barY, barX + (int) (barWidth * progress), barY + barHeight, 0xFF00FF00);
-                }
-            }
+        var loading = service.loadingCount();
+        if (loading > 0) {
+            MutableComponent text = Component.translatable("gui.yes_steve_model.sync_hint.title")
+                    .append(Component.translatable("gui.yes_steve_model.sync_hint.loading_models", loading,
+                            service.catalog().models().size()).withStyle(ChatFormatting.YELLOW));
+            this.drawStringAtPosition(gui, guiGraphics, text, x, y, screenWidth);
         }
-
-        this.drawStringAtPosition(gui, guiGraphics, text, x, y, screenWidth);
     }
 
     private void drawStringAtPosition(ForgeGui gui, GuiGraphics guiGraphics, MutableComponent text, int x, int y, int screenWidth) {

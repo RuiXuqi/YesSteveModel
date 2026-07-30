@@ -2,17 +2,13 @@ package com.elfmcys.ysm.client.compat.backpack.sophisticated;
 
 import com.elfmcys.ysm.client.entity.CustomPlayerEntity;
 import com.elfmcys.ysm.geckolib3.geo.GeoLayerRenderer;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
-import com.elfmcys.ysm.geckolib3.util.RenderUtils;
+import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-
-import static net.p3pp3rf1y.sophisticatedbackpacks.client.render.BackpackLayerRenderer.renderBackpack;
 
 public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntity> {
     private final EntityModel<Player> model;
@@ -38,9 +34,10 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferIn, int packedLightIn, CustomPlayerEntity animatableEntity,
-                       float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        GeoModelState geoModel = animatableEntity.getLoadedGeoModel();
+    public void render(PoseStack poseStack, MultiBufferSource buffer, CustomPlayerEntity animatable, GeoRenderData renderData, int packedLight, int overlay) {
+        // TODO
+        /*
+        AnimatedGeoModel geoModel = animatableEntity.getLoadedGeoModel();
         if (geoModel == null || geoModel.backpackBones().isEmpty()) {
             return;
         }
@@ -56,9 +53,10 @@ public class YsmBackpackLayerRenderer extends GeoLayerRenderer<CustomPlayerEntit
             renderBackpack(this.model, player, poseStack, bufferIn, packedLightIn, backpack, false);
             poseStack.popPose();
         }
+        */
     }
 
-    protected void translateToBackpack(PoseStack poseStack, GeoModelState geoModel) {
-        RenderUtils.prepMatrixForLocator(poseStack, geoModel.backpackBones());
+    protected void translateToBackpack(PoseStack poseStack, AnimatedGeoModel geoModel) {
+        // TODO
     }
 }

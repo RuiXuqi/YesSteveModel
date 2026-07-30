@@ -4,7 +4,7 @@ import com.elfmcys.ysm.client.entity.CustomHumanoidEntity;
 import com.elfmcys.ysm.geckolib3.core.PlayState;
 import com.elfmcys.ysm.geckolib3.core.builder.LoopType;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -46,7 +46,7 @@ public class SWarfareCompat {
         return false;
     }
 
-    public static void renderOffsetHand(ItemStack offhandItem, GeoModelState geoModel, LivingEntity livingEntity, PoseStack poseStack, int packedLight, float partialTicks) {
+    public static void renderOffsetHand(ItemStack offhandItem, AnimatedGeoModel geoModel, LivingEntity livingEntity, PoseStack poseStack, int packedLight, float partialTicks) {
         if (INSTALLED && SWarfareCompatInner.isGun(offhandItem)) {
             poseStack.pushPose();
             SWarfareCompatInner.renderOffhandGun(offhandItem, geoModel, livingEntity, poseStack, packedLight, partialTicks);

@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package ysm.network.protocol.v0;
+
+import "network/protocol/v0/common.proto";
+
+option java_outer_classname = "ControlV0";
+
+message SelectModelRequest {
+  ModelReference model = 1;
+  string texture_id = 2;
+}
+
+message AuthorizedModelsSnapshot {
+  uint64 revision = 1;
+  repeated bytes model_hashes = 2;
+}
+
+message StarredModelsSnapshot {
+  uint64 revision = 1;
+  repeated bytes model_hashes = 2;
+}
+
+message UpdateStarredModelRequest {
+  bytes model_hash = 1;
+  StarredModelOperation operation = 2;
+}
+
+enum StarredModelOperation {
+  STARRED_MODEL_OPERATION_UNSPECIFIED = 0;
+  STARRED_MODEL_OPERATION_ADD = 1;
+  STARRED_MODEL_OPERATION_REMOVE = 2;
+}
+
+message EntityAnimationActionRequest {
+  EntityRef target = 1;
+  oneof action {
+    bool stop = 2;
+    RouletteAnimationSelection play = 3;
+  }
+}
+
+message RouletteAnimationSelection {
+  string classification_id = 1;
+  uint32 animation_index = 2;
+}
+
+message ExecuteMolangEvent {
+  repeated EntityRef targets = 1;
+  string expression = 2;
+}
+
+message SubmitRouletteExpressionRequest {
+  EntityRef target = 1;
+  string expression = 2;
+}
+
+message EmitMolangSync {
+  repeated float arguments = 1;
+}
+
+message MolangSyncEvent {
+  EntityRef subject = 1;
+  repeated float arguments = 2;
+}
+
+message SwingHandRequest {
+  Hand hand = 1;
+}
+
+enum Hand {
+  HAND_UNSPECIFIED = 0;
+  HAND_MAIN = 1;
+  HAND_OFF = 2;
+}

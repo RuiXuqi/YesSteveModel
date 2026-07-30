@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.asset;
+
+import "manifest/asset/texture.proto";
+import "manifest/info/model_settings.proto";
+import "manifest/info/model_stats.proto";
+
+// One independently distributable and loadable render target.
+message RenderTarget {
+  string target_id = 1;
+  RenderTargetKind kind = 2;
+  repeated string match = 3;
+  uint32 blob_id = 4;
+  map<string, PBRTextureSet> textures = 5;
+  info.ModelSettings settings = 6;
+  info.ModelStats stats = 7;
+}
+
+enum RenderTargetKind {
+  RENDER_TARGET_KIND_UNSPECIFIED = 0;
+  RENDER_TARGET_KIND_PLAYER = 1;
+  RENDER_TARGET_KIND_PROJECTILE = 3;
+  RENDER_TARGET_KIND_VEHICLE = 4;
+}

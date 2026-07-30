@@ -17,12 +17,19 @@ out
 # gradle
 build
 .gradle
+/local.properties
+
+# native
+/src/main/resources/META-INF/native/*
 
 # other
 eclipse
 run
 logs
+__pycache__
 
 # Files from Forge MDK
 forge*changelog.txt
-test
+
+# dark past
+hs_err_pid*

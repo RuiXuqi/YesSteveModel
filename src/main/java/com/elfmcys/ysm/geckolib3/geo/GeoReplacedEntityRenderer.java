@@ -3,13 +3,11 @@ package com.elfmcys.ysm.geckolib3.geo;
 import com.elfmcys.ysm.api.ILivingRenderer;
 import com.elfmcys.ysm.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.ysm.client.entity.CustomHumanoidEntity;
-import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.ysm.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.ysm.geckolib3.core.util.Color;
 import com.elfmcys.ysm.geckolib3.util.EModelRenderCycle;
 import com.elfmcys.ysm.geckolib3.util.IRenderCycle;
 import com.elfmcys.ysm.mixin.client.LivingEntityAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -27,7 +25,6 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import java.util.List;
@@ -35,9 +32,6 @@ import java.util.Optional;
 
 public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T extends CustomHumanoidEntity<TEntity>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<T> {
     protected final List<GeoLayerRenderer<T>> layerRenderers = new ObjectArrayList<>();
-    protected Matrix4f dispatchedMat = new Matrix4f();
-    protected Matrix4f renderEarlyMat = new Matrix4f();
-    protected MultiBufferSource rtb = null;
     private IRenderCycle currentModelRenderCycle = EModelRenderCycle.INITIAL;
 
     public GeoReplacedEntityRenderer(EntityRendererProvider.Context context) {
@@ -60,11 +54,8 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
     }
 
     @Override
-    public void renderEarly(T animatable, PoseStack poseStack, float partialTick,
-                            MultiBufferSource bufferSource, VertexConsumer buffer, int packedLight, int packedOverlayIn,
-                            float red, float green, float blue, float alpha) {
-        this.renderEarlyMat = new Matrix4f(poseStack.last().pose());
-        IGeoRenderer.super.renderEarly(animatable, poseStack, partialTick, bufferSource, buffer, packedLight, packedOverlayIn, red, green, blue, alpha);
+    public void renderEarly(GeoRenderData data, T animatable, PoseStack poseStack) {
+        IGeoRenderer.super.renderEarly(data, animatable, poseStack);
     }
 
     public void renderAnimatableEntity(T animatableEntity, float entityYaw, float partialTick,
@@ -76,74 +67,69 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
                                        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Pre<>(animatableEntity.getEntity(), this, partialTick, poseStack, bufferSource, packedLight)))
             return;
-        var event = animatableEntity.updateAnimation(partialTick);
         final TEntity entity = animatableEntity.getEntity();
         var mc = Minecraft.getInstance();
-        if (event != null && mc.player != null) {
-            final EntityModelData data = event.getExtraData();
-            this.dispatchedMat = new Matrix4f(poseStack.last().pose());
-
+        var data = animatableEntity.update(partialTick);
+        if (data != null && mc.player != null) {
             setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
             poseStack.pushPose();
+            try {
 
-            if (entity.getPose() == Pose.SLEEPING) {
-                Direction direction = entity.getBedOrientation();
-                if (direction != null) {
-                    float eyeOffset = entity.getEyeHeight(Pose.STANDING) - 0.1f;
-                    poseStack.translate(-direction.getStepX() * eyeOffset, 0, -direction.getStepZ() * eyeOffset);
-                }
-            }
-
-            setupRotations(entity, poseStack, data.lerpedAge, data.lerpBodyRot, partialTick);
-
-            if (animatableEntity.getEntity().getVehicle() != null) {
-                animatableEntity.getEntity().getVehicle().getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    var rot = cap.getRotation();
-                    if (rot != null) {
-                        poseStack.mulPose(new Quaternionf().rotateZYX(rot.z, 0, rot.x).invert());
+                if (entity.getPose() == Pose.SLEEPING) {
+                    Direction direction = entity.getBedOrientation();
+                    if (direction != null) {
+                        float eyeOffset = entity.getEyeHeight(Pose.STANDING) - 0.1f;
+                        poseStack.translate(-direction.getStepX() * eyeOffset, 0, -direction.getStepZ() * eyeOffset);
                     }
-                });
-            }
+                }
 
-            preRenderCallback(entity, poseStack, partialTick);
-            poseStack.translate(0, 0.01f, 0);
+                setupRotations(entity, poseStack, data.animationData.lerpedAge, data.animationData.lerpBodyRot, partialTick);
 
-            var model = animatableEntity.getLoadedGeoModel();
-            var textureIndex = textureOverride == null ? animatableEntity.getTextureIndex() : 0;
-            var bodyVisible = this.isBodyVisible(entity) && !entity.isInvisibleTo(mc.player);
-            var glowing = mc.shouldEntityAppearGlowing(entity);
-            var renderType = getRenderType(textureOverride == null ? animatableEntity.getTextureLocation() : textureOverride,
-                    bodyVisible, glowing, model.model().isTranslucent(textureIndex));
+                if (animatableEntity.getEntity().getVehicle() != null) {
+                    animatableEntity.getEntity().getVehicle().getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+                        var rot = cap.getRotation();
+                        if (rot != null) {
+                            poseStack.mulPose(new Quaternionf().rotateZYX(rot.z, 0, rot.x).invert());
+                        }
+                    });
+                }
 
-            var renderLayersFirst = animatableEntity.renderLayersFirst();
-            var renderColor = getRenderColor(animatableEntity, partialTick, poseStack, bufferSource, null, packedLight);
+                preRenderCallback(entity, poseStack, partialTick);
+                poseStack.translate(0, 0.01f, 0);
 
-            preRender(model, animatableEntity, partialTick, poseStack, bufferSource, null,
-                    packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
-                    renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
-                    renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-            if (renderLayersFirst && !entity.isSpectator()) {
-                renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
+                var texture = textureOverride == null ? data.texture : textureOverride;
+                var bodyVisible = this.isBodyVisible(entity) && !entity.isInvisibleTo(mc.player);
+                var glowing = mc.shouldEntityAppearGlowing(entity);
+                var renderType = getRenderType(texture,
+                        bodyVisible, glowing, false); // TODO: model.getModelData().isTranslucent()
+
+                var renderLayersFirst = data.renderLayersFirst;
+                var packedOverlay = getPackedOverlay(entity, getOverlayProgress(entity, partialTick));
+
+                preRender(data, animatableEntity, partialTick, poseStack, bufferSource, null,
+                        packedLight, packedOverlay, Color.WHITE);
+                if (renderLayersFirst && !entity.isSpectator()) {
+                    renderLayer(poseStack, bufferSource, animatableEntity, data, packedLight, packedOverlay);
+                }
+                if (renderType != null) {
+                    render(data, animatableEntity, renderType, poseStack, bufferSource, null,
+                            packedLight, packedOverlay, Color.WHITE);
+                }
+                if (!renderLayersFirst && !entity.isSpectator()) {
+                    renderLayer(poseStack, bufferSource, animatableEntity, data, packedLight, packedOverlay);
+                }
+            } finally {
+                poseStack.popPose();
             }
-            if (renderType != null) {
-                render(model, animatableEntity, partialTick, renderType, poseStack, bufferSource, textureIndex, null,
-                        packedLight, getPackedOverlay(entity, getOverlayProgress(entity, partialTick)),
-                        renderColor.getRed() / 255f, renderColor.getGreen() / 255f,
-                        renderColor.getBlue() / 255f, renderColor.getAlpha() / 255f);
-            }
-            if (!renderLayersFirst && !entity.isSpectator()) {
-                renderLayer(animatableEntity, partialTick, poseStack, bufferSource, packedLight, event, data);
-            }
-            poseStack.popPose();
         }
-        ((ILivingRenderer) this).superRender(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+
+        ((ILivingRenderer) this).ysm$renderNameTag(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.RenderLivingEvent.Post<>(entity, this, partialTick, poseStack, bufferSource, packedLight));
     }
 
-    protected void renderLayer(T animatableEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AnimationEvent<?> event, EntityModelData data) {
+    protected void renderLayer(PoseStack poseStack, MultiBufferSource buffer, T animatable, GeoRenderData renderData, int packedLight, int overlay) {
         for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
-            layerRenderer.render(poseStack, bufferSource, packedLight, animatableEntity, event.getLimbSwing(), event.getLimbSwingAmount(), partialTick,
-                    data.lerpedAge, data.rawNetHeadYaw, data.rawHeadPitch);
+            layerRenderer.render(poseStack, buffer, animatable, renderData, packedLight, overlay);
         }
     }
 
@@ -155,7 +141,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
     }
 
     @Override
-    protected void setupRotations(TEntity pEntityLiving, PoseStack pMatrixStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
+    protected void setupRotations(TEntity pEntityLiving, @NotNull PoseStack poseStack, float pAgeInTicks, float pRotationYaw, float pPartialTicks) {
         int deathTime = pEntityLiving.deathTime;
         boolean autoSpineAttach = pEntityLiving.isAutoSpinAttack();
         if (deathTime > 0) {
@@ -177,7 +163,7 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
             }
         }
 
-        super.setupRotations(pEntityLiving, pMatrixStack, pAgeInTicks, pRotationYaw, pPartialTicks);
+        super.setupRotations(pEntityLiving, poseStack, pAgeInTicks, pRotationYaw, pPartialTicks);
 
         if (deathTime > 0) {
             pEntityLiving.deathTime = deathTime;
@@ -198,15 +184,5 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
 
     public final boolean addLayer(GeoLayerRenderer<T> layer) {
         return this.layerRenderers.add(layer);
-    }
-
-    @Override
-    public MultiBufferSource getCurrentRTB() {
-        return this.rtb;
-    }
-
-    @Override
-    public void setCurrentRTB(MultiBufferSource bufferSource) {
-        this.rtb = bufferSource;
     }
 }

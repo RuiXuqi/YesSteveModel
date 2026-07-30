@@ -7,7 +7,6 @@ import net.minecraftforge.fml.ModList;
 
 public class PlayerAnimatorCompat {
     private static final String MOD_ID = "playeranimator";
-    // native access
     private static boolean INSTALLED;
 
     public static void init() {

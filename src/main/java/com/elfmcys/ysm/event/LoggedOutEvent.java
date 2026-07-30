@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.event;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.model.ServerModelManager;
+import com.elfmcys.ysm.model.server.ServerModelService;
 import com.elfmcys.ysm.network.NetworkHandler;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -17,7 +17,7 @@ public class LoggedOutEvent {
         }
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             if (NetworkHandler.isPlayerChannelPresent(serverPlayer)) {
-                ServerModelManager.syncTaskAbort(serverPlayer.getUUID());
+                ServerModelService.current().ifPresent(service -> service.playerDisconnected(serverPlayer.getUUID()));
             }
         }
     }

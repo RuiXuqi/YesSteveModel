@@ -8,7 +8,7 @@ import com.elfmcys.ysm.client.gui.button.*;
 import com.elfmcys.ysm.client.input.AnimationRouletteKey;
 import com.elfmcys.ysm.client.input.ExtraAnimationKey;
 import com.elfmcys.ysm.client.lang.LanguageManager;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.config.ServerConfig;
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
@@ -21,8 +21,7 @@ import com.elfmcys.ysm.info.roulette.forms.RadioForms;
 import com.elfmcys.ysm.info.roulette.forms.RangeForms;
 import com.elfmcys.ysm.molang.parser.ParseException;
 import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.SetPlayAnimation;
-import com.elfmcys.ysm.network.message.SubmitRouletteConfig;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import com.elfmcys.ysm.util.FifoHashMap;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -109,11 +108,11 @@ public class AnimationRouletteScreen extends Screen {
     private final Map<String, FifoHashMap<String, String>> classifyMap;
     private final ModelProperties modelProperties;
     private final AnimatableEntity<?> animatableEntity;
-    private final ClientModel model;
+    private final ModelRenderTarget model;
 
     public AnimationRouletteScreen(Map<String, ExtraAnimationButton> buttonMap,
                                    Map<String, FifoHashMap<String, String>> classifyMap,
-                                   ClientModel clientModel, AnimatableEntity<?> animatableEntity) {
+                                   ModelRenderTarget clientModel, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.model = clientModel;
         this.modelProperties = clientModel.info().properties();
@@ -133,7 +132,7 @@ public class AnimationRouletteScreen extends Screen {
         }
     }
 
-    public AnimationRouletteScreen(String modelId, ClientModel model, AnimatableEntity<?> animatableEntity) {
+    public AnimationRouletteScreen(String modelId, ModelRenderTarget model, AnimatableEntity<?> animatableEntity) {
         super(Component.literal("Animation Roulette GUI"));
         this.model = model;
         this.modelProperties = model.info().properties();
@@ -189,7 +188,9 @@ public class AnimationRouletteScreen extends Screen {
         } else {
             // 否则是停止播放轮盘动画按钮
             this.addRenderableWidget(new FlatColorButton(this.x - 20, this.y - 10, 40, 20, Component.translatable("gui.yes_steve_model.roulette.stop"), b -> {
-                NetworkHandler.sendToServer(SetPlayAnimation.stop(this.animatableEntity.getEntity().getId()));
+                Entity entity = this.animatableEntity.getEntity();
+                if (entity instanceof Player) ClientProtocolGateway.stopSelfAnimation();
+                else ClientProtocolGateway.stopMaidAnimation(entity.getId());
                 this.onClose();
             }));
         }
@@ -317,7 +318,7 @@ public class AnimationRouletteScreen extends Screen {
                 executeMolang(labelValue, null);
                 if (!CustomMolangParser.hasOnlyRoamingAssignment(labelValue) && NetworkHandler.isRemoteChannelPresent() && !ServerConfig.LOW_BANDWIDTH_USAGE.get()) {
                     // 同步到周围的玩家
-                    NetworkHandler.sendToServer(new SubmitRouletteConfig(labelValue, this.animatableEntity.getEntity().getId()));
+                    ClientProtocolGateway.submitRouletteExpression(this.animatableEntity.getEntity(), labelValue);
                 }
                 this.init();
             });
@@ -371,7 +372,7 @@ public class AnimationRouletteScreen extends Screen {
             executeMolang(molang, null);
             if (!CustomMolangParser.hasOnlyRoamingAssignment(molang) && NetworkHandler.isRemoteChannelPresent() && !ServerConfig.LOW_BANDWIDTH_USAGE.get()) {
                 // 同步到周围的玩家
-                NetworkHandler.sendToServer(new SubmitRouletteConfig(molang, this.animatableEntity.getEntity().getId()));
+                ClientProtocolGateway.submitRouletteExpression(this.animatableEntity.getEntity(), molang);
             }
         }) {
             // 给单选框加上背景
@@ -581,9 +582,9 @@ public class AnimationRouletteScreen extends Screen {
             }
             Entity entity = animatableEntity.getEntity();
             if (entity instanceof Player) {
-                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId));
+                ClientProtocolGateway.playSelfAnimation(selectKey);
             } else {
-                NetworkHandler.CHANNEL.sendToServer(new SetPlayAnimation(selectId, classifyId, entity.getId()));
+                ClientProtocolGateway.playMaidAnimation(entity.getId(), selectId, classifyId);
             }
         } else if (player != null) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> cap.playExtraAnimation(selectKey));

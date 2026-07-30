@@ -1,11 +1,10 @@
 package com.elfmcys.ysm.event;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.client.ClientModelManager;
 import com.elfmcys.ysm.client.command.ClientRootCommand;
+import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.command.RootCommand;
-import com.elfmcys.ysm.model.ServerModelManager;
-import com.google.common.collect.Lists;
+import com.elfmcys.ysm.model.server.ServerModelService;
 import com.google.common.collect.Sets;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -29,11 +28,11 @@ import java.util.stream.Collectors;
 public final class CommandRegistry {
     public static final SuggestionProvider<CommandSourceStack> ALL_MODELS = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "models"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider) {
-            if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-                return SharedSuggestionProvider.suggest(ServerModelManager.getModels().keySet().stream().map(CommandRegistry::filterSuggestionStr).toList(), builder);
-            } else {
-                return SharedSuggestionProvider.suggest(ClientModelManager.getModels().keySet().stream().map(CommandRegistry::filterSuggestionStr).toList(), builder);
-            }
+            var paths = ServerModelService.current().flatMap(ServerModelService::snapshot)
+                    .map(snapshot -> snapshot.models().values().stream()
+                            .map(handle -> handle.location().path().value()).distinct()
+                            .map(CommandRegistry::filterSuggestionStr).toList()).orElse(List.of());
+            return SharedSuggestionProvider.suggest(paths, builder);
         } else {
             return Suggestions.empty();
         }
@@ -45,7 +44,7 @@ public final class CommandRegistry {
                 // Fixme: 应该为服务器后台也添加提示功能
                 return Suggestions.empty();
             } else {
-                var main = ClientModelManager.getDefaultModel().playerModel().animations();
+                var main = ClientModelService.instance().defaultRenderTarget().playerResources().animations();
                 Set<String> animations = Sets.newHashSet();
                 animations.addAll(main.keySet().stream().map(CommandRegistry::filterSuggestionStr).toList());
                 animations.add("stop");
@@ -58,25 +57,15 @@ public final class CommandRegistry {
 
     public static final SuggestionProvider<CommandSourceStack> ALL_TEXTURES = SuggestionProviders.register(new ResourceLocation(YesSteveModel.MOD_ID, "textures"), (source, builder) -> {
         if (source.getSource() instanceof SharedSuggestionProvider) {
-            String modelId = source.getArgument("model_id", String.class);
-            if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
-                if (ServerModelManager.getModels().containsKey(modelId)) {
-                    List<String> textures = ServerModelManager.getModels().get(modelId).playerModel().textures().stream()
-                            .map(CommandRegistry::filterSuggestionStr)
-                            .collect(Collectors.toList());
-                    textures.add(0, "-");
-                    return SharedSuggestionProvider.suggest(textures, builder);
-                }
-            } else {
-                if (ClientModelManager.getModels().containsKey(modelId)) {
-                    List<String> textures = ClientModelManager.getModel(modelId)
-                            .map(model -> model.playerModel().textures().keyList().stream()
-                                .map(CommandRegistry::filterSuggestionStr)
-                                .collect(Collectors.toList()))
-                            .orElseGet(Lists::newArrayList);
-                    textures.add(0, "-");
-                    return SharedSuggestionProvider.suggest(textures, builder);
-                }
+            String modelPath = source.getArgument("model_path", String.class);
+            var model = ServerModelService.current().flatMap(ServerModelService::snapshot)
+                    .flatMap(snapshot -> snapshot.findPath(modelPath));
+            if (model.isPresent()) {
+                List<String> textures = model.get().descriptor().view().getPlayer().getTextureNames().stream()
+                        .sorted()
+                        .map(CommandRegistry::filterSuggestionStr).collect(Collectors.toList());
+                textures.add(0, "-");
+                return SharedSuggestionProvider.suggest(textures, builder);
             }
         }
         return Suggestions.empty();

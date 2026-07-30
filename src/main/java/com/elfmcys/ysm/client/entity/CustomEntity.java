@@ -1,25 +1,25 @@
 package com.elfmcys.ysm.client.entity;
 
-import com.elfmcys.ysm.client.ClientModelManager;
 import com.elfmcys.ysm.client.animation.AnimationParallelTicker;
 import com.elfmcys.ysm.client.animation.debug.CustomDebugSource;
 import com.elfmcys.ysm.client.animation.molang.MolangEventWrapper;
 import com.elfmcys.ysm.client.animation.molang.PhysicsManager;
-import com.elfmcys.ysm.client.compat.IrisCompat;
 import com.elfmcys.ysm.client.gui.overlay.DebugAnimationScreen;
-import com.elfmcys.ysm.client.model.ClientModel;
-import com.elfmcys.ysm.client.sound.data.SoundFormat;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
+import com.elfmcys.ysm.client.model.ClientModelService;
+import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.client.sound.data.ModelSoundHolder;
-import com.elfmcys.ysm.client.sound.data.SoundDataManager;
 import com.elfmcys.ysm.client.sound.stream.AudioStreamProvider;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.ysm.geckolib3.core.molang.context.DebugSource;
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
 import com.elfmcys.ysm.geckolib3.core.processor.DebugInfo;
+import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
+import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
-import com.elfmcys.ysm.util.ModelIdUtil;
-import com.elfmcys.ysm.util.RenderUtil;
+import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import com.elfmcys.ysm.util.ThreadTools;
 import com.elfmcys.ysm.util.UnsafeUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -34,9 +34,8 @@ import java.util.concurrent.Future;
  * 自动管理当前 model id 和 model container，并在找不到指定模型时 fallback 到默认模型
  */
 public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T> {
-    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
-    private ClientModel currentModelContainer;
-    private ResourceHolder resourceHolder;
+    private final EntityModelBinding modelBinding = new EntityModelBinding();
+    private ModelRenderTarget currentModelRenderTarget;
     private boolean modelFallback;
     private int lastCheckUpdateTime;
     @Nullable
@@ -47,7 +46,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     private List<IValue> deferHandler;
 
     @Nullable
-    private Future<AnimationEvent<?>> asyncTask;
+    private Future<GeoRenderData> asyncTask;
 
     protected CustomEntity(T entity, boolean asyncUpdate) {
         super(entity);
@@ -57,15 +56,15 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     @Override
-    public PhysicsManager getPhysicsManager() {
-        if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingInPaperDoll()) {
+    public PhysicsManager getPhysicsManager(AnimationEvent<?> event) {
+        var context = event.getRenderContext();
+        if (context.immutable() || context.firstPersonMod() || context.paperDoll()) {
             return physicsManager;
-        } else {
-            if (alterPhysicsManager == null) {
-                alterPhysicsManager = new PhysicsManager();
-            }
-            return alterPhysicsManager;
         }
+        if (alterPhysicsManager == null) {
+            alterPhysicsManager = new PhysicsManager();
+        }
+        return alterPhysicsManager;
     }
 
     @Nullable
@@ -96,60 +95,68 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
 
     public void checkModelUpdate() {
         if (lastCheckUpdateTime < entity.tickCount) {
-            checkModelContainerUpdate();
+            checkModelRenderTargetUpdate();
             lastCheckUpdateTime = entity.tickCount;
         }
     }
 
-    public final ClientModel getModelContainer() {
-        return currentModelContainer;
+    public final ModelRenderTarget getModelRenderTarget() {
+        return currentModelRenderTarget;
     }
 
-    protected final void updateModelId(String modelId) {
-        this.modelId = modelId;
-        checkModelContainerUpdate();
+    protected final void updateModelHash(ModelHash modelHash) {
+        modelBinding.updateModelHash(modelHash);
+        checkModelRenderTargetUpdate();
     }
 
-    private void checkModelContainerUpdate() {
-        ClientModelManager.getModel(modelId).ifPresentOrElse(model -> {
-            if (resourceHolder == null || resourceHolder.fallback || model != resourceHolder.model) {
-                resourceHolder = createResourceHolder(model, false);
-            }
-        }, () -> {
-            var defaultModel = ClientModelManager.getDefaultModel();
-            if (resourceHolder == null || !resourceHolder.fallback || defaultModel != resourceHolder.model) {
-                resourceHolder = createResourceHolder(defaultModel, true);
-            }
-        });
-
+    private void checkModelRenderTargetUpdate() {
+        modelBinding.synchronize(
+                requestedRenderTargetId(), requestedTextureName(), fallbackRenderTargetId(), this::createResourceHolder);
+        var resourceHolder = modelBinding.resourceHolder();
         if (resourceHolder != null) {
-            if ((resourceHolder.model != currentModelContainer || resourceHolder.fallback != modelFallback) && resourceHolder.isLoaded()) {
-                currentModelContainer = resourceHolder.model;
+            if ((resourceHolder.model != currentModelRenderTarget || resourceHolder.fallback != modelFallback) && resourceHolder.isLoaded()) {
+                currentModelRenderTarget = resourceHolder.model;
                 modelFallback = resourceHolder.fallback;
-                onLoadModelContainer(currentModelContainer);
-                loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
+                onModelRenderTargetLoaded(currentModelRenderTarget);
+                loadGeoModel(getYsmGeoModel(), currentModelRenderTarget.assets().eventHandlers());
             }
-        } else if (currentModelContainer != null) {
-            resetModelContainer();
+        } else if (currentModelRenderTarget != null) {
+            resetModelRenderTarget();
         }
     }
 
     @Nullable
-    protected abstract ResourceHolder createResourceHolder(ClientModel model, boolean isFallback);
+    protected abstract ResourceHolder createResourceHolder(ModelRenderTargetLease lease, boolean isFallback);
 
-    protected final ResourceHolder getResourceHolder() {
-        return resourceHolder;
+    protected String requestedTextureName() {
+        return "";
     }
 
-    protected void onLoadModelContainer(ClientModel newModel) {
-        resourceHolder.soundHolder = SoundDataManager.register(newModel);
+    protected String requestedRenderTargetId() {
+        return RenderTargetIds.PLAYER;
+    }
+
+    protected String fallbackRenderTargetId() {
+        return requestedRenderTargetId();
+    }
+
+    protected final ResourceHolder getResourceHolder() {
+        return modelBinding.resourceHolder();
+    }
+
+    protected void onModelRenderTargetLoaded(ModelRenderTarget newModel) {
+        var resourceHolder = modelBinding.resourceHolder();
+        if (resourceHolder == null) {
+            return;
+        }
+        resourceHolder.soundHolder = null;
         deferHandler = newModel.assets().eventHandlers().get(MolangEventWrapper.DEFER);
     }
 
-    protected void resetModelContainer() {
-        currentModelContainer = null;
+    protected void resetModelRenderTarget() {
+        modelBinding.releaseRenderTarget();
+        currentModelRenderTarget = null;
         deferHandler = null;
-        resourceHolder = null;
         modelFallback = false;
         resetGeoModel();
     }
@@ -162,45 +169,38 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     public void reset() {
-        modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+        modelBinding.clearModel();
         initialize = false;
-        resetModelContainer();
+        resetModelRenderTarget();
     }
 
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个
     protected abstract GeoModel getYsmGeoModel();
 
+    public final ModelHash getModelHash() {
+        return modelBinding.modelHash();
+    }
+
+    /** Presentation path for GUI and third-party string APIs; never used as model identity. */
     public final String getModelId() {
-        return modelId;
+        var modelHash = modelBinding.modelHash();
+        return modelHash == null ? "default" : ClientModelService.instance().displayPath(modelHash);
     }
 
     @Override
     public boolean isModelPresent() {
+        var resourceHolder = modelBinding.resourceHolder();
         return resourceHolder != null && !resourceHolder.fallback && resourceHolder.isLoaded();
-    }
-
-    @Override
-    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
-        // 在场景内或 iris 阴影渲染时不会修改实体参数；
-        // FirstPersonMod 会隐藏头部、原版 inventory 会修改身体和头部旋转、纸娃娃可能会基于 molang 应用不同的效果
-        return animEvent.isRenderingInLevelExclusive() || IrisCompat.isRenderingShadow();
     }
 
     @Override
     @Nullable
     public final IValue getUserFunction(String name) {
-        return getModelContainer().assets().userFunctions().get(name);
+        return getModelRenderTarget().assets().userFunctions().get(name);
     }
 
     @Override
     public Optional<AudioStreamProvider> getSoundStream(String name) {
-        if (resourceHolder.soundHolder != null) {
-            var soundData = getModelContainer().assets().sounds().get(name);
-            if (soundData != null && soundData.byteBuffer() != null && soundData.soundFormat() != SoundFormat.UNDEFINED) {
-                var holder = resourceHolder.soundHolder;
-                return Optional.of(() -> holder.openStream(soundData));
-            }
-        }
         return Optional.empty();
     }
 
@@ -214,11 +214,11 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     public void beginAsyncUpdate(final float partialTicks) {
+        waitForAsyncUpdate();
         UnsafeUtil.getUnsafe().storeFence();
         asyncTask = ThreadTools.submit(() -> {
             try {
-                // 异步更新的作用域固定，无须判断
-                return super.updateAnimation(partialTicks, true);
+                return super.update(partialTicks, RenderContext.levelImmutable());
             } finally {
                 UnsafeUtil.getUnsafe().storeFence();
             }
@@ -226,24 +226,33 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     }
 
     @Override
-    public @Nullable AnimationEvent<?> updateAnimation(float partialTicks, boolean renderingInLevelExclusive) {
+    @Nullable
+    protected GeoRenderData update(float partialTicks, RenderContext context) {
         RenderSystem.assertOnRenderThread();
-        if (renderingInLevelExclusive) {
-            if (asyncTask != null) {
-                return waitForAsyncUpdate();
+        var resolvedContext = resolveRenderContext(context);
+        if (resolvedContext.immutable() && asyncTask != null) {
+            var result = awaitAsyncUpdate();
+            if (result != null) {
+                return result;
             }
         }
         waitForAsyncUpdate();
-        return super.updateAnimation(partialTicks, renderingInLevelExclusive);
+        checkModelUpdate();
+        return super.update(partialTicks, resolvedContext);
     }
 
-    public AnimationEvent<?> waitForAsyncUpdate() {
+    public void waitForAsyncUpdate() {
+        awaitAsyncUpdate();
+    }
+
+    private @Nullable GeoRenderData awaitAsyncUpdate() {
         if (asyncTask != null) {
-            AnimationEvent<?> result = null;
+            GeoRenderData result = null;
             try {
                 result = asyncTask.get();
                 UnsafeUtil.getUnsafe().loadFence();
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -257,19 +266,30 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         return true;
     }
 
-    protected static class ResourceHolder {
-        public final ClientModel model;
+    protected static class ResourceHolder implements AutoCloseable {
+        private final ModelRenderTargetLease lease;
+        public final ModelRenderTarget model;
         public final boolean fallback;
         @Nullable
         public ModelSoundHolder soundHolder;
 
-        protected ResourceHolder(ClientModel model, boolean fallback) {
-            this.model = model;
+        protected ResourceHolder(ModelRenderTargetLease lease, boolean fallback) {
+            this.lease = lease;
+            this.model = lease.renderTarget();
             this.fallback = fallback;
         }
 
         public boolean isLoaded() {
             return true;
+        }
+
+        boolean isCurrent() {
+            return lease.isCurrent();
+        }
+
+        @Override
+        public void close() {
+            lease.close();
         }
     }
 }

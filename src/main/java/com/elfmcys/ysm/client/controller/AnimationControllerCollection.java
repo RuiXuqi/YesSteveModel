@@ -5,13 +5,20 @@ import com.elfmcys.ysm.client.model.CommonAsset;
 import com.elfmcys.ysm.geckolib3.core.controller.IAnimationController;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class AnimationControllerCollection<T extends CustomEntity<?>, TModel> {
     private final ReferenceArrayList<ControllerDiscovery<T, TModel>> discoveries = new ReferenceArrayList<>();
+    private boolean initialized;
 
-    public boolean isEmpty() {
-        return discoveries.isEmpty();
+    public synchronized void initialize(Runnable initializer) {
+        Objects.requireNonNull(initializer, "initializer");
+        if (initialized) {
+            return;
+        }
+        initializer.run();
+        initialized = true;
     }
 
     public Consumer<T> build(TModel model, CommonAsset assets) {
@@ -28,6 +35,7 @@ public class AnimationControllerCollection<T extends CustomEntity<?>, TModel> {
     }
 
     public ControllerDiscovery<T, TModel> add(ControllerDiscovery<T, TModel> factory) {
+        Objects.requireNonNull(factory, "factory");
         discoveries.add(factory);
         return factory;
     }

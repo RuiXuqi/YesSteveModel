@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package ysm.network.model;
+
+option java_outer_classname = "ModelAssetsProto";
+
+message ModelAssetManifest {
+  AssetSubject subject = 1;
+  AssetSelector selector = 2;
+  // Present for render-definition responses; excludes ordinary chunk payloads.
+  bytes container_preamble = 3;
+  bytes schema_manifest = 4;
+  repeated ModelChunk chunks = 5;
+}
+
+message AssetSubject {
+  oneof subject {
+    ModelAssetSubject model = 1;
+    PackAssetSubject pack = 2;
+  }
+}
+
+message ModelAssetSubject {
+  bytes model_hash = 1;
+  bytes descriptor_hash = 2;
+}
+
+message PackAssetSubject {
+  string namespace = 1;
+  string hierarchy = 2;
+}
+
+message AssetSelector {
+  oneof selector {
+    ModelPreviewSelector model_preview = 1;
+    RenderTargetSelector render_target = 2;
+    ModelPresentationSelector presentation = 3;
+    PackCoverSelector pack_cover = 4;
+  }
+}
+
+message ModelPreviewSelector {
+}
+
+message RenderTargetSelector {
+  string render_target_id = 1;
+  string texture_name = 2;
+  repeated RenderTargetComponent components = 3;
+}
+
+message ModelPresentationSelector {
+  PresentationAsset asset = 1;
+  uint32 index = 2;
+}
+
+message PackCoverSelector {
+  bytes expected_content_hash = 1;
+}
+
+message ModelChunk {
+  string name = 1;
+  string encoding = 2;
+  uint32 decoded_size = 3;
+  uint32 flags = 4;
+  uint32 alignment_shift = 5;
+  bytes content_hash = 6;
+  uint64 raw_offset = 7;
+  uint32 raw_size = 8;
+}
+
+enum RenderTargetComponent {
+  RENDER_TARGET_COMPONENT_UNSPECIFIED = 0;
+  RENDER_TARGET_COMPONENT_DEFINITION = 1;
+  RENDER_TARGET_COMPONENT_TEXTURE_SET = 2;
+  RENDER_TARGET_COMPONENT_COMMON_BEHAVIOR = 3;
+}
+
+enum PresentationAsset {
+  PRESENTATION_ASSET_UNSPECIFIED = 0;
+  PRESENTATION_ASSET_MODEL_ICON = 1;
+  PRESENTATION_ASSET_AUTHOR_AVATAR = 2;
+  PRESENTATION_ASSET_GUI_FOREGROUND = 3;
+  PRESENTATION_ASSET_GUI_BACKGROUND = 4;
+}

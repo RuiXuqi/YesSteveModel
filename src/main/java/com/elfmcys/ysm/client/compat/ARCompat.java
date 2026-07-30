@@ -4,7 +4,6 @@ import net.minecraftforge.fml.ModList;
 
 public class ARCompat {
     private static final String MOD_ID = "acceleratedrendering";
-    // native access
     private static boolean INSTALLED;
 
     public static void init() {

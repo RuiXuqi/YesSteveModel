@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.info;
+
+message ModelStats {
+  uint32 bones = 1;
+  uint32 cubes = 2;
+  uint32 faces = 3;
+}

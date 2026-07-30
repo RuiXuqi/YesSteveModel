@@ -1,10 +1,17 @@
 package com.elfmcys.ysm.event;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.capability.*;
+import com.elfmcys.ysm.capability.AuthModelsCapability;
+import com.elfmcys.ysm.capability.ModelInfoCapability;
+import com.elfmcys.ysm.capability.PlayerAnimatableCapability;
+import com.elfmcys.ysm.capability.ProjectileAnimatableCapability;
+import com.elfmcys.ysm.capability.ProjectileModelInfoCapability;
+import com.elfmcys.ysm.capability.StarModelsCapability;
+import com.elfmcys.ysm.capability.VehicleAnimatableCapability;
+import com.elfmcys.ysm.capability.VehicleModelInfoCapability;
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.TlmCommonCompat;
+import com.elfmcys.ysm.model.ModelRuntime;
 import com.elfmcys.ysm.network.NetworkHandler;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -22,9 +29,9 @@ public final class CommonEvent {
             return;
         }
         event.enqueueWork(() -> {
+            ModelRuntime.initialize();
             NetworkHandler.init();
             TlmCommonCompat.registerEvent();
-            initCoreCommon();
         });
     }
 
@@ -45,15 +52,4 @@ public final class CommonEvent {
         }
     }
 
-    private static void initCoreCommon() {
-        Component error = (Component) nInitCoreCommon();
-        if (error != null) {
-            throw new RuntimeException("YSM Initialization Failed: " + error.getString(256));
-        }
-        Runtime.getRuntime().addShutdownHook(new Thread(CommonEvent::nShutdown));
-    }
-
-    private static native Object nInitCoreCommon();
-
-    private static native void nShutdown();
 }

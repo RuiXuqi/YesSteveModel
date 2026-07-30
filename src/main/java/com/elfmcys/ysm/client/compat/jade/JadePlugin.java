@@ -29,14 +29,14 @@ public class JadePlugin implements IWailaPlugin {
                 player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     if (cap.isInitializedAndEnabled()) {
                         tooltip.add(Component.translatable("top.yes_steve_model.model_info.id")
-                                .append(cap.getModelContainer().getDisplayName(ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
+                                .append(cap.getModelRenderTarget().getDisplayName(ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
                     }
                 });
             } else {
                 entityAccessor.getEntity().getCapability(VehicleAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                     if (cap.isInitialized() && cap.isModelPresent()) {
                         tooltip.add(Component.translatable("top.yes_steve_model.model_info.id")
-                                .append(cap.getModelContainer().getDisplayName(ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
+                                .append(cap.getModelRenderTarget().getDisplayName(ModelIdUtil.getFileNameFromPath(cap.getModelId()))));
                     }
                 });
             }

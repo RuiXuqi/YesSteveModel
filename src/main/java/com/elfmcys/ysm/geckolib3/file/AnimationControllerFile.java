@@ -6,11 +6,9 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 
 import java.util.Map;
 
-// Native Access
 public class AnimationControllerFile {
     private final Map<String, AnimationControllerData> animationControllers;
 
-    // Native Access
     public AnimationControllerFile(Map<String, AnimationControllerData> animationControllers) {
         this.animationControllers = Object2ReferenceMaps.unmodifiable(new Object2ReferenceOpenHashMap<>(animationControllers));
     }

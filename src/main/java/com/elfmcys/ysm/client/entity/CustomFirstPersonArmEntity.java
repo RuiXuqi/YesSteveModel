@@ -2,14 +2,16 @@ package com.elfmcys.ysm.client.entity;
 
 import com.elfmcys.ysm.capability.PlayerAnimatableCapability;
 import com.elfmcys.ysm.client.animation.condition.FPArmConditionManager;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.geckolib3.core.builder.Animation;
 import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData;
-import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     private final PlayerAnimatableCapability mainModelEntity;
@@ -17,12 +19,12 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     public CustomFirstPersonArmEntity(LocalPlayer player, PlayerAnimatableCapability mainModelEntity) {
         super(player, false);
         this.mainModelEntity = mainModelEntity;
-        updateModelId(mainModelEntity.getModelId());
+        updateModelHash(mainModelEntity.getModelHash());
     }
 
     @Override
     protected void onSetupAnimationController() {
-        getModelContainer().playerModel().fpArmControllerFactory().accept(this);
+        getModelRenderTarget().playerResources().fpArmControllerFactory().accept(this);
     }
 
     public PlayerAnimatableCapability getMainModelEntity() {
@@ -30,25 +32,42 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
     }
 
     @Override
-    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
-        return true;
-    }
-
-    @Override
     public void checkModelUpdate() {
-        if (mainModelEntity.getModelContainer() != getModelContainer()) {
-            updateModelId(mainModelEntity.getModelId());
+        if (!Objects.equals(mainModelEntity.getModelHash(), getModelHash())) {
+            updateModelHash(mainModelEntity.getModelHash());
+            return;
+        }
+        super.checkModelUpdate();
+        var resources = getModelRenderTarget() == null ? null : getModelRenderTarget().playerResources();
+        var variant = resources == null ? null : resources.variants().get(mainModelEntity.getTextureName());
+        if (variant == null && resources != null) {
+            variant = resources.defaultVariant();
+        }
+        var loadedModel = getLoadedGeoModel();
+        if (variant != null && loadedModel != null && loadedModel.getModel() != variant.armModel()) {
+            waitForAsyncUpdate();
+            setGeoModelInplace(variant.armModel());
         }
     }
 
     @Override
-    protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
-        return mainModelEntity.getResourceHolder();
+    protected @Nullable ResourceHolder createResourceHolder(ModelRenderTargetLease lease, boolean isFallback) {
+        return new ResourceHolder(lease, isFallback);
+    }
+
+    @Override
+    protected String requestedTextureName() {
+        return mainModelEntity.getTextureName();
+    }
+
+    @Override
+    protected String requestedRenderTargetId() {
+        return RenderTargetIds.PLAYER;
     }
 
     @Override
     public @Nullable AnimationControllerData getAnimationControllerData(String animationControllerName) {
-        return getModelContainer().playerModel().animationControllers().get(animationControllerName);
+        return getModelRenderTarget().playerResources().animationControllers().get(animationControllerName);
     }
 
     @Override
@@ -58,26 +77,28 @@ public class CustomFirstPersonArmEntity extends CustomEntity<LocalPlayer> {
 
     @Override
     public float getWidthScale() {
-        return getModelContainer().info().properties().widthScale();
+        return getModelRenderTarget().info().properties().widthScale();
     }
 
     @Override
     public float getHeightScale() {
-        return getModelContainer().info().properties().heightScale();
+        return getModelRenderTarget().info().properties().heightScale();
     }
 
     @Override
     public @Nullable Animation getAnimation(String name) {
-        return getModelContainer().playerModel().fpArmAnimations().get(name);
+        return getModelRenderTarget().playerResources().fpArmAnimations().get(name);
     }
 
     public FPArmConditionManager getFPArmConditionManager() {
-        return getModelContainer().playerModel().fpArmConditionManager();
+        return getModelRenderTarget().playerResources().fpArmConditionManager();
     }
 
     @Override
     protected GeoModel getYsmGeoModel() {
-        return getModelContainer().playerModel().armModel();
+        var resources = Objects.requireNonNull(getModelRenderTarget().playerResources());
+        var variant = resources.variants().get(mainModelEntity.getTextureName());
+        return (variant == null ? resources.defaultVariant() : variant).armModel();
     }
 
     @Override

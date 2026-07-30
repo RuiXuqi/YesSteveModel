@@ -18,7 +18,6 @@ import com.elfmcys.ysm.mixin.client.ThrowableItemProjectileAccessor;
 import com.elfmcys.ysm.util.EquipmentUtil;
 import com.elfmcys.ysm.util.LazyValue;
 import com.elfmcys.ysm.util.PersonView;
-import com.elfmcys.ysm.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -94,7 +93,7 @@ public class YSMBinding extends ContextBinding {
         entityVar("input_vertical", MoveInputVariable::getVertical);
         entityVar("input_horizontal", MoveInputVariable::getHorizontal);
         entityVar("person_view", PersonView::getPersonView);
-        entityVar("rendering_in_paperdoll", ctx -> RenderUtil.isRenderingInPaperDoll());
+        entityVar("rendering_in_paperdoll", ctx -> ctx.animationEvent().getRenderContext().paperDoll());
         entityVar("rendering_in_inventory", PersonView::isInInventory);
         entityVar("block_light", ctx -> ctx.level().getBrightness(LightLayer.BLOCK, ctx.entity().blockPosition()));
         entityVar("sky_light", ctx -> ctx.level().getBrightness(LightLayer.SKY, ctx.entity().blockPosition()));

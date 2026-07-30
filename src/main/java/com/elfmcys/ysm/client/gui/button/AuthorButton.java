@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.gui.button;
 
-import com.elfmcys.ysm.client.model.ClientModel;
 import com.elfmcys.ysm.client.lang.LanguageManager;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.info.ModelAuthor;
 import com.google.common.collect.Lists;
 import net.minecraft.ChatFormatting;
@@ -22,14 +22,14 @@ import java.util.List;
 
 public class AuthorButton extends Button {
     private final ModelAuthor author;
-    private final ClientModel model;
-    private final ResourceLocation avatar;
+    private final ModelRenderTarget model;
+    private ResourceLocation avatar;
     private final int index;
     private final List<Component> tooltips;
     private int selectedContactIndex = -1;
     private final Screen parent;
 
-    public AuthorButton(int pX, int pY, ModelAuthor author, ClientModel model, ResourceLocation avatar, int index, Screen parent) {
+    public AuthorButton(int pX, int pY, ModelAuthor author, ModelRenderTarget model, ResourceLocation avatar, int index, Screen parent) {
         super(pX, pY, 70, 130, Component.empty(), b -> {
         }, DEFAULT_NARRATION);
         this.author = author;
@@ -45,6 +45,10 @@ public class AuthorButton extends Button {
 
     public static AuthorButton empty(int pX, int pY, Screen parent) {
         return new AuthorButton(pX, pY, null, null, null, -1, parent);
+    }
+
+    public void setAvatar(ResourceLocation avatar) {
+        this.avatar = avatar;
     }
 
     @Override

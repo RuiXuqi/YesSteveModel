@@ -29,7 +29,7 @@ public class SecondOrderFunction extends EntityFunction {
             response = arguments.getAsFloat(context, 4);
         }
 
-        var manager = context.entity().animatableEntity().getPhysicsManager();
+        var manager = context.entity().animatableEntity().getPhysicsManager(context.entity().animationEvent());
         IPhysics physicsValue = manager.get(key);
         if (physicsValue == null) {
             SecondOrder secondOrder = new SecondOrder(input, frequency, coefficient, response);

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package ysm.network.protocol.v0;
+
+option java_outer_classname = "AssetTransferV0";
+
+import "network/model/model_assets.proto";
+
+message CatalogCursor {
+  bytes epoch = 1;
+  uint64 revision = 2;
+}
+
+message ModelAssetBatchRequest {
+  bytes request_id = 1;
+  CatalogCursor cursor = 2;
+  repeated AssetResourceRequest resources = 3;
+}
+
+message AssetResourceRequest {
+  ysm.network.model.AssetSubject subject = 1;
+  ysm.network.model.AssetSelector selector = 2;
+}
+
+message ModelAssetBatchFailure {
+  bytes request_id = 1;
+  oneof scope {
+    SessionFailure session = 2;
+    ResourceFailure resource = 3;
+  }
+}
+
+message SessionFailure {
+  AssetFailureReason reason = 1;
+}
+
+message ResourceFailure {
+  uint32 resource_index = 1;
+  AssetFailureReason reason = 2;
+}
+
+enum AssetFailureReason {
+  ASSET_FAILURE_REASON_UNSPECIFIED = 0;
+  ASSET_FAILURE_REASON_INVALID_REQUEST = 1;
+  ASSET_FAILURE_REASON_STALE_CATALOG = 2;
+  ASSET_FAILURE_REASON_NOT_FOUND = 3;
+  ASSET_FAILURE_REASON_FORBIDDEN = 4;
+  ASSET_FAILURE_REASON_TOO_LARGE = 5;
+  ASSET_FAILURE_REASON_INTERNAL = 6;
+  ASSET_FAILURE_REASON_CANCELLED = 7;
+}
+
+message CatalogResyncRequest {
+  optional CatalogCursor known_cursor = 1;
+}
+
+message ModelAssetBatchCancel {
+  bytes request_id = 1;
+}
+
+message AssetTransferRelease {
+  bytes transfer_id = 1;
+  bytes request_id = 2;
+  uint32 resource_index = 3;
+}
+
+message AssetFragment {
+  bytes transfer_id = 1;
+  bytes request_id = 2;
+  uint32 resource_index = 3;
+  TransferKind kind = 4;
+  uint64 decoded_size = 5;
+  uint64 transfer_size = 6;
+  uint64 fragment_offset = 7;
+  uint32 fragment_index = 8;
+  uint32 fragment_count = 9;
+  optional ysm.network.model.ModelAssetManifest model_asset_manifest = 10;
+  TransferPayloadEncoding payload_encoding = 11;
+  bytes protobuf_fragment = 12;
+}
+
+enum TransferPayloadEncoding {
+  TRANSFER_PAYLOAD_ENCODING_UNSPECIFIED = 0;
+  TRANSFER_PAYLOAD_ENCODING_PROTOBUF = 1;
+  TRANSFER_PAYLOAD_ENCODING_ZSTD = 2;
+  TRANSFER_PAYLOAD_ENCODING_RAW_ATTACHMENTS = 3;
+}
+
+enum TransferKind {
+  TRANSFER_KIND_UNSPECIFIED = 0;
+  TRANSFER_KIND_CATALOG_FULL = 1;
+  TRANSFER_KIND_CATALOG_DELTA = 2;
+  TRANSFER_KIND_MODEL_ASSET = 3;
+}

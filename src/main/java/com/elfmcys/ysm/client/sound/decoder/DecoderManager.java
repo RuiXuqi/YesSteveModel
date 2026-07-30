@@ -1,6 +1,7 @@
 package com.elfmcys.ysm.client.sound.decoder;
 
 import com.elfmcys.ysm.client.event.ClientTickEvent;
+import com.elfmcys.ysm.natives.sound.OpusDecoder;
 
 import java.util.LinkedList;
 

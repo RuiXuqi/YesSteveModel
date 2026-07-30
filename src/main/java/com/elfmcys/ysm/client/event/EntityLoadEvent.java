@@ -5,6 +5,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
+import com.elfmcys.ysm.network.forge.PlayerStateHandler;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,12 +28,22 @@ public class EntityLoadEvent {
         if (!YesSteveModel.isAvailable()) {
             return;
         }
+        if (event.getEntity() instanceof Player player) {
+            ClientProtocolGateway.observePlayer(player.getId(), player.getUUID());
+        }
         var list = CACHE.getIfPresent(event.getEntity().getId());
         if (list != null) {
             for (var consumer : list) {
                 consumer.accept(event.getEntity());
             }
         }
+        CACHE.invalidate(event.getEntity().getId());
+    }
+
+    @SubscribeEvent
+    public static void onEntityLeaveWorld(final EntityLeaveLevelEvent event) {
+        ClientProtocolGateway.removeEntity(event.getEntity().getId());
+        PlayerStateHandler.removeClientEntity(event.getEntity().getId());
         CACHE.invalidate(event.getEntity().getId());
     }
 

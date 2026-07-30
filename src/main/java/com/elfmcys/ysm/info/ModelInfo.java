@@ -4,7 +4,6 @@ import com.elfmcys.ysm.info.stats.PlayerMainModelStats;
 import com.elfmcys.ysm.util.ModelIdUtil;
 import org.jetbrains.annotations.Nullable;
 
-// Native Access
 public class ModelInfo {
     @Nullable
     private final ModelMetadata metadata;
@@ -17,7 +16,6 @@ public class ModelInfo {
     private final String rnd;
     private final int hashShort;
 
-    // Native Access
     public ModelInfo(@Nullable ModelMetadata metadata, ModelProperties properties, PlayerMainModelStats stats, int formatVer, String hash, String extra, long timestamp, String rnd) {
         this.metadata = metadata;
         this.properties = properties;

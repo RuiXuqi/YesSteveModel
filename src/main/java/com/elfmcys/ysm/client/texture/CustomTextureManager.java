@@ -2,28 +2,29 @@ package com.elfmcys.ysm.client.texture;
 
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.util.CleanerUtil;
-import com.google.common.collect.Queues;
 import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.Pair;
-import it.unimi.dsi.fastutil.objects.ReferenceIntMutablePair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CustomTextureManager {
     private final static int MAX_MILLI = 20;
     private static long COUNTER = 0;
 
-    private final static IdentityHashMap<AbstractTexture, WeakReference<TextureHolderImpl>> HOLDER_MAP = new IdentityHashMap<>();
-    private final static Queue<Pair<TextureHolderImpl, AbstractTexture>> PENDING_TEXTURES = Queues.newArrayDeque();
-
-    private final static ConcurrentHashMap<AbstractTexture, ReferenceIntMutablePair<ResourceLocation>> REMOVING_TEXTURES = new ConcurrentHashMap<>();
-    private final static Queue<ResourceLocation> REMOVED_TEXTURES = Queues.newArrayDeque();
+    private final static IdentityHashMap<AbstractTexture, TextureRegistration> REGISTRATIONS = new IdentityHashMap<>();
+    private final static Queue<RegistrationEvent> PENDING_REGISTRATIONS = new ArrayDeque<>();
+    private final static Queue<CleanupEvent> CLEANUP_EVENTS = new ConcurrentLinkedQueue<>();
+    private final static Queue<RemovalEvent> PENDING_REMOVALS = new ArrayDeque<>();
 
     public static TextureHolder register(AbstractTexture texture, boolean immediately) {
         return register(texture, immediately, 10 * 20);
@@ -32,25 +33,25 @@ public class CustomTextureManager {
     public static TextureHolder register(AbstractTexture texture, boolean immediately, int removingDelayTicks) {
         RenderSystem.assertOnRenderThread();
 
-        var ref = HOLDER_MAP.get(texture);
-        if (ref != null) {
-            var holder = ref.get();
-            if (holder != null) {
-                if (immediately && !holder.ready) {
-                    doRegister(texture, holder);
+        var registration = REGISTRATIONS.get(texture);
+        if (registration == null) {
+            registration = new TextureRegistration(new TextureRegistrationState<>(nextId()));
+            REGISTRATIONS.put(texture, registration);
+        } else {
+            var current = registration.holder();
+            if (current != null && registration.state.isActive(current.token)) {
+                if (immediately && !current.ready) {
+                    doRegister(texture, registration, current);
                 }
-                return holder;
+                return current;
             }
-            HOLDER_MAP.remove(texture);
         }
 
-        TextureHolderImpl holder;
-        var removing = REMOVING_TEXTURES.remove(texture);
-        if (removing != null) {
-            holder = new TextureHolderImpl(removing.first(), removingDelayTicks);
-        } else {
-            holder = new TextureHolderImpl(removingDelayTicks);
-        }
+        var activation = registration.state.activate(removingDelayTicks);
+        var holder = new TextureHolderImpl(registration.state.id(), activation.token(), activation.ready());
+        registration.holder(holder);
+        CleanerUtil.ref(holder, new CleanupEvent(texture, activation.token()), CLEANUP_EVENTS::add);
+
         if (texture instanceof PBRTextureSet pbrTextureSet) {
             for (var pbr : pbrTextureSet.getPBRTextures().values()) {
                 if (holder.pbr == null) {
@@ -59,45 +60,59 @@ public class CustomTextureManager {
                 holder.pbr.add(register(pbr, immediately, removingDelayTicks));
             }
         }
-        HOLDER_MAP.put(texture, new WeakReference<>(holder));
-        if (immediately) {
-            doRegister(texture, holder);
-        } else {
-            PENDING_TEXTURES.add(Pair.of(holder, texture));
+        if (!holder.ready) {
+            if (immediately) {
+                doRegister(texture, registration, holder);
+            } else {
+                PENDING_REGISTRATIONS.add(new RegistrationEvent(texture, activation.token()));
+            }
         }
         return holder;
     }
 
     public static void release(AbstractTexture texture) {
         RenderSystem.assertOnRenderThread();
-        HOLDER_MAP.remove(texture);
+        var registration = REGISTRATIONS.get(texture);
+        if (registration == null) {
+            return;
+        }
+        registration.clearHolder();
+        discardIfUnregistered(texture, registration, registration.state.releaseCurrent());
     }
 
     public static void tick() {
         RenderSystem.assertOnRenderThread();
 
-        if (!REMOVING_TEXTURES.isEmpty()) {
-            var removingIter = REMOVING_TEXTURES.entrySet().iterator();
-            while (removingIter.hasNext()) {
-                var removing = removingIter.next();
-                var ticks = removing.getValue().secondInt();
-                if (ticks <= 0) {
-                    REMOVED_TEXTURES.add(removing.getValue().first());
-                    removingIter.remove();
-                } else {
-                    removing.getValue().second(ticks - 1);
-                }
+        CleanupEvent cleanup;
+        while ((cleanup = CLEANUP_EVENTS.poll()) != null) {
+            var registration = REGISTRATIONS.get(cleanup.texture());
+            if (registration != null) {
+                discardIfUnregistered(cleanup.texture(), registration,
+                        registration.state.release(cleanup.token()));
             }
+        }
+
+        for (var entry : REGISTRATIONS.entrySet()) {
+            entry.getValue().state.tickRemoval().ifPresent(token ->
+                    PENDING_REMOVALS.add(new RemovalEvent(entry.getKey(), token)));
         }
 
         StopWatch stopWatch = StopWatch.createStarted();
         while (true) {
-            var texturePair = PENDING_TEXTURES.poll();
-            if (texturePair == null) {
+            var pending = PENDING_REGISTRATIONS.poll();
+            if (pending == null) {
                 break;
             }
-
-            doRegister(texturePair.right(), texturePair.left());
+            var registration = REGISTRATIONS.get(pending.texture());
+            if (registration != null && registration.state.needsRegistration(pending.token())) {
+                var holder = registration.holder();
+                if (holder == null || holder.token != pending.token()) {
+                    discardIfUnregistered(pending.texture(), registration,
+                            registration.state.release(pending.token()));
+                } else {
+                    doRegister(pending.texture(), registration, holder);
+                }
+            }
             if (stopWatch.getTime() >= MAX_MILLI) {
                 return;
             }
@@ -105,41 +120,91 @@ public class CustomTextureManager {
 
         var manager = Minecraft.getInstance().getTextureManager();
         while (true) {
-            var removed = REMOVED_TEXTURES.poll();
-            if (removed == null) {
+            var removal = PENDING_REMOVALS.poll();
+            if (removal == null) {
                 break;
             }
-            manager.release(removed);
+            var registration = REGISTRATIONS.get(removal.texture());
+            if (registration != null && registration.state.shouldRelease(removal.token())) {
+                manager.release(registration.state.id());
+                if (registration.state.markReleased(removal.token())) {
+                    REGISTRATIONS.remove(removal.texture());
+                }
+            }
             if (stopWatch.getTime() >= MAX_MILLI) {
                 return;
             }
         }
     }
 
-    private static void doRegister(AbstractTexture texture, TextureHolderImpl holder) {
-        if (!holder.ready) {
-            Minecraft.getInstance().getTextureManager().register(holder.id, texture);
-            CleanerUtil.ref(holder, holder.id, holder.delayTicks, (id, delayTicks) -> REMOVING_TEXTURES.put(texture, ReferenceIntMutablePair.of(id, delayTicks)));
+    private static void doRegister(AbstractTexture texture, TextureRegistration registration,
+                                   TextureHolderImpl holder) {
+        if (registration.state.isReady(holder.token)) {
+            holder.setReady();
+            return;
+        }
+        if (!registration.state.needsRegistration(holder.token)) {
+            return;
+        }
+        Minecraft.getInstance().getTextureManager().register(registration.state.id(), texture);
+        if (registration.state.markRegistered(holder.token)) {
             holder.setReady();
         }
     }
 
+    private static void discardIfUnregistered(AbstractTexture texture, TextureRegistration registration,
+                                               TextureRegistrationState.ReleaseResult result) {
+        if (result == TextureRegistrationState.ReleaseResult.DISCARD
+                && REGISTRATIONS.get(texture) == registration) {
+            REGISTRATIONS.remove(texture);
+        }
+    }
+
+    @SuppressWarnings("removal")
+    private static ResourceLocation nextId() {
+        return new ResourceLocation(YesSteveModel.MOD_ID, "textures/" + ++COUNTER);
+    }
+
+    private static final class TextureRegistration {
+        private final TextureRegistrationState<ResourceLocation> state;
+        private WeakReference<TextureHolderImpl> holder;
+
+        private TextureRegistration(TextureRegistrationState<ResourceLocation> state) {
+            this.state = state;
+        }
+
+        private TextureHolderImpl holder() {
+            return holder == null ? null : holder.get();
+        }
+
+        private void holder(TextureHolderImpl holder) {
+            this.holder = new WeakReference<>(holder);
+        }
+
+        private void clearHolder() {
+            holder = null;
+        }
+    }
+
+    private record RegistrationEvent(AbstractTexture texture, TextureRegistrationState.Token token) {
+    }
+
+    private record CleanupEvent(AbstractTexture texture, TextureRegistrationState.Token token) {
+    }
+
+    private record RemovalEvent(AbstractTexture texture, TextureRegistrationState.Token token) {
+    }
+
     private static class TextureHolderImpl implements TextureHolder {
         private final ResourceLocation id;
-        private final int delayTicks;
+        private final TextureRegistrationState.Token token;
         private List<TextureHolder> pbr;
         private volatile boolean ready;
 
-        public TextureHolderImpl(ResourceLocation id, int delayTicks) {
+        private TextureHolderImpl(ResourceLocation id, TextureRegistrationState.Token token, boolean ready) {
             this.id = id;
-            this.delayTicks = delayTicks;
-        }
-
-        @SuppressWarnings("removal")
-        TextureHolderImpl(int delayTicks) {
-            this.id = new ResourceLocation(YesSteveModel.MOD_ID, "textures/" + ++COUNTER);
-            this.delayTicks = delayTicks;
-            this.ready = false;
+            this.token = token;
+            this.ready = ready;
         }
 
         @Override
@@ -147,8 +212,8 @@ public class CustomTextureManager {
             return ready ? Optional.of(id) : Optional.empty();
         }
 
-        public void setReady() {
-            this.ready = true;
+        private void setReady() {
+            ready = true;
         }
     }
 }

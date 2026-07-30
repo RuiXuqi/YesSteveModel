@@ -1,6 +1,5 @@
 package com.elfmcys.ysm.info.roulette.forms;
 
-// Native Access
 public class RangeForms extends ConfigForms {
     public static final String TYPE = "range";
 
@@ -8,7 +7,6 @@ public class RangeForms extends ConfigForms {
     private final double min;
     private final double max;
 
-    // Native Access
     public RangeForms(String title, String description, String value, double step, double min, double max) {
         super(TYPE, title, description, value);
         this.step = step;

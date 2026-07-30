@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
-// Native Access
 public class AnimationControllerState {
     private static final int BUILTIN_NAME = StringPool.computeIfAbsent("ysm-builtin");
     private static final String SUB_ENTRY_PREFIX = "ysm-entry-";
@@ -31,7 +30,6 @@ public class AnimationControllerState {
     private final IBlendTransition blendTransition;
     private final boolean blendViaShortestPath;
 
-    // Native Access
     @SuppressWarnings("unchecked")
     public AnimationControllerState(String name, Pair<String, IValue>[] animations, Pair<String, IValue>[] transitions, String[] soundEffects, IValue[] onEntry, IValue[] onExit, IBlendTransition blendTransition, boolean blendViaShortestPath) {
         this.name = name;

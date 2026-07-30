@@ -31,7 +31,7 @@ public class SwingPredicate implements IAnimationPredicate<CustomHumanoidEntity<
             return playState;
         }
 
-        int formatVer = event.getAnimatableEntity().getModelContainer().info().formatVer();
+        int formatVer = event.getAnimatableEntity().getModelRenderTarget().info().formatVer();
 
         // 拔刀剑兼容，拔刀剑的使用不受 swing 限制
         if (!entity.isSleeping() && SlashBladeCompat.isSlashBladeItem(entity.getItemInHand(InteractionHand.MAIN_HAND))) {

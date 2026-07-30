@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.client.sound.data;
 
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.client.sound.stream.CustomAudioStream;
 import com.elfmcys.ysm.client.sound.stream.OpusAudioStream;
 import com.elfmcys.ysm.client.sound.stream.PcmAudioStream;
@@ -8,10 +8,10 @@ import com.elfmcys.ysm.client.sound.stream.VorbisAudioStream;
 import com.elfmcys.ysm.util.CleanerUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.client.Minecraft;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import net.minecraft.client.Minecraft;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -19,10 +19,10 @@ import java.util.IdentityHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SoundDataManager {
-    private static final IdentityHashMap<ClientModel, WeakReference<ModelSoundHolderImpl>> HOLDER_MAP = new IdentityHashMap<>();
+    private static final IdentityHashMap<ModelRenderTarget, WeakReference<ModelSoundHolderImpl>> HOLDER_MAP = new IdentityHashMap<>();
     private static final Object PLACE_HOLDER = new Object();
 
-    public static ModelSoundHolder register(ClientModel model) {
+    public static ModelSoundHolder register(ModelRenderTarget model) {
         RenderSystem.assertOnRenderThread();
         var ref = HOLDER_MAP.get(model);
         if (ref != null) {

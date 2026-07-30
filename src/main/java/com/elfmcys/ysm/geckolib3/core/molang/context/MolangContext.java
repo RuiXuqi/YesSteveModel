@@ -28,23 +28,30 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
     protected final AnimatableEntity<?> animatableEntity;
     protected final AnimationEvent<?> animationEvent;
     protected final EntityModelData data;
+    protected final SoundInstanceManager globalSoundManager;
+    protected final RandomSource random;
+    protected final MolangMemory memory;
+    private final DebugSource debugSource;
 
     protected AnimationContext animationContext;
     protected ControllerContext controllerContext;
-    protected SoundInstanceManager globalSoundManager;
-    protected RandomSource random;
-    protected MolangMemory memory;
     protected IForeignVariableStorage foreignStorage;
-    private DebugSource debugSource;
     private boolean allowEmitting;
 
-    public MolangContext(TEntity entity, AnimatableEntity<?> animatableEntity, AnimationEvent<?> animationEvent, EntityModelData data) {
+    public MolangContext(TEntity entity, AnimationEvent<?> animationEvent,
+                         MolangMemory memory, RandomSource random, SoundInstanceManager globalSoundManager) {
         this.entity = entity;
-        this.animatableEntity = animatableEntity;
+        this.animatableEntity = animationEvent.getAnimatableEntity();
         this.animationEvent = animationEvent;
-        this.data = data;
+        this.data = animationEvent.getExtraData();
+        this.debugSource = animationEvent.getDebugSource();
+        this.memory = memory;
+        this.foreignStorage = memory;
+        this.random = random;
+        this.globalSoundManager = globalSoundManager;
     }
 
+    // TODO
     private MolangContext(TEntity entity, MolangContext<?> context) {
         this.entity = entity;
         this.animatableEntity = context.animatableEntity;
@@ -53,6 +60,7 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
         this.animationContext = context.animationContext;
         this.random = context.random;
         this.memory = context.memory;
+        this.debugSource = context.debugSource;
         this.globalSoundManager = context.globalSoundManager;
         if (entity instanceof Player player) {
             player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
@@ -227,28 +235,11 @@ public class MolangContext<TEntity> implements IContext<TEntity> {
         return this.globalSoundManager;
     }
 
-    public void setGlobalSoundManager(SoundInstanceManager globalSoundManager) {
-        this.globalSoundManager = globalSoundManager;
-    }
-
     public void setAnimationContext(AnimationContext ctx) {
         this.animationContext = ctx;
     }
 
     public void setControllerContext(ControllerContext ctx) {
         this.controllerContext = ctx;
-    }
-
-    public void setMemory(MolangMemory storage) {
-        this.memory = storage;
-        this.foreignStorage = storage;
-    }
-
-    public void setRandom(RandomSource random) {
-        this.random = random;
-    }
-
-    public void setDebugSource(DebugSource source) {
-        this.debugSource = source;
     }
 }

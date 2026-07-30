@@ -2,13 +2,16 @@ package com.elfmcys.ysm.client.entity;
 
 import com.elfmcys.ysm.client.controller.VehicleOriginController;
 import com.elfmcys.ysm.client.controller.collections.VehicleControllerCollection;
-import com.elfmcys.ysm.client.model.ClientModel;
-import com.elfmcys.ysm.client.model.VehicleModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
+import com.elfmcys.ysm.client.model.VehicleModelResources;
+import com.elfmcys.ysm.client.model.ClientModelService;
+import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.client.texture.CustomTextureManager;
 import com.elfmcys.ysm.client.texture.TextureHolder;
 import com.elfmcys.ysm.geckolib3.core.builder.Animation;
 import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
+import mixel.manifest.asset.RenderTargetOuterClass;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 public class CustomVehicleEntity extends CustomEntity<Entity> {
-    private VehicleModel vehicleModel;
+    private VehicleModelResources vehicleResources;
     private VehicleOriginController originController;
 
     public CustomVehicleEntity(Entity vehicle) {
@@ -25,9 +28,26 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     }
 
     @Override
+    protected String requestedRenderTargetId() {
+        var hash = getModelHash();
+        return hash == null ? null : ClientModelService.instance()
+                .findRenderTarget(hash,
+                        RenderTargetOuterClass.RenderTargetKind.RENDER_TARGET_KIND_VEHICLE,
+                        entity.getType().builtInRegistryHolder().key().location()).orElse(null);
+    }
+
+    @Override
+    protected String fallbackRenderTargetId() {
+        return ClientModelService.instance()
+                .findDefaultRenderTarget(
+                        RenderTargetOuterClass.RenderTargetKind.RENDER_TARGET_KIND_VEHICLE,
+                        entity.getType().builtInRegistryHolder().key().location()).orElse(null);
+    }
+
+    @Override
     protected void onSetupAnimationController() {
-        if (vehicleModel != null) {
-            vehicleModel.controllerFactory().accept(this);
+        if (vehicleResources != null) {
+            vehicleResources.controllerFactory().accept(this);
             originController = (VehicleOriginController) getAnimationData().getAnimationController(VehicleControllerCollection.NAME_ORIGIN);
         }
     }
@@ -42,10 +62,11 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
 
     @Override
     @SuppressWarnings("deprecation")
-    protected @Nullable ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
-        var vehicleModel = model.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
-        if (vehicleModel != null) {
-            return new VehicleResourceHolder(model, isFallback, vehicleModel);
+    protected @Nullable ResourceHolder createResourceHolder(ModelRenderTargetLease lease, boolean isFallback) {
+        var model = lease.renderTarget();
+        var vehicleResources = model.vehicleResources();
+        if (vehicleResources != null) {
+            return new VehicleResourceHolder(lease, isFallback, vehicleResources);
         }
         return null;
     }
@@ -55,21 +76,21 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
      */
     @Override
     @SuppressWarnings("deprecation")
-    protected void onLoadModelContainer(ClientModel newModel) {
-        super.onLoadModelContainer(newModel);
-        vehicleModel = newModel.vehicleModels().get(entity.getType().builtInRegistryHolder().key().location());
+    protected void onModelRenderTargetLoaded(ModelRenderTarget newModel) {
+        super.onModelRenderTargetLoaded(newModel);
+        vehicleResources = newModel.vehicleResources();
     }
 
     @Override
-    public void resetModelContainer() {
-        super.resetModelContainer();
-        this.vehicleModel = null;
+    public void resetModelRenderTarget() {
+        super.resetModelRenderTarget();
+        this.vehicleResources = null;
         this.originController = null;
     }
 
     @Override
     protected GeoModel getYsmGeoModel() {
-        return vehicleModel.model();
+        return vehicleResources.model();
     }
 
     @Override
@@ -80,17 +101,17 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
 
     @Override
     public Animation getAnimation(String name) {
-        return vehicleModel.animations().get(name);
+        return vehicleResources.animations().get(name);
     }
 
     @Override
     public @Nullable AnimationControllerData getAnimationControllerData(String animationControllerName) {
-        return vehicleModel.controllers().get(animationControllerName);
+        return vehicleResources.controllers().get(animationControllerName);
     }
 
     @Override
     public boolean isModelPresent() {
-        return super.isModelPresent() && vehicleModel != null && getResourceHolder().isLoaded();
+        return super.isModelPresent() && vehicleResources != null && getResourceHolder().isLoaded();
     }
 
     @Override
@@ -106,9 +127,9 @@ public class CustomVehicleEntity extends CustomEntity<Entity> {
     private static class VehicleResourceHolder extends ResourceHolder {
         private final TextureHolder textureHolder;
 
-        protected VehicleResourceHolder(ClientModel model, boolean fallback, VehicleModel vehicleModel) {
-            super(model, fallback);
-            textureHolder = CustomTextureManager.register(vehicleModel.texture(), true);
+        protected VehicleResourceHolder(ModelRenderTargetLease lease, boolean fallback, VehicleModelResources vehicleResources) {
+            super(lease, fallback);
+            textureHolder = CustomTextureManager.register(vehicleResources.texture(), true);
         }
 
         @Override

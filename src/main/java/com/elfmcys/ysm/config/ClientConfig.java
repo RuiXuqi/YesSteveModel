@@ -1,5 +1,6 @@
 package com.elfmcys.ysm.config;
 
+import com.elfmcys.ysm.network.session.SessionMode;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class ClientConfig {
@@ -16,6 +17,8 @@ public class ClientConfig {
     public static ForgeConfigSpec.BooleanValue SHOW_MODEL_ID_FIRST;
     public static ForgeConfigSpec.BooleanValue ENABLE_SOPHISTICATED_BACKPACK_COMPAT;
     public static ForgeConfigSpec.BooleanValue ENABLE_PARCOOL_COMPAT;
+    public static ForgeConfigSpec.BooleanValue PIN_ALL_SESSION_MODELS;
+    public static ForgeConfigSpec.EnumValue<SessionMode> NETWORK_SESSION_MODE;
 
     public static ForgeConfigSpec init() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -61,6 +64,18 @@ public class ClientConfig {
         builder.comment("Whether to display model ID first in the model selection screen, instead of the model name filled in by the model author.");
         SHOW_MODEL_ID_FIRST = builder.define("ShowModelIdFirst", false);
 
+        builder.comment("Ignore the 50-model preload limit for the current server session.");
+        builder.comment("All locally available catalog models are loaded and pinned; server models are pinned after on-demand download.");
+        builder.comment("All non-builtin pinned data is released when leaving the server.");
+        PIN_ALL_SESSION_MODELS = builder.define("PinAllSessionModels", false);
+
+        builder.pop();
+
+        builder.push("network");
+        builder.comment("Selects the remote player-state session. AUTO prefers a compatible game server, then a backend.");
+        builder.comment("BACKEND never joins the game-server YSM session. LOCAL_ONLY disables remote player-state synchronization.");
+        builder.comment("Local and client-configured external model sources remain available in every mode.");
+        NETWORK_SESSION_MODE = builder.defineEnum("SessionMode", SessionMode.AUTO);
         builder.pop();
 
         builder.push("Integration");

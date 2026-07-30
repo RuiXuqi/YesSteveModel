@@ -1,34 +1,31 @@
 package com.elfmcys.ysm.client.gui;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.capability.AuthModelsCapability;
 import com.elfmcys.ysm.capability.AuthModelsCapabilityProvider;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.capability.StarModelsCapabilityProvider;
-import com.elfmcys.ysm.client.ClientModelManager;
 import com.elfmcys.ysm.client.event.DownloadScreenInterModEvent;
-import com.elfmcys.ysm.client.gui.button.*;
+import com.elfmcys.ysm.client.gui.button.CatalogModelButton;
+import com.elfmcys.ysm.client.gui.button.FlatColorButton;
+import com.elfmcys.ysm.client.gui.button.FlatIconButton;
+import com.elfmcys.ysm.client.gui.button.PackButton;
+import com.elfmcys.ysm.client.gui.button.StarButton;
 import com.elfmcys.ysm.client.input.PlayerModelScreenKey;
-import com.elfmcys.ysm.client.lang.LanguageManager;
-import com.elfmcys.ysm.client.model.ClientModel;
-import com.elfmcys.ysm.client.model.ClientModelSyncListener;
 import com.elfmcys.ysm.client.model.ModelPackInfo;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
+import com.elfmcys.ysm.client.model.ClientAssetBatch;
+import com.elfmcys.ysm.client.model.catalog.ClientCatalogSnapshot;
+import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.config.ServerConfig;
-import com.elfmcys.ysm.info.ModelAuthor;
-import com.elfmcys.ysm.info.ModelMetadata;
+import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.source.PackOffer;
 import com.elfmcys.ysm.network.NetworkHandler;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
+import com.elfmcys.ysm.task.TaskScope;
 import com.elfmcys.ysm.util.ModelIdUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.Pair;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -40,645 +37,341 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-public class PlayerModelScreen extends Screen implements ClientModelSyncListener {
+public class PlayerModelScreen extends Screen {
     private static final CustomGuiPlayerEntity[] MODEL_PREVIEW_ENTITY = new CustomGuiPlayerEntity[10];
-    private static final String AUTHOR_SEARCH_PREFIX = "@";
-    private static final String PACK_SEARCH_PREFIX = "#";
 
-    private static final Object2IntMap<String> PAGE = new Object2IntOpenHashMap<>();
-    private static String PACK = "";
-
-    private final HashSet<String> clientNotDisplayModels = Sets.newHashSet();
-    private final Map<String, ModelPackInfo> allPacks;
-
-    private Map<String, ClientModel> models = Maps.newHashMap();
-    private Map<String, ModelPackInfo> packs = Maps.newHashMap();
-
-    private List<String> modelOrderList;
-    private List<String> packOrderList;
-
+    private final ClientModelService service = ClientModelService.instance();
+    private final CatalogBrowserState browser = new CatalogBrowserState();
+    private final HashSet<String> clientNotDisplayModels = new HashSet<>();
+    private final List<CatalogModelButton> modelButtons = new ArrayList<>();
+    private final List<PackButton> packButtons = new ArrayList<>();
+    private final Map<String, PackOffer> packDescriptors = new LinkedHashMap<>();
+    private TaskScope pageScope;
+    private EditBox textField;
     protected int x;
     protected int y;
 
-    private int maxPage;
-    private EditBox textField;
-    private Category category;
-
     static {
-        for (int i = 0; i < MODEL_PREVIEW_ENTITY.length; i++) {
-            MODEL_PREVIEW_ENTITY[i] = new CustomGuiPlayerEntity();
+        for (var index = 0; index < MODEL_PREVIEW_ENTITY.length; index++) {
+            MODEL_PREVIEW_ENTITY[index] = new CustomGuiPlayerEntity();
         }
     }
 
     public PlayerModelScreen() {
         super(Component.literal("YSM Player Model GUI"));
-        this.category = Category.ALL;
         if (NetworkHandler.isRemoteChannelPresent()) {
-            clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODELS.get());
+            clientNotDisplayModels.addAll(ServerConfig.CLIENT_NOT_DISPLAY_MODEL_PATHS.get());
         }
-        ClientModelManager.addSyncListener(this);
-        this.allPacks = new Object2ReferenceOpenHashMap<>(ClientModelManager.getPacks());
+        rebuildCatalog(service.catalog());
     }
 
-    protected ModelButton getModelButton(int xStart, int yStart, boolean needAuth, CustomGuiPlayerEntity animatedEntity, ClientModel model) {
-        return new ModelButton(xStart, yStart, needAuth, animatedEntity, model);
+    protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, ModelHash modelHash,
+                                                    ModelRenderTarget renderTarget) {
+        return new PlayerTextureScreen(parent, modelHash, renderTarget);
     }
 
-    protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
-        return new PlayerTextureScreen(parent, modelId, model);
-    }
-
-    protected ModelInfoScreen getModelInfoScreen(PlayerModelScreen parent, ClientModel model) {
+    protected ModelInfoScreen getModelInfoScreen(PlayerModelScreen parent, ModelRenderTarget model) {
         return new ModelInfoScreen(parent, model);
     }
 
-    private Map<String, ClientModel> getPackModels() {
-        Map<String, ClientModel> packModels = Maps.newHashMap();
-        if (StringUtils.isBlank(PACK)) {
-            packModels.putAll(ClientModelManager.getModels());
-        }
-        ClientModelManager.getModels().forEach((k, v) -> {
-            if (k.startsWith(PACK)) {
-                packModels.put(k, v);
-            }
-            String packPath = ModelIdUtil.splitModelPath(k).right();
-            if (StringUtils.isNotBlank(packPath)) {
-                splitFolderPath(packPath, this.allPacks);
-            }
-        });
-        return packModels;
-    }
-
-    private static void splitFolderPath(String path, Map<String, ModelPackInfo> allPacks) {
-        if (StringUtils.isBlank(path) || !path.contains("/")) {
+    protected void selectModel(ModelHash hash, String path, String texture, ModelRenderTarget renderTarget) {
+        var player = Minecraft.getInstance().player;
+        if (player == null) {
             return;
         }
-        String[] parts = path.split("/");
-        StringBuilder current = new StringBuilder();
-        for (String part : parts) {
-            if (part.isEmpty()) {
-                continue;
-            }
-            current.append(part).append("/");
-            String packPath = current.toString();
-            String packName = ModelIdUtil.getLastFolderName(packPath);
-            allPacks.putIfAbsent(packPath, new ModelPackInfo(packPath, packName, StringUtils.EMPTY, null, null));
-        }
-    }
-
-    private Map<String, ModelPackInfo> getPackInfos() {
-        Map<String, ModelPackInfo> packInfos = Maps.newHashMap();
-        if (StringUtils.isBlank(PACK)) {
-            return Maps.newHashMap(allPacks);
-        }
-        allPacks.forEach((k, v) -> {
-            if (k.startsWith(PACK)) {
-                packInfos.put(k, v);
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(capability -> {
+            if (NetworkHandler.isRemoteChannelPresent()) {
+                if (capability.hasRoamingStorage(hash.roamingHash())) {
+                    capability.updateModelAndTexture(hash, texture);
+                }
+                ClientProtocolGateway.selectModel(hash, texture);
+            } else {
+                capability.updateModelAndTexture(hash, texture);
             }
         });
-        return packInfos;
-    }
-
-    private void calculateModelList() {
-        models = Maps.newHashMap();
-        packs = Maps.newHashMap();
-
-        if (minecraft == null || minecraft.player == null) {
-            return;
-        }
-        LocalPlayer player = minecraft.player;
-
-        if (this.category == Category.ALL) {
-            this.models = this.getPackModels();
-            this.packs = this.getPackInfos();
-        }
-
-        // 授权部分不显示文件夹
-        if (this.category == Category.AUTH) {
-            player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(cap -> {
-                for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
-                    if (cap.containModel(entry.getKey()) || !entry.getValue().clientInfo().isNeedAuth()) {
-                        this.models.put(entry.getKey(), entry.getValue());
-                    }
-                }
-            });
-        }
-
-        // 收藏部分也不显示文件夹
-        if (this.category == Category.STAR) {
-            player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).ifPresent(cap -> {
-                for (Map.Entry<String, ClientModel> entry : ClientModelManager.getModels().entrySet()) {
-                    if (cap.containModel(entry.getKey())) {
-                        this.models.put(entry.getKey(), entry.getValue());
-                    }
-                }
-            });
-        }
-
-        // 搜索框不区分大小写
-        String search;
-        if (textField != null) {
-            search = this.textField.getValue().toLowerCase(Locale.ENGLISH);
-        } else {
-            search = StringUtils.EMPTY;
-        }
-
-        if (StringUtils.isBlank(search)) {
-            // 搜索框为空时，为正常文件树显示模式
-            models.entrySet().removeIf(next -> {
-                String path = next.getKey();
-                Pair<String, String> split = ModelIdUtil.splitModelPath(path);
-                // 滤掉黑名单
-                if (clientNotDisplayModels.contains(split.left())) {
-                    return true;
-                }
-                // 只保留当前文件夹下的模型
-                return !split.right().equals(PACK);
-            });
-
-            packs.entrySet().removeIf(next -> {
-                String path = next.getKey();
-                // 只保留当前文件夹下的文件夹
-                return !this.shouldKeep(PACK, path);
-            });
-        } else {
-            // 搜索框不为空时，为搜索模式，此时不考虑文件树，直接拉平
-            models.entrySet().removeIf(next -> {
-                String path = next.getKey();
-                String id = ModelIdUtil.splitModelPath(path).left();
-                return removeModelIf(id, next.getValue(), search);
-            });
-            packs.entrySet().removeIf(next -> {
-                String path = next.getKey();
-                String id = ModelIdUtil.splitModelPath(path).left();
-                return removePackIf(id, next.getValue(), search);
-            });
-        }
-
-        // 按照 ID 顺序排序
-        this.modelOrderList = Lists.newArrayList(models.keySet());
-        this.modelOrderList.sort(String::compareTo);
-
-        this.packOrderList = Lists.newArrayList(packs.keySet());
-        this.packOrderList.sort(String::compareTo);
-
-        int maxCount = models.size() + packs.size();
-        this.maxPage = (maxCount - 1) / 10;
-    }
-
-
-    // path: 当前目录（如 "" 或 "dir1/dir2/"）
-    // candidate: 备选目录（如 "dir1/", "dir1/dir2/dir3/", "dir1/dir2/dir3/dir4/dir5/"）
-    private boolean shouldKeep(String path, String candidate) {
-        if (path.equals(candidate)) {
-            return false;
-        }
-        if (StringUtils.isBlank(path)) {
-            // 只保留一级目录
-            int first = candidate.indexOf('/');
-            return first == candidate.length() - 1 && candidate.lastIndexOf('/') == first;
-        } else {
-            if (!candidate.startsWith(path)) {
-                return false;
-            }
-            String remain = candidate.substring(path.length());
-            int first = remain.indexOf('/');
-            return first == remain.length() - 1 && remain.lastIndexOf('/') == first;
-        }
-    }
-
-    private boolean removePackIf(String id, ModelPackInfo info, String search) {
-        // 空搜索字符串不过滤
-        if (StringUtils.isBlank(search)) {
-            return false;
-        }
-        // 如果是 # 开头，则仅按文件夹搜索，需要剔除 #
-        if (search.startsWith(PACK_SEARCH_PREFIX)) {
-            search = search.substring(PACK_SEARCH_PREFIX.length());
-        }
-        // ID 匹配
-        if (id.toLowerCase(Locale.ENGLISH).contains(search)) {
-            return false;
-        }
-        if (info.lang() != null) {
-            // 名称匹配
-            String name = LanguageManager.getI18n(info, "name", info.name());
-            if (name.toLowerCase(Locale.ENGLISH).contains(search)) {
-                return false;
-            }
-            // 描述文本匹配
-            String descText = info.desc();
-            if (descText == null) {
-                return true;
-            }
-            String desc = LanguageManager.getI18n(info, "description", descText);
-            if (desc.toLowerCase(Locale.ENGLISH).contains(search)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean removeModelIf(String id, ClientModel data, String search) {
-        // 滤掉黑名单
-        if (clientNotDisplayModels.contains(id)) {
-            return true;
-        }
-        // 空搜索字符串不过滤
-        if (StringUtils.isBlank(search)) {
-            return false;
-        }
-
-        // 如果是 # 开头，则仅按文件夹搜索
-        if (search.startsWith(PACK_SEARCH_PREFIX)) {
-            return true;
-        }
-
-        // 如果是 @ 开头，则仅按作者搜索
-        if (search.startsWith(AUTHOR_SEARCH_PREFIX)) {
-            String authorSearch = search.substring(AUTHOR_SEARCH_PREFIX.length());
-            ModelMetadata metadata = data.info().metadata();
-            if (metadata != null) {
-                return noneAuthorMatch(data, authorSearch, metadata);
-            }
-            return true;
-        }
-
-        // ID 不过滤
-        if (id.toLowerCase(Locale.ENGLISH).contains(search)) {
-            return false;
-        }
-
-        ModelMetadata metadata = data.info().metadata();
-        if (metadata != null) {
-            // 名称不过滤
-            String name = LanguageManager.getI18n(data, "metadata.name", metadata.name()).toLowerCase(Locale.ENGLISH);
-            if (name.contains(search)) {
-                return false;
-            }
-            // 描述文本不过滤
-            String tips = LanguageManager.getI18n(data, "metadata.tips", metadata.tips()).toLowerCase(Locale.ENGLISH);
-            if (tips.contains(search)) {
-                return false;
-            }
-            // 作者名不过滤
-            return noneAuthorMatch(data, search, metadata);
-        }
-
-        return true;
-    }
-
-    public String getParentPath(String path) {
-        if (path == null || path.isEmpty()) {
-            return "";
-        }
-        // 去掉末尾的斜杠
-        String trimmed = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
-        int idx = trimmed.lastIndexOf('/');
-        if (idx < 0) {
-            return "";
-        }
-        return trimmed.substring(0, idx + 1);
-    }
-
-    private boolean noneAuthorMatch(ClientModel data, String search, ModelMetadata metadata) {
-        int index = 0;
-        for (ModelAuthor author : metadata.authors()) {
-            String authorName = LanguageManager.getI18n(data, "metadata.authors.%d.name".formatted(index), author.name()).toLowerCase(Locale.ENGLISH);
-            if (authorName.contains(search)) {
-                return false;
-            }
-            index++;
-        }
-        return true;
     }
 
     @Override
     protected void init() {
-        this.clearWidgets();
-        this.calculateModelList();
-
-        if (this.getCurrentPage() > this.maxPage) {
-            this.resetCurrentPage();
+        closePage();
+        clearWidgets();
+        if (browser.catalog() != service.catalog()) {
+            rebuildCatalog(service.catalog());
         }
+        calculateModelList();
+        pageScope = service.openRequestScope();
 
-        this.x = (width - 420) / 2;
-        this.y = (height - 235) / 2;
-
-        String perText = "";
-        boolean focus = false;
-        if (textField != null) {
-            perText = textField.getValue();
-            focus = textField.isFocused();
-        }
-        textField = new EditBox(getMinecraft().font, x + 144, y + 6, 140, 16, Component.literal("YSM Search Box"));
-        textField.setValue(perText);
+        x = (width - 420) / 2;
+        y = (height - 235) / 2;
+        var previousSearch = textField == null ? "" : textField.getValue();
+        var focused = textField != null && textField.isFocused();
+        textField = new EditBox(font, x + 144, y + 6, 140, 16, Component.literal("YSM Search Box"));
+        textField.setValue(previousSearch);
         textField.setTextColor(0xF3EFE0);
-        textField.setFocused(focus);
+        textField.setFocused(focused);
         textField.moveCursorToEnd();
-        this.addWidget(this.textField);
+        addWidget(textField);
 
-        addRenderableWidget(new FlatIconButton(x + 5, y + 5, 20, 20, 80, 16, b -> {
-            if (Minecraft.getInstance().player != null) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    var model = cap.getModelContainer();
-                    if (model.info().metadata() != null) {
+        addHeaderButtons();
+        addPageButtons();
+        var assets = service.createAssetBatch(pageScope);
+        addCatalogButtons(assets);
+        assets.submit();
+    }
+
+    private void addHeaderButtons() {
+        addRenderableWidget(new FlatIconButton(x + 5, y + 5, 20, 20, 80, 16, ignored -> {
+            var player = Minecraft.getInstance().player;
+            if (player != null) {
+                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(capability -> {
+                    var model = capability.getModelRenderTarget();
+                    if (model != null && model.info().metadata() != null) {
                         Minecraft.getInstance().setScreen(getModelInfoScreen(this, model));
                     }
                 });
             }
         })).setTooltips("gui.yes_steve_model.model.info");
-        addRenderableWidget(new FlatIconButton(x + 28, y + 5, 79, 20, 32, 16, (b) -> {
-            if (Minecraft.getInstance().player != null) {
-                LocalPlayer player = Minecraft.getInstance().player;
-                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                    var model = cap.getModelContainer();
-                    Minecraft.getInstance().setScreen(getTextureScreen(this, cap.getModelId(), model));
+        addRenderableWidget(new FlatIconButton(x + 28, y + 5, 79, 20, 32, 16, ignored -> {
+            var player = Minecraft.getInstance().player;
+            if (player != null) {
+                player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(capability -> {
+                    var model = capability.getModelRenderTarget();
+                    if (model != null && capability.getModelHash() != null) {
+                        Minecraft.getInstance().setScreen(getTextureScreen(this, capability.getModelHash(), model));
+                    }
                 });
             }
-        }).setTooltips("gui.yes_steve_model.model.texture"));
+        })).setTooltips("gui.yes_steve_model.model.texture");
         addRenderableWidget(new StarButton(x + 110, y + 5));
 
-        // 添加返回按钮
-        if (StringUtils.isNotBlank(PACK)) {
-            addRenderableWidget(new FlatIconButton(x + 110, y + 27, 20, 20, 0, 32, b -> this.backToParent())
-                    .setTooltips("gui.back"));
+        if (StringUtils.isNotBlank(browser.currentPack())) {
+            addRenderableWidget(new FlatIconButton(x + 110, y + 27, 20, 20, 0, 32,
+                    ignored -> backToParent()).setTooltips("gui.back"));
         }
 
-        // 添加是否优先显示模型 ID 按钮
-        addRenderableWidget(new Checkbox(x + 5, y - 22, 20, 20, Component.translatable("gui.yes_steve_model.show_model_id_first"), ClientConfig.SHOW_MODEL_ID_FIRST.get(), true) {
+        addRenderableWidget(new Checkbox(x + 5, y - 22, 20, 20,
+                Component.translatable("gui.yes_steve_model.show_model_id_first"),
+                ClientConfig.SHOW_MODEL_ID_FIRST.get(), true) {
             @Override
             public void onPress() {
                 super.onPress();
-                ClientConfig.SHOW_MODEL_ID_FIRST.set(this.selected());
+                ClientConfig.SHOW_MODEL_ID_FIRST.set(selected());
                 ClientConfig.SHOW_MODEL_ID_FIRST.save();
             }
         });
 
-        addRenderableWidget(new FlatIconButton(x + 328, y + 5, 18, 18, 32, 0, (b) -> {
-            if (this.category != Category.ALL) {
-                this.category = Category.ALL;
-                this.resetCurrentPage();
-                this.init();
-            }
-        }).setTooltips("gui.yes_steve_model.all_models"));
-        addRenderableWidget(new FlatIconButton(x + 308, y + 5, 18, 18, 48, 0, (b) -> {
-            if (this.category != Category.AUTH) {
-                this.category = Category.AUTH;
-                this.resetCurrentPage();
-                this.init();
-            }
-        }).setTooltips("gui.yes_steve_model.auth_models"));
-        addRenderableWidget(new FlatIconButton(x + 288, y + 5, 18, 18, 0, 0, (b) -> {
-            if (this.category != Category.STAR) {
-                this.category = Category.STAR;
-                this.resetCurrentPage();
-                this.init();
-            }
-        }).setTooltips("gui.yes_steve_model.star_models"));
+        addCategoryButton(x + 328, 32, CatalogBrowserState.Category.ALL, "gui.yes_steve_model.all_models");
+        addCategoryButton(x + 308, 48, CatalogBrowserState.Category.AUTH, "gui.yes_steve_model.auth_models");
+        addCategoryButton(x + 288, 0, CatalogBrowserState.Category.STAR, "gui.yes_steve_model.star_models");
+        addRenderableWidget(new FlatIconButton(x + 397, y + 5, 18, 18, 16, 16,
+                ignored -> getMinecraft().setScreen(new ConfigScreen(this)))
+                .setTooltips("gui.yes_steve_model.config"));
+        addRenderableWidget(new FlatIconButton(x + 377, y + 5, 18, 18, 0, 16,
+                ignored -> DownloadScreenInterModEvent.openDownloadScreen(this))
+                .setTooltips("gui.yes_steve_model.download"));
+        addRenderableWidget(new FlatIconButton(x + 357, y + 5, 18, 18, 80, 0,
+                ignored -> getMinecraft().setScreen(new OpenModelFolderScreen(this)))
+                .setTooltips("gui.yes_steve_model.open_model_folder.open"));
+    }
 
-        addRenderableWidget(new FlatIconButton(x + 397, y + 5, 18, 18, 16, 16, (b) -> {
-            this.getMinecraft().setScreen(new ConfigScreen(this));
-        }).setTooltips("gui.yes_steve_model.config"));
-        addRenderableWidget(new FlatIconButton(x + 377, y + 5, 18, 18, 0, 16, (b) -> {
-            DownloadScreenInterModEvent.openDownloadScreen(this);
-        }).setTooltips("gui.yes_steve_model.download"));
-        addRenderableWidget(new FlatIconButton(x + 357, y + 5, 18, 18, 80, 0, (b) -> {
-            this.getMinecraft().setScreen(new OpenModelFolderScreen(this));
-        }).setTooltips("gui.yes_steve_model.open_model_folder.open"));
+    private void addCategoryButton(int buttonX, int u, CatalogBrowserState.Category target, String tooltip) {
+        addRenderableWidget(new FlatIconButton(buttonX, y + 5, 18, 18, u, 0, ignored -> {
+            if (browser.category() != target) {
+                browser.category(target);
+                init();
+            }
+        }).setTooltips(tooltip));
+    }
 
-        addRenderableWidget(new FlatColorButton(x + 198, y + 215, 52, 14, Component.translatable("gui.yes_steve_model.pre_page"), (b) -> {
-            int page = this.getCurrentPage();
-            if (page > 0) {
-                this.setCurrentPage(page - 1);
-                this.init();
+    private void addPageButtons() {
+        addRenderableWidget(new FlatColorButton(x + 198, y + 215, 52, 14,
+                Component.translatable("gui.yes_steve_model.pre_page"), ignored -> {
+            if (browser.page() > 0) {
+                browser.page(browser.page() - 1);
+                init();
             }
         }));
-        addRenderableWidget(new FlatColorButton(x + 308, y + 215, 52, 14, Component.translatable("gui.yes_steve_model.next_page"), (b) -> {
-            int page = this.getCurrentPage();
-            if (page < this.maxPage) {
-                this.setCurrentPage(page + 1);
-                this.init();
+        addRenderableWidget(new FlatColorButton(x + 308, y + 215, 52, 14,
+                Component.translatable("gui.yes_steve_model.next_page"), ignored -> {
+            if (browser.page() < browser.maxPage()) {
+                browser.page(browser.page() + 1);
+                init();
             }
         }));
+    }
 
-        if (minecraft == null || minecraft.player == null) {
+    private void addCatalogButtons(ClientAssetBatch assets) {
+        var player = minecraft == null ? null : minecraft.player;
+        if (player == null) {
             return;
         }
-        LazyOptional<AuthModelsCapability> authModels = minecraft.player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP);
-
-        for (int i = 0; i < 10; i++) {
-            int index = i + this.getCurrentPage() * 10;
-            int xStart = x + 143 + 55 * (i % 5);
-            int yStart = y + 28 + 93 * (i / 5);
-
-            // 先是文件夹
-            if (index < packOrderList.size()) {
-                String id = packOrderList.get(index);
-                this.getPack(id).ifPresent(packInfo -> {
-                    this.addRenderableWidget(new PackButton(xStart, yStart, 52, 90, packInfo, b -> {
-                        PACK = id;
-                        this.resetCurrentPage();
-                        this.init();
-                    }));
+        var auth = player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).resolve().orElse(null);
+        for (var slot = 0; slot < 10; slot++) {
+            var index = slot + browser.page() * 10;
+            var xStart = x + 143 + 55 * (slot % 5);
+            var yStart = y + 28 + 93 * (slot / 5);
+            if (index < browser.packs().size()) {
+                var pack = browser.packs().get(index);
+                var button = new PackButton(xStart, yStart, 52, 90, pack,
+                        packDescriptors.get(pack.hierarchy()), assets, ignored -> {
+                    browser.enterPack(pack.hierarchy());
+                    init();
                 });
+                packButtons.add(button);
+                addRenderableWidget(button);
+                continue;
             }
-
-            // 然后是模型
-            index = index - packOrderList.size();
-            if (0 <= index && index < modelOrderList.size()) {
-                String id = modelOrderList.get(index);
-                final CustomGuiPlayerEntity animatedEntity = MODEL_PREVIEW_ENTITY[i];
-                animatedEntity.reset();
-                authModels.ifPresent(cap -> {
-                    var model = models.get(id);
-                    boolean needAuth = model.clientInfo().isNeedAuth() && !cap.getAuthModels().contains(id);
-
-                    animatedEntity.updateModelAndTexture(id, model.playerModel().defaultTextureName());
-                    animatedEntity.getPreviewInfo().setPreview(model.info().properties().previewAnimation());
-                    addRenderableWidget(getModelButton(xStart, yStart, needAuth, animatedEntity, model));
-                });
+            index -= browser.packs().size();
+            if (index < 0 || index >= browser.models().size()) {
+                continue;
             }
+            var entry = browser.models().get(index);
+            var needAuth = entry.authorizationRequired()
+                    && (auth == null || !auth.containModel(entry.modelHash()));
+            var button = new CatalogModelButton(xStart, yStart, entry, needAuth,
+                    pageScope, assets, MODEL_PREVIEW_ENTITY[slot], this::selectModel,
+                    (hash, path, renderTarget) -> Minecraft.getInstance().setScreen(
+                            getTextureScreen(this, hash, renderTarget)));
+            modelButtons.add(button);
+            addRenderableWidget(button);
         }
     }
 
+    private void calculateModelList() {
+        var player = minecraft == null ? null : minecraft.player;
+        var auth = player == null ? null
+                : player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).resolve().orElse(null);
+        var stars = player == null ? null
+                : player.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP).resolve().orElse(null);
+        browser.filter(textField == null ? "" : textField.getValue(), locale(), clientNotDisplayModels,
+                hash -> auth != null && auth.containModel(hash),
+                hash -> stars != null && stars.containModel(hash));
+    }
+
+    private void rebuildCatalog(ClientCatalogSnapshot next) {
+        packDescriptors.clear();
+        next.packs().forEach(pack -> packDescriptors.putIfAbsent(pack.subject().hierarchy(), pack));
+        browser.rebuild(next, this::packInfo);
+    }
+
+    private ModelPackInfo packInfo(PackOffer descriptor) {
+        var languages = new LinkedHashMap<String, Map<String, String>>();
+        descriptor.translations().forEach((locale, text) -> languages.put(locale,
+                Map.of("name", text.name(), "description", text.description())));
+        return new ModelPackInfo(descriptor.subject().hierarchy(), descriptor.name(), descriptor.description(),
+                null, Map.copyOf(languages));
+    }
+
     @Override
-    @SuppressWarnings("all")
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float frameDeltaTime) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics);
-
-        graphics.fillGradient(x, y, x + 135, y + 235, 0xff_222222, 0xff_222222);
-        graphics.fillGradient(x + 138, y, x + 420, y + 235, 0xff_222222, 0xff_222222);
-        graphics.fillGradient(x + 351, y + 7, x + 352, y + 21, 0xFF_F3EFE0, 0xFF_F3EFE0);
-
-        textField.render(graphics, mouseX, mouseY, frameDeltaTime);
+        graphics.fillGradient(x, y, x + 135, y + 235, 0xFF222222, 0xFF222222);
+        graphics.fillGradient(x + 138, y, x + 420, y + 235, 0xFF222222, 0xFF222222);
+        graphics.fillGradient(x + 351, y + 7, x + 352, y + 21, 0xFFF3EFE0, 0xFFF3EFE0);
+        textField.render(graphics, mouseX, mouseY, partialTick);
         renderReferenceEntity(graphics, mouseX, mouseY, minecraft.getFrameTime());
 
         if (textField.getValue().isEmpty() && !textField.isFocused()) {
-            graphics.drawString(font, Component.translatable("gui.yes_steve_model.search").withStyle(ChatFormatting.ITALIC), x + 148, y + 10, 0x777777);
+            graphics.drawString(font, Component.translatable("gui.yes_steve_model.search")
+                    .withStyle(ChatFormatting.ITALIC), x + 148, y + 10, 0x777777);
+        }
+        var page = "%d/%d".formatted(browser.page() + 1, browser.maxPage() + 1);
+        graphics.drawString(font, page, x + 138 + (282 - font.width(page)) / 2,
+                y + 223 - font.lineHeight / 2, 0xF3EFE0);
+        var version = ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString();
+        graphics.drawString(font, version, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
+        if (!browser.currentPack().isBlank()) {
+            graphics.drawString(font, Component.literal("\uD83D\uDCC2 " + browser.currentPack())
+                    .withStyle(ChatFormatting.GRAY), x + 142, y - 12, 0xF3EFE0);
+        }
+        if (service.loadingCount() > 0) {
+            var loading = Component.literal(Integer.toString(service.loadingCount()));
+            graphics.drawString(font, loading, x + 414 - font.width(loading), y + 218,
+                    ChatFormatting.DARK_GRAY.getColor());
         }
 
-        String pageInfo = String.format("%d/%d", this.getCurrentPage() + 1, this.maxPage + 1);
-        graphics.drawString(font, pageInfo, x + 138 + (282 - font.width(pageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
-
-        String debugInfo = ModList.get().getModFileById(YesSteveModel.MOD_ID).versionString();
-        graphics.pose().pushPose();
-        graphics.pose().translate(0f, 0f, 1000);
-        graphics.drawString(font, debugInfo, x + 2, y + 226, ChatFormatting.DARK_GRAY.getColor());
-        graphics.pose().popPose();
-
-        if (StringUtils.isNotBlank(PACK)) {
-            MutableComponent path = Component.literal("\uD83D\uDCC2 " + PACK).withStyle(ChatFormatting.GRAY);
-            int i = 0;
-            List<FormattedCharSequence> split = font.split(path, 270);
-            for (FormattedCharSequence sequence : split) {
-                int offset = -(split.size() - i) * 10 - 2;
-                graphics.drawString(font, sequence, x + 142, y + offset, 0xF3EFE0);
-                i++;
-            }
-        }
-        drawSyncState(graphics);
-
-        super.render(graphics, mouseX, mouseY, frameDeltaTime);
-        this.renderables.stream().filter(r -> r instanceof FlatIconButton)
-                .forEach(r -> ((FlatIconButton) r).renderToolTip(graphics, this, mouseX, mouseY));
-        this.renderables.stream().filter(r -> r instanceof ModelButton)
-                .forEach(r -> ((ModelButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
-        this.renderables.stream().filter(r -> r instanceof PackButton)
-                .forEach(r -> ((PackButton) r).renderComponentTooltip(graphics, this, mouseX, mouseY));
-
-        if (this.textField.isHovered()) {
-            Component tip = Component.translatable("gui.yes_steve_model.search.tip").withStyle(ChatFormatting.GRAY);
-            graphics.pose().pushPose();
-            graphics.pose().translate(0f, 0f, 4000);
-            graphics.renderTooltip(font, font.split(tip, 320), mouseX, mouseY);
-            graphics.pose().popPose();
-        }
+        super.render(graphics, mouseX, mouseY, partialTick);
+        renderables.stream().filter(FlatIconButton.class::isInstance).map(FlatIconButton.class::cast)
+                .forEach(button -> button.renderToolTip(graphics, this, mouseX, mouseY));
+        modelButtons.forEach(button -> button.renderTooltip(graphics, this, mouseX, mouseY));
+        renderables.stream().filter(PackButton.class::isInstance).map(PackButton.class::cast)
+                .forEach(button -> button.renderComponentTooltip(graphics, this, mouseX, mouseY));
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private void drawSyncState(GuiGraphics graphics) {
-        var state = ClientModelManager.getSyncState();
-
-        Component text;
-        switch (state.getType()) {
-            case WAITING: {
-                text = Component.translatable("gui.yes_steve_model.sync_hint.waiting");
-            }
-            break;
-            case LOADING: {
-                text = Component.translatable("gui.yes_steve_model.sync_hint.loading");
-            }
-            break;
-            case PREPARING: {
-                text = Component.translatable("gui.yes_steve_model.sync_hint.preparing");
-            }
-            break;
-            case SYNCING: {
-                if (state.getReceived() == 0) {
-                    text = Component.translatable("gui.yes_steve_model.sync_hint.syncing");
-                } else {
-                    text = Component.literal(String.format("%s/%s", state.getReceived(), state.getTotal()));
-                }
-            }
-            break;
-            default:
-                return;
-        }
-
-        var x = this.x + 414 - font.width(text);
-        var y = this.y + 215 + Math.round((14 - font.lineHeight) / 2f);
-
-        graphics.drawString(font, text, x, y, ChatFormatting.DARK_GRAY.getColor());
-    }
-
-    protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    protected void renderReferenceEntity(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null) {
-            Window window = Minecraft.getInstance().getWindow();
-            double scale = window.getGuiScale();
-            int scissorX = (int) ((this.x + 5) * scale);
-            int scissorY = (int) (window.getHeight() - ((this.y + 200) * scale));
-            int scissorW = (int) (125 * scale);
-            int scissorH = (int) (171 * scale);
-            RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-            graphics.pose().pushPose();
-            graphics.pose().translate(0f, 0f, 100);
-            InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x + 67, y + 190, 70, x + 67 - mouseX, y + 180 - 95 - mouseY, player);
-            graphics.pose().popPose();
-            RenderSystem.disableScissor();
-
-            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-                var modelName = ClientModelManager.getModel(cap.getModelId()).map(model -> {
-                    ModelMetadata metadata = model.info().metadata();
-                    if (metadata != null) {
-                        return LanguageManager.getI18n(model, "metadata.name", metadata.name());
-                    }
-                    return "";
-                }).filter(StringUtils::isNoneBlank).orElse(ModelIdUtil.getFileNameFromPath(cap.getModelId()));
-                List<FormattedCharSequence> modelNameSplit = font.split(FormattedText.of(modelName), 125);
-                int lineY = y + 205;
-                for (FormattedCharSequence line : modelNameSplit) {
-                    int nameWidth = font.width(line);
-                    graphics.drawString(font, line, x + (135 - nameWidth) / 2, lineY, 0xF3EFE0);
-                    lineY += 10;
-                }
-            });
+        if (player == null) {
+            return;
         }
-    }
+        Window window = Minecraft.getInstance().getWindow();
+        double scale = window.getGuiScale();
+        RenderSystem.enableScissor((int) ((x + 5) * scale),
+                (int) (window.getHeight() - ((y + 200) * scale)),
+                (int) (125 * scale), (int) (171 * scale));
+        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x + 67, y + 190, 70,
+                x + 67 - mouseX, y + 85 - mouseY, player);
+        RenderSystem.disableScissor();
 
-    @Override
-    public void resize(Minecraft minecraft, int width, int height) {
-        String value = this.textField.getValue();
-        super.resize(minecraft, width, height);
-        this.textField.setValue(value);
+        player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(capability -> {
+            var renderTarget = capability.getModelRenderTarget();
+            var fallback = capability.getModelHash() == null ? "default" : service.displayPath(capability.getModelHash());
+            var name = renderTarget == null ? ModelIdUtil.getFileNameFromPath(fallback)
+                    : renderTarget.getDisplayName(ModelIdUtil.getFileNameFromPath(fallback));
+            var lines = font.split(FormattedText.of(name), 125);
+            var lineY = y + 205;
+            for (FormattedCharSequence line : lines) {
+                graphics.drawString(font, line, x + (135 - font.width(line)) / 2, lineY, 0xF3EFE0);
+                lineY += 10;
+            }
+        });
     }
 
     @Override
     public void tick() {
-        this.textField.tick();
+        textField.tick();
+        if (browser.catalog() != service.catalog()) {
+            init();
+        }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.textField.mouseClicked(mouseX, mouseY, button)) {
-            this.setFocused(this.textField);
+        if (textField.mouseClicked(mouseX, mouseY, button)) {
+            setFocused(textField);
             return true;
-        } else if (this.textField.isFocused()) {
-            this.textField.setFocused(false);
         }
-        boolean result = super.mouseClicked(mouseX, mouseY, button);
-        // 最后判断鼠标右键，返回上一级
-        if (!result && button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && StringUtils.isNotBlank(PACK)) {
-            SimpleSoundInstance sound = SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F);
-            Minecraft.getInstance().getSoundManager().play(sound);
-            this.backToParent();
-            result = true;
+        if (textField.isFocused()) {
+            textField.setFocused(false);
         }
-        return result;
+        var handled = super.mouseClicked(mouseX, mouseY, button);
+        if (!handled && button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !browser.currentPack().isBlank()) {
+            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+            backToParent();
+            return true;
+        }
+        return handled;
     }
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        if (textField == null) {
-            return false;
-        }
-        String perText = this.textField.getValue();
-        if (this.textField.charTyped(codePoint, modifiers)) {
-            if (!Objects.equals(perText, this.textField.getValue())) {
-                this.resetCurrentPage();
-                this.init();
+        var previous = textField.getValue();
+        if (textField.charTyped(codePoint, modifiers)) {
+            if (!Objects.equals(previous, textField.getValue())) {
+                browser.resetPage();
+                init();
             }
             return true;
         }
@@ -687,94 +380,57 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (shouldCloseKey(keyCode, scanCode, modifiers)) {
+        if (PlayerModelScreenKey.PLAYER_MODEL_KEY.matches(keyCode, scanCode) && !textField.isFocused()) {
+            onClose();
             return true;
         }
-        boolean hasKeyCode = InputConstants.getKey(keyCode, scanCode).getNumericKeyValue().isPresent();
-        String preText = this.textField.getValue();
-        if (hasKeyCode) {
-            return true;
-        }
-        if (this.textField.keyPressed(keyCode, scanCode, modifiers)) {
-            if (!Objects.equals(preText, this.textField.getValue())) {
-                this.resetCurrentPage();
-                this.init();
+        var previous = textField.getValue();
+        if (textField.keyPressed(keyCode, scanCode, modifiers)) {
+            if (!Objects.equals(previous, textField.getValue())) {
+                browser.resetPage();
+                init();
             }
             return true;
-        } else {
-            return this.textField.isFocused() && this.textField.isVisible() && keyCode != 256 || super.keyPressed(keyCode, scanCode, modifiers);
         }
-    }
-
-    private boolean shouldCloseKey(int keyCode, int scanCode, int modifiers) {
-        if (PlayerModelScreenKey.PLAYER_MODEL_KEY.matches(keyCode, scanCode) && !this.textField.isFocused()) {
-            this.onClose();
-            return true;
-        }
-        return false;
+        return textField.isFocused() && textField.isVisible() && keyCode != 256
+                || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     protected void insertText(String text, boolean overwrite) {
         if (overwrite) {
-            this.textField.setValue(text);
+            textField.setValue(text);
         } else {
-            this.textField.insertText(text);
+            textField.insertText(text);
         }
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (minecraft == null) {
-            return false;
-        }
-        if (delta != 0 && inRange(mouseX, mouseY)) {
-            return scrollPage(delta);
+        if (delta != 0 && mouseX > x + 143 && mouseX < x + 430 && mouseY > y + 25 && mouseY < y + 235) {
+            if (delta > 0 && browser.page() > 0) {
+                browser.page(browser.page() - 1);
+                init();
+            } else if (delta < 0 && browser.page() < browser.maxPage()) {
+                browser.page(browser.page() + 1);
+                init();
+            }
+            return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
-    private boolean inRange(double mouseX, double mouseY) {
-        boolean isInWidthRange = (x + 143) < mouseX && mouseX < (x + 430);
-        boolean isInHeightRange = (y + 25) < mouseY && mouseY < (y + 235);
-        return isInWidthRange && isInHeightRange;
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        var search = textField == null ? "" : textField.getValue();
+        super.resize(minecraft, width, height);
+        textField.setValue(search);
     }
 
-    private void backToParent() {
-        String parentPath = this.getParentPath(PACK);
-        if (!PACK.equals(parentPath)) {
-            String oldPack = PACK;
-            PACK = parentPath;
-            PAGE.removeInt(oldPack);
-            this.init();
-        }
-    }
-
-    private boolean scrollPage(double delta) {
-        int page = this.getCurrentPage();
-        if (delta > 0 && page > 0) {
-            this.setCurrentPage(page - 1);
-            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.init();
-        }
-        if (delta < 0 && page < this.maxPage) {
-            this.setCurrentPage(page + 1);
-            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.init();
-        }
-        return true;
-    }
-
-    public int getCurrentPage() {
-        return PAGE.getOrDefault(PACK, 0);
-    }
-
-    public void setCurrentPage(int page) {
-        PAGE.put(PACK, page);
-    }
-
-    public void resetCurrentPage() {
-        PAGE.put(PACK, 0);
+    @Override
+    public void removed() {
+        closePage();
+        super.removed();
     }
 
     @Override
@@ -782,24 +438,28 @@ public class PlayerModelScreen extends Screen implements ClientModelSyncListener
         return false;
     }
 
-    @Override
-    public void onAlterModels(Map<String, ClientModel> models) {
+    private void closeModelButtons() {
+        modelButtons.forEach(CatalogModelButton::close);
+        modelButtons.clear();
+    }
+
+    private void closePage() {
+        closeModelButtons();
+        packButtons.forEach(PackButton::close);
+        packButtons.clear();
+        if (pageScope != null) {
+            pageScope.close();
+            pageScope = null;
+        }
+    }
+
+    private void backToParent() {
+        browser.backToParent();
         init();
     }
 
-    @Override
-    public void onNewModelLoaded(Map<String, ClientModel> models) {
-        init();
+    private String locale() {
+        return Minecraft.getInstance().getLanguageManager().getSelected();
     }
 
-    private Optional<ModelPackInfo> getPack(String id) {
-        return Optional.ofNullable(this.allPacks.get(id));
-    }
-
-    private enum Category {
-        /**
-         * 不同页面类别
-         */
-        ALL, AUTH, STAR
-    }
 }

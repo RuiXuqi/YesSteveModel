@@ -1,22 +1,15 @@
 package com.elfmcys.ysm.client.compat.touhoulittlemaid.util;
 
-import com.elfmcys.ysm.geckolib3.core.processor.IBone;
-import com.elfmcys.ysm.geckolib3.model.GeoBoneState;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
-import com.github.tartaricacid.touhoulittlemaid.geckolib3.core.processor.ILocationBone;
-import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class TlmConverterHelper {
     /**
      * 转换成 TLM 下 Bone 的格式
      */
-    public static ILocationBone convertToTlmGeoBone(GeoBoneState geoBoneState) {
+    /*
+    public static ILocationBone convertToTlmGeoBone(AnimatedGeoBone geoBoneState) {
         return new ILocationBone() {
             @Override
             public float getRotationX() {
@@ -79,11 +72,12 @@ public class TlmConverterHelper {
             }
         };
     }
-
+*/
     /**
      * 转换成 TLM 下 AnimatedModel 的格式
      */
-    public static ILocationModel convertToTlmAnimatedModel(GeoModelState geoModelState) {
+    /*
+    public static ILocationModel convertToTlmAnimatedModel(AnimatedGeoModel geoModelState) {
         return new ILocationModel() {
             @Override
             public List<ILocationBone> leftHandBones() {
@@ -122,7 +116,7 @@ public class TlmConverterHelper {
             @Override
             public List<ILocationBone> backpackBones() {
                 // 获取 backpack 定位组，如果 backpack 定位组不存在，才获取 elytra 组
-                List<IBone> backpackBones = geoModelState.backpackBones();
+                List<BoneView> backpackBones = geoModelState.backpackBones();
                 if (backpackBones.isEmpty()) {
                     return convertToTlmAnimatedGeoBones(geoModelState.elytraBones());
                 } else {
@@ -147,9 +141,10 @@ public class TlmConverterHelper {
         };
     }
 
-    private static List<ILocationBone> convertToTlmAnimatedGeoBones(List<IBone> bones) {
+    private static List<ILocationBone> convertToTlmAnimatedGeoBones(List<BoneView> bones) {
         return bones.stream()
-                .map(bone -> ((GeoBoneState) bone).<ILocationBone>getTlmBone())
+                .map(bone -> ((AnimatedGeoBone) bone).<ILocationBone>getTlmBone())
                 .toList();
     }
+    */
 }

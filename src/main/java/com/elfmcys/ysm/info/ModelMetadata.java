@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceLists;
 
 import java.util.List;
 
-// Native Access
 public class ModelMetadata {
     private final String name;
     private final String tips;
@@ -14,7 +13,6 @@ public class ModelMetadata {
     private final List<ModelAuthor> authors;
     private final FifoHashMap<String, String> links;
 
-    // Native Access
     public ModelMetadata(String name, String tips, ModelLicense license, ModelAuthor[] authors, FifoHashMap<String, String> links) {
         this.name = name;
         this.tips = tips;

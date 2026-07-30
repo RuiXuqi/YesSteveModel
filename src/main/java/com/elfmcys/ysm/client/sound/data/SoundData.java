@@ -11,7 +11,6 @@ public class SoundData {
     private final int sampleRate;
     private final long samples;
 
-    // Native Access
     public SoundData(@Nullable ByteBuffer byteBuffer, int soundFormat, int sampleRate, long samples) {
         if (byteBuffer != null) {
             if (soundFormat == 2) {

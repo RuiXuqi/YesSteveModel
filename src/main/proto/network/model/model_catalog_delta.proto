@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package ysm.network.model;
+
+option java_outer_classname = "ModelCatalogDeltaProto";
+
+import "network/model/model_catalog.proto";
+
+message CatalogDelta {
+  bytes epoch = 1;
+  uint64 base_revision = 2;
+  uint64 revision = 3;
+  repeated CatalogOperation operations = 4;
+  bool replace_packs = 5;
+  repeated ModelPackEntry packs = 6;
+}
+
+message CatalogOperation {
+  OperationType type = 1;
+  bytes model_hash = 2;
+  ModelEntry model = 3;
+  string old_namespace = 4;
+  string old_relative_path = 5;
+}
+
+enum OperationType {
+  OPERATION_TYPE_UNSPECIFIED = 0;
+  OPERATION_TYPE_ADD = 1;
+  OPERATION_TYPE_REMOVE = 2;
+  OPERATION_TYPE_MOVE = 3;
+}

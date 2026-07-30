@@ -2,7 +2,6 @@ package com.elfmcys.ysm.info.type;
 
 import net.minecraft.resources.ResourceLocation;
 
-// Native Access
 public enum PBRTextureType {
     NORMAL("_n"),
     SPECULAR("_s");

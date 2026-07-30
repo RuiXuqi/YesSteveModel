@@ -28,7 +28,6 @@ public class FirstPersonCompat {
                 new Vec3(current.x(), 1.5f - HEAD_POS, current.z()));
     }
 
-    // Native Access
     public static boolean isRenderingPlayer() {
         return INSTALLED && FirstPersonAPI.isRenderingPlayer();
     }

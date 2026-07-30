@@ -1,197 +1,220 @@
 package com.elfmcys.ysm.capability;
 
 import com.elfmcys.ysm.event.LivingShieldBlockEvent;
-import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.DispatchServerDrivenProperty;
+import com.elfmcys.ysm.network.forge.PlayerStateHandler;
+import com.elfmcys.ysm.proto.network.protocol.v0.CommonV0;
+import com.elfmcys.ysm.proto.network.protocol.v0.PlayerStateV0;
 import com.elfmcys.ysm.util.TokenBucket;
-import it.unimi.dsi.fastutil.objects.Object2ByteArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ByteMaps;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import org.apache.commons.lang3.StringUtils;
+import org.joml.Math;
 
-public class ServerDrivenPlayerPropertiesTracker {
+public final class ServerDrivenPlayerPropertiesTracker {
     private TokenBucket rateLimiter;
     private boolean lowBandwidth;
-    private DispatchServerDrivenProperty packet;
+    private PlayerStateV0.GameplayState pendingGameplay = PlayerStateV0.GameplayState.newInstance();
+    private final Object2IntOpenHashMap<MobEffect> pendingEffects = new Object2IntOpenHashMap<>();
+    private PlayerStateV0.AnimationState pendingAnimation;
+    private int pendingRoamingKey;
+    private final Object2FloatOpenHashMap<String> pendingRoaming = new Object2FloatOpenHashMap<>();
 
     private int expLevel = -1;
     private boolean fly;
     private int health = -1;
     private int maxHealth = -1;
     private int foodLevel = -1;
-    private float xxa = 0;
-    private float yya = 0;
-    private float zza = 0;
-    private boolean inShieldBlockCooldown = false;
+    private float xxa;
+    private float yya;
+    private float zza;
+    private boolean inShieldBlockCooldown;
     private String extraAnimation = "";
 
     public ServerDrivenPlayerPropertiesTracker() {
-        packet = new DispatchServerDrivenProperty(-1);
         setLowBandwidth(false);
     }
 
     public void setLowBandwidth(boolean value) {
-        if (value != this.lowBandwidth || this.rateLimiter == null) {
-            this.lowBandwidth = value;
-            if (this.lowBandwidth) {
-                this.rateLimiter = new TokenBucket(3, 3);
-            } else {
-                this.rateLimiter = new TokenBucket(4, 7);
-            }
-        }
-    }
-
-    private DispatchServerDrivenProperty setupPacket(ServerPlayer player, boolean sync) {
-        if (!sync || packet.entityId != player.getId()) {
-            packet.clear(player.getId());
-        }
-        return packet;
-    }
-
-    private void broadcastPacket(ServerPlayer player) {
-        if (!packet.isEmpty() && rateLimiter.request()) {
-            NetworkHandler.broadcastToVisiblePlayersAndSelf(packet, player);
-            packet = new DispatchServerDrivenProperty(player.getId());
+        if (value != lowBandwidth || rateLimiter == null) {
+            lowBandwidth = value;
+            rateLimiter = value ? new TokenBucket(3, 3) : new TokenBucket(4, 7);
         }
     }
 
     public void tick(ServerPlayer player, boolean sync, boolean lowBandwidthUsage) {
         setLowBandwidth(lowBandwidthUsage);
-        var packet = setupPacket(player, sync);
-
+        if (!sync) {
+            clearPending();
+        }
         if (expLevel != player.experienceLevel) {
             expLevel = player.experienceLevel;
-            if (sync) {
-                packet.expLevel(expLevel);
-            }
+            if (sync) pendingGameplay.setExperienceLevel(expLevel);
         }
         if (fly != player.getAbilities().flying) {
             fly = player.getAbilities().flying;
-            if (sync) {
-                packet.flying(fly);
-            }
+            if (sync) pendingGameplay.setFlying(fly);
         }
         if (health != (int) player.getHealth()) {
             health = (int) player.getHealth();
-            if (sync) {
-                packet.health(health);
-            }
+            if (sync) pendingGameplay.setHealth(health);
         }
         if (maxHealth != (int) player.getMaxHealth()) {
             maxHealth = (int) player.getMaxHealth();
-            if (sync) {
-                packet.maxHealth(maxHealth);
-            }
+            if (sync) pendingGameplay.setMaxHealth(maxHealth);
         }
         if (foodLevel != player.getFoodData().getFoodLevel()) {
             foodLevel = player.getFoodData().getFoodLevel();
-            if (sync) {
-                packet.foodLevel(foodLevel);
-            }
+            if (sync) pendingGameplay.setFoodLevel(foodLevel);
         }
         if (xxa != player.xxa) {
             xxa = player.xxa;
-            if (sync) {
-                packet.xxa(xxa);
-            }
+            if (sync) pendingGameplay.setMoveXQ7(quantizeAxis(xxa));
         }
         if (yya != player.yya) {
             yya = player.yya;
-            if (sync) {
-                packet.yya(yya);
-            }
+            if (sync) pendingGameplay.setMoveYQ7(quantizeAxis(yya));
         }
         if (zza != player.zza) {
             zza = player.zza;
-            if (sync) {
-                packet.zza(zza);
-            }
+            if (sync) pendingGameplay.setMoveZQ7(quantizeAxis(zza));
         }
-        boolean playerCooldown = LivingShieldBlockEvent.inShieldBlockCooldown(player);
-        if (this.inShieldBlockCooldown != playerCooldown) {
-            this.inShieldBlockCooldown = playerCooldown;
-            if (sync) {
-                packet.inShieldBlockCooldown(inShieldBlockCooldown);
-            }
+        var cooldown = LivingShieldBlockEvent.inShieldBlockCooldown(player);
+        if (inShieldBlockCooldown != cooldown) {
+            inShieldBlockCooldown = cooldown;
+            if (sync) pendingGameplay.setShieldCooldown(cooldown);
         }
-
         if (sync) {
-            broadcastPacket(player);
+            broadcastPending(player);
         }
     }
 
     public void addEffect(ServerPlayer player, MobEffect effect, int level) {
-        setupPacket(player, true).addEffect(effect, level);
+        pendingEffects.put(effect, level);
+        broadcastPending(player);
     }
 
     public void removeEffect(ServerPlayer player, MobEffect effect) {
-        setupPacket(player, true).removeEffect(effect);
+        pendingEffects.put(effect, 0);
+        broadcastPending(player);
     }
 
     public void setExtraAnimation(ServerPlayer player, boolean sync, String animation) {
-        if (!StringUtils.isEmpty(animation) || !StringUtils.isEmpty(extraAnimation)) {
-            this.extraAnimation = animation;
-            setupPacket(player, sync).extraAnimation(animation);
-            if (sync) {
-                broadcastPacket(player);
-            }
+        if (StringUtils.isEmpty(animation) && StringUtils.isEmpty(extraAnimation)) {
+            return;
+        }
+        extraAnimation = animation;
+        pendingAnimation = animation.isEmpty()
+                ? PlayerStateV0.AnimationState.newInstance().setStopped(true)
+                : PlayerStateV0.AnimationState.newInstance().setAnimationId(animation);
+        if (sync) {
+            broadcastPending(player);
         }
     }
 
-    public void updateMolangVars(ServerPlayer player, boolean sync, int hashShort, Object2FloatMap<String> vars) {
-        if (!lowBandwidth && sync) {
-            setupPacket(player, true).molangVars(hashShort, vars);
-            broadcastPacket(player);
-        }
+    public void acceptClientAnimation(String animation) {
+        extraAnimation = animation;
+        pendingAnimation = null;
     }
 
-    /**
-     * 全量同步
-     * 为避免 CME 必须在主线程上调用
-     */
-    public DispatchServerDrivenProperty full(ServerPlayer player, boolean broadcast) {
-        if (broadcast) {
-            this.packet.clear(player.getId());
+    public void updateMolangVars(ServerPlayer player, boolean sync, int modelKey,
+                                 Object2FloatMap<String> variables) {
+        if (lowBandwidth || !sync) {
+            return;
         }
-        var msg = new DispatchServerDrivenProperty(player.getId());
-        msg.setFull();
+        if (pendingRoamingKey != modelKey) {
+            pendingRoamingKey = modelKey;
+            pendingRoaming.clear();
+        }
+        pendingRoaming.putAll(variables);
+        broadcastPending(player);
+    }
 
-        msg.flying(player.getAbilities().flying);
-        msg.expLevel(player.experienceLevel);
-        msg.foodLevel(player.getFoodData().getFoodLevel());
+    public void acceptClientRoaming() {
+        pendingRoaming.clear();
+        pendingRoamingKey = 0;
+    }
 
-        var effectInstances = player.getActiveEffects();
-        if (effectInstances.isEmpty()) {
-            msg.allEffect(Object2ByteMaps.emptyMap());
-        } else if (effectInstances.size() == 1) {
-            var effectInstance = effectInstances.iterator().next();
-            msg.allEffect(Object2ByteMaps.singleton(effectInstance.getEffect(), (byte) (effectInstance.getAmplifier() + 1)));
-        } else {
-            var effectArray = new MobEffect[effectInstances.size()];
-            var levelArray = new byte[effectInstances.size()];
-            var i = 0;
-            for (var effectInstance : effectInstances) {
-                effectArray[i] = effectInstance.getEffect();
-                levelArray[i] = (byte) (effectInstance.getAmplifier() + 1);
-                ++i;
+    public void populateFull(PlayerStateV0.PlayerStateUpdate update, ServerPlayer player) {
+        var gameplay = PlayerStateV0.GameplayState.newInstance()
+                .setFlying(player.getAbilities().flying)
+                .setExperienceLevel(player.experienceLevel)
+                .setFoodLevel(player.getFoodData().getFoodLevel())
+                .setHealth((int) player.getHealth())
+                .setMaxHealth((int) player.getMaxHealth())
+                .setMoveXQ7(quantizeAxis(player.xxa))
+                .setMoveYQ7(quantizeAxis(player.yya))
+                .setMoveZQ7(quantizeAxis(player.zza))
+                .setShieldCooldown(LivingShieldBlockEvent.inShieldBlockCooldown(player));
+        update.setGameplay(gameplay);
+
+        var effects = PlayerStateV0.EffectStateSet.newInstance();
+        for (var instance : player.getActiveEffects()) {
+            var key = BuiltInRegistries.MOB_EFFECT.getKey(instance.getEffect());
+            if (key != null) {
+                effects.addEffects(PlayerStateV0.EffectState.newInstance()
+                        .setEffectId(key.toString())
+                        .setLevel(instance.getAmplifier() + 1));
             }
-            msg.allEffect(new Object2ByteArrayMap<>(effectArray, levelArray));
         }
-        msg.health((int) player.getHealth());
-        msg.maxHealth((int) player.getMaxHealth());
+        update.setEffects(effects);
+        update.setAnimation(extraAnimation.isEmpty()
+                ? PlayerStateV0.AnimationState.newInstance().setStopped(true)
+                : PlayerStateV0.AnimationState.newInstance().setAnimationId(extraAnimation));
+    }
 
-        msg.xxa(player.xxa);
-        msg.yya(player.yya);
-        msg.zza(player.zza);
-
-        if (LivingShieldBlockEvent.inShieldBlockCooldown(player)) {
-            msg.inShieldBlockCooldown(true);
+    private void broadcastPending(ServerPlayer player) {
+        if (!hasPending() || !rateLimiter.request()) {
+            return;
         }
+        var update = PlayerStateHandler.newDelta(player);
+        if (pendingGameplay.getSerializedSize() != 0) {
+            update.setGameplay(pendingGameplay);
+        }
+        if (!pendingEffects.isEmpty()) {
+            var effects = PlayerStateV0.EffectStateSet.newInstance();
+            pendingEffects.object2IntEntrySet().fastForEach(entry -> {
+                var key = BuiltInRegistries.MOB_EFFECT.getKey(entry.getKey());
+                if (key != null) {
+                    effects.addEffects(PlayerStateV0.EffectState.newInstance()
+                            .setEffectId(key.toString())
+                            .setLevel(entry.getIntValue()));
+                }
+            });
+            update.setEffects(effects);
+        }
+        if (pendingAnimation != null) {
+            update.setAnimation(pendingAnimation);
+        }
+        if (!pendingRoaming.isEmpty()) {
+            var roaming = PlayerStateV0.RoamingState.newInstance().setModelKey(pendingRoamingKey);
+            pendingRoaming.object2FloatEntrySet().fastForEach(entry -> roaming.addVariables(
+                    CommonV0.MolangVariable.newInstance()
+                            .setName(entry.getKey())
+                            .setValue(entry.getFloatValue())));
+            update.setRoaming(roaming);
+        }
+        PlayerStateHandler.broadcast(player, update);
+        clearPending();
+    }
 
-        msg.extraAnimation(extraAnimation);
+    private boolean hasPending() {
+        return pendingGameplay.getSerializedSize() != 0 || !pendingEffects.isEmpty()
+                || pendingAnimation != null || !pendingRoaming.isEmpty();
+    }
 
-        return msg;
+    private void clearPending() {
+        pendingGameplay = PlayerStateV0.GameplayState.newInstance();
+        pendingEffects.clear();
+        pendingAnimation = null;
+        pendingRoaming.clear();
+        pendingRoamingKey = 0;
+    }
+
+    private static int quantizeAxis(float value) {
+        return Math.round(Math.clamp(value, -1f, 1f) * 127f);
     }
 }

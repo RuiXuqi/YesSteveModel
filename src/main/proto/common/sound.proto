@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.common;
+
+message Sound {
+  string name = 1;
+  string encoding = 2;
+  uint32 channels = 3;
+  uint32 sample_rate = 4;
+  uint64 samples = 5;
+  uint32 stream_id = 6;
+}

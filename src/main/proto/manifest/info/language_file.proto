@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.info;
+
+import "common/string_pair.proto";
+
+message LanguageFile {
+  string locale = 1;
+  repeated mixel.common.StringPair entries = 2;
+}

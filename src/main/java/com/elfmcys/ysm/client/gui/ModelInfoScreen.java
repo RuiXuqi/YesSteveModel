@@ -1,15 +1,19 @@
 package com.elfmcys.ysm.client.gui;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.client.model.ClientModel;
 import com.elfmcys.ysm.client.gui.button.AuthorButton;
 import com.elfmcys.ysm.client.gui.button.FlatColorButton;
 import com.elfmcys.ysm.client.lang.LanguageManager;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
+import com.elfmcys.ysm.client.model.ClientAssetBatch;
+import com.elfmcys.ysm.client.model.ClientModelService;
+import com.elfmcys.ysm.client.texture.CustomTexture;
 import com.elfmcys.ysm.client.texture.CustomTextureManager;
-import com.elfmcys.ysm.client.texture.TextureHolder;
 import com.elfmcys.ysm.info.ModelAuthor;
 import com.elfmcys.ysm.info.ModelInfo;
 import com.elfmcys.ysm.info.ModelMetadata;
+import com.elfmcys.ysm.model.source.ModelAssetSelector;
+import com.elfmcys.ysm.task.TaskScope;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -23,8 +27,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 @SuppressWarnings("removal")
 public class ModelInfoScreen extends Screen {
@@ -33,45 +41,36 @@ public class ModelInfoScreen extends Screen {
             "home", Component.translatable("gui.yes_steve_model.url.home"),
             "donate", Component.translatable("gui.yes_steve_model.url.donate")
     );
-    private final List<TextureHolder> avatarTextures = new ArrayList<>();
+    private final List<CustomTexture> loadedAvatars = new ArrayList<>();
+    private final Map<Integer, AuthorButton> authorButtons = new HashMap<>();
 
     private final PlayerModelScreen parent;
-    private final ClientModel model;
+    private final ModelRenderTarget model;
     private final ModelInfo modelInfo;
     private int startAuthorIndex = 0;
+    private TaskScope pageScope;
     private int x;
     private int y;
 
-    public ModelInfoScreen(PlayerModelScreen parent, ClientModel model) {
+    public ModelInfoScreen(PlayerModelScreen parent, ModelRenderTarget model) {
         super(Component.literal("Model Info GUI"));
         this.parent = parent;
         this.model = model;
         this.modelInfo = model.info();
-        this.uploadAvatarTexture();
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private void uploadAvatarTexture() {
-        var manager = Minecraft.getInstance().getTextureManager();
-        avatarTextures.clear();
-
-        var authors = modelInfo.metadata().authors();
-        var avatars = model.clientInfo().authorAvatars();
-        for (var i = 0; i < authors.size(); i++) {
-            var texture = avatars.get(authors.get(i).name());
-            if (texture != null) {
-                var id = new ResourceLocation(YesSteveModel.MOD_ID, "avatars/" + i);
-                manager.register(id, texture);
-                avatarTextures.add(CustomTextureManager.register(texture, true));
-            } else {
-                avatarTextures.add(null);
-            }
-        }
+    @Override
+    public void removed() {
+        closePage();
+        super.removed();
     }
 
     @Override
     protected void init() {
+        closePage();
         this.clearWidgets();
+        pageScope = ClientModelService.instance().openRequestScope();
+        var assets = ClientModelService.instance().createAssetBatch(pageScope);
 
         this.x = (width - 420) / 2;
         this.y = (height - 235) / 2;
@@ -91,17 +90,25 @@ public class ModelInfoScreen extends Screen {
                 continue;
             }
             ModelAuthor author = authors.get(index);
-            var avatarHolder = avatarTextures.get(index);
-            addRenderableWidget(new AuthorButton(this.x + 25 + 75 * i, this.y + 15, author, model, avatarHolder != null ? avatarHolder.id().get() : DEFAULT_AVATAR, index, this));
+            var button = new AuthorButton(this.x + 25 + 75 * i, this.y + 15,
+                    author, model, DEFAULT_AVATAR, index, this);
+            authorButtons.put(index, button);
+            addRenderableWidget(button);
+            requestAvatar(index, button, pageScope, assets);
         }
+        assets.submit();
 
         addRenderableWidget(new FlatColorButton(x + 2, y + 25, 18, 100, Component.literal("<"), (b) -> {
-            startAuthorIndex = Math.max(0, startAuthorIndex - 5);
-            this.init();
+            if (startAuthorIndex > 0) {
+                startAuthorIndex = Math.max(0, startAuthorIndex - 5);
+                this.init();
+            }
         }).setTooltips("gui.yes_steve_model.pre_page"));
         addRenderableWidget(new FlatColorButton(x + 25 + 75 * 5, y + 25, 18, 100, Component.literal(">"), (b) -> {
-            startAuthorIndex = startAuthorIndex + 5;
-            this.init();
+            if (startAuthorIndex + 5 < authors.size()) {
+                startAuthorIndex = startAuthorIndex + 5;
+                this.init();
+            }
         }).setTooltips("gui.yes_steve_model.next_page"));
 
         int y = this.y + 150;
@@ -131,6 +138,58 @@ public class ModelInfoScreen extends Screen {
                 this.getMinecraft().setScreen(this);
             }, homeUrl, true));
         }
+    }
+
+    private void requestAvatar(int index, AuthorButton button, TaskScope scope,
+                               ClientAssetBatch assets) {
+        var manifest = ClientModelService.instance().catalog().find(model.modelHash())
+                .map(entry -> entry.displayDescriptor().view().getManifest()).orElse(null);
+        if (manifest == null || !manifest.getInfo().hasMetadata()
+                || !manifest.getInfo().getMetadata().hasAuthors()
+                || index >= manifest.getInfo().getMetadata().getAuthors().length()
+                || !manifest.getInfo().getMetadata().getAuthors().get(index).hasAvatar()) {
+            return;
+        }
+        assets.presentation(model.modelHash(),
+                        ModelAssetSelector.PresentationAsset.AUTHOR_AVATAR, index)
+                .whenComplete((source, error) -> Minecraft.getInstance().execute(() -> {
+                    if (pageScope != scope || authorButtons.get(index) != button) {
+                        return;
+                    }
+                    if (source != null) {
+                        var texture = ClientModelService.instance().createTexture(source);
+                        loadedAvatars.add(texture);
+                        button.setAvatar(CustomTextureManager.register(texture, true).id().get());
+                    } else if (!isCancellation(error)) {
+                        if (error == null) {
+                            YesSteveModel.LOGGER.debug("Failed to load author avatar {}: unknown error", index);
+                        } else {
+                            YesSteveModel.LOGGER.debug("Failed to load author avatar {}", index, unwrap(error));
+                        }
+                    }
+                }));
+    }
+
+    private void closePage() {
+        if (pageScope != null) {
+            pageScope.close();
+            pageScope = null;
+        }
+        loadedAvatars.forEach(CustomTextureManager::release);
+        loadedAvatars.clear();
+        authorButtons.clear();
+    }
+
+    private static boolean isCancellation(@Nullable Throwable error) {
+        return unwrap(error) instanceof CancellationException;
+    }
+
+    private static Throwable unwrap(@Nullable Throwable error) {
+        while ((error instanceof CompletionException || error instanceof ExecutionException)
+                && error.getCause() != null) {
+            error = error.getCause();
+        }
+        return error;
     }
 
     @Override

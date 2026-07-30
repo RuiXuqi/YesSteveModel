@@ -22,7 +22,7 @@ public class UsePredicate implements IAnimationPredicate<CustomHumanoidEntity<?>
             return PlayState.STOP;
         }
 
-        int formatVer = event.getAnimatableEntity().getModelContainer().info().formatVer();
+        int formatVer = event.getAnimatableEntity().getModelRenderTarget().info().formatVer();
 
         if (entity.isUsingItem() && !entity.isSleeping()) {
             if (entity.getTicksUsingItem() == 1 && event.getAnimatableEntity().getStateTracker().setEntityTickState(EntityTickStates.USING_ITEM)) {

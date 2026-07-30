@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.asset;
+
+import "common/sound.proto";
+
+message Common {
+  repeated mixel.common.Sound sounds = 1;
+  uint32 strings_blob_id = 2;
+}

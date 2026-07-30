@@ -5,7 +5,7 @@ import com.elfmcys.ysm.client.animation.predicate.*;
 import com.elfmcys.ysm.client.controller.*;
 import com.elfmcys.ysm.client.entity.CustomVehicleEntity;
 import com.elfmcys.ysm.client.model.CommonAsset;
-import com.elfmcys.ysm.client.model.VehicleModel;
+import com.elfmcys.ysm.client.model.VehicleModelResources;
 import com.elfmcys.ysm.geckolib3.core.builder.Animation;
 import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData;
 import com.elfmcys.ysm.geckolib3.core.controller.HybridAnimationController;
@@ -20,7 +20,7 @@ public class VehicleControllerCollection {
     private static final String CATEGORY = "vehicle";
     public static final String NAME_ORIGIN = CATEGORY + ".origin";
 
-    private static final AnimationControllerCollection<CustomVehicleEntity, VehicleModel> COLLECTION = new AnimationControllerCollection<>();
+    private static final AnimationControllerCollection<CustomVehicleEntity, VehicleModelResources> COLLECTION = new AnimationControllerCollection<>();
 
     @SuppressWarnings("rawtypes,unchecked,deprecation")
     private static void init() {
@@ -38,43 +38,41 @@ public class VehicleControllerCollection {
                 new HybridAnimationController(entity, name, 0, anim != null ? new ParallelPredicate(anim) : EmptyPredicate.INSTANCE, true));
     }
 
-    public static Consumer<CustomVehicleEntity> build(VehicleModel model, CommonAsset assets) {
-        if (COLLECTION.isEmpty()) {
-            init();
-        }
+    public static Consumer<CustomVehicleEntity> build(VehicleModelResources model, CommonAsset assets) {
+        COLLECTION.initialize(VehicleControllerCollection::init);
         return COLLECTION.build(model, assets);
     }
 
-    private static ControllerDiscovery<CustomVehicleEntity, VehicleModel> simple(String name, BiFunction<String, CustomVehicleEntity, IAnimationController<CustomVehicleEntity>> simpleFactory) {
+    private static ControllerDiscovery<CustomVehicleEntity, VehicleModelResources> simple(String name, BiFunction<String, CustomVehicleEntity, IAnimationController<CustomVehicleEntity>> simpleFactory) {
         var controllerName = String.format("%s.%s", CATEGORY, name);
         return COLLECTION.add((model, container) -> (animatable, consumer) -> {
             consumer.accept(simpleFactory.apply(controllerName, animatable));
         });
     }
 
-    private static ControllerDiscovery<CustomVehicleEntity, VehicleModel> single(String name, String[] animations, boolean hybrid, BiFunction<String, CustomVehicleEntity, IAnimationController<CustomVehicleEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomVehicleEntity, VehicleModelResources> single(String name, String[] animations, boolean hybrid, BiFunction<String, CustomVehicleEntity, IAnimationController<CustomVehicleEntity>> controllerFunc) {
         return COLLECTION.add(new SingleControllerDiscovery<>(CATEGORY, name, animations, hybrid, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static ControllerDiscovery<CustomVehicleEntity, VehicleModel> parallel(String name, TriFunction<String, CustomVehicleEntity, String, IAnimationController<CustomVehicleEntity>> controllerFunc) {
+    private static ControllerDiscovery<CustomVehicleEntity, VehicleModelResources> parallel(String name, TriFunction<String, CustomVehicleEntity, String, IAnimationController<CustomVehicleEntity>> controllerFunc) {
         return COLLECTION.add(new ParallelControllerDiscovery<>(CATEGORY, name, false, Adapter.INSTANCE, controllerFunc));
     }
 
-    private static class Adapter implements ResourceAdapter<VehicleModel> {
+    private static class Adapter implements ResourceAdapter<VehicleModelResources> {
         static final Adapter INSTANCE = new Adapter();
 
         @Override
-        public Object2ReferenceMap<String, AnimationControllerData> getControllers(VehicleModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, AnimationControllerData> getControllers(VehicleModelResources model, CommonAsset assets) {
             return model.controllers();
         }
 
         @Override
-        public Object2ReferenceMap<String, Animation> getAnimations(VehicleModel model, CommonAsset assets) {
+        public Object2ReferenceMap<String, Animation> getAnimations(VehicleModelResources model, CommonAsset assets) {
             return model.animations();
         }
 
         @Override
-        public ConditionArmor getArmorCondition(VehicleModel model, CommonAsset assets) {
+        public ConditionArmor getArmorCondition(VehicleModelResources model, CommonAsset assets) {
             return null;
         }
     }

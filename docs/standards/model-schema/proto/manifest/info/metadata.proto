@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.info;
+
+import "common/image.proto";
+import "common/string_pair.proto";
+
+message Metadata {
+  string name = 1;
+  string tips = 2;
+  License license = 3;
+  repeated Author authors = 4;
+  repeated mixel.common.StringPair links = 5;
+}
+
+message Author {
+  string name = 1;
+  string role = 2;
+  repeated mixel.common.StringPair contacts = 3;
+  string comment = 4;
+  mixel.common.Image avatar = 5;
+}
+
+message License {
+  string type = 1;
+  string desc = 2;
+}

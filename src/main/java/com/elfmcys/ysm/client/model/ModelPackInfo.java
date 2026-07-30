@@ -1,12 +1,11 @@
 package com.elfmcys.ysm.client.model;
 
-import com.elfmcys.ysm.client.texture.NativeTexture;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-// Native Access
 public class ModelPackInfo {
     /**
      * 示例：dir1/dir2/dir3/，
@@ -19,11 +18,10 @@ public class ModelPackInfo {
     /**
      * 最大 260 x 450，是游戏分辨率为 2k 且界面尺寸为 5 时 ModelButton 的大小。
      */
-    private final @Nullable NativeTexture icon;
+    private volatile @Nullable AbstractTexture icon;
     private final @Nullable Map<String, Map<String, String>> lang;
 
-    // Native Access
-    public ModelPackInfo(String hierarchy, String name, String desc, @Nullable NativeTexture icon, @Nullable Map<String, Map<String, String>> lang) {
+    public ModelPackInfo(String hierarchy, String name, String desc, @Nullable AbstractTexture icon, @Nullable Map<String, Map<String, String>> lang) {
         this.hierarchy = hierarchy;
         this.name = name;
         this.desc = desc;
@@ -47,8 +45,12 @@ public class ModelPackInfo {
     }
 
     @Nullable
-    public NativeTexture icon() {
+    public AbstractTexture icon() {
         return icon;
+    }
+
+    public void setIcon(@Nullable AbstractTexture icon) {
+        this.icon = icon;
     }
 
     @Nullable

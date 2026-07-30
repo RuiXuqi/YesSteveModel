@@ -2,6 +2,7 @@ package com.elfmcys.ysm.capability;
 
 import com.elfmcys.ysm.client.animation.molang.roaming.RemoteRoamingStruct;
 import com.elfmcys.ysm.client.entity.CustomProjectileEntity;
+import com.elfmcys.ysm.model.domain.ModelHash;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,8 +17,8 @@ public class ProjectileAnimatableCapability extends CustomProjectileEntity {
         super(projectile);
     }
 
-    public void init(String ownerModelId) {
-        updateModelId(ownerModelId);
+    public void init(ModelHash ownerModelHash) {
+        updateModelHash(ownerModelHash);
         setInitialized();
     }
 

@@ -1,7 +1,9 @@
 package com.elfmcys.ysm.capability;
 
 import com.elfmcys.ysm.client.entity.HumanoidStateTracker;
-import com.elfmcys.ysm.network.message.DispatchServerDrivenProperty;
+import com.elfmcys.ysm.proto.network.protocol.v0.PlayerStateV0;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import it.unimi.dsi.fastutil.objects.Object2ByteOpenHashMap;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
@@ -50,39 +52,29 @@ public class PlayerStateTracker extends HumanoidStateTracker<Player> {
         inShieldBlockCooldown = false;
     }
 
-    public void updateServerDrivenProperty(DispatchServerDrivenProperty msg) {
-        if ((msg.variant & ((short) 1 << 1)) != 0) {
-            remoteFlying = msg.flying;
+    public void updateProtocolState(PlayerStateV0.GameplayState gameplay,
+                                    PlayerStateV0.EffectStateSet effectState, boolean full) {
+        if (gameplay != null) {
+            if (gameplay.hasFlying()) remoteFlying = gameplay.getFlying();
+            if (gameplay.hasExperienceLevel()) expLevel = gameplay.getExperienceLevel();
+            if (gameplay.hasFoodLevel()) foodLevel = gameplay.getFoodLevel();
+            if (gameplay.hasHealth()) health = gameplay.getHealth();
+            if (gameplay.hasMaxHealth()) maxHealth = gameplay.getMaxHealth();
+            if (gameplay.hasMoveXQ7()) xxa = gameplay.getMoveXQ7() / 127f;
+            if (gameplay.hasMoveYQ7()) yya = gameplay.getMoveYQ7() / 127f;
+            if (gameplay.hasMoveZQ7()) zza = gameplay.getMoveZQ7() / 127f;
+            if (gameplay.hasShieldCooldown()) inShieldBlockCooldown = gameplay.getShieldCooldown();
         }
-        if ((msg.variant & ((short) 1 << 2)) != 0) {
-            if (msg.isFull()) {
-                effects.clear();
+        if (effectState != null) {
+            if (full) effects.clear();
+            for (var value : effectState.getEffects()) {
+                var key = ResourceLocation.tryParse(value.getEffectId());
+                var effect = key == null ? null : BuiltInRegistries.MOB_EFFECT.get(key);
+                if (effect != null) {
+                    if (value.getLevel() == 0) effects.removeByte(effect);
+                    else effects.put(effect, (byte) value.getLevel());
+                }
             }
-            effects.putAll(msg.effects);
-        }
-        if ((msg.variant & ((short) 1 << 3)) != 0) {
-            expLevel = msg.expLevel;
-        }
-        if ((msg.variant & ((short) 1 << 4)) != 0) {
-            foodLevel = msg.foodLevel;
-        }
-        if ((msg.variant & ((short) 1 << 5)) != 0) {
-            health = msg.health;
-        }
-        if ((msg.variant & ((short) 1 << 6)) != 0) {
-            maxHealth = msg.maxHealth;
-        }
-        if ((msg.variant & ((short) 1 << 7)) != 0) {
-            xxa = msg.xxa / 127f;
-        }
-        if ((msg.variant & ((short) 1 << 8)) != 0) {
-            yya = msg.yya / 127f;
-        }
-        if ((msg.variant & ((short) 1 << 9)) != 0) {
-            zza = msg.zza / 127f;
-        }
-        if ((msg.variant & ((short) 1 << 10)) != 0) {
-            inShieldBlockCooldown = msg.inShieldBlockCooldown;
         }
     }
 

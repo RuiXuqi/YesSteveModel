@@ -9,9 +9,9 @@ import com.elfmcys.ysm.client.entity.CustomHumanoidEntity;
 import com.elfmcys.ysm.client.entity.IPreviewEntity;
 import com.elfmcys.ysm.client.renderer.replace.EntityRendererReplace;
 import com.elfmcys.ysm.geckolib3.geo.GeoReplacedEntityRenderer;
+import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
-import com.elfmcys.ysm.geckolib3.util.RenderUtils;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -41,16 +41,8 @@ public final class RenderUtil {
         renderingInInventory = value;
     }
 
-    public static boolean isRenderingInInventory() {
-        return renderingInInventory;
-    }
-
     public static void setRenderingInPaperDoll(boolean renderingEntitiesInPaperDoll) {
         RenderUtil.renderingInPaperDoll = renderingEntitiesInPaperDoll;
-    }
-
-    public static boolean isRenderingInPaperDoll() {
-        return renderingInPaperDoll;
     }
 
     public static void setRenderingLevel(boolean renderingLevel) {
@@ -58,14 +50,20 @@ public final class RenderUtil {
     }
 
     public static boolean isRenderingLevel() {
-        return renderingLevel ||
-               IrisCompat.isRenderingShadow() ||
-               FirstPersonCompat.isRenderingPlayer();
+        RenderSystem.assertOnRenderThread();
+        return renderingLevel;
     }
 
-    public static boolean isRenderingLevelExclusive() {
+    public static RenderContext extractRenderContext() {
         RenderSystem.assertOnRenderThread();
-        return renderingLevel && !FirstPersonCompat.isRenderingPlayer();
+        return new RenderContext(
+                renderingLevel && !FirstPersonCompat.isRenderingPlayer(),
+                IrisCompat.isRenderingShadow(),
+                FirstPersonCompat.isRenderingPlayer(),
+                renderingInInventory,
+                renderingInPaperDoll,
+                false,
+                false);
     }
 
     public static void adjustPassengerPosition(Entity entity, PoseStack poseStack, float partialTicks) {
@@ -79,18 +77,20 @@ public final class RenderUtil {
                 if (index < 0) {
                     return;
                 }
-                GeoModelState loadedGeoModel = vehicleCap.getLoadedGeoModel();
-                if (loadedGeoModel == null || loadedGeoModel.passengerBones().isEmpty() || index >= loadedGeoModel.passengerBones().size()) {
-                    return;
-                }
-                var bone = loadedGeoModel.passengerBones().get(index);
-                if (bone == null) {
-                    return;
-                }
+                AnimatedGeoModel loadedGeoModel = vehicleCap.getLoadedGeoModel();
+                // TODO
+//                if (loadedGeoModel == null || loadedGeoModel.passengerBones().isEmpty() || index >= loadedGeoModel.passengerBones().size()) {
+//                    return;
+//                }
+//                var bone = loadedGeoModel.passengerBones().get(index);
+//                if (bone == null) {
+//                    return;
+//                }
                 float rawVehicleYaw = Mth.lerp(partialTicks, vehicle.yRotO, vehicle.getYRot());
                 float vehicleYaw = EntityRendererReplace.getYaw(vehicle, rawVehicleYaw, partialTicks);
                 poseStack.mulPose(Axis.YP.rotationDegrees(180 - vehicleYaw));
-                RenderUtils.prepMatrixForLocator(poseStack, bone);
+                // TODO
+               // RenderUtils.prepMatrixForLocator(poseStack, bone);
                 poseStack.mulPose(Axis.YN.rotationDegrees(180 - vehicleYaw));
 
                 double yOffset = -vehicle.getPassengersRidingOffset() - entity.getMyRidingOffset();

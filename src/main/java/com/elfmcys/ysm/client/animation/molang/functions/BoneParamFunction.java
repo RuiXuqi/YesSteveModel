@@ -4,7 +4,7 @@ import com.elfmcys.ysm.client.animation.molang.struct.Vec3fStruct;
 import com.elfmcys.ysm.geckolib3.core.molang.context.IContext;
 import com.elfmcys.ysm.geckolib3.core.molang.function.entity.EntityFunction;
 import com.elfmcys.ysm.geckolib3.core.molang.util.StringPool;
-import com.elfmcys.ysm.geckolib3.core.processor.IBone;
+import com.elfmcys.ysm.geckolib3.core.processor.BoneView;
 import com.elfmcys.ysm.molang.runtime.ExecutionContext;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -30,5 +30,5 @@ public abstract class BoneParamFunction extends EntityFunction {
         return getParam(bone);
     }
 
-    protected abstract Vec3fStruct getParam(@NotNull IBone bone);
+    protected abstract Vec3fStruct getParam(@NotNull BoneView bone);
 }

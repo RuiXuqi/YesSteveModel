@@ -7,6 +7,7 @@ import com.elfmcys.ysm.client.compat.PlayerAnimatorCompat;
 import com.elfmcys.ysm.client.compat.realcamera.RealCameraCompat;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.util.PersonView;
+import com.elfmcys.ysm.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -34,6 +35,7 @@ public class ReplacePlayerRenderEvent {
             return;
         }
         playerRender.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
+            var ctx = RenderUtil.extractRenderContext();
             if (cap.isInitializedAndEnabled()) {
                 if (!PersonView.isFirstPersonView(cap)
                         || FirstPersonCompat.isRenderingPlayer()

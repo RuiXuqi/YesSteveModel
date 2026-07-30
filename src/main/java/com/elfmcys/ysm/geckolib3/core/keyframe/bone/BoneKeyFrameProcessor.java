@@ -4,10 +4,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import java.util.List;
 
-// Native Access
-@SuppressWarnings("unused")
 public class BoneKeyFrameProcessor {
-    // Native Access
     public static List<BoneKeyFrame> process(RawBoneKeyFrame[] frames, boolean isRotation) {
         return process(ReferenceArrayList.wrap(frames), isRotation);
     }

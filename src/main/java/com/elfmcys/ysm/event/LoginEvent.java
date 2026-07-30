@@ -1,8 +1,7 @@
 package com.elfmcys.ysm.event;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.network.NetworkHandler;
-import com.elfmcys.ysm.network.message.ServerInfo;
+import com.elfmcys.ysm.network.forge.HandshakeHandler;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -16,7 +15,7 @@ public final class LoginEvent {
             return;
         }
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            NetworkHandler.sendToClientPlayer(new ServerInfo(), serverPlayer);
+            HandshakeHandler.sendServerHello(serverPlayer);
         }
     }
 }

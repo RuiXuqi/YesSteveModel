@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest;
+
+import "manifest/asset/render_target.proto";
+import "manifest/asset/common.proto";
+import "manifest/info/info.proto";
+
+message Manifest {
+  repeated asset.RenderTarget render_targets = 1;
+  asset.Common common_behavior = 2;
+  info.Info info = 3;
+}

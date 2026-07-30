@@ -2,12 +2,16 @@ package com.elfmcys.ysm.client.gui;
 
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.client.animation.AnimationRegister;
-import com.elfmcys.ysm.client.model.ClientModel;
 import com.elfmcys.ysm.client.event.RegisterEntityRenderersEvent;
+import com.elfmcys.ysm.client.gui.button.CatalogTextureButton;
 import com.elfmcys.ysm.client.gui.button.FlatColorButton;
 import com.elfmcys.ysm.client.gui.button.FlatIconButton;
-import com.elfmcys.ysm.client.gui.button.TextureButton;
-import com.elfmcys.ysm.util.FifoHashMap;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
+import com.elfmcys.ysm.client.model.ClientModelService;
+import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.network.NetworkHandler;
+import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
+import com.elfmcys.ysm.task.TaskScope;
 import com.elfmcys.ysm.util.RenderUtil;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.Window;
@@ -16,35 +20,36 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerTextureScreen extends Screen {
     private static final String ANIMATION_ANNOTATIONS = "——";
-
     private static final float SCALE_MAX = 360f;
     private static final float SCALE_MIN = 18f;
     private static final float PITCH_MAX = 90f;
     private static final float PITCH_MIN = -90f;
     private static final CustomGuiPlayerEntity[] TEXTURE_BUTTON_ENTITY = new CustomGuiPlayerEntity[4];
-
     private static final int LEFT_MOUSE_BUTTON = 0;
     private static final int RIGHT_MOUSE_BUTTON = 1;
 
-    protected final CustomGuiPlayerEntity previewEntity;
-    protected final ClientModel model;
+    protected final CustomGuiPlayerEntity previewEntity = new CustomGuiPlayerEntity();
+    protected final ModelRenderTarget model;
+    protected final ModelHash modelHash;
+    protected final String modelPath;
     private final PlayerModelScreen parent;
-    private final String modelId;
-    private final FifoHashMap<String, ? extends AbstractTexture> textures;
+    private final List<String> textures;
     private final List<String> animations;
+    private final List<CatalogTextureButton> textureButtons = new ArrayList<>();
+    private TaskScope pageScope;
+    private String selectedTexture;
     private String animation = "";
     private int maxTexturePage;
     private int texturePage;
@@ -52,8 +57,7 @@ public class PlayerTextureScreen extends Screen {
     private int animationPage;
     protected int x;
     protected int y;
-
-    protected float posX = 0;
+    protected float posX;
     protected float posY = -60;
     protected float scale = 80;
     protected float yaw = 165;
@@ -61,268 +65,257 @@ public class PlayerTextureScreen extends Screen {
     protected boolean showGround = true;
 
     static {
-        for (int i = 0; i < TEXTURE_BUTTON_ENTITY.length; i++) {
-            TEXTURE_BUTTON_ENTITY[i] = new CustomGuiPlayerEntity();
+        for (var index = 0; index < TEXTURE_BUTTON_ENTITY.length; index++) {
+            TEXTURE_BUTTON_ENTITY[index] = new CustomGuiPlayerEntity();
         }
     }
 
-    public PlayerTextureScreen(PlayerModelScreen parent, String modelId, ClientModel model) {
+    public PlayerTextureScreen(PlayerModelScreen parent, ModelHash modelHash, ModelRenderTarget model) {
         super(Component.literal("Player Texture GUI"));
-        this.previewEntity = new CustomGuiPlayerEntity();
-        for (var entity : TEXTURE_BUTTON_ENTITY) {
-            entity.reset();
-            entity.getPreviewInfo().setPreview(AnimationRegister.IDLE);
-        }
         this.parent = parent;
-        this.modelId = modelId;
+        this.modelHash = modelHash;
         this.model = model;
-        this.textures = model.playerModel().textures();
-        this.animations = new ArrayList<>(model.playerModel().animations().keySet());
+        var entry = ClientModelService.instance().catalog().find(modelHash)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown model hash: " + modelHash));
+        this.modelPath = entry.displayPath();
+        this.textures = entry.displayDescriptor().view().getPlayer().getTextureNames().stream()
+                .sorted().toList();
+        this.selectedTexture = model.playerResources().defaultTextureName();
+        this.animations = new ArrayList<>(model.playerResources().animations().keySet());
         this.animations.removeIf(name -> name.startsWith(ANIMATION_ANNOTATIONS));
         this.animations.sort(String::compareTo);
-    }
-
-    protected TextureButton getTextureButton(int pX, int pY, CustomGuiPlayerEntity animatedEntity, int modelIndex) {
-        return new TextureButton(pX, pY, animatedEntity, model);
+        previewEntity.getPreviewInfo().setPreview(AnimationRegister.IDLE);
+        previewEntity.updateModelAndTexture(modelHash, selectedTexture);
     }
 
     @Override
     protected void init() {
-        this.clearWidgets();
+        closePage();
+        clearWidgets();
+        pageScope = ClientModelService.instance().openRequestScope();
+        x = (width - 420) / 2;
+        y = (height - 235) / 2;
+        maxTexturePage = Math.max(0, (textures.size() - 1) / 4);
+        maxAnimationPage = Math.max(0, (animations.size() - 1) / 11);
+        texturePage = Math.min(texturePage, maxTexturePage);
+        animationPage = Math.min(animationPage, maxAnimationPage);
 
-        this.x = (width - 420) / 2;
-        this.y = (height - 235) / 2;
-        this.maxTexturePage = (textures.size() - 1) / 4;
-        this.maxAnimationPage = (animations.size() - 1) / 11;
-        if (this.texturePage > this.maxTexturePage) {
-            this.texturePage = 0;
-        }
-        if (this.animationPage > this.maxAnimationPage) {
-            this.animationPage = 0;
-        }
-
-        addRenderableWidget(new FlatColorButton(x + 5, y, 80, 18, Component.translatable("gui.yes_steve_model.model.return"), (b) -> this.getMinecraft().setScreen(parent)));
-
-        addRenderableWidget(new FlatIconButton(x + 281, y + 2, 16, 16, 64, 16, (b) -> {
-            this.animation = "idle";
-        }).setTooltips("gui.yes_steve_model.model.stop"));
-        addRenderableWidget(new FlatIconButton(x + 263, y + 2, 16, 16, 48, 16, (b) -> {
-            this.posX = 0;
-            this.posY = -60;
-            this.scale = 80;
-            this.yaw = 165;
-            this.pitch = -5;
+        addRenderableWidget(new FlatColorButton(x + 5, y, 80, 18,
+                Component.translatable("gui.yes_steve_model.model.return"),
+                ignored -> getMinecraft().setScreen(parent)));
+        addRenderableWidget(new FlatIconButton(x + 281, y + 2, 16, 16, 64, 16,
+                ignored -> animation = AnimationRegister.IDLE)
+                .setTooltips("gui.yes_steve_model.model.stop"));
+        addRenderableWidget(new FlatIconButton(x + 263, y + 2, 16, 16, 48, 16, ignored -> {
+            posX = 0;
+            posY = -60;
+            scale = 80;
+            yaw = 165;
+            pitch = -5;
         }).setTooltips("gui.yes_steve_model.model.reset"));
-        addRenderableWidget(new FlatIconButton(x + 245, y + 2, 16, 16, 64, 0, (b) -> {
-            this.showGround = !this.showGround;
-        }).setTooltips("gui.yes_steve_model.model.ground"));
+        addRenderableWidget(new FlatIconButton(x + 245, y + 2, 16, 16, 64, 0,
+                ignored -> showGround = !showGround).setTooltips("gui.yes_steve_model.model.ground"));
 
-        addRenderableWidget(new FlatColorButton(x + 321, y + 213, 18, 18, Component.literal("<"), (b) -> {
-            if (this.texturePage > 0) {
-                this.texturePage--;
-                this.init();
+        addRenderableWidget(new FlatColorButton(x + 321, y + 213, 18, 18, Component.literal("<"), ignored -> {
+            if (texturePage > 0) {
+                texturePage--;
+                init();
             }
         }));
-        addRenderableWidget(new FlatColorButton(x + 383, y + 213, 18, 18, Component.literal(">"), (b) -> {
-            if (this.texturePage < this.maxTexturePage) {
-                this.texturePage++;
-                this.init();
+        addRenderableWidget(new FlatColorButton(x + 383, y + 213, 18, 18, Component.literal(">"), ignored -> {
+            if (texturePage < maxTexturePage) {
+                texturePage++;
+                init();
             }
         }));
-        addRenderableWidget(new FlatColorButton(x + 11, y + 214, 16, 16, Component.literal("<"), (b) -> {
-            if (this.animationPage > 0) {
-                this.animationPage--;
-                this.init();
+        addRenderableWidget(new FlatColorButton(x + 11, y + 214, 16, 16, Component.literal("<"), ignored -> {
+            if (animationPage > 0) {
+                animationPage--;
+                init();
             }
         }));
-        addRenderableWidget(new FlatColorButton(x + 63, y + 214, 16, 16, Component.literal(">"), (b) -> {
-            if (this.animationPage < this.maxAnimationPage) {
-                this.animationPage++;
-                this.init();
+        addRenderableWidget(new FlatColorButton(x + 63, y + 214, 16, 16, Component.literal(">"), ignored -> {
+            if (animationPage < maxAnimationPage) {
+                animationPage++;
+                init();
             }
         }));
 
+        addAnimationButtons();
+        addTextureButtons();
+    }
 
-        for (int i = 0; i < 11; i++) {
-            int animationIndex = i + this.animationPage * 11;
-            if (animationIndex >= animations.size()) {
+    private void addAnimationButtons() {
+        for (var slot = 0; slot < 11; slot++) {
+            var index = slot + animationPage * 11;
+            if (index >= animations.size()) {
                 break;
             }
-            String name = animations.get(animationIndex);
-            int yStart = y + 27 + 17 * i;
-            String key = String.format("gui.yes_steve_model.texture.button.%s", name.replaceAll("\\:", "."));
-            String keyDesc = String.format("gui.yes_steve_model.texture.button.%s.desc", name.replaceAll("\\:", "."));
-
-            Component buttonName;
-            if (I18n.exists(key)) {
-                buttonName = Component.translatable(key);
-            } else {
-                buttonName = Component.literal(name);
-            }
-            FlatColorButton sideButton = new FlatColorButton(x + 5, yStart, 80, 16, buttonName, b -> this.animation = name);
+            var name = animations.get(index);
+            var key = "gui.yes_steve_model.texture.button.%s".formatted(name.replace(':', '.'));
+            var keyDesc = key + ".desc";
+            var label = I18n.exists(key) ? Component.translatable(key) : Component.literal(name);
+            var button = new FlatColorButton(x + 5, y + 27 + 17 * slot, 80, 16, label,
+                    ignored -> animation = name);
             if (I18n.exists(keyDesc)) {
-                sideButton.setTooltips(Lists.newArrayList(Component.translatable(keyDesc).withStyle(ChatFormatting.GOLD),
-                        Component.translatable("gui.yes_steve_model.texture.button.animation_name", name).withStyle(ChatFormatting.GRAY)));
+                button.setTooltips(Lists.newArrayList(
+                        Component.translatable(keyDesc).withStyle(ChatFormatting.GOLD),
+                        Component.translatable("gui.yes_steve_model.texture.button.animation_name", name)
+                                .withStyle(ChatFormatting.GRAY)));
             }
-            addRenderableWidget(sideButton);
+            addRenderableWidget(button);
         }
+    }
 
-        for (int i = 0; i < 4; i++) {
-            int modelIndex = i + this.texturePage * 4;
-            if (modelIndex >= textures.size()) {
+    private void addTextureButtons() {
+        for (var slot = 0; slot < 4; slot++) {
+            var index = slot + texturePage * 4;
+            if (index >= textures.size()) {
                 break;
             }
-            int xStart = x + 306 + 56 * (i % 2);
-            int yStart = y + 5 + 104 * (i / 2);
-            CustomGuiPlayerEntity animatedEntity = TEXTURE_BUTTON_ENTITY[i];
-            animatedEntity.updateModelAndTexture(modelId, textures.getKeyAt(modelIndex));
-            addRenderableWidget(getTextureButton(xStart, yStart, animatedEntity, modelIndex));
+            var button = new CatalogTextureButton(x + 306 + 56 * (slot % 2),
+                    y + 5 + 104 * (slot / 2), modelHash, modelPath, textures.get(index),
+                    pageScope, TEXTURE_BUTTON_ENTITY[slot], this::selectTexture);
+            textureButtons.add(button);
+            addRenderableWidget(button);
+        }
+    }
+
+    protected void selectTexture(ModelHash hash, String path, String texture, @Nullable ModelRenderTarget renderTarget) {
+        selectedTexture = texture;
+        previewEntity.updateModelAndTexture(hash, texture);
+        var player = Minecraft.getInstance().player;
+        if (player != null) {
+            player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(capability -> {
+                capability.updateModelAndTexture(hash, texture);
+                if (NetworkHandler.isRemoteChannelPresent()) {
+                    ClientProtocolGateway.selectModel(hash, texture);
+                }
+            });
         }
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float frameDeltaTime) {
-        LocalPlayer player = getMinecraft().player;
-        if (player == null) {
-            return;
-        }
-
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics);
-        graphics.fillGradient(x, y + 22, x + 90, y + 235, 0xff_222222, 0xff_222222);
-        graphics.fillGradient(x + 93, y, x + 299, y + 235, 0xff_222222, 0xff_222222);
-        graphics.fillGradient(x + 302, y, x + 420, y + 235, 0xff_222222, 0xff_222222);
+        graphics.fillGradient(x, y + 22, x + 90, y + 235, 0xFF222222, 0xFF222222);
+        graphics.fillGradient(x + 93, y, x + 299, y + 235, 0xFF222222, 0xFF222222);
+        graphics.fillGradient(x + 302, y, x + 420, y + 235, 0xFF222222, 0xFF222222);
 
         Window window = Minecraft.getInstance().getWindow();
         double guiScale = window.getGuiScale();
-        int scissorX = (int) ((this.x + 93) * guiScale);
-        int scissorY = (int) (window.getHeight() - ((this.y + 235) * guiScale));
-        int scissorW = (int) (206 * guiScale);
-        int scissorH = (int) (235 * guiScale);
-
         if (!previewEntity.getPreviewInfo().hasPreview(animation)) {
             previewEntity.getPreviewInfo().setPreview(animation);
         }
-        renderReferenceEntity(graphics, scissorX, scissorY, scissorW, scissorH, minecraft.getFrameTime());
+        renderReferenceEntity(graphics, (int) ((x + 93) * guiScale),
+                (int) (window.getHeight() - ((y + 235) * guiScale)),
+                (int) (206 * guiScale), (int) (235 * guiScale), minecraft.getFrameTime());
 
-        String texturePageInfo = String.format("%d/%d", texturePage + 1, this.maxTexturePage + 1);
-        graphics.drawString(font, texturePageInfo, x + 302 + (118 - font.width(texturePageInfo)) / 2, y + 223 - font.lineHeight / 2, 0xF3EFE0);
-
-        String animationPageInfo = String.format("%d/%d", animationPage + 1, this.maxAnimationPage + 1);
-        graphics.drawString(font, animationPageInfo, x + 5 + (80 - font.width(animationPageInfo)) / 2, y + 218, 0xF3EFE0);
-
-        super.render(graphics, mouseX, mouseY, frameDeltaTime);
-        this.renderables.stream().filter(r -> r instanceof FlatColorButton)
-                .forEach(r -> ((FlatColorButton) r).renderToolTip(graphics, this, mouseX, mouseY));
+        var texturePageInfo = "%d/%d".formatted(texturePage + 1, maxTexturePage + 1);
+        graphics.drawString(font, texturePageInfo, x + 302 + (118 - font.width(texturePageInfo)) / 2,
+                y + 223 - font.lineHeight / 2, 0xF3EFE0);
+        var animationPageInfo = "%d/%d".formatted(animationPage + 1, maxAnimationPage + 1);
+        graphics.drawString(font, animationPageInfo, x + 5 + (80 - font.width(animationPageInfo)) / 2,
+                y + 218, 0xF3EFE0);
+        super.render(graphics, mouseX, mouseY, partialTick);
+        renderables.stream().filter(FlatColorButton.class::isInstance).map(FlatColorButton.class::cast)
+                .forEach(button -> button.renderToolTip(graphics, this, mouseX, mouseY));
     }
 
-    protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY, int scissorW, int scissorH, float partialTicks) {
+    protected void renderReferenceEntity(GuiGraphics graphics, int scissorX, int scissorY,
+                                         int scissorW, int scissorH, float partialTick) {
         RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH);
-        minecraft.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
-            previewEntity.updateModelAndTexture(modelId, cap.getTextureName());
-            RenderUtil.renderTextureScreenEntity(this.x + 299 / 2.0F + 40 + posX, this.y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, partialTicks, previewEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), showGround);
-        });
+        RenderUtil.renderTextureScreenEntity(x + 299 / 2.0F + 40 + posX,
+                y + 235 / 2.0F + 80 + posY, scale, pitch, yaw, partialTick,
+                previewEntity, RegisterEntityRenderersEvent.getPlayerRenderer(), showGround);
         RenderSystem.disableScissor();
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (minecraft == null || !inViewRange(mouseX, mouseY)) {
+        if (!inViewRange(mouseX, mouseY)) {
             return false;
         }
         if (button == LEFT_MOUSE_BUTTON) {
-            yaw += (1.5 * dragX);
-            changePitchValue((float) dragY);
-        }
-        if (button == RIGHT_MOUSE_BUTTON) {
-            posX += dragX;
-            posY += dragY;
+            yaw += (float) (1.5 * dragX);
+            pitch = Mth.clamp(pitch - (float) dragY, PITCH_MIN, PITCH_MAX);
+        } else if (button == RIGHT_MOUSE_BUTTON) {
+            posX += (float) dragX;
+            posY += (float) dragY;
         }
         return true;
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (minecraft == null) {
-            return false;
+        if (delta == 0) {
+            return super.mouseScrolled(mouseX, mouseY, delta);
         }
-        if (delta != 0) {
-            if (inViewRange(mouseX, mouseY)) {
-                changeScaleValue((float) delta * 0.07f);
-                return true;
+        if (inViewRange(mouseX, mouseY)) {
+            scale = Mth.clamp(scale + (float) delta * 0.07f * scale, SCALE_MIN, SCALE_MAX);
+            return true;
+        }
+        if (inAnimationRange(mouseX, mouseY)) {
+            var next = page(animationPage, maxAnimationPage, delta);
+            if (next != animationPage) {
+                animationPage = next;
+                init();
             }
-            if (inAnimationRange(mouseX, mouseY)) {
-                return scrollAnimationPage(delta);
+            return true;
+        }
+        if (inTextureRange(mouseX, mouseY)) {
+            var next = page(texturePage, maxTexturePage, delta);
+            if (next != texturePage) {
+                texturePage = next;
+                init();
             }
-            if (inTextureRange(mouseX, mouseY)) {
-                return scrollTexturePage(delta);
-            }
+            return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
-    private boolean scrollTexturePage(double delta) {
-        if (delta > 0 && this.texturePage > 0) {
-            this.texturePage--;
-            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.init();
-        }
-        if (delta < 0 && this.texturePage < this.maxTexturePage) {
-            this.texturePage++;
-            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.init();
-        }
-        return true;
-    }
-
-    private boolean scrollAnimationPage(double delta) {
-        if (delta > 0 && this.animationPage > 0) {
-            this.animationPage--;
-            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.init();
-        }
-        if (delta < 0 && this.animationPage < this.maxAnimationPage) {
-            this.animationPage++;
-            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.init();
-        }
-        return true;
-    }
-
-    private boolean inViewRange(double mouseX, double mouseY) {
-        boolean isInWidthRange = (x + 93) < mouseX && mouseX < (x + 299);
-        boolean isInHeightRange = y < mouseY && mouseY < (y + 235);
-        return isInWidthRange && isInHeightRange;
-    }
-
-    private boolean inAnimationRange(double mouseX, double mouseY) {
-        boolean isInWidthRange = x < mouseX && mouseX < (x + 90);
-        boolean isInHeightRange = (y + 22) < mouseY && mouseY < (y + 235);
-        return isInWidthRange && isInHeightRange;
-    }
-
-    private boolean inTextureRange(double mouseX, double mouseY) {
-        boolean isInWidthRange = (x + 302) < mouseX && mouseX < (x + 420);
-        boolean isInHeightRange = y < mouseY && mouseY < (y + 235);
-        return isInWidthRange && isInHeightRange;
-    }
-
-    private void changePitchValue(float amount) {
-        if (pitch - amount > PITCH_MAX) {
-            pitch = 90;
-        } else if (pitch - amount < PITCH_MIN) {
-            pitch = -90;
-        } else {
-            pitch = pitch - amount;
-        }
-    }
-
-    private void changeScaleValue(float amount) {
-        float tmp = scale + amount * scale;
-        scale = Mth.clamp(tmp, SCALE_MIN, SCALE_MAX);
+    @Override
+    public void removed() {
+        closePage();
+        previewEntity.reset();
+        super.removed();
     }
 
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    private void closeTextureButtons() {
+        textureButtons.forEach(CatalogTextureButton::close);
+        textureButtons.clear();
+    }
+
+    private void closePage() {
+        closeTextureButtons();
+        if (pageScope != null) {
+            pageScope.close();
+            pageScope = null;
+        }
+    }
+
+    private int page(int current, int maximum, double delta) {
+        var next = delta > 0 ? Math.max(0, current - 1) : Math.min(maximum, current + 1);
+        if (next != current) {
+            getMinecraft().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+        }
+        return next;
+    }
+
+    private boolean inViewRange(double mouseX, double mouseY) {
+        return mouseX > x + 93 && mouseX < x + 299 && mouseY > y && mouseY < y + 235;
+    }
+
+    private boolean inAnimationRange(double mouseX, double mouseY) {
+        return mouseX > x && mouseX < x + 90 && mouseY > y + 22 && mouseY < y + 235;
+    }
+
+    private boolean inTextureRange(double mouseX, double mouseY) {
+        return mouseX > x + 302 && mouseX < x + 420 && mouseY > y && mouseY < y + 235;
     }
 }

@@ -1,0 +1,104 @@
+package com.elfmcys.ysm.format.container;
+
+import com.elfmcys.ysm.buffer.BufferType;
+import com.elfmcys.ysm.buffer.UniBuffer;
+import org.apache.commons.lang3.SerializationException;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+
+/** Reads and validates inline payloads described by an AssetContainerView. */
+public final class InlineChunkReader {
+    private InlineChunkReader() {
+    }
+
+    public static UniBuffer readPayload(SeekableByteChannel channel,
+                                        AssetContainerView.ChunkInfo chunk,
+                                        BufferType bufferType) throws IOException {
+        if (!ChunkDecoding.isZstd(chunk)) {
+            return readStoredVerified(channel, chunk, bufferType);
+        }
+        try (var stored = readStored(channel, chunk, BufferType.NATIVE)) {
+            return ChunkDecoding.decodeZstd(stored, chunk, bufferType);
+        }
+    }
+
+    public static byte[] readPayloadBytes(SeekableByteChannel channel,
+                                          AssetContainerView.ChunkInfo chunk) throws IOException {
+        try (var payload = readPayload(channel, chunk, BufferType.ARRAY)) {
+            return toByteArray(payload);
+        }
+    }
+
+    public static UniBuffer readStoredVerified(SeekableByteChannel channel,
+                                               AssetContainerView.ChunkInfo chunk,
+                                               BufferType bufferType) throws IOException {
+        var readType = ChunkDecoding.isZstd(chunk) ? BufferType.NATIVE : bufferType;
+        try (var stored = readStored(channel, chunk, readType)) {
+            ChunkDecoding.validateStored(stored, chunk);
+            return bufferType == BufferType.NATIVE
+                    ? stored.acquireNative()
+                    : stored.acquireArray();
+        }
+    }
+
+    public static byte[] readStoredVerifiedBytes(SeekableByteChannel channel,
+                                                 AssetContainerView.ChunkInfo chunk) throws IOException {
+        try (var stored = readStoredVerified(channel, chunk, BufferType.ARRAY)) {
+            return toByteArray(stored);
+        }
+    }
+
+    private static UniBuffer readStored(SeekableByteChannel channel,
+                                        AssetContainerView.ChunkInfo chunk,
+                                        BufferType bufferType) throws IOException {
+        validate(channel, chunk);
+        try (var scope = UniBuffer.allocateWithScope(chunk.size(), bufferType)) {
+            readFully(channel, chunk.offset(), scope.get().nio());
+            return scope.release();
+        }
+    }
+
+    private static byte[] toByteArray(UniBuffer buffer) {
+        var result = new byte[buffer.size()];
+        buffer.nio().get(result);
+        return result;
+    }
+
+    private static void validate(SeekableByteChannel channel,
+                                 AssetContainerView.ChunkInfo chunk) throws IOException {
+        if ((long) chunk.offset() + chunk.size() > channel.size()) {
+            throw new SerializationException("Inline chunk data overflow");
+        }
+        if (chunk.alignSize() == 0) {
+            return;
+        }
+        var remaining = chunk.alignSize();
+        var position = chunk.offset() - remaining;
+        var scratch = ByteBuffer.allocate(Math.min(remaining, 256));
+        while (remaining > 0) {
+            var length = Math.min(remaining, scratch.capacity());
+            scratch.clear().limit(length);
+            readFully(channel, position, scratch);
+            scratch.flip();
+            while (scratch.hasRemaining()) {
+                if (scratch.get() != 0) {
+                    throw new SerializationException("Illegal chunk align data");
+                }
+            }
+            position += length;
+            remaining -= length;
+        }
+    }
+
+    private static void readFully(SeekableByteChannel channel, long offset,
+                                  ByteBuffer target) throws IOException {
+        channel.position(offset);
+        while (target.hasRemaining()) {
+            if (channel.read(target) < 0) {
+                throw new IOException("Unexpected end of chunk data");
+            }
+        }
+    }
+}

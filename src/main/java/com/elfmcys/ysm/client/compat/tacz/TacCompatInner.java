@@ -6,10 +6,8 @@ import com.elfmcys.ysm.geckolib3.core.PlayState;
 import com.elfmcys.ysm.geckolib3.core.builder.LoopType;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
-import com.elfmcys.ysm.geckolib3.util.RenderUtils;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.client.gameplay.IClientPlayerGunOperator;
 import com.tacz.guns.api.entity.IGunOperator;
@@ -20,14 +18,10 @@ import com.tacz.guns.client.model.functional.ShellRender;
 import com.tacz.guns.resource.index.CommonGunIndex;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.StringUtils;
@@ -51,11 +45,12 @@ class TacCompatInner {
         return false;
     }
 
-    static void renderOffhandGun(ItemStack heldItem, GeoModelState geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
+    static void renderOffhandGun(ItemStack heldItem, AnimatedGeoModel geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
         IGun gun = IGun.getIGunOrNull(heldItem);
         if (gun == null) {
             return;
         }
+        /*
         TimelessAPI.getCommonGunIndex(gun.getGunId(heldItem)).ifPresent(index -> {
             String weaponType = index.getType();
             ItemRenderer renderer = Minecraft.getInstance().getItemRenderer();
@@ -76,6 +71,7 @@ class TacCompatInner {
                 renderer.renderStatic(heldItem, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), player.getId());
             }
         });
+        */
     }
 
     static PlayState playGrenadeAnimation(AnimationEvent<? extends AnimatableEntity<? extends LivingEntity>> event, InteractionHand hand) {

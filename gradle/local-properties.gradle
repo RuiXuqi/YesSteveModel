@@ -1,0 +1,47 @@
+def localPropertiesFile = layout.projectDirectory.file('local.properties').asFile
+
+if (!localPropertiesFile.exists()) {
+    def template = '''# Local development settings. This file is ignored by Git.
+
+# ysm.native_path must be the absolute path to ysm.dll, libysm.so, or libysm.dylib.
+# Pass environment variable YSM_NATIVE_PATH to override this,
+# or leave the value empty to use src/main/resources/META-INF/native for the current platform.
+ysm.native_path=
+# Fast run keeps collaboration mods on the compile classpath but removes them from the runtime classpath.
+ysm.fast_run=false
+# Comma-separated group:artifact entries to keep on the runtime classpath while fast run is enabled.
+ysm.fast_run_whitelist=
+'''
+    try {
+        java.nio.file.Files.writeString(
+                localPropertiesFile.toPath(), template,
+                java.nio.charset.StandardCharsets.UTF_8,
+                java.nio.file.StandardOpenOption.CREATE_NEW)
+    } catch (java.nio.file.FileAlreadyExistsException ignored) {
+        // Another Gradle process created the file first.
+    }
+}
+
+def localProperties = new Properties()
+localPropertiesFile.withReader('UTF-8') { reader ->
+    localProperties.load(reader)
+}
+
+ext.ysmLocalPropertiesFile = localPropertiesFile
+ext.ysmLocalProperties = localProperties
+ext.ysmLocalBooleanProperty = { String name, boolean defaultValue ->
+    def value = localProperties.getProperty(name)
+    if (value == null || value.isBlank()) {
+        return defaultValue
+    }
+
+    switch (value.trim().toLowerCase(Locale.ROOT)) {
+        case 'true':
+            return true
+        case 'false':
+            return false
+        default:
+            throw new GradleException(
+                    "${localPropertiesFile.name}:${name} must be true or false, but was: ${value}")
+    }
+}

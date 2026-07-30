@@ -1,75 +1,50 @@
 package com.elfmcys.ysm.capability;
 
-import com.elfmcys.ysm.model.ServerModelManager;
-import com.elfmcys.ysm.network.message.SyncModelInfo;
-import com.elfmcys.ysm.network.message.data.RoamingVarsChanges;
-import com.google.common.collect.Queues;
-import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import com.elfmcys.ysm.model.domain.ModelHash;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.function.Consumer;
 
-public class ModelInfoCapability {
-    private String modelId;
-    private String selectTexture;
-    /**
-     * 用于处理假人等伪造的玩家实体
-     */
+/** Persistent player model selection and synchronization state. */
+public final class ModelInfoCapability {
+    private ModelHash modelHash;
+    private String selectTexture = "";
     private boolean mandatory;
-    private Int2ReferenceOpenHashMap<Object2FloatOpenHashMap<String>> molangStorage;
-    private ServerDrivenPlayerPropertiesTracker propertiesTracker;
-    /**
-     * 用于禁用 YSM 模型，因为有玩家想强制显示原版玩家模型
-     */
     private boolean disabled;
-
-    /* 以下字段不参与持久化 */
     private boolean dirty;
-    private final Queue<Consumer<Object2FloatOpenHashMap<String>>> molangVarsConsumers;
+    private long stateRevision;
+    private final RoamingVariableStore roamingVariables = new RoamingVariableStore();
+    private ServerDrivenPlayerPropertiesTracker propertiesTracker =
+            new ServerDrivenPlayerPropertiesTracker();
 
-    public ModelInfoCapability() {
-        var defaultModel = ServerModelManager.getDefaultModelAndTexture();
-        this.modelId = defaultModel.getLeft();
-        this.selectTexture = defaultModel.getRight();
-        this.molangStorage = new Int2ReferenceOpenHashMap<>();
-        this.propertiesTracker = new ServerDrivenPlayerPropertiesTracker();
-        this.molangVarsConsumers = Queues.newArrayDeque();
-        this.disabled = false;
-    }
-
-    public void setModelAndTexture(String modelId, String selectTexture) {
-        if (this.modelId.equals(modelId) && this.selectTexture.equals(selectTexture)) {
+    public void setModelAndTexture(ModelHash modelHash, String selectTexture) {
+        if (Objects.equals(this.modelHash, modelHash)
+                && this.selectTexture.equals(selectTexture)) {
             return;
         }
-        this.modelId = modelId;
+        this.modelHash = modelHash;
         this.selectTexture = selectTexture;
         markDirty();
     }
 
-    public void setDefault() {
-        var defaultModel = ServerModelManager.getDefaultModelAndTexture();
-        setModelAndTexture(defaultModel.getLeft(), defaultModel.getRight());
-    }
-
-    public void copyFrom(ModelInfoCapability source) {
-        this.molangStorage = source.molangStorage;
-        this.modelId = source.modelId;
-        this.selectTexture = source.selectTexture;
-        this.mandatory = source.mandatory;
-        this.propertiesTracker = source.propertiesTracker;
-        this.molangVarsConsumers.addAll(source.molangVarsConsumers);
-        this.disabled = source.disabled;
-        source.molangVarsConsumers.clear();
+    public void moveFrom(ModelInfoCapability source) {
+        modelHash = source.modelHash;
+        selectTexture = source.selectTexture;
+        mandatory = source.mandatory;
+        disabled = source.disabled;
+        stateRevision = source.stateRevision;
+        propertiesTracker = source.propertiesTracker;
+        roamingVariables.moveFrom(source.roamingVariables);
         markDirty();
     }
 
-    public String getModelId() {
-        return modelId;
+    public ModelHash getModelHash() {
+        return modelHash;
     }
 
     public String getSelectTexture() {
@@ -96,58 +71,47 @@ public class ModelInfoCapability {
         propertiesTracker.setExtraAnimation(player, !dirty, "");
     }
 
-    // 必须在主线程上调用
-    public Optional<SyncModelInfo> buildPacketForDispatch(ServerPlayer entity, boolean broadcast) {
-        return ServerModelManager.getModel(modelId).map(model -> {
-            var molangVars = molangStorage.computeIfAbsent(model.info().hashShort(), hash -> new Object2FloatOpenHashMap<>(0));
-            while (true) {
-                var task = molangVarsConsumers.poll();
-                if (task == null) {
-                    break;
-                }
-                task.accept(molangVars);
-            }
-            return new SyncModelInfo(entity.getId(), modelId, selectTexture, disabled,
-                    propertiesTracker.full(entity, broadcast).molangVars(model.info().hashShort(), molangVars));
-        });
-    }
-
-    public void executeWithMolangVars(Consumer<Object2FloatOpenHashMap<String>> consumer) {
-        ServerModelManager.getModel(modelId).ifPresentOrElse(model -> {
-            int index = model.info().hashShort();
-            var molangVars = molangStorage.computeIfAbsent(index, hash -> new Object2FloatOpenHashMap<>(0));
-            consumer.accept(molangVars);
-        }, () -> {
-            molangVarsConsumers.add(consumer);
-        });
+    public void executeWithMolangVars(
+            Consumer<Object2FloatOpenHashMap<String>> consumer) {
+        roamingVariables.execute(modelHash, consumer);
     }
 
     public Optional<Object2FloatOpenHashMap<String>> getMolangVars() {
-        return ServerModelManager.getModel(modelId)
-                .map(m -> molangStorage.computeIfAbsent(m.info().hashShort(), hash -> new Object2FloatOpenHashMap<>(0)));
+        return roamingVariables.get(modelHash);
     }
 
-    public void updateRoamingVars(ServerPlayer player, RoamingVarsChanges changes) {
-        molangStorage.compute(changes.modelHashShort, (hash, map) -> {
-            if (map != null) {
-                map.putAll(changes.variablesServerBound);
-                return map;
-            } else {
-                return new Object2FloatOpenHashMap<>(changes.variablesServerBound);
-            }
-        });
-        propertiesTracker.updateMolangVars(player, !dirty, changes.modelHashShort, changes.variablesServerBound);
-        // 无需 markDirty
+    public void updateRoamingVars(ServerPlayer player, int modelKey,
+                                  it.unimi.dsi.fastutil.objects.Object2FloatMap<String> variables) {
+        roamingVariables.update(modelKey, variables);
+        propertiesTracker.updateMolangVars(player, !dirty,
+                modelKey, variables);
     }
 
-    public void trimRoamingStorage(IntSet hashSet) {
-        var iter = molangStorage.int2ReferenceEntrySet().fastIterator();
-        while (iter.hasNext()) {
-            var entry = iter.next();
-            if (!hashSet.contains(entry.getIntKey())) {
-                iter.remove();
-            }
+    public void applyClientAnimation(String animation) {
+        propertiesTracker.acceptClientAnimation(animation);
+    }
+
+    public void applyClientRoaming(int modelKey,
+                                   it.unimi.dsi.fastutil.objects.Object2FloatMap<String> variables,
+                                   boolean full) {
+        if (full) {
+            roamingVariables.replace(modelKey, variables);
+        } else {
+            roamingVariables.update(modelKey, variables);
         }
+        propertiesTracker.acceptClientRoaming();
+    }
+
+    public long nextStateRevision() {
+        return ++stateRevision;
+    }
+
+    public void trimRoamingStorage(IntSet retainedHashes) {
+        roamingVariables.trim(retainedHashes);
+    }
+
+    RoamingVariableStore roamingVariables() {
+        return roamingVariables;
     }
 
     public ServerDrivenPlayerPropertiesTracker getPropertiesTracker() {
@@ -167,12 +131,12 @@ public class ModelInfoCapability {
     }
 
     public void clearDirty() {
-        this.dirty = false;
+        dirty = false;
     }
 
-    public void setMandatory(boolean value) {
-        if (this.mandatory != value) {
-            this.mandatory = value;
+    public void setMandatory(boolean mandatory) {
+        if (this.mandatory != mandatory) {
+            this.mandatory = mandatory;
             markDirty();
         }
     }
@@ -182,46 +146,28 @@ public class ModelInfoCapability {
     }
 
     public CompoundTag serializeNBT() {
-        CompoundTag tag = new CompoundTag();
-
-        tag.putString("model_id", this.modelId);
-        tag.putString("select_texture", this.selectTexture);
+        var tag = new CompoundTag();
+        tag.putString("model_hash", modelHash == null ? "" : modelHash.toString());
+        tag.putString("select_texture", selectTexture);
         tag.putBoolean("mandatory", mandatory);
         tag.putBoolean("disabled", disabled);
-
-        CompoundTag storageTag = new CompoundTag();
-        molangStorage.int2ReferenceEntrySet().fastForEach(storageEntry -> {
-            CompoundTag varsTag = new CompoundTag();
-            storageEntry.getValue().object2FloatEntrySet().fastForEach(varsEntry -> {
-                varsTag.putFloat(varsEntry.getKey(), varsEntry.getFloatValue());
-            });
-            storageTag.put(String.valueOf(storageEntry.getIntKey()), varsTag);
-        });
-        tag.put("molang_storage", storageTag);
-
+        tag.put("molang_storage", roamingVariables.serialize());
         return tag;
     }
 
-    public void deserializeNBT(CompoundTag nbt) {
-        this.modelId = nbt.getString("model_id");
-        this.selectTexture = nbt.getString("select_texture");
+    public void deserializeNBT(CompoundTag tag) {
+        var storedHash = tag.getString("model_hash");
+        try {
+            modelHash = storedHash.isEmpty() ? null : ModelHash.parse(storedHash);
+        } catch (IllegalArgumentException ignored) {
+            modelHash = null;
+        }
+        selectTexture = tag.getString("select_texture");
         if (selectTexture.length() > 4 && selectTexture.toLowerCase().endsWith(".png")) {
-            this.selectTexture = this.selectTexture.substring(0, this.selectTexture.length() - 4);
+            selectTexture = selectTexture.substring(0, selectTexture.length() - 4);
         }
-        this.mandatory = nbt.getBoolean("mandatory");
-        this.disabled = nbt.getBoolean("disabled");
-
-        this.molangStorage.clear();
-        var storageTag = nbt.getCompound("molang_storage");
-        for (var modelHashShortStr : storageTag.getAllKeys()) {
-            var varsTag = storageTag.getCompound(modelHashShortStr);
-            var modelHashShort = Integer.parseInt(modelHashShortStr);
-            var varsTagKeys = varsTag.getAllKeys();
-            var vars = this.molangStorage.computeIfAbsent(modelHashShort, hash -> new Object2FloatOpenHashMap<>(varsTagKeys.size()));
-            for (var name : varsTagKeys) {
-                var value = varsTag.getFloat(name);
-                vars.put(name, value);
-            }
-        }
+        mandatory = tag.getBoolean("mandatory");
+        disabled = tag.getBoolean("disabled");
+        roamingVariables.deserialize(tag.getCompound("molang_storage"));
     }
 }

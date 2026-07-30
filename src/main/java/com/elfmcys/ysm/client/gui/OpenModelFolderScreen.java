@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.client.gui;
 
-import com.elfmcys.ysm.model.ServerModelManager;
+import com.elfmcys.ysm.model.catalog.ModelCatalogSources;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -21,7 +21,7 @@ public class OpenModelFolderScreen extends Screen {
         int y = height / 2 + 60;
         this.clearWidgets();
         this.addRenderableWidget(Button.builder(Component.translatable("gui.yes_steve_model.open_model_folder.open"), b -> {
-            Util.getPlatform().openFile(ServerModelManager.CUSTOM.toFile());
+            Util.getPlatform().openFile(ModelCatalogSources.customPath().toFile());
         }).bounds(x, y, 150, 20).build());
         this.addRenderableWidget(Button.builder(Component.translatable("gui.yes_steve_model.model.return"), b -> {
             getMinecraft().setScreen(this.screen);

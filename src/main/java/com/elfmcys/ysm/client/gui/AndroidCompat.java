@@ -47,7 +47,7 @@ public class AndroidCompat {
                 if (mc.player != null) {
                     mc.player.getCapability(PlayerAnimatableCapabilityProvider.CAP).ifPresent(cap -> {
                         String modelId = cap.getModelId();
-                        var model = cap.getModelContainer();
+                        var model = cap.getModelRenderTarget();
                         if (model != null && !model.info().properties().extraAnimationOrderMap().isEmpty()) {
                             mc.setScreen(new AnimationRouletteScreen(modelId, model, cap));
                         }

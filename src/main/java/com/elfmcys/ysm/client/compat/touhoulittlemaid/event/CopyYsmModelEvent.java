@@ -2,6 +2,8 @@ package com.elfmcys.ysm.client.compat.touhoulittlemaid.event;
 
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.ysm.capability.ModelSelectionService;
+import com.elfmcys.ysm.model.server.ServerModelService;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.init.InitEntities;
 import com.github.tartaricacid.touhoulittlemaid.item.ItemHakureiGohei;
@@ -73,7 +75,10 @@ public class CopyYsmModelEvent {
 
     private void applyPlayerInfo(Player player, CompoundTag compound) {
         player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
-            String modelId = cap.getModelId();
+            String modelId = ServerModelService.current().flatMap(ServerModelService::snapshot)
+                    .map(snapshot -> ModelSelectionService.displayId(cap, snapshot))
+                    .orElseGet(() -> cap.getModelHash() == null
+                            ? "default" : cap.getModelHash().toString());
             String texture = cap.getSelectTexture();
 
             compound.putBoolean(EntityMaid.IS_YSM_MODEL_TAG, true);

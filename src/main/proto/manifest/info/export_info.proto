@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.info;
+
+message ExportInfo {
+  uint64 timestamp = 1;
+  string version = 2;
+  string extra = 3;
+}

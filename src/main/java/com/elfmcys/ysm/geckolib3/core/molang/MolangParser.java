@@ -22,8 +22,10 @@ public class MolangParser {
         engine = MolangEngine.fromCustomBinding(primaryBinding);
     }
 
-    // Native Access
-    @SuppressWarnings("unused")
+    public IValue parseExpression(String molangExpression) {
+        return parseExpression(molangExpression, false);
+    }
+
     public IValue parseExpression(String molangExpression, boolean isUserFunc) {
         try {
             return parseExpressionUnsafe(molangExpression, isUserFunc);
@@ -103,8 +105,6 @@ public class MolangParser {
         return result.toString();
     }
 
-    // Native Access
-    @SuppressWarnings("unused")
     public IValue getConstant(double value) {
         return new FloatValue((float) value);
     }

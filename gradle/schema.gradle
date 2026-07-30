@@ -1,0 +1,45 @@
+def generatedProtobufDir = layout.buildDirectory.dir('generated/source/proto/main')
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.21.12'
+    }
+    plugins {
+        quickbuf {
+            artifact = 'us.hebi.quickbuf:protoc-gen-quickbuf:1.4'
+        }
+    }
+    generateProtoTasks {
+        all().configureEach { task ->
+            task.builtins {
+                remove java
+            }
+            task.plugins {
+                quickbuf {
+                    option 'allocation=lazymsg'
+                    option "replace_package=ysm=com.elfmcys.ysm.proto"
+                    option 'indent=4'
+                    option 'enforce_has_checks=false'
+                    option 'java8_optional=true'
+                }
+            }
+        }
+    }
+}
+
+tasks.register('generateSchemaSources') {
+    group = 'build'
+    dependsOn tasks.named('generateProto')
+}
+
+sourceSets.main.java {
+    srcDir generatedProtobufDir
+}
+
+tasks.named('compileJava') {
+    dependsOn tasks.named('generateSchemaSources')
+}
+
+idea.project.settings.taskTriggers {
+    afterSync tasks.named('generateSchemaSources')
+}

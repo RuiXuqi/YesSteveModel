@@ -5,13 +5,10 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 
 import java.util.List;
 
-// Native Access
-@SuppressWarnings("unused")
 public class SegmentedBlendTransition implements IBlendTransition {
     private final List<Segment> segments;
     private final OrderedSegmentSearcher<Segment> segmentSearcher;
 
-    // Native Access
     public SegmentedBlendTransition(float[] time, float[] position) {
         var segments = new ReferenceArrayList<Segment>(time.length - 1);
         for (int i = 0; i < time.length - 1; i++) {

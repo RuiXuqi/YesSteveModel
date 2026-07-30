@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.compat.touhoulittlemaid.client;
 
 import com.elfmcys.ysm.client.entity.CustomHumanoidEntity;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.molang.runtime.Struct;
 import com.github.tartaricacid.touhoulittlemaid.api.entity.IMaid;
 import com.github.tartaricacid.touhoulittlemaid.client.resource.pojo.MaidModelInfo;
@@ -29,12 +29,12 @@ public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implem
     @Override
     @SuppressWarnings("unchecked")
     protected void onSetupAnimationController() {
-        ((Consumer<CustomYsmMaidEntity>) getModelContainer().playerModel().maidControllerFactory()).accept(this);
+        ((Consumer<CustomYsmMaidEntity>) getModelRenderTarget().playerResources().maidControllerFactory()).accept(this);
     }
 
     @Override
-    protected @NotNull ResourceHolder createResourceHolder(ClientModel model, boolean isFallback) {
-        return new HumanoidResourceHolder(model, isFallback, true, true, 30 * 20);
+    protected @NotNull ResourceHolder createResourceHolder(ModelRenderTargetLease lease, boolean isFallback) {
+        return new HumanoidResourceHolder(lease, isFallback, true, true, 30 * 20);
     }
 
     @Override
@@ -103,7 +103,9 @@ public class CustomYsmMaidEntity extends CustomHumanoidEntity<EntityMaid> implem
 
     @Override
     public ILocationModel getGeoModel() {
-        return this.getLoadedGeoModel().getTlmAnimatedGeoModel();
+        // TODO
+//        return this.getLoadedGeoModel().getTlmAnimatedGeoModel();
+        return null;
     }
 
     @Override

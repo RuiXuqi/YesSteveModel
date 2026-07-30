@@ -61,12 +61,15 @@ public class ParallelControllerDiscovery<T extends CustomEntity<?>, TModel> impl
                 names.put(controllerName, null);
             }
         });
-        Object2ReferenceMaps.fastForEach(animations, entry -> {
-            if (!entry.getValue().isEmpty() && animationNamePattern.test(entry.getKey())) {
-                var controllerName = String.format("%s.%s_%s", category, name, entry.getKey().substring(name.length()));
-                names.put(controllerName, entry.getKey());
+        for (var animationName : animations.keySet()) {
+            if (animationNamePattern.test(animationName)) {
+                var animation = animations.get(animationName);
+                if (animation != null && !animation.isEmpty()) {
+                    var controllerName = String.format("%s.%s_%s", category, name, animationName.substring(name.length()));
+                    names.put(controllerName, animationName);
+                }
             }
-        });
+        }
         return ((animatable, consumer) -> {
             Object2ReferenceMaps.fastForEach(names, entry -> {
                 consumer.accept(controllerFunc.apply(entry.getKey(), animatable, entry.getValue()));

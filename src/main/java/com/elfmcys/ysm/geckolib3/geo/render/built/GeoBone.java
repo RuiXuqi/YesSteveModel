@@ -1,40 +1,31 @@
 package com.elfmcys.ysm.geckolib3.geo.render.built;
 
 import com.elfmcys.ysm.geckolib3.core.molang.util.StringPool;
+import mixel.asset.model.data.GeoModelOuterClass;
+import org.joml.Vector3f;
 
-// Native Access
 public class GeoBone {
     private final String name;
     private final int pooledName;
+    private final GeoLocator locatorType;
+    private final Vector3f rotation;
+    private final Vector3f pivot;
+    private final boolean debug;
 
-    private final boolean isHidden;
-    private final boolean areCubesHidden;
-    private final boolean areChildrenHidden;
-
-    private final float pivotX;
-    private final float pivotY;
-    private final float pivotZ;
-    private final float rotationX;
-    private final float rotationY;
-    private final float rotationZ;
-
-    // Native Access
-    @SuppressWarnings("unused")
-    public GeoBone(String name, boolean isHidden, boolean areCubesHidden, boolean hideChildBonesToo, float rotationPointX, float rotationPointY, float rotationPointZ, float rotateX, float rotateY, float rotateZ) {
-        this.name = name;
+    public GeoBone(GeoModelOuterClass.Bone bone, GeoLocator locator) {
+        if (!bone.hasName() || bone.getName().isEmpty() ||
+                !bone.hasRotate() || bone.getRotate().length() != 3 ||
+                !bone.hasPivot() || bone.getPivot().length() != 3) {
+            throw new IllegalArgumentException("Invalid bone metadata");
+        }
+        this.name = bone.getName();
         this.pooledName = StringPool.computeIfAbsent(name);
-
-        this.isHidden = isHidden;
-        this.areCubesHidden = areCubesHidden;
-        this.areChildrenHidden = hideChildBonesToo;
-
-        this.pivotX = rotationPointX;
-        this.pivotY = rotationPointY;
-        this.pivotZ = rotationPointZ;
-
-        this.rotationX = rotateX;
-        this.rotationY = rotateY;
-        this.rotationZ = rotateZ;
+        this.locatorType = locator;
+        this.rotation = new Vector3f(bone.getRotate().get(0),
+                bone.getRotate().get(1), bone.getRotate().get(2));
+        this.pivot = new Vector3f(bone.getPivot().get(0),
+                bone.getPivot().get(1), bone.getPivot().get(2));
+        this.debug = bone.hasDebug() && bone.getDebug();
     }
 
     public String name() {
@@ -45,39 +36,19 @@ public class GeoBone {
         return pooledName;
     }
 
-    public boolean isHidden() {
-        return isHidden;
+    public GeoLocator locatorType() {
+        return locatorType;
     }
 
-    public boolean areCubesHidden() {
-        return areCubesHidden;
+    public Vector3f rotation() {
+        return rotation;
     }
 
-    public boolean areChildrenHidden() {
-        return areChildrenHidden;
+    public Vector3f pivot() {
+        return pivot;
     }
 
-    public float pivotX() {
-        return pivotX;
-    }
-
-    public float pivotY() {
-        return pivotY;
-    }
-
-    public float pivotZ() {
-        return pivotZ;
-    }
-
-    public float rotationX() {
-        return rotationX;
-    }
-
-    public float rotationY() {
-        return rotationY;
-    }
-
-    public float rotationZ() {
-        return rotationZ;
+    public boolean debug() {
+        return debug;
     }
 }

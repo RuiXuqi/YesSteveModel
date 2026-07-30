@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package ysm.network.protocol.v0.minecraft;
+
+import "network/protocol/v0/common.proto";
+
+option java_outer_classname = "MinecraftStateV0";
+
+message ProjectileModelState {
+  ysm.network.protocol.v0.EntityRef entity = 1;
+  ysm.network.protocol.v0.ModelReference model = 2;
+  repeated ysm.network.protocol.v0.MolangVariable molang_variables = 3;
+}
+
+message VehicleModelState {
+  ysm.network.protocol.v0.EntityRef entity = 1;
+  ysm.network.protocol.v0.ModelReference model = 2;
+  repeated ysm.network.protocol.v0.MolangVariable molang_variables = 3;
+}

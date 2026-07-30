@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.manifest.info;
+
+import "manifest/info/properties.proto";
+import "manifest/info/metadata.proto";
+import "manifest/info/settings.proto";
+import "manifest/info/export_info.proto";
+import "manifest/info/language_file.proto";
+
+enum PreviewSource {
+  PREVIEW_SOURCE_UNSPECIFIED = 0;
+  PREVIEW_SOURCE_RAW = 1;
+  PREVIEW_SOURCE_GENERATED = 2;
+}
+
+message Info {
+  repeated LanguageFile language_files = 1;
+  Settings settings = 2;
+  Metadata metadata = 3;
+  Properties properties = 4;
+  ExportInfo export = 5;
+  PreviewSource thumbnail_source = 6;
+}

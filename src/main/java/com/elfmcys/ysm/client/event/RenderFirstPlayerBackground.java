@@ -3,18 +3,16 @@ package com.elfmcys.ysm.client.event;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.client.entity.CustomPlayerEntity;
-import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.client.renderer.CustomPlayerRenderer;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.event.api.SpecialPlayerRenderEvent;
 import com.elfmcys.ysm.geckolib3.geo.CustomTranslucentRenderType;
-import com.elfmcys.ysm.geckolib3.geo.NativeRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -63,10 +61,17 @@ public class RenderFirstPlayerBackground {
                 return;
             }
             String modelId = cap.getModelId();
-            ClientModel model = cap.getModelContainer();
-            if (model == null || !model.playerModel().armModel().hasFirstPersonBackground) {
+            ModelRenderTarget model = cap.getModelRenderTarget();
+            var variant = cap.getModelVariant();
+            if (model == null || variant == null) {
                 return;
             }
+            // TODO
+            /*
+            if (!variant.armModel().hasFirstPersonBackground) {
+                return;
+            }
+             */
             CustomPlayerRenderer renderer = RegisterEntityRenderersEvent.getPlayerRenderer();
             final PoseStack poseStack = event.getPoseStack();
             MultiBufferSource multiBufferSource = event.getMultiBufferSource();
@@ -76,7 +81,6 @@ public class RenderFirstPlayerBackground {
             }
 
             ResourceLocation textureLocation = cap.getTextureLocation();
-            int textureIndex = cap.getTextureIndex();
             var vertexConsumer = multiBufferSource.getBuffer(CustomTranslucentRenderType.create(textureLocation));
 
             if (renderer != null) {
@@ -85,7 +89,8 @@ public class RenderFirstPlayerBackground {
                     bobView(poseStack, event.getPartialTick(), player);
                 }
                 poseStack.translate(0, -1.5, 0);
-                NativeRenderer.renderModel(vertexConsumer, poseStack.last(), model.playerModel().armModel(), model.playerModel().armModel().getInitialState(), null, textureIndex, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+                // TODO
+                // NativeRenderer.renderModel(vertexConsumer, poseStack.last(), variant.armModel(), variant.armModel().getInitialState(), null, NativeRenderer.RENDER_MODE_BACKGROUND, event.getPackedLight(), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
                 poseStack.popPose();
             }
         });

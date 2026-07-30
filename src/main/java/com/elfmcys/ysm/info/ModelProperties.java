@@ -7,7 +7,6 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-// Native Access
 public class ModelProperties {
     private final float widthScale;
     private final float heightScale;
@@ -20,7 +19,6 @@ public class ModelProperties {
     private final boolean renderLayersFirst;
     private final boolean disablePreviewRotation;
 
-    // Native Access
     public ModelProperties(float widthScale, float heightScale, String defaultTexture, String previewAnimation,
                            FifoHashMap<String, String> extraAnimationOrderMap,
                            ExtraAnimationButton[] extraAnimationButtonsList,
@@ -62,7 +60,7 @@ public class ModelProperties {
         return heightScale;
     }
 
-    // 清单的原始值可能有错，应该用 modelContainer.playerModel().defaultTextureName()
+    // 清单的原始值可能有错，应该用 modelContainer.playerResources().defaultTextureName()
     public String defaultTexture() {
         return defaultTexture;
     }

@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: CC0-1.0
+syntax = "proto3";
+
+package mixel.asset.strings;
+
+import "asset/strings/data/user_func.proto";
+
+message StringData {
+  repeated data.UserFunction user_functions = 1;
+}

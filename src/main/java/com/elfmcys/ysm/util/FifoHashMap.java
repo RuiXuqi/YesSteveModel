@@ -1,6 +1,10 @@
 package com.elfmcys.ysm.util;
 
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,14 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Native Access
 public class FifoHashMap<K, V> implements Map<K, V> {
     private final ObjectList<K> keys;
     private final ObjectList<V> values;
     private final Object2ObjectArrayMap<K, V> orderMap;
     private final Object2ObjectOpenHashMap<K, V> hashMap;
 
-    // Native Access
     public FifoHashMap(K[] keys, V[] values) {
         this.keys = ObjectLists.unmodifiable(ObjectArrayList.wrap(keys));
         this.values = ObjectLists.unmodifiable(ObjectArrayList.wrap(values));

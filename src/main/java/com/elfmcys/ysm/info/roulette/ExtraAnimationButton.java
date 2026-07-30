@@ -2,14 +2,12 @@ package com.elfmcys.ysm.info.roulette;
 
 import com.elfmcys.ysm.info.roulette.forms.ConfigForms;
 
-// Native Access
 public class ExtraAnimationButton {
     private final String id;
     private final String name;
     private final String sound;
     private final ConfigForms[] configForms;
 
-    // Native Access
     public ExtraAnimationButton(String id, String name, String sound, ConfigForms[] configForms) {
         this.id = id;
         this.name = name;

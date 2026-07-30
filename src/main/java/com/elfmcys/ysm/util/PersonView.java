@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.util;
 
-import com.elfmcys.ysm.client.compat.IrisCompat;
 import com.elfmcys.ysm.client.entity.IPreviewEntity;
+import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
 import com.elfmcys.ysm.geckolib3.core.molang.context.IContext;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
 import net.minecraft.client.CameraType;
@@ -11,7 +11,8 @@ import net.minecraft.world.entity.Entity;
 public final class PersonView {
     public static int getPersonView(IContext<? extends Entity> ctx) {
         // 是客户端玩家，而且不在 GUI 渲染内
-        if (ctx.entity() == Minecraft.getInstance().player && RenderUtil.isRenderingLevel()) {
+        var renderContext = ctx.animationEvent().getRenderContext();
+        if (ctx.entity() == Minecraft.getInstance().player && renderContext.level()) {
             return ctx.mc().options.getCameraType().ordinal();
         } else {
             // 否则永远返回第三人称正面视角
@@ -19,20 +20,19 @@ public final class PersonView {
         }
     }
 
-    public static boolean isFirstPersonView(AnimatableEntity<? extends Entity> animatable) {
+    public static boolean isFirstPersonView(AnimatableEntity<?> animatable) {
         Entity entity = animatable.getEntity();
-        if (entity == Minecraft.getInstance().player && RenderUtil.isRenderingLevel() && !IrisCompat.isRenderingShadow()) {
+        if (entity == Minecraft.getInstance().player && RenderUtil.isRenderingLevel()) {
             return Minecraft.getInstance().options.getCameraType().ordinal() == CameraType.FIRST_PERSON.ordinal();
         }
         return false;
     }
 
     public static boolean isInInventory(IContext<? extends Entity> ctx) {
-        AnimatableEntity<?> animatableEntity = ctx.animatableEntity();
-        return isInInventory(animatableEntity);
+        return isInInventory(ctx.animationEvent());
     }
 
-    public static boolean isInInventory(AnimatableEntity<?> animatableEntity) {
-        return animatableEntity instanceof IPreviewEntity || RenderUtil.isRenderingInInventory();
+    public static boolean isInInventory(AnimationEvent<?> event) {
+        return event.getAnimatableEntity() instanceof IPreviewEntity || event.getRenderContext().inventory();
     }
 }

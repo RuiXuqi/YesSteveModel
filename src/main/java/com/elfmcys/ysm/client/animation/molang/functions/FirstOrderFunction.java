@@ -23,7 +23,7 @@ public class FirstOrderFunction extends EntityFunction {
             response = arguments.getAsFloat(context, 2);
         }
 
-        var manager = context.entity().animatableEntity().getPhysicsManager();
+        var manager = context.entity().animatableEntity().getPhysicsManager(context.entity().animationEvent());
         IPhysics physicsValue = manager.get(key);
         if (physicsValue == null) {
             FirstOrder firstOrder = new FirstOrder(input, response);

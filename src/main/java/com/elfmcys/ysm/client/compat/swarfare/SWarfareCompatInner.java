@@ -9,14 +9,10 @@ import com.elfmcys.ysm.client.entity.CustomHumanoidEntity;
 import com.elfmcys.ysm.geckolib3.core.PlayState;
 import com.elfmcys.ysm.geckolib3.core.builder.LoopType;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
-import com.elfmcys.ysm.geckolib3.model.GeoModelState;
-import com.elfmcys.ysm.geckolib3.util.RenderUtils;
+import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -24,7 +20,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -48,8 +43,9 @@ public class SWarfareCompatInner {
         return false;
     }
 
-    static void renderOffhandGun(ItemStack heldItem, GeoModelState geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
+    static void renderOffhandGun(ItemStack heldItem, AnimatedGeoModel geoModel, LivingEntity player, PoseStack poseStack, int packedLight, float partialTicks) {
         ItemRenderer renderer = Minecraft.getInstance().getItemRenderer();
+        /*
         if (heldItem.is(PISTOL) && !geoModel.tacPistolBones().isEmpty()) {
             RenderUtils.prepMatrixForLocator(poseStack, geoModel.tacPistolBones());
             poseStack.translate(0, -0.125, 0);
@@ -66,6 +62,7 @@ public class SWarfareCompatInner {
             MultiBufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
             renderer.renderStatic(heldItem, ItemDisplayContext.FIXED, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), player.getId());
         }
+        */
     }
 
     @Nullable
