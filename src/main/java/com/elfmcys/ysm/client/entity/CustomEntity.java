@@ -1,0 +1,275 @@
+package com.elfmcys.ysm.client.entity;
+
+import com.elfmcys.ysm.client.ClientModelManager;
+import com.elfmcys.ysm.client.animation.AnimationParallelTicker;
+import com.elfmcys.ysm.client.animation.debug.CustomDebugSource;
+import com.elfmcys.ysm.client.animation.molang.MolangEventWrapper;
+import com.elfmcys.ysm.client.animation.molang.PhysicsManager;
+import com.elfmcys.ysm.client.compat.IrisCompat;
+import com.elfmcys.ysm.client.gui.overlay.DebugAnimationScreen;
+import com.elfmcys.ysm.client.model.ClientModel;
+import com.elfmcys.ysm.client.sound.data.SoundFormat;
+import com.elfmcys.ysm.client.sound.data.ModelSoundHolder;
+import com.elfmcys.ysm.client.sound.data.SoundDataManager;
+import com.elfmcys.ysm.client.sound.stream.AudioStreamProvider;
+import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;
+import com.elfmcys.ysm.geckolib3.core.molang.context.DebugSource;
+import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
+import com.elfmcys.ysm.geckolib3.core.processor.DebugInfo;
+import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
+import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
+import com.elfmcys.ysm.util.ModelIdUtil;
+import com.elfmcys.ysm.util.RenderUtil;
+import com.elfmcys.ysm.util.ThreadTools;
+import com.elfmcys.ysm.util.UnsafeUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Future;
+
+/**
+ * 自动管理当前 model id 和 model container，并在找不到指定模型时 fallback 到默认模型
+ */
+public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T> {
+    private String modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+    private ClientModel currentModelContainer;
+    private ResourceHolder resourceHolder;
+    private boolean modelFallback;
+    private int lastCheckUpdateTime;
+    @Nullable
+    private PhysicsManager alterPhysicsManager;
+    @Nullable
+    private DebugInfo debugInfo;
+    @Nullable
+    private List<IValue> deferHandler;
+
+    @Nullable
+    private Future<AnimationEvent<?>> asyncTask;
+
+    protected CustomEntity(T entity, boolean asyncUpdate) {
+        super(entity);
+        if (asyncUpdate) {
+            AnimationParallelTicker.add(this);
+        }
+    }
+
+    @Override
+    public PhysicsManager getPhysicsManager() {
+        if (RenderUtil.isRenderingLevel() || RenderUtil.isRenderingInPaperDoll()) {
+            return physicsManager;
+        } else {
+            if (alterPhysicsManager == null) {
+                alterPhysicsManager = new PhysicsManager();
+            }
+            return alterPhysicsManager;
+        }
+    }
+
+    @Nullable
+    public List<IValue> getMolangDeferHandler() {
+        return deferHandler;
+    }
+
+    public void setDebugInfo(@Nullable DebugInfo debugInfo) {
+        this.debugInfo = debugInfo;
+    }
+
+    @Override
+    protected void preAnimationSetup(float seekTime, boolean shouldTick) {
+        super.preAnimationSetup(seekTime, shouldTick);
+        // 更新调试信息
+        if (debugInfo != null) {
+            var processor = getAnimationProcessor();
+            processor.enqueueMolangTask(evaluator -> {
+                debugInfo.evaluatePre(evaluator);
+                return null;
+            }, false, true, null);
+            processor.enqueueMolangTask(evaluator -> {
+                debugInfo.evaluatePost(evaluator);
+                return null;
+            }, false, false, null);
+        }
+    }
+
+    public void checkModelUpdate() {
+        if (lastCheckUpdateTime < entity.tickCount) {
+            checkModelContainerUpdate();
+            lastCheckUpdateTime = entity.tickCount;
+        }
+    }
+
+    public final ClientModel getModelContainer() {
+        return currentModelContainer;
+    }
+
+    protected final void updateModelId(String modelId) {
+        this.modelId = modelId;
+        checkModelContainerUpdate();
+    }
+
+    private void checkModelContainerUpdate() {
+        ClientModelManager.getModel(modelId).ifPresentOrElse(model -> {
+            if (resourceHolder == null || resourceHolder.fallback || model != resourceHolder.model) {
+                resourceHolder = createResourceHolder(model, false);
+            }
+        }, () -> {
+            var defaultModel = ClientModelManager.getDefaultModel();
+            if (resourceHolder == null || !resourceHolder.fallback || defaultModel != resourceHolder.model) {
+                resourceHolder = createResourceHolder(defaultModel, true);
+            }
+        });
+
+        if (resourceHolder != null) {
+            if ((resourceHolder.model != currentModelContainer || resourceHolder.fallback != modelFallback) && resourceHolder.isLoaded()) {
+                currentModelContainer = resourceHolder.model;
+                modelFallback = resourceHolder.fallback;
+                onLoadModelContainer(currentModelContainer);
+                loadGeoModel(getYsmGeoModel(), currentModelContainer.assets().eventHandlers());
+            }
+        } else if (currentModelContainer != null) {
+            resetModelContainer();
+        }
+    }
+
+    @Nullable
+    protected abstract ResourceHolder createResourceHolder(ClientModel model, boolean isFallback);
+
+    protected final ResourceHolder getResourceHolder() {
+        return resourceHolder;
+    }
+
+    protected void onLoadModelContainer(ClientModel newModel) {
+        resourceHolder.soundHolder = SoundDataManager.register(newModel);
+        deferHandler = newModel.assets().eventHandlers().get(MolangEventWrapper.DEFER);
+    }
+
+    protected void resetModelContainer() {
+        currentModelContainer = null;
+        deferHandler = null;
+        resourceHolder = null;
+        modelFallback = false;
+        resetGeoModel();
+    }
+
+    @Override
+    protected void resetGeoModel() {
+        super.resetGeoModel();
+        alterPhysicsManager = null;
+        lastCheckUpdateTime = 0;
+    }
+
+    public void reset() {
+        modelId = ModelIdUtil.DEFAULT_MODEL_ID;
+        initialize = false;
+        resetModelContainer();
+    }
+
+    // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个
+    protected abstract GeoModel getYsmGeoModel();
+
+    public final String getModelId() {
+        return modelId;
+    }
+
+    @Override
+    public boolean isModelPresent() {
+        return resourceHolder != null && !resourceHolder.fallback && resourceHolder.isLoaded();
+    }
+
+    @Override
+    protected boolean isImmutableRender(AnimationEvent<?> animEvent) {
+        // 在场景内或 iris 阴影渲染时不会修改实体参数；
+        // FirstPersonMod 会隐藏头部、原版 inventory 会修改身体和头部旋转、纸娃娃可能会基于 molang 应用不同的效果
+        return animEvent.isRenderingInLevelExclusive() || IrisCompat.isRenderingShadow();
+    }
+
+    @Override
+    @Nullable
+    public final IValue getUserFunction(String name) {
+        return getModelContainer().assets().userFunctions().get(name);
+    }
+
+    @Override
+    public Optional<AudioStreamProvider> getSoundStream(String name) {
+        if (resourceHolder.soundHolder != null) {
+            var soundData = getModelContainer().assets().sounds().get(name);
+            if (soundData != null && soundData.byteBuffer() != null && soundData.soundFormat() != SoundFormat.UNDEFINED) {
+                var holder = resourceHolder.soundHolder;
+                return Optional.of(() -> holder.openStream(soundData));
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public DebugSource getDebugSource() {
+        if (DebugAnimationScreen.isEnabled()) {
+            return CustomDebugSource.INSTANCE;
+        } else {
+            return null;
+        }
+    }
+
+    public void beginAsyncUpdate(final float partialTicks) {
+        UnsafeUtil.getUnsafe().storeFence();
+        asyncTask = ThreadTools.submit(() -> {
+            try {
+                // 异步更新的作用域固定，无须判断
+                return super.updateAnimation(partialTicks, true);
+            } finally {
+                UnsafeUtil.getUnsafe().storeFence();
+            }
+        });
+    }
+
+    @Override
+    public @Nullable AnimationEvent<?> updateAnimation(float partialTicks, boolean renderingInLevelExclusive) {
+        RenderSystem.assertOnRenderThread();
+        if (renderingInLevelExclusive) {
+            if (asyncTask != null) {
+                return waitForAsyncUpdate();
+            }
+        }
+        waitForAsyncUpdate();
+        return super.updateAnimation(partialTicks, renderingInLevelExclusive);
+    }
+
+    public AnimationEvent<?> waitForAsyncUpdate() {
+        if (asyncTask != null) {
+            AnimationEvent<?> result = null;
+            try {
+                result = asyncTask.get();
+                UnsafeUtil.getUnsafe().loadFence();
+            } catch (InterruptedException ignored) {
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            asyncTask = null;
+            return result;
+        }
+        return null;
+    }
+
+    public boolean canUpdateAsync() {
+        return true;
+    }
+
+    protected static class ResourceHolder {
+        public final ClientModel model;
+        public final boolean fallback;
+        @Nullable
+        public ModelSoundHolder soundHolder;
+
+        protected ResourceHolder(ClientModel model, boolean fallback) {
+            this.model = model;
+            this.fallback = fallback;
+        }
+
+        public boolean isLoaded() {
+            return true;
+        }
+    }
+}

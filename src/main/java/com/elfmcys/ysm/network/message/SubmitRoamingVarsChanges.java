@@ -1,0 +1,56 @@
+package com.elfmcys.ysm.network.message;
+
+import com.elfmcys.ysm.capability.ModelInfoCapabilityProvider;
+import com.elfmcys.ysm.capability.VehicleModelInfoCapabilityProvider;
+import com.elfmcys.ysm.client.compat.touhoulittlemaid.TlmCommonCompat;
+import com.elfmcys.ysm.network.message.data.RoamingVarsChanges;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
+
+public class SubmitRoamingVarsChanges {
+    public final RoamingVarsChanges changes;
+
+    public SubmitRoamingVarsChanges(RoamingVarsChanges changes) {
+        this.changes = changes;
+    }
+
+    public static void encode(SubmitRoamingVarsChanges message, FriendlyByteBuf buf) {
+        RoamingVarsChanges.encode(message.changes, buf);
+    }
+
+    public static SubmitRoamingVarsChanges decode(FriendlyByteBuf buf) {
+        return new SubmitRoamingVarsChanges(RoamingVarsChanges.decode(buf, false));
+    }
+
+    public static void handle(final SubmitRoamingVarsChanges message, Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        if (context.getDirection().getReceptionSide().isServer() && context.getSender() != null) {
+            var sender = context.getSender();
+            context.enqueueWork(() -> handle(message, sender.serverLevel()));
+        }
+        context.setPacketHandled(true);
+    }
+
+    private static void handle(SubmitRoamingVarsChanges message, ServerLevel level) {
+        Entity entity = level.getEntity(message.changes.entityId);
+        if (TlmCommonCompat.isMaid(entity)) {
+            TlmCommonCompat.handleVariableChanges(entity, message.changes);
+        } else if (entity instanceof ServerPlayer player) {
+            player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
+                cap.updateRoamingVars(player, message.changes);
+                if (player.getVehicle() != null && player.getVehicle().getFirstPassenger() == player) {
+                    player.getVehicle().getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(vehicleCap -> {
+                        cap.getMolangVars().ifPresent(molangVars -> {
+                            vehicleCap.update(cap.getModelId(), molangVars);
+                        });
+                    });
+                }
+            });
+        }
+    }
+}

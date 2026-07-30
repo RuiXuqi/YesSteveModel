@@ -28,7 +28,7 @@ tasks.named('wrapper', Wrapper).configure {
 }
 
 version = mod_version
-group = 'com.elfmcys.yesstevemodel'
+group = 'com.elfmcys.ysm'
 archivesBaseName = 'ysm'
 
 // 构建工具用到的变量
@@ -70,7 +70,7 @@ legacyForge {
             ]
             // 以下环境变量只在调试时有效，在测试和生产构建中无效
             environment.putAll([
-                    "EMBEDDED_MODEL_PATH": "${projectDir}\\src\\main\\resources\\assets\\yes_steve_model\\builtin",
+                    "EMBEDDED_MODEL_PATH": "${projectDir}\\src\\main\\resources\\assets\\ysm\\builtin",
                     "YSM_CORE_LIB"       : devLib
             ])
         }
@@ -93,15 +93,15 @@ legacyForge {
     }
 
     mods {
-        yes_steve_model {
+        ysm {
             sourceSet sourceSets.main
         }
     }
 }
 
 mixin {
-    add sourceSets.main, "yes_steve_model.refmap.json"
-    config "yes_steve_model.mixins.json"
+    add sourceSets.main, "ysm.refmap.json"
+    config "ysm.mixins.json"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
@@ -241,7 +241,7 @@ jar {
     manifest.attributes([
             "Implementation-Title"  : project.name,
             "Implementation-Version": "${version}",
-            "MixinConfigs"          : "yes_steve_model.mixins.json"
+            "MixinConfigs"          : "ysm.mixins.json"
     ])
     archiveClassifier = "raw"
 }

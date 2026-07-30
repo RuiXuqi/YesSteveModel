@@ -4,7 +4,7 @@ license="All rights reserved"
 issueTrackerURL="https://github.com/YesSteveModel/YSM-Wiki-Issues/issues"
 
 [[mods]]
-    modId="yes_steve_model"
+    modId="ysm"
     version="${mod_version}"
     displayName="Yes Steve Model"
     displayURL="https://ysm.cfpa.team/"
@@ -14,21 +14,21 @@ issueTrackerURL="https://github.com/YesSteveModel/YSM-Wiki-Issues/issues"
     authors="YS Group, TartaricAcid, TomatoPuddin, AryochiL"
     description="A mod based on GeckoLib that modifies the player model"
 
-[[dependencies.yes_steve_model]]
+[[dependencies.ysm]]
     modId="forge"
     mandatory=true
     versionRange="[46,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.yes_steve_model]]
+[[dependencies.ysm]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.20,1.20.2)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.yes_steve_model]]
+[[dependencies.ysm]]
     modId="tacz"
     mandatory=false
     versionRange="[1.0.2,)"
