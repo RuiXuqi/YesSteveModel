@@ -4,7 +4,7 @@ import com.elfmcys.ysm.client.lang.LanguageManager;
 import com.elfmcys.ysm.client.texture.CustomTextureManager;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.ysm.info.ModelInfo;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 public final class ModelRenderTarget implements AutoCloseable {
-    private final ModelHash modelHash;
+    private final Hash256 modelHash;
     private final String renderTargetId;
     private final RenderTargetResources targetResources;
     private final CommonAsset assets;
@@ -23,8 +23,8 @@ public final class ModelRenderTarget implements AutoCloseable {
     private final List<AbstractTexture> registeredTextureIds;
     private boolean closed;
 
-    public ModelRenderTarget(ModelHash modelHash, String renderTargetId, RenderTargetResources targetResources,
-                        CommonAsset assets, ModelInfo modelInfo, List<AbstractTexture> registeredTextureIds) {
+    public ModelRenderTarget(Hash256 modelHash, String renderTargetId, RenderTargetResources targetResources,
+                             CommonAsset assets, ModelInfo modelInfo, List<AbstractTexture> registeredTextureIds) {
         this.modelHash = Objects.requireNonNull(modelHash, "modelHash");
         this.renderTargetId = Objects.requireNonNull(renderTargetId, "renderTargetId");
         this.targetResources = Objects.requireNonNull(targetResources, "targetResources");
@@ -33,7 +33,7 @@ public final class ModelRenderTarget implements AutoCloseable {
         this.registeredTextureIds = List.copyOf(registeredTextureIds);
     }
 
-    public ModelHash modelHash() {
+    public Hash256 modelHash() {
         return modelHash;
     }
 

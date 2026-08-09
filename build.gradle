@@ -87,17 +87,20 @@ mixin {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+sourceSets {
+    processorTest {
+        java.srcDir 'src/processorTest/java'
+        compileClasspath += sourceSets.main.output.classesDirs
+        runtimeClasspath += output + compileClasspath + files('src/main/resources')
+    }
+}
+
 processResources {
     inputs.property "mod_version", project.version
     filteringCharset "UTF-8"
 
-    from("LICENSE") {
-        into "META-INF"
-        rename { "LICENSE-YSM" }
-    }
-    from("NOTICE.md") {
-        into "META-INF"
-    }
+    from("LICENSE")
+    from("NOTICE.md")
 
     filesMatching("META-INF/mods.toml") {
         expand "mod_version": project.version
@@ -144,14 +147,35 @@ repositories.withType(MavenArtifactRepository).configureEach { repo ->
 }
 
 configurations {
+    processorAsm {
+        canBeConsumed = false
+        canBeResolved = true
+    }
     ysmImplementation
     implementation.extendsFrom ysmImplementation
     additionalRuntimeClasspath.extendsFrom ysmImplementation
 }
 
+def relocateProcessorAsmTask = tasks.register(
+        'relocateProcessorAsm',
+        com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'build setup'
+    description = 'Relocates the ASM implementation embedded for the annotation processor.'
+    configurations = [project.configurations.processorAsm]
+    archiveFileName = 'ysm-processor-asm.jar'
+    destinationDirectory = layout.buildDirectory.dir('processor-libs')
+    relocate 'org.objectweb.asm', 'com.elfmcys.ysm.api.internal.processor.asm'
+}
+
 dependencies {
+    processorAsm 'org.ow2.asm:asm:9.7.1'
+    processorAsm 'org.ow2.asm:asm-tree:9.7.1'
+
+    compileOnly files(relocateProcessorAsmTask.flatMap { it.archiveFile })
+
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     annotationProcessor 'io.github.llamalad7:mixinextras-common:0.3.6'
+
     compileOnly 'org.jetbrains:annotations:26.0.1'
 
     ysmImplementation 'us.hebi.quickbuf:quickbuf-runtime:1.4'
@@ -159,6 +183,11 @@ dependencies {
 
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    processorTestImplementation files(relocateProcessorAsmTask.flatMap { it.archiveFile })
+    processorTestImplementation platform('org.junit:junit-bom:5.11.4')
+    processorTestImplementation 'org.junit.jupiter:junit-jupiter'
+    processorTestImplementation 'com.google.code.gson:gson:2.10.1'
 
     modCompileOnly 'libs:firstperson-forge:2.2.3-mc1.20'
     modCompileOnly 'libs:notenoughanimations-forge:1.6.4-mc1.20'
@@ -252,6 +281,17 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
+tasks.register('processorTest', Test) {
+    description = 'Runs the extension compatibility annotation processor tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.processorTest.output.classesDirs
+    classpath = sourceSets.processorTest.runtimeClasspath
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('processorTest')
+}
+
 sourceSets {
     test {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
@@ -287,7 +327,11 @@ def developmentMainOutput = sourceSets.main.output.files.collect {
 
 tasks.named('shadowJar') {
     dependsOn reobfJarTask
+    dependsOn relocateProcessorAsmTask
     from(reobfJarTask.flatMap { it.archiveFile }.map { archive ->
+        project.zipTree(archive.asFile)
+    })
+    from(relocateProcessorAsmTask.flatMap { it.archiveFile }.map { archive ->
         project.zipTree(archive.asFile)
     })
     configurations = [project.configurations.ysmImplementation]

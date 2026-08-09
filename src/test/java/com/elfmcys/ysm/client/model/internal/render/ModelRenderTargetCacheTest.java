@@ -2,7 +2,7 @@ package com.elfmcys.ysm.client.model.internal.render;
 
 import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.client.model.catalog.ModelContentVersion;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.task.TaskContext;
 import com.elfmcys.ysm.task.TaskScope;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ModelRenderTargetCacheTest {
     @Test
     void guiSubscriberDoesNotCancelAnotherOwnerOfSameLoad() {
-        var key = new ModelRenderTargetRequestKey(new ModelHash(new byte[ModelHash.SIZE]),
+        var key = new ModelRenderTargetRequestKey(new Hash256(new byte[Hash256.SIZE]),
                 new ModelContentVersion(1), "player", "default");
         var loads = new AtomicInteger();
         var loaderContext = new AtomicReference<TaskContext>();
@@ -56,7 +56,7 @@ class ModelRenderTargetCacheTest {
 
     @Test
     void realFailureIsFrozenUntilContentVersionChanges() {
-        var hash = new ModelHash(new byte[ModelHash.SIZE]);
+        var hash = new Hash256(new byte[Hash256.SIZE]);
         var first = new ModelRenderTargetRequestKey(hash, new ModelContentVersion(1),
                 "player", "default");
         var second = new ModelRenderTargetRequestKey(hash, new ModelContentVersion(2),

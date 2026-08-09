@@ -8,7 +8,7 @@ import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.client.texture.CustomTexture;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.task.TaskContext;
 import com.elfmcys.ysm.util.RenderUtil;
 import com.mojang.blaze3d.platform.Window;
@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 public final class CatalogTextureButton extends Button implements AutoCloseable {
     private static final int CARD_OVERLAY_Z = 3500;
 
-    private final ModelHash modelHash;
+    private final Hash256 modelHash;
     private final String path;
     private final String texture;
     private final CustomGuiPlayerEntity entity;
@@ -40,7 +40,7 @@ public final class CatalogTextureButton extends Button implements AutoCloseable 
     private @Nullable Throwable error;
     private boolean closed;
 
-    public CatalogTextureButton(int x, int y, ModelHash modelHash, String path, String texture,
+    public CatalogTextureButton(int x, int y, Hash256 modelHash, String path, String texture,
                                 TaskContext context, CustomGuiPlayerEntity entity, SelectionHandler selection) {
         super(x, y, 54, 102, Component.literal(texture), ignored -> { }, DEFAULT_NARRATION);
         this.modelHash = modelHash;
@@ -164,6 +164,6 @@ public final class CatalogTextureButton extends Button implements AutoCloseable 
 
     @FunctionalInterface
     public interface SelectionHandler {
-        void select(ModelHash hash, String path, String texture, @Nullable ModelRenderTarget renderTarget);
+        void select(Hash256 hash, String path, String texture, @Nullable ModelRenderTarget renderTarget);
     }
 }

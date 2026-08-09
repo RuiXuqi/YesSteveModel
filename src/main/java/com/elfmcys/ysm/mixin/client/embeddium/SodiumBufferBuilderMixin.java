@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.mixin.client.embeddium;
 
-import com.elfmcys.ysm.api.VertexBufferAccessor;
+import com.elfmcys.ysm.accessor.VertexBufferAccessor;
 import com.elfmcys.ysm.buffer.NativeBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import me.jellysquid.mods.sodium.client.render.vertex.buffer.ExtendedBufferBuilder;

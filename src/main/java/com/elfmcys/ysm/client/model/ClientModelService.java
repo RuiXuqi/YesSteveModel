@@ -13,7 +13,7 @@ import com.elfmcys.ysm.client.model.internal.render.DefaultAnimationRuntime;
 import com.elfmcys.ysm.client.model.internal.transfer.ClientTransferManager;
 import com.elfmcys.ysm.client.texture.CustomTexture;
 import com.elfmcys.ysm.model.ModelRuntime;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import com.elfmcys.ysm.model.storage.RemoteModelCache;
 import com.elfmcys.ysm.natives.image.ImageSource;
@@ -157,11 +157,11 @@ public final class ClientModelService implements AutoCloseable {
         return catalogManager.snapshot();
     }
 
-    public boolean contains(ModelHash hash) {
+    public boolean contains(Hash256 hash) {
         return catalogManager.contains(hash);
     }
 
-    public Optional<String> findRenderTarget(ModelHash hash,
+    public Optional<String> findRenderTarget(Hash256 hash,
                                              RenderTargetOuterClass.RenderTargetKind kind,
                                              ResourceLocation entityType) {
         return catalogManager.findRenderTarget(hash, kind, entityType);
@@ -173,11 +173,11 @@ public final class ClientModelService implements AutoCloseable {
         return findRenderTarget(renderTargetManager.defaultRenderTarget().modelHash(), kind, entityType);
     }
 
-    public Optional<ModelHash> resolvePath(String path) {
+    public Optional<Hash256> resolvePath(String path) {
         return catalogManager.resolvePath(path);
     }
 
-    public String displayPath(ModelHash hash) {
+    public String displayPath(Hash256 hash) {
         return catalogManager.displayPath(hash);
     }
 
@@ -199,29 +199,29 @@ public final class ClientModelService implements AutoCloseable {
     }
 
     public CompletableFuture<ModelRenderTargetLease> acquire(
-            TaskContext context, ModelHash hash, String textureName) {
+            TaskContext context, Hash256 hash, String textureName) {
         return acquire(context, hash, RenderTargetIds.PLAYER, textureName);
     }
 
     public CompletableFuture<ModelRenderTargetLease> acquire(
-            TaskContext context, ModelHash hash, String targetId, String textureName) {
+            TaskContext context, Hash256 hash, String targetId, String textureName) {
         return renderTargetManager.acquire(context, hash, targetId, textureName);
     }
 
-    public boolean isLoaded(ModelHash hash, String textureName) {
+    public boolean isLoaded(Hash256 hash, String textureName) {
         return isLoaded(hash, RenderTargetIds.PLAYER, textureName);
     }
 
-    public boolean isLoaded(ModelHash hash, String targetId, String textureName) {
+    public boolean isLoaded(Hash256 hash, String targetId, String textureName) {
         return renderTargetManager.isLoaded(hash, targetId, textureName);
     }
 
-    public void reportActiveModelFailure(ModelHash hash, ModelContentVersion version,
+    public void reportActiveModelFailure(Hash256 hash, ModelContentVersion version,
                                          boolean fallbackAvailable) {
         renderTargetManager.reportActiveFailure(hash, version, fallbackAvailable);
     }
 
-    public void reportActiveModelUse(ModelHash hash, ModelContentVersion version,
+    public void reportActiveModelUse(Hash256 hash, ModelContentVersion version,
                                      String targetId, String textureName) {
         renderTargetManager.reportActiveUse(new ModelRenderTargetRequestKey(
                 hash, version, targetId, textureName));

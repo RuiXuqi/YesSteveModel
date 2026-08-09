@@ -17,7 +17,7 @@ import com.elfmcys.ysm.geckolib3.core.builder.controller.AnimationControllerData
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
 import com.elfmcys.ysm.geckolib3.file.AnimationControllerFile;
 import com.elfmcys.ysm.info.ModelInfo;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -32,7 +32,7 @@ public final class ModelRenderTargetAssembler {
     private ModelRenderTargetAssembler() {
     }
 
-    public static ModelRenderTarget build(ModelHash modelHash, ModelRenderTargetBuildInput data) {
+    public static ModelRenderTarget build(Hash256 modelHash, ModelRenderTargetBuildInput data) {
         List<AbstractTexture> allTextures = new ArrayList<>();
 
         var assets = buildCommonAssets(data);

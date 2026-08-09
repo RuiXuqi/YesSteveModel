@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.format.parser;
 
 import com.elfmcys.ysm.format.vfs.VirtualFileSystem;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.nio.file.Path;
 import java.util.Objects;
@@ -36,7 +36,7 @@ public final class ModelParser {
     }
 
     /** Scans the parse resource set without decoding assets or writing a model container. */
-    public static ModelHash scanModelHash(VirtualFileSystem vfs) {
+    public static Hash256 scanModelHash(VirtualFileSystem vfs) {
         return parse(vfs, null, true, DefaultAnimationFilter.keepAll(), false).modelHash();
     }
 

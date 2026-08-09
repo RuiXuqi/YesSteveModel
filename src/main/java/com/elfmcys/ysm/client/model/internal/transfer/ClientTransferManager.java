@@ -3,7 +3,7 @@ package com.elfmcys.ysm.client.model.internal.transfer;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.buffer.ArrayBuffer;
 import com.elfmcys.ysm.client.model.catalog.ClientCatalogEntry;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.source.CatalogCursor;
 import com.elfmcys.ysm.model.source.ModelAssetSelector;
 import com.elfmcys.ysm.model.source.ModelAssetSubject;
@@ -462,8 +462,8 @@ public final class ClientTransferManager {
         }
     }
 
-    private static ModelHash hash(ReceivedModelAssets assets,
-                                  ModelAssetsProto.ModelChunk chunk) {
+    private static Hash256 hash(ReceivedModelAssets assets,
+                                ModelAssetsProto.ModelChunk chunk) {
         try (var data = assets.chunk(chunk)) {
             return ModelHashing.blake3(data);
         }

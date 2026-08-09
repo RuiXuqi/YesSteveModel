@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.model.catalog;
 
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.model.source.CatalogCursor;
 import com.elfmcys.ysm.model.source.ModelAssetSubject;
@@ -65,7 +65,7 @@ public final class LocalModelSource implements ModelSource {
         return new PackOffer(sourceId(pack.rootKind()),
                 new ModelAssetSubject.Pack(pack.rootKind().namespace(), pack.hierarchy()),
                 pack.name(), pack.description(), pack.translations(),
-                pack.coverHash().length == 0 ? null : new ModelHash(pack.coverHash()),
+                pack.coverHash().length == 0 ? null : new Hash256(pack.coverHash()),
                 pack.coverFormat(), pack.coverSize(), pack.rootKind().accessPolicy());
     }
 

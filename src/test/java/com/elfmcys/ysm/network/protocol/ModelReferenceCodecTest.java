@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.network.protocol;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.proto.network.protocol.v0.CommonV0;
 import org.junit.jupiter.api.Test;
 
@@ -31,12 +31,12 @@ class ModelReferenceCodecTest {
         assertFalse(ModelReferenceCodec.valid(CommonV0.ModelReference.newInstance()
                 .setBuiltinDefault(false)));
         assertFalse(ModelReferenceCodec.valid(CommonV0.ModelReference.newInstance()
-                .setModelHash(new byte[ModelHash.SIZE - 1])));
+                .setModelHash(new byte[Hash256.SIZE - 1])));
     }
 
-    private static ModelHash hash(int marker) {
-        var bytes = new byte[ModelHash.SIZE];
+    private static Hash256 hash(int marker) {
+        var bytes = new byte[Hash256.SIZE];
         bytes[bytes.length - 1] = (byte) marker;
-        return new ModelHash(bytes);
+        return new Hash256(bytes);
     }
 }

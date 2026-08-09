@@ -2,7 +2,7 @@ package com.elfmcys.ysm.model.storage;
 
 import com.elfmcys.ysm.format.schema.model.ModelFileView;
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -22,7 +22,7 @@ final class RemoteModelDescriptorFile {
     private RemoteModelDescriptorFile() {
     }
 
-    static ModelDescriptor create(ModelHash modelHash, ModelHash descriptorHash,
+    static ModelDescriptor create(Hash256 modelHash, Hash256 descriptorHash,
                                   byte[] containerPreamble, byte[] manifest) throws IOException {
         if (!ModelHashing.descriptorHash(containerPreamble, manifest).equals(descriptorHash)) {
             throw new IOException("Remote model descriptor hash mismatch");
@@ -58,8 +58,8 @@ final class RemoteModelDescriptorFile {
             if (input.readInt() != MAGIC || input.readInt() != VERSION) {
                 throw new IOException("Unsupported remote model metadata");
             }
-            var modelHash = new ModelHash(readExact(input, ModelHash.SIZE, "model hash"));
-            var descriptorHash = new ModelHash(readExact(input, ModelHash.SIZE, "descriptor hash"));
+            var modelHash = new Hash256(readExact(input, Hash256.SIZE, "model hash"));
+            var descriptorHash = new Hash256(readExact(input, Hash256.SIZE, "descriptor hash"));
             var containerPreamble = readBytes(input);
             var manifest = readBytes(input);
             if (input.read() != -1) {

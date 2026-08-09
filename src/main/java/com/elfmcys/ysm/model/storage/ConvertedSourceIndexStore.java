@@ -5,7 +5,7 @@ import com.elfmcys.ysm.model.catalog.CatalogRootKind;
 import com.elfmcys.ysm.model.catalog.ModelSourceKey;
 import com.elfmcys.ysm.model.catalog.ModelSourceKind;
 import com.elfmcys.ysm.model.catalog.SourceStamp;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 
 import java.io.BufferedOutputStream;
@@ -109,7 +109,7 @@ public final class ConvertedSourceIndexStore {
             if (input.readInt() != MAGIC || input.readInt() != VERSION) {
                 throw new IOException("Unsupported converted source index");
             }
-            var storedProfile = new byte[ModelHash.SIZE];
+            var storedProfile = new byte[Hash256.SIZE];
             input.readFully(storedProfile);
             var rootKind = CatalogRootKind.values()[input.readUnsignedByte()];
             var root = new CatalogRootIdentity(rootKind, Path.of(readString(input)),
@@ -117,16 +117,16 @@ public final class ConvertedSourceIndexStore {
             var sourceKind = ModelSourceKind.values()[input.readUnsignedByte()];
             var sourceKey = new ModelSourceKey(root, new ModelPath(readString(input)), sourceKind);
             var stamp = readStamp(input);
-            var modelHash = new byte[ModelHash.SIZE];
-            var descriptorHash = new byte[ModelHash.SIZE];
+            var modelHash = new byte[Hash256.SIZE];
+            var descriptorHash = new byte[Hash256.SIZE];
             input.readFully(modelHash);
             input.readFully(descriptorHash);
             if (input.read() != -1) {
                 throw new IOException("Trailing converted source index data");
             }
             return new ConvertedSourceIndex(sourceKey, stamp,
-                    new ConversionProfileId(new ModelHash(storedProfile)),
-                    new ModelHash(modelHash), new ModelHash(descriptorHash));
+                    new ConversionProfileId(new Hash256(storedProfile)),
+                    new Hash256(modelHash), new Hash256(descriptorHash));
         } catch (IOException | IllegalArgumentException | ArrayIndexOutOfBoundsException error) {
             throw new MalformedIndexException(error);
         }
@@ -169,9 +169,9 @@ public final class ConvertedSourceIndexStore {
         return switch (input.readUnsignedByte()) {
             case 1 -> new SourceStamp.File(input.readLong(), input.readLong(), readString(input));
             case 2 -> {
-                var digest = new byte[ModelHash.SIZE];
+                var digest = new byte[Hash256.SIZE];
                 input.readFully(digest);
-                yield new SourceStamp.RawDirectory(new ModelHash(digest), input.readInt(),
+                yield new SourceStamp.RawDirectory(new Hash256(digest), input.readInt(),
                         input.readLong());
             }
             default -> throw new IOException("Unsupported converted source stamp");

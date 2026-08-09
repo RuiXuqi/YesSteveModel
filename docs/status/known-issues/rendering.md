@@ -19,7 +19,7 @@
 
 ## 并发与性能
 
-- `ParallelExecutor`、translucent scratch、`VertexConsumer` fallback 与 `NativeRenderAdapter` 的共享 matrix scratch 都不可重入，多个 `renderer::Render` 必须全局串行。`ModelState` 还借用 `GeoModelState` 的 pose buffer，因此同一输出槽的 Extract、Render、换模与释放必须串行。
+- `ParallelExecutor`、translucent scratch、`VertexConsumer` fallback 与 `NativeRenderAdapter` 的共享 matrix scratch 都不可重入，多个 `renderer::Render` 必须全局串行。同一输出槽的 Extract 会覆盖或重分配 `ModelState` 持有的 `BonePose` 并使 Java 借用视图失效，因此 Extract、Render、换模与释放仍必须串行。
 - 调度按不可拆分 `CubeGroup` 数而非实际 quad、PBR 或剔除成本分配任务，复杂模型可能出现 worker 尾部不均衡。
 - 剔除分区按最大可见容量预留，并以零值填充未使用槽位，这是固定 offset 的当前代价。
 
@@ -27,4 +27,4 @@
 
 Native renderer 尚未形成可作为支持声明依据的自动化回归与视觉验收闭环。
 
-在声明支持前，Minecraft 运行验证至少应覆盖：`level` entity 同帧多 pass、`inventory` / `paperDoll` context 的 mutable 输出、本地第一人称 `irisShadow`、模型热切换、`VertexConsumer` fallback、透明与 PBR、非均匀缩放及各 locator layer。还应验证 locator mapping 始终引用对应 `GeoModelState` 的 pose buffer。视觉验收应比较 Vanilla、Iris 与 Blockbench 基准，并区分几何语义偏差和 shader / 光照环境差异。
+在声明支持前，Minecraft 运行验证至少应覆盖：`level` entity 同帧多 pass、`inventory` / `paperDoll` context 的 mutable 输出、本地第一人称 `irisShadow`、模型热切换、`VertexConsumer` fallback、透明与 PBR、非均匀缩放及各 locator layer。还应验证 locator mapping 始终引用对应 Extract 快照的 `BonePoseView`，且下次 Extract 或 close 后不会继续消费旧视图。视觉验收应比较 Vanilla、Iris 与 Blockbench 基准，并区分几何语义偏差和 shader / 光照环境差异。

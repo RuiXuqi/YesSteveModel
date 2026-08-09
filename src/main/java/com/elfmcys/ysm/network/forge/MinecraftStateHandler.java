@@ -5,7 +5,7 @@ import com.elfmcys.ysm.capability.ProjectileModelInfoCapability;
 import com.elfmcys.ysm.capability.VehicleModelInfoCapability;
 import com.elfmcys.ysm.client.event.EntityLoadEvent;
 import com.elfmcys.ysm.geckolib3.core.molang.util.StringPool;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.proto.network.protocol.v0.minecraft.MinecraftStateV0;
 import com.elfmcys.ysm.proto.network.protocol.v0.CommonV0;
 import com.elfmcys.ysm.network.protocol.ModelReferenceCodec;
@@ -72,7 +72,7 @@ public final class MinecraftStateHandler {
 
     private static void setState(CommonV0.ModelReference target,
                                  java.util.function.Consumer<CommonV0.MolangVariable> variableConsumer,
-                                 ModelHash modelHash,
+                                 Hash256 modelHash,
                                  Object2FloatOpenHashMap<String> variables) {
         ModelReferenceCodec.write(target, modelHash, null);
         variables.object2FloatEntrySet().fastForEach(entry -> variableConsumer.accept(
@@ -92,7 +92,7 @@ public final class MinecraftStateHandler {
 
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("DataFlowIssue")
-    private static void applyProjectile(Entity entity, ModelHash modelHash, Int2FloatOpenHashMap variables) {
+    private static void applyProjectile(Entity entity, Hash256 modelHash, Int2FloatOpenHashMap variables) {
         entity.getCapability(ClientLazyCapabilityProvider.CAP).ifPresent(capability -> {
             var animatable = capability.getProjectileAnimatableCapabilityProvider().initialize();
             animatable.init(modelHash);
@@ -101,7 +101,7 @@ public final class MinecraftStateHandler {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void applyVehicle(Entity entity, ModelHash modelHash, Int2FloatOpenHashMap variables) {
+    private static void applyVehicle(Entity entity, Hash256 modelHash, Int2FloatOpenHashMap variables) {
         entity.getCapability(ClientLazyCapabilityProvider.CAP).ifPresent(capability -> {
             var animatable = capability.getVehicleAnimatableCapabilityProvider().initialize();
             animatable.init(modelHash);

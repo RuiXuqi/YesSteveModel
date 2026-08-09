@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.client.animation.predicate;
 
-import com.elfmcys.ysm.api.IArrowExtraInfo;
+import com.elfmcys.ysm.accessor.IArrowExtraInfo;
 import com.elfmcys.ysm.client.entity.CustomProjectileEntity;
 import com.elfmcys.ysm.geckolib3.core.PlayState;
 import com.elfmcys.ysm.geckolib3.core.event.predicate.AnimationEvent;

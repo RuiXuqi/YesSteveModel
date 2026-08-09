@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.mixin.client;
 
-import com.elfmcys.ysm.api.VertexBufferAccessor;
+import com.elfmcys.ysm.accessor.VertexBufferAccessor;
 import com.elfmcys.ysm.buffer.NativeBuffer;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;

@@ -3,7 +3,7 @@ package com.elfmcys.ysm.model.storage;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.format.parser.RawCompileResult;
 import com.elfmcys.ysm.model.catalog.CatalogModelLocation;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,7 +25,7 @@ public final class ConvertedObjectStore {
     private final AtomicSharedCache cache;
     private final ConversionProfileId profile;
     private final ConvertedCacheLifecycle lifecycle;
-    private final ConcurrentHashMap<ModelHash, ValidationMemo> validationMemos =
+    private final ConcurrentHashMap<Hash256, ValidationMemo> validationMemos =
             new ConcurrentHashMap<>();
 
     public ConvertedObjectStore(SharedCachePaths paths, AtomicSharedCache cache,
@@ -50,14 +50,14 @@ public final class ConvertedObjectStore {
         return paths.convertedTemporary();
     }
 
-    public Optional<VerifiedConvertedObject> openVerified(ModelHash modelHash,
+    public Optional<VerifiedConvertedObject> openVerified(Hash256 modelHash,
                                                           CatalogModelLocation location)
             throws IOException {
         requireShared();
         return Optional.ofNullable(openIfValid(new ConvertedObjectKey(profile, modelHash), location));
     }
 
-    public boolean isStructurallyVisible(ModelHash modelHash) throws IOException {
+    public boolean isStructurallyVisible(Hash256 modelHash) throws IOException {
         requireShared();
         var key = new ConvertedObjectKey(profile, modelHash);
         var object = cache.checkedTarget(objectPath(key));
@@ -82,7 +82,7 @@ public final class ConvertedObjectStore {
     }
 
     public VerifiedConvertedObject resolveKnownHash(Path source, CatalogModelLocation location,
-                                                     ModelHash expectedHash, RawCompiler compiler)
+                                                    Hash256 expectedHash, RawCompiler compiler)
             throws IOException {
         requireShared();
         var key = new ConvertedObjectKey(profile, expectedHash);
@@ -115,7 +115,7 @@ public final class ConvertedObjectStore {
         });
     }
 
-    public void invalidate(ModelHash modelHash) {
+    public void invalidate(Hash256 modelHash) {
         requireShared();
         validationMemos.remove(modelHash);
     }

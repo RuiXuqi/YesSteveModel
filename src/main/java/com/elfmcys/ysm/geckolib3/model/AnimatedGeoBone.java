@@ -12,6 +12,8 @@ public class AnimatedGeoBone implements BoneView {
     private static final int CUBES_HIDDEN_OFFSET = 9;
     private static final int CHILDREN_HIDDEN_OFFSET = 10;
     private static final int LOCATOR_SEQUENCE_OFFSET = 11;
+    private static final int COLOR_OFFSET = 12;
+    private static final int TRANSPARENCY_GLOW_OFFSET = 13;
 
     private final GeoBone bone;
     private final float[] attributes;
@@ -29,6 +31,8 @@ public class AnimatedGeoBone implements BoneView {
         var locator = bone.locatorType();
         attributes[baseOffset + LOCATOR_SEQUENCE_OFFSET] =
                 locator == null ? 0 : Byte.toUnsignedInt(locator.seq());
+        attributes[baseOffset + COLOR_OFFSET] = 0xFFFFFF;
+        attributes[baseOffset + TRANSPARENCY_GLOW_OFFSET] = 0xFFFF;
     }
 
     public GeoBone getBoneData() {
@@ -187,6 +191,24 @@ public class AnimatedGeoBone implements BoneView {
     public void setHidden(boolean cubesHidden, boolean childrenHidden) {
         attributes[baseOffset + CUBES_HIDDEN_OFFSET] = cubesHidden ? 1 : 0;
         attributes[baseOffset + CHILDREN_HIDDEN_OFFSET] = childrenHidden ? 1 : 0;
+    }
+
+    public void setColor(int red, int green, int blue) {
+        attributes[baseOffset + COLOR_OFFSET] =
+                red | (green << 8) | (blue << 16);
+    }
+
+    public void setTransparency(int alpha) {
+        var packed = (int) attributes[baseOffset + TRANSPARENCY_GLOW_OFFSET];
+        attributes[baseOffset + TRANSPARENCY_GLOW_OFFSET] =
+                (packed & 0xFF00) | alpha;
+    }
+
+    public void setGlow(int level) {
+        var packed = (int) attributes[baseOffset + TRANSPARENCY_GLOW_OFFSET];
+        var glow = level == -1 ? 0xFF : level;
+        attributes[baseOffset + TRANSPARENCY_GLOW_OFFSET] =
+                (packed & 0xFF) | (glow << 8);
     }
 
     // TODO

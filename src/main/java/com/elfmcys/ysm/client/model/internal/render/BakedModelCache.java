@@ -5,7 +5,7 @@ import com.elfmcys.ysm.format.schema.baked.model.BakedModelView;
 import com.elfmcys.ysm.format.schema.baked.model.BakedModelWriter;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoLocatorType;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.AtomicSharedCache;
 import com.elfmcys.ysm.model.storage.ModelHashing;
 import com.elfmcys.ysm.model.storage.SharedCachePaths;
@@ -39,7 +39,7 @@ public final class BakedModelCache {
                 + BakedModelConstant.CURRENT_VERSION;
     }
 
-    public GeoModel loadOrBake(ModelHash modelHash, ModelHash descriptorHash, String resourceName,
+    public GeoModel loadOrBake(Hash256 modelHash, Hash256 descriptorHash, String resourceName,
                                byte[] textureHash, GeoModelOuterClass.GeoModel source,
                                TexturePixelsSupplier texture, int originVersion, boolean forceCulling,
                                boolean forceTranslucent, boolean hasPbr, GeoLocatorType locatorType) throws IOException {
@@ -69,7 +69,7 @@ public final class BakedModelCache {
         }
     }
 
-    private static void bake(Path destination, ModelHash bakeHash, GeoModelOuterClass.GeoModel source,
+    private static void bake(Path destination, Hash256 bakeHash, GeoModelOuterClass.GeoModel source,
                              TexturePixelsSupplier textureSource, int originVersion, boolean forceCulling,
                              boolean forceTranslucent, boolean hasPbr) throws IOException {
         var texture = textureSource.get();
@@ -84,7 +84,7 @@ public final class BakedModelCache {
         }
     }
 
-    private static GeoModel read(Path file, ModelHash expected, GeoLocatorType locatorType) throws IOException {
+    private static GeoModel read(Path file, Hash256 expected, GeoLocatorType locatorType) throws IOException {
         try (var channel = FileChannel.open(file, StandardOpenOption.READ)) {
             var view = new BakedModelView(channel);
             if (!Arrays.equals(view.modelHash(), expected.bytes())) {
@@ -101,7 +101,7 @@ public final class BakedModelCache {
         }
     }
 
-    private static boolean validate(Path file, ModelHash expected) {
+    private static boolean validate(Path file, Hash256 expected) {
         try (var channel = FileChannel.open(file, StandardOpenOption.READ)) {
             var view = new BakedModelView(channel);
             if (!Arrays.equals(view.modelHash(), expected.bytes())) {
@@ -115,11 +115,11 @@ public final class BakedModelCache {
         }
     }
 
-    private static ModelHash bakeHash(ModelHash descriptorHash, String resourceName, byte[] textureHash,
-                                      int serializedSize, int originVersion, boolean forceCulling,
-                                      boolean forceTranslucent, boolean hasPbr) {
+    private static Hash256 bakeHash(Hash256 descriptorHash, String resourceName, byte[] textureHash,
+                                    int serializedSize, int originVersion, boolean forceCulling,
+                                    boolean forceTranslucent, boolean hasPbr) {
         var name = resourceName.getBytes(StandardCharsets.UTF_8);
-        var input = ByteBuffer.allocate(ModelHash.SIZE + Integer.BYTES * 2 + name.length
+        var input = ByteBuffer.allocate(Hash256.SIZE + Integer.BYTES * 2 + name.length
                 + textureHash.length + 3);
         input.put(descriptorHash.bytes()).putInt(serializedSize).putInt(originVersion)
                 .put((byte) (forceCulling ? 1 : 0)).put((byte) (forceTranslucent ? 1 : 0))

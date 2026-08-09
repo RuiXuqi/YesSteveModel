@@ -4,7 +4,7 @@ import com.elfmcys.ysm.format.schema.model.ModelFileView;
 
 import java.util.Objects;
 
-public record ModelDescriptor(ModelHash modelHash, ModelHash descriptorHash,
+public record ModelDescriptor(Hash256 modelHash, Hash256 descriptorHash,
                               byte[] containerPreamble, byte[] schemaManifest,
                               ModelFileView view) {
     /** The constructor takes ownership of both byte arrays; accessors remain defensive. */

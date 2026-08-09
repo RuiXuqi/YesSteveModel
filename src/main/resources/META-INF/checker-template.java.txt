@@ -1,0 +1,707 @@
+{{PACKAGE}}
+@javax.annotation.processing.Generated("com.elfmcys.ysm.api.internal.processor.YsmExtensionProcessor")
+public final class {{CHECKER}} {
+    private static final String MANIFEST_RESOURCE = "{{RESOURCE}}";
+    private static final int MANIFEST_VERSION = 1;
+    private static final int MAX_MANIFEST_BYTES = 64 * 1024 * 1024;
+    private static final int MAX_JSON_ITEMS = 1_000_000;
+
+    private {{CHECKER}}() {
+    }
+
+{{METHODS}}
+
+    public enum Status {
+        COMPATIBLE,
+        COMPATIBLE_WITH_WARNINGS,
+        NOT_APPLICABLE,
+        YSM_NOT_LOADED,
+        YSM_UNAVAILABLE,
+        INCOMPATIBLE,
+        CHECK_FAILED
+    }
+
+    public enum IssueKind {
+        MISSING_CLASS,
+        MISSING_METHOD,
+        MISSING_FIELD,
+        TYPE_MISMATCH,
+        DYNAMIC_TARGET_UNKNOWN,
+        DYNAMIC_DISPATCH_UNKNOWN,
+        OWNED_CODE_UNAVAILABLE,
+        SIGNATURE_UNREADABLE,
+        SIDE_MISMATCH,
+        MIXIN_RUNTIME_TRANSFORM,
+        REOBF_CANARY_UNAVAILABLE,
+        REOBF_PROBE_ERROR,
+        YSM_ENTRYPOINT_ERROR,
+        MANIFEST_ERROR,
+        UNKNOWN_COVERAGE_GAP
+    }
+
+    public record Issue(IssueKind kind, String symbol, String detail) {
+    }
+
+    public record Result(Status status, java.util.List<Issue> issues) {
+        public Result {
+            issues = java.util.List.copyOf(issues);
+        }
+
+        public boolean isCompatible() {
+            return status == Status.COMPATIBLE || status == Status.COMPATIBLE_WITH_WARNINGS;
+        }
+
+        public boolean coverageComplete() {
+            return issues.stream().noneMatch(issue -> switch (issue.kind()) {
+                case DYNAMIC_TARGET_UNKNOWN, DYNAMIC_DISPATCH_UNKNOWN, OWNED_CODE_UNAVAILABLE,
+                        SIGNATURE_UNREADABLE, SIDE_MISMATCH, MIXIN_RUNTIME_TRANSFORM,
+                        REOBF_CANARY_UNAVAILABLE,
+                        UNKNOWN_COVERAGE_GAP -> true;
+                default -> false;
+            });
+        }
+    }
+
+    private static final class RuntimeCheck {
+        private RuntimeCheck() {
+        }
+
+        static Result check(String groupKey) {
+            GroupSpec spec;
+            try {
+                spec = readGroup(groupKey);
+            } catch (Throwable throwable) {
+                return result(Status.CHECK_FAILED, IssueKind.MANIFEST_ERROR, MANIFEST_RESOURCE,
+                        describe(throwable));
+            }
+
+            Result sideResult = checkSide(spec.side());
+            if (sideResult != null) {
+                return sideResult;
+            }
+            Result ysmResult = checkYsmEntrypoint();
+            if (ysmResult != null) {
+                return ysmResult;
+            }
+            Result canaryResult = checkReobfCanary(spec.canaryProbe());
+            if (canaryResult != null) {
+                return canaryResult;
+            }
+
+            java.util.List<Issue> issues = new java.util.ArrayList<>(spec.issues());
+            boolean incompatible = false;
+            for (Requirement requirement : spec.requirements()) {
+                try {
+                    Issue issue = verify(requirement);
+                    if (issue != null) {
+                        incompatible = true;
+                        issues.add(issue);
+                    }
+                } catch (ProbeFailure failure) {
+                    issues.add(new Issue(IssueKind.REOBF_PROBE_ERROR,
+                            requirement.display(), failure.getMessage()));
+                    return new Result(Status.CHECK_FAILED, issues);
+                } catch (Throwable throwable) {
+                    issues.add(new Issue(IssueKind.REOBF_PROBE_ERROR,
+                            requirement.display(), describe(throwable)));
+                    return new Result(Status.CHECK_FAILED, issues);
+                }
+            }
+            if (incompatible) {
+                return new Result(Status.INCOMPATIBLE, issues);
+            }
+            return new Result(issues.isEmpty() ? Status.COMPATIBLE : Status.COMPATIBLE_WITH_WARNINGS,
+                    issues);
+        }
+
+        private static Result checkSide(String side) {
+            if (!side.equals("CLIENT")) {
+                return null;
+            }
+            try {
+                Class<?> environment = Class.forName(
+                        "net.minecraftforge.fml.loading.FMLEnvironment", false, loader());
+                Object dist = environment.getField("dist").get(null);
+                if (!String.valueOf(dist).equals("CLIENT")) {
+                    return new Result(Status.NOT_APPLICABLE, java.util.List.of());
+                }
+                return null;
+            } catch (ClassNotFoundException exception) {
+                return result(Status.CHECK_FAILED, IssueKind.YSM_ENTRYPOINT_ERROR,
+                        "net.minecraftforge.fml.loading.FMLEnvironment.dist",
+                        "Cannot determine the physical side outside a Forge runtime.");
+            } catch (Throwable throwable) {
+                return result(Status.CHECK_FAILED, IssueKind.YSM_ENTRYPOINT_ERROR,
+                        "net.minecraftforge.fml.loading.FMLEnvironment.dist", describe(throwable));
+            }
+        }
+
+        private static Result checkYsmEntrypoint() {
+            Boolean modLoaded = null;
+            try {
+                Class<?> modListClass = Class.forName("net.minecraftforge.fml.ModList", false, loader());
+                Object modList = modListClass.getMethod("get").invoke(null);
+                modLoaded = (Boolean) modListClass.getMethod("isLoaded", String.class)
+                        .invoke(modList, "ysm");
+                if (!modLoaded) {
+                    return new Result(Status.YSM_NOT_LOADED, java.util.List.of());
+                }
+            } catch (ClassNotFoundException ignored) {
+                // A plain JVM test/runtime has no ModList; class presence is the fallback.
+            } catch (Throwable throwable) {
+                return result(Status.CHECK_FAILED, IssueKind.YSM_ENTRYPOINT_ERROR,
+                        "net.minecraftforge.fml.ModList#isLoaded", describe(throwable));
+            }
+
+            Class<?> ysm;
+            try {
+                ysm = Class.forName("com.elfmcys.ysm.YesSteveModel", false, loader());
+            } catch (ClassNotFoundException | NoClassDefFoundError exception) {
+                return new Result(modLoaded == null ? Status.YSM_NOT_LOADED : Status.INCOMPATIBLE,
+                        java.util.List.of(new Issue(IssueKind.MISSING_CLASS,
+                                "com.elfmcys.ysm.YesSteveModel", describe(exception))));
+            } catch (Throwable throwable) {
+                return result(Status.CHECK_FAILED, IssueKind.YSM_ENTRYPOINT_ERROR,
+                        "com.elfmcys.ysm.YesSteveModel", describe(throwable));
+            }
+
+            java.lang.reflect.Method method;
+            try {
+                method = ysm.getMethod("isAvailable");
+            } catch (NoSuchMethodException exception) {
+                return result(Status.INCOMPATIBLE, IssueKind.MISSING_METHOD,
+                        "com.elfmcys.ysm.YesSteveModel#isAvailable()Z", describe(exception));
+            }
+            if (!java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                    || method.getReturnType() != boolean.class) {
+                return result(Status.INCOMPATIBLE, IssueKind.TYPE_MISMATCH,
+                        "com.elfmcys.ysm.YesSteveModel#isAvailable()Z",
+                        "Expected a public static boolean method.");
+            }
+            try {
+                Object available = method.invoke(null);
+                if (!Boolean.TRUE.equals(available)) {
+                    return new Result(Status.YSM_UNAVAILABLE, java.util.List.of());
+                }
+                return null;
+            } catch (Throwable throwable) {
+                return result(Status.CHECK_FAILED, IssueKind.YSM_ENTRYPOINT_ERROR,
+                        "com.elfmcys.ysm.YesSteveModel#isAvailable()Z", describe(throwable));
+            }
+        }
+
+        private static Result checkReobfCanary(String canaryProbe) {
+            final boolean production;
+            try {
+                production = isForgeProduction();
+            } catch (ProbeFailure failure) {
+                return result(Status.CHECK_FAILED, IssueKind.REOBF_PROBE_ERROR,
+                        "Forge production environment", failure.getMessage());
+            }
+            if (!production) {
+                return null;
+            }
+            if (canaryProbe.isEmpty()) {
+                return result(Status.CHECK_FAILED, IssueKind.REOBF_PROBE_ERROR,
+                        "net.minecraft.world.entity.Entity#tick()V",
+                        "Production artifact has no reobf canary.");
+            }
+            try {
+                String mappedName = declaredProbeMethodName(canaryProbe);
+                if (mappedName.equals("tick")) {
+                    return result(Status.CHECK_FAILED, IssueKind.REOBF_PROBE_ERROR,
+                            canaryProbe,
+                            "The compatibility probes did not pass through the standard reobf task.");
+                }
+                return null;
+            } catch (ProbeFailure failure) {
+                return result(Status.CHECK_FAILED, IssueKind.REOBF_PROBE_ERROR,
+                        canaryProbe, failure.getMessage());
+            }
+        }
+
+        private static boolean isForgeProduction() throws ProbeFailure {
+            try {
+                Class<?> loaderClass = Class.forName(
+                        "net.minecraftforge.fml.loading.FMLLoader", false, loader());
+                return Boolean.TRUE.equals(loaderClass.getMethod("isProduction").invoke(null));
+            } catch (ClassNotFoundException ignored) {
+                return false;
+            } catch (Throwable throwable) {
+                throw new ProbeFailure(describe(throwable));
+            }
+        }
+
+        private static Issue verify(Requirement requirement) throws ProbeFailure {
+            try {
+                Class<?> owner = Class.forName(requirement.owner(), false, loader());
+                return switch (requirement.kind()) {
+                    case CLASS -> null;
+                    case CLASS_OWNER -> verifyClassOwner(owner, requirement);
+                    case EXTENDABLE_CLASS -> verifyExtendableClass(owner, requirement);
+                    case INTERFACE -> verifyInterface(owner, requirement);
+                    case INSTANTIABLE_CLASS -> verifyInstantiableClass(owner, requirement);
+                    case METHOD -> verifyMethod(owner, requirement);
+                    case FIELD -> verifyField(owner, requirement);
+                    case CONSTRUCTOR -> verifyConstructor(owner, requirement);
+                };
+            } catch (ClassNotFoundException | NoClassDefFoundError exception) {
+                return new Issue(IssueKind.MISSING_CLASS, requirement.display(), describe(exception));
+            } catch (LinkageError error) {
+                return new Issue(IssueKind.MISSING_CLASS, requirement.display(), describe(error));
+            }
+        }
+
+        private static Issue verifyClassOwner(Class<?> owner, Requirement requirement) {
+            return !owner.isInterface()
+                    ? null
+                    : new Issue(IssueKind.TYPE_MISMATCH, requirement.display(),
+                            "Expected a class rather than an interface.");
+        }
+
+        private static Issue verifyExtendableClass(Class<?> owner, Requirement requirement) {
+            if (owner.isInterface() || java.lang.reflect.Modifier.isFinal(owner.getModifiers())) {
+                return new Issue(IssueKind.TYPE_MISMATCH, requirement.display(),
+                        "Expected a non-final class that can remain in the extension hierarchy.");
+            }
+            return null;
+        }
+
+        private static Issue verifyInterface(Class<?> owner, Requirement requirement) {
+            return owner.isInterface()
+                    ? null
+                    : new Issue(IssueKind.TYPE_MISMATCH, requirement.display(),
+                            "Expected an interface.");
+        }
+
+        private static Issue verifyInstantiableClass(Class<?> owner, Requirement requirement) {
+            int modifiers = owner.getModifiers();
+            if (owner.isInterface() || java.lang.reflect.Modifier.isAbstract(modifiers)) {
+                return new Issue(IssueKind.TYPE_MISMATCH, requirement.display(),
+                        "Expected a concrete class for a NEW instruction.");
+            }
+            return null;
+        }
+
+        private static Issue verifyMethod(Class<?> owner, Requirement requirement)
+                throws ProbeFailure, ClassNotFoundException {
+            String runtimeName = requirement.nameProbe().isEmpty()
+                    ? requirement.name()
+                    : declaredProbeMethodName(requirement.nameProbe());
+            Class<?> returnType = resolveType(requirement.returnType());
+            Class<?>[] parameters = new Class<?>[requirement.parameterTypes().size()];
+            for (int index = 0; index < parameters.length; index++) {
+                parameters[index] = resolveType(requirement.parameterTypes().get(index));
+            }
+            try {
+                if (!methodExists(owner, runtimeName, returnType, parameters,
+                        requirement.staticMember(),
+                        !requirement.declaredOnly(),
+                        java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>()))) {
+                    return new Issue(IssueKind.MISSING_METHOD, requirement.display(),
+                            "No method with the runtime-mapped name and descriptor exists.");
+                }
+                return null;
+            } catch (NoClassDefFoundError error) {
+                return new Issue(IssueKind.MISSING_CLASS, requirement.display(), describe(error));
+            } catch (Throwable throwable) {
+                throw new ProbeFailure(describe(throwable));
+            }
+        }
+
+        private static Issue verifyField(Class<?> owner, Requirement requirement)
+                throws ProbeFailure, ClassNotFoundException {
+            Class<?> expectedType = resolveType(requirement.fieldType());
+            try {
+                java.lang.reflect.Field field = findField(owner, requirement.name(),
+                        java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>()));
+                if (field == null) {
+                    return new Issue(IssueKind.MISSING_FIELD, requirement.display(),
+                            "The field does not exist in the runtime hierarchy.");
+                }
+                if (java.lang.reflect.Modifier.isStatic(field.getModifiers())
+                        != requirement.staticMember()) {
+                    return new Issue(IssueKind.TYPE_MISMATCH, requirement.display(),
+                            "The field static/instance access mode changed.");
+                }
+                if (field.getType() != expectedType) {
+                    return new Issue(IssueKind.TYPE_MISMATCH, requirement.display(),
+                            "Expected " + expectedType.getTypeName() + " but found "
+                                    + field.getType().getTypeName() + '.');
+                }
+                return null;
+            } catch (NoClassDefFoundError error) {
+                return new Issue(IssueKind.MISSING_CLASS, requirement.display(), describe(error));
+            } catch (Throwable throwable) {
+                throw new ProbeFailure(describe(throwable));
+            }
+        }
+
+        private static Issue verifyConstructor(Class<?> owner, Requirement requirement)
+                throws ProbeFailure, ClassNotFoundException {
+            Class<?>[] parameters = new Class<?>[requirement.parameterTypes().size()];
+            for (int index = 0; index < parameters.length; index++) {
+                parameters[index] = resolveType(requirement.parameterTypes().get(index));
+            }
+            try {
+                for (java.lang.reflect.Constructor<?> constructor : owner.getDeclaredConstructors()) {
+                    if (java.util.Arrays.equals(constructor.getParameterTypes(), parameters)) {
+                        return null;
+                    }
+                }
+                return new Issue(IssueKind.MISSING_METHOD, requirement.display(),
+                        "The constructor does not exist on the runtime class.");
+            } catch (NoClassDefFoundError error) {
+                return new Issue(IssueKind.MISSING_CLASS, requirement.display(), describe(error));
+            } catch (Throwable throwable) {
+                throw new ProbeFailure(describe(throwable));
+            }
+        }
+
+        private static boolean methodExists(
+                Class<?> owner,
+                String name,
+                Class<?> returnType,
+                Class<?>[] parameters,
+                boolean staticMember,
+                boolean searchParents,
+                java.util.Set<Class<?>> visited) {
+            if (owner == null || !visited.add(owner)) {
+                return false;
+            }
+            for (java.lang.reflect.Method method : owner.getDeclaredMethods()) {
+                if (method.getName().equals(name)
+                        && method.getReturnType() == returnType
+                        && java.util.Arrays.equals(method.getParameterTypes(), parameters)
+                        && java.lang.reflect.Modifier.isStatic(method.getModifiers()) == staticMember) {
+                    return true;
+                }
+            }
+            if (!searchParents) {
+                return false;
+            }
+            if (methodExists(owner.getSuperclass(), name, returnType, parameters,
+                    staticMember, true, visited)) {
+                return true;
+            }
+            for (Class<?> interfaceType : owner.getInterfaces()) {
+                if (methodExists(interfaceType, name, returnType, parameters,
+                        staticMember, true, visited)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static java.lang.reflect.Field findField(
+                Class<?> owner,
+                String name,
+                java.util.Set<Class<?>> visited) {
+            if (owner == null || !visited.add(owner)) {
+                return null;
+            }
+            try {
+                return owner.getDeclaredField(name);
+            } catch (NoSuchFieldException ignored) {
+                java.lang.reflect.Field inherited = findField(owner.getSuperclass(), name, visited);
+                if (inherited != null) {
+                    return inherited;
+                }
+                for (Class<?> interfaceType : owner.getInterfaces()) {
+                    inherited = findField(interfaceType, name, visited);
+                    if (inherited != null) {
+                        return inherited;
+                    }
+                }
+                return null;
+            }
+        }
+
+        private static String declaredProbeMethodName(String probeClass) throws ProbeFailure {
+            try {
+                java.lang.reflect.Method[] methods = Class.forName(probeClass, false, loader())
+                        .getDeclaredMethods();
+                if (methods.length != 1) {
+                    throw new ProbeFailure("Expected exactly one declared probe method, found "
+                            + methods.length + '.');
+                }
+                return methods[0].getName();
+            } catch (ProbeFailure failure) {
+                throw failure;
+            } catch (Throwable throwable) {
+                throw new ProbeFailure(describe(throwable));
+            }
+        }
+
+        private static Class<?> resolveType(String token)
+                throws ClassNotFoundException, ProbeFailure {
+            int dimensions = 0;
+            while (dimensions < token.length() && token.charAt(dimensions) == '[') {
+                dimensions++;
+            }
+            if (dimensions == token.length()) {
+                throw new ProbeFailure("Invalid type token: " + token);
+            }
+            String baseToken = token.substring(dimensions);
+            Class<?> base = switch (baseToken.charAt(0)) {
+                case 'V' -> void.class;
+                case 'Z' -> boolean.class;
+                case 'B' -> byte.class;
+                case 'S' -> short.class;
+                case 'I' -> int.class;
+                case 'J' -> long.class;
+                case 'C' -> char.class;
+                case 'F' -> float.class;
+                case 'D' -> double.class;
+                case 'L' -> Class.forName(baseToken.substring(1), false, loader());
+                case 'P' -> resolveProbeType(baseToken.substring(1));
+                default -> throw new ProbeFailure("Unknown type token: " + token);
+            };
+            for (int index = 0; index < dimensions; index++) {
+                base = java.lang.reflect.Array.newInstance(base, 0).getClass();
+            }
+            return base;
+        }
+
+        private static Class<?> resolveProbeType(String probeToken) throws ProbeFailure {
+            int separator = probeToken.lastIndexOf('#');
+            if (separator <= 0 || separator == probeToken.length() - 1) {
+                throw new ProbeFailure("Invalid reobf type probe token: " + probeToken);
+            }
+            String className = probeToken.substring(0, separator);
+            String fieldName = probeToken.substring(separator + 1);
+            try {
+                return Class.forName(className, false, loader())
+                        .getDeclaredField(fieldName).getType();
+            } catch (Throwable throwable) {
+                throw new ProbeFailure(describe(throwable));
+            }
+        }
+
+        private static GroupSpec readGroup(String requestedKey) throws java.io.IOException {
+            java.io.InputStream resource = loader().getResourceAsStream(MANIFEST_RESOURCE);
+            if (resource == null) {
+                throw new java.io.FileNotFoundException(MANIFEST_RESOURCE);
+            }
+            byte[] bytes;
+            try (resource) {
+                bytes = resource.readNBytes(MAX_MANIFEST_BYTES + 1);
+            }
+            if (bytes.length > MAX_MANIFEST_BYTES) {
+                throw new java.io.IOException("YSM compatibility manifest is too large.");
+            }
+            com.google.gson.JsonElement document = com.google.gson.JsonParser.parseString(
+                    new String(bytes, java.nio.charset.StandardCharsets.UTF_8));
+            com.google.gson.JsonObject root = requireObject(document, "manifest");
+            int version = requireInteger(root.get("version"), "version");
+            if (version != MANIFEST_VERSION) {
+                throw new java.io.IOException("Unsupported YSM compatibility manifest version: "
+                        + version);
+            }
+            String canary = requireString(root.get("canaryProbe"), "canaryProbe");
+            com.google.gson.JsonObject groups = requireObject(root.get("groups"), "groups");
+            if (!groups.has(requestedKey)) {
+                throw new java.io.IOException("Compatibility group not found: " + requestedKey);
+            }
+            com.google.gson.JsonObject selected = requireObject(
+                    groups.get(requestedKey), "group " + requestedKey);
+            String side = requireString(selected.get("side"), "side");
+
+            com.google.gson.JsonArray issueValues = requireArray(selected.get("issues"), "issues");
+            java.util.List<Issue> issues = new java.util.ArrayList<>(issueValues.size());
+            for (int index = 0; index < issueValues.size(); index++) {
+                com.google.gson.JsonObject issue = requireObject(
+                        issueValues.get(index), "issue[" + index + "]");
+                String kindName = requireString(issue.get("kind"), "issue.kind");
+                String symbol = requireString(issue.get("symbol"), "issue.symbol");
+                String detail = requireString(issue.get("detail"), "issue.detail");
+                IssueKind kind;
+                try {
+                    kind = IssueKind.valueOf(kindName);
+                } catch (IllegalArgumentException ignored) {
+                    kind = IssueKind.UNKNOWN_COVERAGE_GAP;
+                    detail = kindName + ": " + detail;
+                }
+                issues.add(new Issue(kind, symbol, detail));
+            }
+
+            com.google.gson.JsonArray requirementValues = requireArray(
+                    selected.get("requirements"), "requirements");
+            java.util.List<Requirement> requirements = new java.util.ArrayList<>(
+                    requirementValues.size());
+            for (int index = 0; index < requirementValues.size(); index++) {
+                com.google.gson.JsonObject requirement = requireObject(
+                        requirementValues.get(index), "requirement[" + index + "]");
+                String kindName = requireString(requirement.get("kind"), "requirement.kind");
+                RequirementKind kind;
+                try {
+                    kind = RequirementKind.valueOf(kindName);
+                } catch (IllegalArgumentException exception) {
+                    throw new java.io.IOException("Bad requirement kind: " + kindName, exception);
+                }
+                String owner = requireString(requirement.get("owner"), "requirement.owner");
+                String name = requireString(requirement.get("name"), "requirement.name");
+                String descriptor = requireString(
+                        requirement.get("descriptor"), "requirement.descriptor");
+                boolean declaredOnly = requireBoolean(
+                        requirement.get("declaredOnly"), "requirement.declaredOnly");
+                boolean staticMember = requireBoolean(
+                        requirement.get("staticMember"), "requirement.staticMember");
+                String nameProbe = requireString(
+                        requirement.get("nameProbe"), "requirement.nameProbe");
+                String fieldType = requireString(
+                        requirement.get("fieldType"), "requirement.fieldType");
+                String returnType = requireString(
+                        requirement.get("returnType"), "requirement.returnType");
+                com.google.gson.JsonArray parameterValues = requireArray(
+                        requirement.get("parameterTypes"), "requirement.parameterTypes");
+                java.util.List<String> parameters = new java.util.ArrayList<>(
+                        parameterValues.size());
+                for (int parameterIndex = 0;
+                        parameterIndex < parameterValues.size();
+                        parameterIndex++) {
+                    parameters.add(requireString(parameterValues.get(parameterIndex),
+                            "requirement.parameterTypes[" + parameterIndex + "]"));
+                }
+                requirements.add(new Requirement(kind, owner, name, descriptor, declaredOnly,
+                        staticMember, nameProbe, fieldType, returnType,
+                        java.util.List.copyOf(parameters)));
+            }
+            return new GroupSpec(canary, side, java.util.List.copyOf(issues),
+                    java.util.List.copyOf(requirements));
+        }
+
+        private static com.google.gson.JsonObject requireObject(
+                com.google.gson.JsonElement value,
+                String label) throws java.io.IOException {
+            if (value == null || !value.isJsonObject()) {
+                throw jsonTypeError(label, "object");
+            }
+            com.google.gson.JsonObject object = value.getAsJsonObject();
+            if (object.size() > MAX_JSON_ITEMS) {
+                throw new java.io.IOException("Too many entries in " + label + '.');
+            }
+            return object;
+        }
+
+        private static com.google.gson.JsonArray requireArray(
+                com.google.gson.JsonElement value,
+                String label) throws java.io.IOException {
+            if (value == null || !value.isJsonArray()) {
+                throw jsonTypeError(label, "array");
+            }
+            com.google.gson.JsonArray array = value.getAsJsonArray();
+            if (array.size() > MAX_JSON_ITEMS) {
+                throw new java.io.IOException("Too many entries in " + label + '.');
+            }
+            return array;
+        }
+
+        private static String requireString(
+                com.google.gson.JsonElement value,
+                String label) throws java.io.IOException {
+            if (value == null || !value.isJsonPrimitive()
+                    || !value.getAsJsonPrimitive().isString()) {
+                throw jsonTypeError(label, "string");
+            }
+            return value.getAsString();
+        }
+
+        private static boolean requireBoolean(
+                com.google.gson.JsonElement value,
+                String label)
+                throws java.io.IOException {
+            if (value == null || !value.isJsonPrimitive()
+                    || !value.getAsJsonPrimitive().isBoolean()) {
+                throw jsonTypeError(label, "boolean");
+            }
+            return value.getAsBoolean();
+        }
+
+        private static int requireInteger(
+                com.google.gson.JsonElement value,
+                String label) throws java.io.IOException {
+            if (value == null || !value.isJsonPrimitive()
+                    || !value.getAsJsonPrimitive().isNumber()) {
+                throw jsonTypeError(label, "integer");
+            }
+            try {
+                return new java.math.BigDecimal(value.getAsString()).intValueExact();
+            } catch (ArithmeticException | NumberFormatException exception) {
+                throw jsonTypeError(label, "integer");
+            }
+        }
+
+        private static java.io.IOException jsonTypeError(String label, String expected) {
+            return new java.io.IOException("Expected " + label + " to be a JSON " + expected + '.');
+        }
+
+        private static Result result(
+                Status status,
+                IssueKind kind,
+                String symbol,
+                String detail) {
+            return new Result(status, java.util.List.of(new Issue(kind, symbol, detail)));
+        }
+
+        private static ClassLoader loader() {
+            ClassLoader loader = {{CHECKER}}.class.getClassLoader();
+            return loader == null ? ClassLoader.getSystemClassLoader() : loader;
+        }
+
+        private static String describe(Throwable throwable) {
+            Throwable current = throwable;
+            if (throwable instanceof java.lang.reflect.InvocationTargetException invocation
+                    && invocation.getCause() != null) {
+                current = invocation.getCause();
+            }
+            String message = current.getMessage();
+            return current.getClass().getName() + (message == null ? "" : ": " + message);
+        }
+
+        private enum RequirementKind {
+            CLASS,
+            CLASS_OWNER,
+            EXTENDABLE_CLASS,
+            INTERFACE,
+            INSTANTIABLE_CLASS,
+            METHOD,
+            FIELD,
+            CONSTRUCTOR
+        }
+
+        private record Requirement(
+                RequirementKind kind,
+                String owner,
+                String name,
+                String descriptor,
+                boolean declaredOnly,
+                boolean staticMember,
+                String nameProbe,
+                String fieldType,
+                String returnType,
+                java.util.List<String> parameterTypes) {
+            String display() {
+                return switch (kind) {
+                    case CLASS, CLASS_OWNER, EXTENDABLE_CLASS, INTERFACE,
+                            INSTANTIABLE_CLASS -> owner;
+                    case METHOD, CONSTRUCTOR -> owner + '#' + name + descriptor;
+                    case FIELD -> owner + '#' + name + ':' + descriptor;
+                };
+            }
+        }
+
+        private record GroupSpec(
+                String canaryProbe,
+                String side,
+                java.util.List<Issue> issues,
+                java.util.List<Requirement> requirements) {
+        }
+
+        private static final class ProbeFailure extends Exception {
+            ProbeFailure(String message) {
+                super(message);
+            }
+        }
+    }
+}

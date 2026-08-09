@@ -95,5 +95,7 @@ tasks.named('check') {
 }
 
 tasks.withType(Jar).configureEach {
-    dependsOn tasks.named('verifyBuiltinModelIndex')
+    if (name != 'relocateProcessorAsm') {
+        dependsOn tasks.named('verifyBuiltinModelIndex')
+    }
 }

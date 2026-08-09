@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.network.message.model;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.source.ModelAssetSelector;
 import com.elfmcys.ysm.model.source.ModelAssetSubject;
 import com.elfmcys.ysm.proto.network.model.ModelAssetsProto;
@@ -137,10 +137,10 @@ public final class ModelAssetProtoMapper {
         };
     }
 
-    private static ModelHash hash(us.hebi.quickbuf.RepeatedByte value, String field) {
-        if (value.length() != ModelHash.SIZE) {
-            throw new IllegalArgumentException(field + " must contain exactly " + ModelHash.SIZE + " bytes");
+    private static Hash256 hash(us.hebi.quickbuf.RepeatedByte value, String field) {
+        if (value.length() != Hash256.SIZE) {
+            throw new IllegalArgumentException(field + " must contain exactly " + Hash256.SIZE + " bytes");
         }
-        return new ModelHash(value.array(), 0, value.length());
+        return new Hash256(value.array(), 0, value.length());
     }
 }

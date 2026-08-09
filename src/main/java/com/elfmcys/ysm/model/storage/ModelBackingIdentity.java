@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.storage;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,7 +44,7 @@ public sealed interface ModelBackingIdentity permits ModelBackingIdentity.Direct
         }
     }
 
-    record ConvertedObject(Path object, ModelHash modelHash) implements ModelBackingIdentity {
+    record ConvertedObject(Path object, Hash256 modelHash) implements ModelBackingIdentity {
         public ConvertedObject {
             object = normalize(object);
             Objects.requireNonNull(modelHash, "modelHash");
@@ -56,7 +56,7 @@ public sealed interface ModelBackingIdentity permits ModelBackingIdentity.Direct
         }
     }
 
-    record RemoteSession(UUID epoch, ModelHash modelHash, ModelHash descriptorHash)
+    record RemoteSession(UUID epoch, Hash256 modelHash, Hash256 descriptorHash)
             implements ModelBackingIdentity {
         public RemoteSession {
             Objects.requireNonNull(epoch, "epoch");
@@ -70,7 +70,7 @@ public sealed interface ModelBackingIdentity permits ModelBackingIdentity.Direct
         }
     }
 
-    record ResidentDefault(ModelHash modelHash) implements ModelBackingIdentity {
+    record ResidentDefault(Hash256 modelHash) implements ModelBackingIdentity {
         public ResidentDefault {
             Objects.requireNonNull(modelHash, "modelHash");
         }

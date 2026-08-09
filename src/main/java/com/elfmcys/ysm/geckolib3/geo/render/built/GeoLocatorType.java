@@ -23,9 +23,7 @@ public class GeoLocatorType {
         if (frozen.get()) {
             throw new IllegalStateException("Registry is already frozen");
         }
-        var locator = new GeoLocator(this, name, (byte) (nameMap.size() + 1));
-        nameMap.put(name, locator);
-        return locator;
+        return nameMap.computeIfAbsent(name, n -> new GeoLocator(this, name, (byte) (nameMap.size() + 1)));
     }
 
     public int size() {

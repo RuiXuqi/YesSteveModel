@@ -3,7 +3,7 @@ package com.elfmcys.ysm.format.parser;
 import com.elfmcys.ysm.buffer.NativeBuffer;
 import com.elfmcys.ysm.format.vfs.Directory;
 import com.elfmcys.ysm.format.vfs.VirtualFileSystem;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.natives.Blake3;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -157,7 +157,7 @@ class ModelParserTest {
                 "/assets/ysm/builtin/wine_fox/22_elf/ysm.json"));
         var sourceDirectory = Path.of(manifest.toURI()).getParent();
 
-        ModelHash scanned;
+        Hash256 scanned;
         try (var vfs = new Directory(sourceDirectory)) {
             scanned = ModelParser.scanModelHash(vfs);
         }
@@ -171,12 +171,12 @@ class ModelParserTest {
         assertEquals(scanned + ".mxc", output.getFileName().toString());
     }
 
-    private static ModelHash expectedHash(MemoryVfs vfs, Map<String, String> expectedTypes) {
+    private static Hash256 expectedHash(MemoryVfs vfs, Map<String, String> expectedTypes) {
         var canonicalizer = new ModelHashCanonicalizer();
         for (var entry : expectedTypes.entrySet()) {
             canonicalizer.add(entry.getValue(), entry.getKey(), Blake3.computeHash(vfs.file(entry.getKey())));
         }
-        return new ModelHash(canonicalizer.aggregate());
+        return new Hash256(canonicalizer.aggregate());
     }
 
     private static final class MemoryVfs implements VirtualFileSystem, AutoCloseable {

@@ -3,7 +3,7 @@ package com.elfmcys.ysm.client.model.internal.transfer;
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.testutil.LogCapture;
 import com.elfmcys.ysm.model.cache.ScopedIdleValueCache;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.source.CatalogCursor;
 import com.elfmcys.ysm.model.source.ModelAssetSelector;
 import com.elfmcys.ysm.model.source.ModelAssetSubject;
@@ -284,7 +284,7 @@ class ClientTransferManagerBatchTest {
         var hash = new byte[32];
         java.util.Arrays.fill(hash, fill);
         return batch.requestPack(context, new ModelAssetSubject.Pack("remote", hierarchy),
-                (ModelAssetSelector.PackCover) ModelAssetSelector.packCover(new ModelHash(hash)), required);
+                (ModelAssetSelector.PackCover) ModelAssetSelector.packCover(new Hash256(hash)), required);
     }
 
     private static CatalogCursor cursor(long revision) {

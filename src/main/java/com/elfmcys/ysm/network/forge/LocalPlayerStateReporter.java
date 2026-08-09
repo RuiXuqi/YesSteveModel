@@ -3,7 +3,7 @@ package com.elfmcys.ysm.network.forge;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapability;
 import com.elfmcys.ysm.event.LivingShieldBlockEvent;
 import com.elfmcys.ysm.geckolib3.core.molang.util.StringPool;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.network.protocol.EntityRefEncoder;
 import com.elfmcys.ysm.network.protocol.NegotiatedSessionPolicy;
 import com.elfmcys.ysm.network.protocol.PlayerStateReportLifecycle;
@@ -30,7 +30,7 @@ final class LocalPlayerStateReporter {
     private NegotiatedSessionPolicy policy;
     private boolean sendInFlight;
     private boolean authorityKnown;
-    private ModelHash authoritativeModelHash;
+    private Hash256 authoritativeModelHash;
     private Integer authoritativeRoamingKey;
     private long lastAttemptNanos;
     private long lastFullNanos;
@@ -73,7 +73,7 @@ final class LocalPlayerStateReporter {
         resetSnapshots();
     }
 
-    synchronized void acceptAuthoritativeFull(ModelHash modelHash, Integer roamingKey) {
+    synchronized void acceptAuthoritativeFull(Hash256 modelHash, Integer roamingKey) {
         if (!bindCurrentSession()) {
             return;
         }

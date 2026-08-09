@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.model.catalog;
 
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public record CatalogDiff(List<Operation> operations, boolean replacePacks) {
         MOVE
     }
 
-    public record Operation(Type type, ModelHash hash, ModelDescriptor descriptor,
+    public record Operation(Type type, Hash256 hash, ModelDescriptor descriptor,
                             CatalogModelLocation location, CatalogModelLocation previousLocation)
             implements Comparable<Operation> {
         public static Operation add(ModelFileHandle handle) {
@@ -71,7 +71,7 @@ public record CatalogDiff(List<Operation> operations, boolean replacePacks) {
                     handle.location(), null);
         }
 
-        public static Operation remove(ModelHash hash, CatalogModelLocation previousLocation) {
+        public static Operation remove(Hash256 hash, CatalogModelLocation previousLocation) {
             return new Operation(Type.REMOVE, hash, null, null, previousLocation);
         }
 

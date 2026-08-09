@@ -1,11 +1,10 @@
 package com.elfmcys.ysm.natives.render;
 
-import com.elfmcys.ysm.api.VertexBufferAccessor;
+import com.elfmcys.ysm.accessor.VertexBufferAccessor;
 import com.elfmcys.ysm.buffer.NativeBuffer;
 import com.elfmcys.ysm.buffer.annotation.Aligned;
 import com.elfmcys.ysm.buffer.annotation.Borrowed;
 import com.elfmcys.ysm.client.compat.IrisCompat;
-import com.elfmcys.ysm.natives.NativeObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,10 +13,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class NativeRenderer {
     public static void render(VertexConsumer vertexConsumer, PoseStack.Pose pose,
-                              NativeObject modelState, int vertexCount,
+                              NativeModelState modelState, int vertexCount,
                               int light, int overlay, int color, RenderContextType contextType) {
         var vb = setupVertexConsumer(vertexConsumer, vertexCount);
         var isUnknownType = vb.type == VertexFormatType.FALLBACK;
+
         var matBuffer = getMatBuffer(pose);
         var lightAndOverlay = packLightAndOverlay(light, overlay);
         var flags = packFlags(vb.type, contextType);
@@ -33,7 +33,7 @@ public class NativeRenderer {
         }
 
         var result = nRender(bufferObj, bufferFlags, matBuffer.ptr(), modelState.get(),
-                lightAndOverlay, color, flags, IrisCompat.getEntityId());
+                lightAndOverlay, packColor(color), flags, IrisCompat.getEntityId());
         if (result) {
             if (isUnknownType || vb.region == null) {
                 FallbackVertexWriter.write(vertexConsumer, vertexCount, overlay);
@@ -83,6 +83,13 @@ public class NativeRenderer {
 
     private static long packLightAndOverlay(int lightUv, int overlayOv) {
         return ((long) lightUv << 32) | overlayOv;
+    }
+
+    static int packColor(int argb) {
+        return ((argb >>> 16) & 0xFF) |
+                (argb & 0xFF00) |
+                ((argb & 0xFF) << 16) |
+                (argb & 0xFF000000);
     }
 
     private static native boolean nRender(Object vertexBuffer, int vertexBufferFlag, long matPtr, long modelStatePtr,

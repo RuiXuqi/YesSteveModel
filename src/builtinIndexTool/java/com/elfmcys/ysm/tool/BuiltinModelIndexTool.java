@@ -1,5 +1,6 @@
 package com.elfmcys.ysm.tool;
 
+import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.format.parser.ModelParser;
 import com.elfmcys.ysm.format.vfs.Directory;
 import com.elfmcys.ysm.model.catalog.BuiltinModelIndex;
@@ -8,10 +9,12 @@ import com.elfmcys.ysm.model.catalog.CatalogModelLocation;
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
 import com.elfmcys.ysm.model.catalog.DefaultAnimationKey;
 import com.elfmcys.ysm.model.catalog.ModelSourceDiscovery;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
 import com.elfmcys.ysm.model.storage.ModelHashing;
+import com.elfmcys.ysm.natives.NativeRuntime;
+import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -44,7 +47,10 @@ public final class BuiltinModelIndexTool {
             throw usage();
         }
 
-        System.load(Path.of(args[1]).toAbsolutePath().normalize().toString());
+        var libPath = Path.of(args[1]).toAbsolutePath().normalize().toString();
+        YesSteveModel.LOGGER.error("Loading native lib: {}", libPath);
+        System.load(libPath);
+        NativeRuntime.initialize(NativeRuntime.JavaConfig.fromLog4j(Level.INFO));
         var sourceRoot = Path.of(args[2]).toAbsolutePath().normalize();
         var resultFile = Path.of(args[3]).toAbsolutePath().normalize();
         var workDirectory = Path.of(args[4]).toAbsolutePath().normalize();
@@ -78,7 +84,7 @@ public final class BuiltinModelIndexTool {
         }
         Files.createDirectories(workDirectory);
 
-        final ModelHash scanned;
+        final Hash256 scanned;
         try (var vfs = new Directory(defaultRoot)) {
             scanned = ModelParser.scanModelHash(vfs);
         }
@@ -111,10 +117,10 @@ public final class BuiltinModelIndexTool {
             throws IOException {
         Files.deleteIfExists(indexFile);
         var discovery = discoverRawDirectories(builtinRoot);
-        var hashes = new LinkedHashMap<ModelPath, ModelHash>();
+        var hashes = new LinkedHashMap<ModelPath, Hash256>();
         for (var source : discovery.models()) {
             var path = ModelPath.relativeTo(builtinRoot, source);
-            final ModelHash scanned;
+            final Hash256 scanned;
             try (var vfs = new Directory(source)) {
                 scanned = ModelParser.scanModelHash(vfs);
             }
@@ -179,15 +185,15 @@ public final class BuiltinModelIndexTool {
     }
 
     static BuiltinModelIndex createDefaultContract(
-            ModelHash defaultHash, Map<DefaultAnimationKey, ModelHash> currentAnimations)
+            Hash256 defaultHash, Map<DefaultAnimationKey, Hash256> currentAnimations)
             throws IOException {
         return BuiltinModelIndex.of(Map.of(DEFAULT_PATH, defaultHash), currentAnimations, Map.of());
     }
 
     static BuiltinModelIndex createIndex(
-            Map<ModelPath, ModelHash> modelHashes,
+            Map<ModelPath, Hash256> modelHashes,
             BuiltinModelIndex defaultContract,
-            Map<DefaultAnimationKey, Set<ModelHash>> history) throws IOException {
+            Map<DefaultAnimationKey, Set<Hash256>> history) throws IOException {
         requireDefaultOnlyContract(defaultContract);
         var scannedDefault = modelHashes.get(DEFAULT_PATH);
         if (scannedDefault == null) {
@@ -217,7 +223,7 @@ public final class BuiltinModelIndexTool {
         }
     }
 
-    static String verificationReceipt(ModelHash indexHash, int modelCount) {
+    static String verificationReceipt(Hash256 indexHash, int modelCount) {
         if (modelCount < 1) {
             throw new IllegalArgumentException("Verified builtin model count must be positive");
         }
@@ -242,9 +248,9 @@ public final class BuiltinModelIndexTool {
         }
     }
 
-    private static Map<DefaultAnimationKey, ModelHash> currentAnimationHashes(
+    private static Map<DefaultAnimationKey, Hash256> currentAnimationHashes(
             BuiltinModelIndex index) {
-        var animations = new LinkedHashMap<DefaultAnimationKey, ModelHash>();
+        var animations = new LinkedHashMap<DefaultAnimationKey, Hash256>();
         index.animationEntries().forEach(entry ->
                 animations.put(entry.key(), entry.currentPayloadHash()));
         return Map.copyOf(animations);

@@ -7,12 +7,12 @@
 | 对象 | 内容与所有权 |
 |---|---|
 | `BoneAttribute` | `AnimatedGeoModel` 的实体级求值结果；Extract 期间只临时读取，通道语义见[骨骼输出](../animation/processor-and-bone-output.md) |
-| pose / normal buffer | 每个 `GeoModelState` 独占的 Java-owned buffer；Extract 原位写入，native `ModelState` 只借用 |
-| frame state | `GeoModelState` 拥有 native `ModelState`；后者共享 `BakedModel`，并保存可见骨骼、pose view、`RenderSchedule` 与有效标记 |
-| locator result | Native 临时暂存并复制 active locator 骨骼索引；Java 结合原位 pose buffer 构建 locator 映射 |
+| `BonePose` 与视图 | Native `ModelState` 持有连续 `BonePose` 数组并在 Extract 时写入；成功后 Java 通过只读 `BonePoseView` 借用其中的 pose、normal 与缩放派生字段 |
+| frame state | `GeoModelState` 拥有 native `ModelState`；后者共享 `BakedModel`，并保存 `BonePose`、可见骨骼、`RenderSchedule` 与有效标记 |
+| locator result | Native 临时暂存并复制 active locator 骨骼索引；Java 结合本次 Extract 返回的 `BonePoseView` 构建 locator 映射 |
 | `RenderSchedule` | 当前可见骨骼和 worker 数对应的只读计划；由 `RenderTask` 描述工作与输出范围 |
 
-`GeoModelState.extract(...)` 开始先使旧状态失效；只有 `BoneAttribute`、容量、`ModelState::Extract` 层级遍历和调度全部成功后才整体发布为有效。失败不能继续消费上一帧结果。成功的 `ModelState` 会共享持有 `BakedModel`，但 pose buffer 仍由 `GeoModelState` 所有；它不保留 `BoneAttribute`。后续 Extract 可以原地复用该 buffer；任何覆盖、换模或释放都必须发生在此前 Extract 与 Render 完成之后。
+`GeoModelState.extract(...)` 开始先使旧状态和借用视图失效；只有 `BoneAttribute`、locator 容量、`ModelState::Extract` 层级遍历和调度全部成功后才整体发布为有效。失败不能继续消费上一帧结果。成功的 `ModelState` 会共享持有 `BakedModel` 并拥有 `BonePose` 数组，但不保留 `BoneAttribute`；`GeoModelState` 只借用 Extract 返回的只读 `BonePoseView`。后续 Extract 可以复用或重分配 native 数组，因此旧视图只在下次 Extract 或 close 前有效；覆盖、换模或释放都必须发生在此前 Extract 与 Render 完成之后。
 
 ```mermaid
 stateDiagram-v2
@@ -32,7 +32,7 @@ stateDiagram-v2
 - 隐藏当前骨骼几何只影响该骨骼及其附着点；child 继续遍历。
 - 隐藏子级会保留当前骨骼自身，再利用 subtree range 跳过全部后代。
 - 只有未隐藏且实际拥有几何的骨骼进入 render bone 序列；正常生产路径由 preorder 构造，因此稳定且唯一。
-- 附着点供 Java 原版 layer 使用；`locator_sequence` 只标记需要回传的 active bone。`ModelState::Extract` 返回对应 bone indices，`GeoModelState` 再将其与同一原位 pose buffer 组合成 locator mapping，不复制 pose records。
+- 附着点供 Java 原版 layer 使用；`locator_sequence` 只标记需要回传的 active bone。`ModelState::Extract` 返回对应 bone indices 和 `BonePoseView`，`GeoModelState` 将二者组合成 locator mapping，不复制 pose records。
 
 ## Java 预调度与 context
 

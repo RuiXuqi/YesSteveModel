@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import com.elfmcys.ysm.model.domain.ModelScanError;
@@ -87,7 +87,7 @@ final class BuiltinModelCatalogScanner {
 
     private static List<ModelFileHandle> removeModelConflicts(List<ModelFileHandle> input,
                                                                List<ModelScanError> errors) {
-        var byHash = new HashMap<ModelHash, List<ModelFileHandle>>();
+        var byHash = new HashMap<Hash256, List<ModelFileHandle>>();
         var byLocation = new HashMap<CatalogModelLocation, List<ModelFileHandle>>();
         input.forEach(model -> {
             byHash.computeIfAbsent(model.descriptor().modelHash(), ignored -> new ArrayList<>()).add(model);

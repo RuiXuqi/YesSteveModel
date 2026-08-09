@@ -14,13 +14,14 @@
     "client.BufferSourceMixin",
     "client.EntityRenderDispatcherMixin",
     "client.FishingHookAccessor",
+    "client.GameRendererMixin",
     "client.InventoryScreenMixin",
     "client.LivingEntityAccessor",
     "client.LivingRendererMixin",
     "client.NativeImageAccessor",
     "client.PauseScreenMixin",
     "client.ThrowableItemProjectileAccessor",
-    "client.WorldRendererMixin",
+    "client.LevelRendererMixin",
     "client.embeddium.SodiumBufferBuilderMixin"
   ],
   "mixins": [

@@ -1,12 +1,12 @@
 package com.elfmcys.ysm.model.source;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.util.Objects;
 
 /** Source-local identity of the catalog object that owns an asset. */
 public sealed interface ModelAssetSubject permits ModelAssetSubject.Model, ModelAssetSubject.Pack {
-    record Model(ModelHash modelHash, ModelHash descriptorHash) implements ModelAssetSubject {
+    record Model(Hash256 modelHash, Hash256 descriptorHash) implements ModelAssetSubject {
         public Model {
             Objects.requireNonNull(modelHash, "modelHash");
             Objects.requireNonNull(descriptorHash, "descriptorHash");

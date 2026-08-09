@@ -20,6 +20,7 @@ import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
 import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.ysm.geckolib3.model.provider.data.EntityModelData;
+import com.elfmcys.ysm.natives.NativeProfiler;
 import com.elfmcys.ysm.util.RenderUtil;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
@@ -227,20 +228,22 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     @Nullable
     protected GeoRenderData update(float partialTicks, RenderContext context) {
-        if (this.currentModel == null) {
-            return null;
-        }
-        var event = createAnimationEvent(partialTicks, context);
-        tickAnimation(event);
-
-        var renderData = getRenderData(context);
-        if (!context.immutable() || !currentFrameExtracted) {
-            if (context.immutable()) {
-                currentFrameExtracted = true;
+        try (var ignored = NativeProfiler.beginAnimatableUpdate()) {
+            if (this.currentModel == null) {
+                return null;
             }
-            extractRenderData(event, renderData);
+            var event = createAnimationEvent(partialTicks, context);
+            tickAnimation(event);
+
+            var renderData = getRenderData(context);
+            if (!context.immutable() || !currentFrameExtracted) {
+                if (context.immutable()) {
+                    currentFrameExtracted = true;
+                }
+                extractRenderData(event, renderData);
+            }
+            return renderData;
         }
-        return renderData;
     }
 
     protected GeoRenderData createRenderData() {
@@ -487,8 +490,5 @@ public abstract class AnimatableEntity<TEntity extends Entity> {
 
     public AnimationState getCodedAnimationStates(String controllerName) {
         return this.codedAnimationStates.getOrDefault(controllerName, AnimationState.IDLE);
-    }
-
-    public interface AnimationControllerFactory extends Consumer<Consumer<IAnimationController<?>>> {
     }
 }

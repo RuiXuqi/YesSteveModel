@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.ModelBackingIdentity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -195,10 +195,10 @@ class CatalogReloadCoordinatorTest {
         return new CatalogReconcileResult(snapshot, Set.of(), Set.of(), ReloadStats.empty());
     }
 
-    private static ModelHash hash(int seed) {
-        var bytes = new byte[ModelHash.SIZE];
+    private static Hash256 hash(int seed) {
+        var bytes = new byte[Hash256.SIZE];
         bytes[0] = (byte) seed;
-        return new ModelHash(bytes);
+        return new Hash256(bytes);
     }
 
     private static CatalogBackingKey backing(int seed) {

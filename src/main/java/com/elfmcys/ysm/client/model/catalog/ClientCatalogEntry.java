@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.model.catalog;
 
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
 import com.elfmcys.ysm.model.source.AccessPolicy;
 import com.elfmcys.ysm.model.source.ModelOffer;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public record ClientCatalogEntry(ModelHash modelHash, ModelContentVersion contentVersion,
+public record ClientCatalogEntry(Hash256 modelHash, ModelContentVersion contentVersion,
                                  ModelBackingIdentity backingIdentity,
                                  @Nullable ModelFileHandle local, @Nullable ModelOffer server) {
     public ClientCatalogEntry {

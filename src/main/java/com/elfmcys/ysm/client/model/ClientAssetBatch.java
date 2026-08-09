@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.model;
 
 import com.elfmcys.ysm.client.model.internal.asset.ClientAssetRepository;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.source.ModelAssetSelector;
 import com.elfmcys.ysm.model.source.PackOffer;
 import com.elfmcys.ysm.natives.image.ImageSource;
@@ -16,7 +16,7 @@ public final class ClientAssetBatch {
         this.delegate = delegate;
     }
 
-    public CompletableFuture<ImageSource> preview(ModelHash hash) {
+    public CompletableFuture<ImageSource> preview(Hash256 hash) {
         return delegate.preview(hash);
     }
 
@@ -24,7 +24,7 @@ public final class ClientAssetBatch {
         return delegate.packCover(pack);
     }
 
-    public CompletableFuture<ImageSource> presentation(ModelHash hash,
+    public CompletableFuture<ImageSource> presentation(Hash256 hash,
                                                        ModelAssetSelector.PresentationAsset asset,
                                                        int index) {
         return delegate.presentation(hash, asset, index);

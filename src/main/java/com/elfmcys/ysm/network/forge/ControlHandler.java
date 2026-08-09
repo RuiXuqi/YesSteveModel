@@ -11,7 +11,7 @@ import com.elfmcys.ysm.client.animation.molang.CustomMolangParser;
 import com.elfmcys.ysm.client.compat.touhoulittlemaid.TlmCommonCompat;
 import com.elfmcys.ysm.event.CapabilityEvent;
 import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.network.protocol.ModelReferenceCodec;
 import com.elfmcys.ysm.model.source.AccessPolicy;
 import com.elfmcys.ysm.model.server.ServerModelService;
@@ -48,14 +48,14 @@ public final class ControlHandler {
     private ControlHandler() {
     }
 
-    public static ControlV0.AuthorizedModelsSnapshot authorizedModels(Set<ModelHash> hashes, long revision) {
+    public static ControlV0.AuthorizedModelsSnapshot authorizedModels(Set<Hash256> hashes, long revision) {
         var result = ControlV0.AuthorizedModelsSnapshot.newInstance().setRevision(revision);
         hashes.stream().sorted(Comparator.naturalOrder()).limit(MAX_MODEL_SET_SIZE)
                 .forEach(hash -> result.addModelHashes(hash.bytes()));
         return result;
     }
 
-    public static ControlV0.StarredModelsSnapshot starredModels(Set<ModelHash> hashes, long revision) {
+    public static ControlV0.StarredModelsSnapshot starredModels(Set<Hash256> hashes, long revision) {
         var result = ControlV0.StarredModelsSnapshot.newInstance().setRevision(revision);
         hashes.stream().sorted(Comparator.naturalOrder()).limit(MAX_MODEL_SET_SIZE)
                 .forEach(hash -> result.addModelHashes(hash.bytes()));
@@ -104,9 +104,9 @@ public final class ControlHandler {
                                         Supplier<NetworkEvent.Context> contextSupplier) {
         var context = contextSupplier.get();
         var sender = context.getSender();
-        if (sender != null && message.getModelHash().length() == ModelHash.SIZE
+        if (sender != null && message.getModelHash().length() == Hash256.SIZE
                 && message.getOperation() != ControlV0.StarredModelOperation.STARRED_MODEL_OPERATION_UNSPECIFIED) {
-            var hash = new ModelHash(message.getModelHash().array(), 0, message.getModelHash().length());
+            var hash = new Hash256(message.getModelHash().array(), 0, message.getModelHash().length());
             context.enqueueWork(() -> sender.getCapability(StarModelsCapabilityProvider.STAR_MODELS_CAP)
                     .ifPresent(capability -> {
                         if (message.getOperation() == ControlV0.StarredModelOperation.STARRED_MODEL_OPERATION_ADD) {
@@ -209,7 +209,7 @@ public final class ControlHandler {
         context.setPacketHandled(true);
     }
 
-    private static void applyModelSelection(ServerPlayer sender, ModelHash hash, String textureId) {
+    private static void applyModelSelection(ServerPlayer sender, Hash256 hash, String textureId) {
         var modelCapability = sender.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP)
                 .resolve().orElse(null);
         if (modelCapability == null) {
@@ -242,12 +242,12 @@ public final class ControlHandler {
         }
     }
 
-    static Set<ModelHash> readHashSet(Iterable<us.hebi.quickbuf.RepeatedByte> values) {
-        var result = new HashSet<ModelHash>();
+    static Set<Hash256> readHashSet(Iterable<us.hebi.quickbuf.RepeatedByte> values) {
+        var result = new HashSet<Hash256>();
         var count = 0;
         for (var value : values) {
-            if (++count > MAX_MODEL_SET_SIZE || value.length() != ModelHash.SIZE) return null;
-            if (!result.add(new ModelHash(value.array(), 0, value.length()))) return null;
+            if (++count > MAX_MODEL_SET_SIZE || value.length() != Hash256.SIZE) return null;
+            if (!result.add(new Hash256(value.array(), 0, value.length()))) return null;
         }
         return result;
     }

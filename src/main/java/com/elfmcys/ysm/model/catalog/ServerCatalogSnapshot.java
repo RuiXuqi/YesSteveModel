@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.model.domain.ModelScanReport;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
@@ -17,8 +17,8 @@ import java.util.UUID;
 public final class ServerCatalogSnapshot {
     private final UUID epoch;
     private final long revision;
-    private final Map<ModelHash, ModelFileHandle> byHash;
-    private final Map<CatalogModelLocation, ModelHash> byLocation;
+    private final Map<Hash256, ModelFileHandle> byHash;
+    private final Map<CatalogModelLocation, Hash256> byLocation;
     private final List<ModelPackDescriptor> packs;
     private final ModelScanReport report;
 
@@ -28,8 +28,8 @@ public final class ServerCatalogSnapshot {
         this.revision = revision;
         this.report = Objects.requireNonNull(report, "report");
 
-        var hashIndex = new LinkedHashMap<ModelHash, ModelFileHandle>();
-        var locationIndex = new LinkedHashMap<CatalogModelLocation, ModelHash>();
+        var hashIndex = new LinkedHashMap<Hash256, ModelFileHandle>();
+        var locationIndex = new LinkedHashMap<CatalogModelLocation, Hash256>();
         models.stream().sorted((left, right) -> left.location().compareTo(right.location()))
                 .forEach(model -> {
                     var descriptor = model.descriptor();
@@ -61,7 +61,7 @@ public final class ServerCatalogSnapshot {
         return revision;
     }
 
-    public Map<ModelHash, ModelFileHandle> models() {
+    public Map<Hash256, ModelFileHandle> models() {
         return byHash;
     }
 
@@ -73,7 +73,7 @@ public final class ServerCatalogSnapshot {
         return report;
     }
 
-    public Optional<ModelFileHandle> find(ModelHash hash) {
+    public Optional<ModelFileHandle> find(Hash256 hash) {
         return Optional.ofNullable(byHash.get(hash));
     }
 

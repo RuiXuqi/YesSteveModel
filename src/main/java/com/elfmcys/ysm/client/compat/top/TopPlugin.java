@@ -44,7 +44,7 @@ public final class TopPlugin implements Function<ITheOneProbe, Void> {
             if (entity instanceof ServerPlayer player) {
                 player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
                     if (cap.isMandatory() || NetworkHandler.isPlayerChannelPresent(player)) {
-                        var hash = cap.getModelHash();
+                        var hash = cap.getModelId();
                         if (hash == null) {
                             return;
                         }

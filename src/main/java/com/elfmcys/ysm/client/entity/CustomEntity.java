@@ -18,7 +18,7 @@ import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
 import com.elfmcys.ysm.geckolib3.geo.RenderContext;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import com.elfmcys.ysm.util.ThreadTools;
 import com.elfmcys.ysm.util.UnsafeUtil;
@@ -104,7 +104,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
         return currentModelRenderTarget;
     }
 
-    protected final void updateModelHash(ModelHash modelHash) {
+    protected final void updateModelHash(Hash256 modelHash) {
         modelBinding.updateModelHash(modelHash);
         checkModelRenderTargetUpdate();
     }
@@ -177,7 +177,7 @@ public abstract class CustomEntity<T extends Entity> extends AnimatableEntity<T>
     // getGeoModel 跟女仆的 IGeoEntity 冲突了，所以叫这个
     protected abstract GeoModel getYsmGeoModel();
 
-    public final ModelHash getModelHash() {
+    public final Hash256 getModelHash() {
         return modelBinding.modelHash();
     }
 

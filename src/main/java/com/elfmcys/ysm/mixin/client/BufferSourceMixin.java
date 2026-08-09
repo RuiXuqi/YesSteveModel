@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.mixin.client;
 
-import com.elfmcys.ysm.api.IExtendedBufferSource;
+import com.elfmcys.ysm.accessor.IExtendedBufferSource;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

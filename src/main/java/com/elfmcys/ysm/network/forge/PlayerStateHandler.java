@@ -7,7 +7,7 @@ import com.elfmcys.ysm.capability.ModelSelectionService;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapabilityProvider;
 import com.elfmcys.ysm.config.ServerConfig;
 import com.elfmcys.ysm.geckolib3.core.molang.util.StringPool;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.network.protocol.ModelReferenceCodec;
 import com.elfmcys.ysm.model.server.ServerModelService;
 import com.elfmcys.ysm.network.NetworkHandler;
@@ -47,8 +47,8 @@ public final class PlayerStateHandler {
         var update = PlayerStateV0.PlayerStateUpdate.newInstance()
                 .setSubject(serverEntityRef(player.getId()))
                 .setMode(CommonV0.StateWriteMode.STATE_WRITE_MODE_DELTA);
-        player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP)
-                .ifPresent(capability -> update.setRevision(capability.nextStateRevision()));
+//        player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP)
+//                .ifPresent(capability -> update.setRevision(capability.nextStateRevision()));
         return update;
     }
 
@@ -56,7 +56,7 @@ public final class PlayerStateHandler {
                                                              ModelInfoCapability capability) {
         return PlayerStateV0.PlayerStateUpdate.newInstance()
                 .setSubject(serverEntityRef(player.getId()))
-                .setRevision(capability.nextStateRevision())
+              //  .setRevision(capability.nextStateRevision())
                 .setMode(CommonV0.StateWriteMode.STATE_WRITE_MODE_DELTA);
     }
 
@@ -168,7 +168,7 @@ public final class PlayerStateHandler {
         }
         var sections = stateSession.policy().stateReportPolicy().requestedSections();
         if (full && sections.contains(PlayerStateSection.ROAMING)
-                && !report.hasRoaming() && capability.getModelHash() == null) {
+                && !report.hasRoaming() && capability.getModelId() == null) {
             stateSession.warnRejected(sender, "full roaming reset has no authoritative model");
             return;
         }
@@ -193,7 +193,7 @@ public final class PlayerStateHandler {
         var roamingKey = 0;
         if (sections.contains(PlayerStateSection.ROAMING) && (report.hasRoaming() || full)) {
             roamingKey = report.hasRoaming() ? report.getRoaming().getModelKey()
-                    : capability.getModelHash().roamingHash();
+                    : capability.getModelId().roamingHash();
             roamingVariables = new Object2FloatOpenHashMap<>(
                     report.hasRoaming() ? report.getRoaming().getVariables().length() : 0);
         }
@@ -246,11 +246,11 @@ public final class PlayerStateHandler {
 
     private static boolean isAnimationAllowed(ModelInfoCapability capability, String animationId) {
         if (animationId.isBlank() || animationId.getBytes(java.nio.charset.StandardCharsets.UTF_8).length
-                > MAX_ANIMATION_ID_BYTES || capability.getModelHash() == null) {
+                > MAX_ANIMATION_ID_BYTES || capability.getModelId() == null) {
             return false;
         }
         return ServerModelService.current().flatMap(ServerModelService::snapshot)
-                .flatMap(snapshot -> snapshot.find(capability.getModelHash()))
+                .flatMap(snapshot -> snapshot.find(capability.getModelId()))
                 .map(model -> {
                     var settings = model.view().getManifest().getInfo().getSettings();
                     if (settings.hasExtraAnimation()) {
@@ -273,7 +273,7 @@ public final class PlayerStateHandler {
     }
 
     private static boolean validRoaming(ModelInfoCapability capability, PlayerStateV0.RoamingState roaming) {
-        if (capability.getModelHash() == null || capability.getModelHash().roamingHash() != roaming.getModelKey()
+        if (capability.getModelId() == null || capability.getModelId().roamingHash() != roaming.getModelKey()
                 || roaming.getVariables().length() > MAX_ROAMING_VARIABLES) {
             return false;
         }
@@ -305,7 +305,7 @@ public final class PlayerStateHandler {
             }
             if (update.hasModel()) {
                 var model = update.getModel();
-                ModelHash hash = ModelReferenceCodec.read(model.getModel());
+                Hash256 hash = ModelReferenceCodec.read(model.getModel());
                 capability.updateModelAndTexture(hash, model.getTextureId());
                 capability.setDisabled(model.getDisabled());
             }

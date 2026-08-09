@@ -18,7 +18,7 @@ import com.elfmcys.ysm.client.model.catalog.ClientCatalogSnapshot;
 import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.config.ServerConfig;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.source.PackOffer;
 import com.elfmcys.ysm.network.NetworkHandler;
 import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
@@ -78,7 +78,7 @@ public class PlayerModelScreen extends Screen {
         rebuildCatalog(service.catalog());
     }
 
-    protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, ModelHash modelHash,
+    protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, Hash256 modelHash,
                                                     ModelRenderTarget renderTarget) {
         return new PlayerTextureScreen(parent, modelHash, renderTarget);
     }
@@ -87,7 +87,7 @@ public class PlayerModelScreen extends Screen {
         return new ModelInfoScreen(parent, model);
     }
 
-    protected void selectModel(ModelHash hash, String path, String texture, ModelRenderTarget renderTarget) {
+    protected void selectModel(Hash256 hash, String path, String texture, ModelRenderTarget renderTarget) {
         var player = Minecraft.getInstance().player;
         if (player == null) {
             return;

@@ -10,7 +10,7 @@ import com.elfmcys.ysm.client.model.catalog.CatalogModelMetadata;
 import com.elfmcys.ysm.client.model.catalog.ClientCatalogEntry;
 import com.elfmcys.ysm.client.texture.TextureHolder;
 import com.elfmcys.ysm.config.ClientConfig;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.task.TaskContext;
 import com.elfmcys.ysm.util.ModelIdUtil;
 import com.elfmcys.ysm.util.RenderUtil;
@@ -61,7 +61,7 @@ public final class CatalogModelButton extends Button implements AutoCloseable {
         this.state = new CatalogModelCardState(context, assets, entry, metadata, entity);
     }
 
-    public ModelHash modelHash() {
+    public Hash256 modelHash() {
         return entry.modelHash();
     }
 
@@ -212,11 +212,11 @@ public final class CatalogModelButton extends Button implements AutoCloseable {
 
     @FunctionalInterface
     public interface SelectionHandler {
-        void select(ModelHash hash, String path, String texture, @Nullable ModelRenderTarget renderTarget);
+        void select(Hash256 hash, String path, String texture, @Nullable ModelRenderTarget renderTarget);
     }
 
     @FunctionalInterface
     public interface RenderTargetHandler {
-        void open(ModelHash hash, String path, ModelRenderTarget renderTarget);
+        void open(Hash256 hash, String path, ModelRenderTarget renderTarget);
     }
 }

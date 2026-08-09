@@ -13,7 +13,7 @@ import com.elfmcys.ysm.info.roulette.forms.ConfigForms;
 import com.elfmcys.ysm.info.roulette.forms.RadioForms;
 import com.elfmcys.ysm.info.roulette.forms.RangeForms;
 import com.elfmcys.ysm.info.stats.PlayerMainModelStats;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import com.elfmcys.ysm.network.message.model.ModelAssetPlan;
 import mixel.common.StringPairOuterClass;
@@ -28,7 +28,7 @@ public final class ManifestModelInfoMapper {
     private ManifestModelInfoMapper() {
     }
 
-    public static ModelInfo map(ModelHash hash, ManifestOuterClass.Manifest manifest) {
+    public static ModelInfo map(Hash256 hash, ManifestOuterClass.Manifest manifest) {
         var info = manifest.getInfo();
         var player = ModelAssetPlan.target(manifest, RenderTargetIds.PLAYER);
         var settings = info.getSettings();

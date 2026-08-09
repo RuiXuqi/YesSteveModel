@@ -1,13 +1,13 @@
 package com.elfmcys.ysm.capability;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RoamingVariableStoreTest {
-    private static final ModelHash MODEL_HASH = new ModelHash(new byte[ModelHash.SIZE]);
+    private static final Hash256 MODEL_HASH = new Hash256(new byte[Hash256.SIZE]);
 
     @Test
     void appliesDeferredAccessToTheFirstSelectedModel() {

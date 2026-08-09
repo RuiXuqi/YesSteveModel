@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.util;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.natives.NativeLogging;
+import com.elfmcys.ysm.natives.NativeRuntime;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
 import net.minecraft.network.chat.Component;
@@ -10,6 +10,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.ModLoadingWarning;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -134,17 +135,21 @@ public final class NativeLibUtil {
      */
     @Nullable
     private static String getDevLibraryPath() {
-        String libPath = System.getenv(DEV_LIB_ENV);
-        return StringUtil.isNullOrEmpty(libPath) ? null : libPath;
+        if (!FMLEnvironment.production) {
+            String libPath = System.getenv(DEV_LIB_ENV);
+            return StringUtil.isNullOrEmpty(libPath) ? null : libPath;
+        }
+        return null;
     }
 
     /**
      * 加载 Native 库文件
      */
     private static boolean loadLibrary(String libPath) {
+        YesSteveModel.LOGGER.error("Loading native lib: {}", libPath);
         try {
             System.load(libPath);
-            NativeLogging.syncLevel();
+            NativeRuntime.initialize(NativeRuntime.JavaConfig.fromLog4j(YesSteveModel.LOGGER.getLevel()));
             return true;
         } catch (Throwable e) {
             YesSteveModel.LOGGER.error("Failed to load native lib", e);

@@ -1,4 +1,4 @@
-package com.elfmcys.ysm.api;
+package com.elfmcys.ysm.accessor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;

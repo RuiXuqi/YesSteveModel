@@ -5,7 +5,7 @@ import com.elfmcys.ysm.client.model.ModelPackInfo;
 import com.elfmcys.ysm.client.model.catalog.CatalogModelMetadata;
 import com.elfmcys.ysm.client.model.catalog.ClientCatalogEntry;
 import com.elfmcys.ysm.client.model.catalog.ClientCatalogSnapshot;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import com.elfmcys.ysm.model.source.PackOffer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -46,7 +46,7 @@ final class CatalogBrowserState {
     }
 
     void filter(String query, String locale, Set<String> hiddenPaths,
-                Predicate<ModelHash> authorized, Predicate<ModelHash> starred) {
+                Predicate<Hash256> authorized, Predicate<Hash256> starred) {
         var allModels = new ArrayList<>(catalog.models().values());
         var search = query.strip().toLowerCase(Locale.ENGLISH);
         allModels.removeIf(entry -> !isVisible(entry, search, locale, hiddenPaths, authorized, starred));
@@ -70,8 +70,8 @@ final class CatalogBrowserState {
     }
 
     private boolean isVisible(ClientCatalogEntry entry, String search, String locale,
-                              Set<String> hiddenPaths, Predicate<ModelHash> authorized,
-                              Predicate<ModelHash> starred) {
+                              Set<String> hiddenPaths, Predicate<Hash256> authorized,
+                              Predicate<Hash256> starred) {
         var metadata = CatalogModelMetadata.from(entry);
         if (hiddenPaths.contains(metadata.path())) {
             return false;

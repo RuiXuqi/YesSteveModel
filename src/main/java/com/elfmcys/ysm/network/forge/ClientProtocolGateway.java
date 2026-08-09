@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.network.forge;
 
 import com.elfmcys.ysm.capability.PlayerAnimatableCapability;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.network.protocol.ModelReferenceCodec;
 import com.elfmcys.ysm.network.protocol.EntityRefEncoder;
@@ -49,7 +49,7 @@ public final class ClientProtocolGateway {
         STATE_REPORTER.setAnimation("");
     }
 
-    public static void acceptAuthoritativeFull(ModelHash modelHash, Integer roamingKey) {
+    public static void acceptAuthoritativeFull(Hash256 modelHash, Integer roamingKey) {
         STATE_REPORTER.acceptAuthoritativeFull(modelHash, roamingKey);
     }
 
@@ -74,7 +74,7 @@ public final class ClientProtocolGateway {
                         .setStop(true));
     }
 
-    public static void selectModel(ModelHash hash, String textureId) {
+    public static void selectModel(Hash256 hash, String textureId) {
         var reference = com.elfmcys.ysm.proto.network.protocol.v0.CommonV0
                 .ModelReference.newInstance();
         var defaultHash = ClientModelService.current()
@@ -89,7 +89,7 @@ public final class ClientProtocolGateway {
                 });
     }
 
-    public static void updateStar(ModelHash hash, boolean add) {
+    public static void updateStar(Hash256 hash, boolean add) {
         send(ProtocolMessages.UPDATE_STARRED_MODEL_REQUEST_ID,
                 ControlV0.UpdateStarredModelRequest.newInstance()
                         .setModelHash(hash.bytes())

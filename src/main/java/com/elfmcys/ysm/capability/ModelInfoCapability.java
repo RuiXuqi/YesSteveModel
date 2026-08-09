@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.capability;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
@@ -12,28 +12,29 @@ import java.util.function.Consumer;
 
 /** Persistent player model selection and synchronization state. */
 public final class ModelInfoCapability {
-    private ModelHash modelHash;
+    private Hash256 modelId;
     private String selectTexture = "";
     private boolean mandatory;
     private boolean disabled;
     private boolean dirty;
-    private long stateRevision;
     private final RoamingVariableStore roamingVariables = new RoamingVariableStore();
     private ServerDrivenPlayerPropertiesTracker propertiesTracker =
             new ServerDrivenPlayerPropertiesTracker();
 
-    public void setModelAndTexture(ModelHash modelHash, String selectTexture) {
-        if (Objects.equals(this.modelHash, modelHash)
+    private long stateRevision;
+
+    public void setModelAndTexture(Hash256 modelId, String selectTexture) {
+        if (Objects.equals(this.modelId, modelId)
                 && this.selectTexture.equals(selectTexture)) {
             return;
         }
-        this.modelHash = modelHash;
+        this.modelId = modelId;
         this.selectTexture = selectTexture;
         markDirty();
     }
 
     public void moveFrom(ModelInfoCapability source) {
-        modelHash = source.modelHash;
+        modelId = source.modelId;
         selectTexture = source.selectTexture;
         mandatory = source.mandatory;
         disabled = source.disabled;
@@ -43,8 +44,8 @@ public final class ModelInfoCapability {
         markDirty();
     }
 
-    public ModelHash getModelHash() {
-        return modelHash;
+    public Hash256 getModelId() {
+        return modelId;
     }
 
     public String getSelectTexture() {
@@ -73,11 +74,11 @@ public final class ModelInfoCapability {
 
     public void executeWithMolangVars(
             Consumer<Object2FloatOpenHashMap<String>> consumer) {
-        roamingVariables.execute(modelHash, consumer);
+        roamingVariables.execute(modelId, consumer);
     }
 
     public Optional<Object2FloatOpenHashMap<String>> getMolangVars() {
-        return roamingVariables.get(modelHash);
+        return roamingVariables.get(modelId);
     }
 
     public void updateRoamingVars(ServerPlayer player, int modelKey,
@@ -147,7 +148,7 @@ public final class ModelInfoCapability {
 
     public CompoundTag serializeNBT() {
         var tag = new CompoundTag();
-        tag.putString("model_hash", modelHash == null ? "" : modelHash.toString());
+        tag.putString("model_hash", modelId == null ? "" : modelId.toString());
         tag.putString("select_texture", selectTexture);
         tag.putBoolean("mandatory", mandatory);
         tag.putBoolean("disabled", disabled);
@@ -156,12 +157,8 @@ public final class ModelInfoCapability {
     }
 
     public void deserializeNBT(CompoundTag tag) {
-        var storedHash = tag.getString("model_hash");
-        try {
-            modelHash = storedHash.isEmpty() ? null : ModelHash.parse(storedHash);
-        } catch (IllegalArgumentException ignored) {
-            modelHash = null;
-        }
+        var storedHash = tag.getString("model_id");
+        modelId = storedHash.isEmpty() ? null : Hash256.parse(storedHash);
         selectTexture = tag.getString("select_texture");
         if (selectTexture.length() > 4 && selectTexture.toLowerCase().endsWith(".png")) {
             selectTexture = selectTexture.substring(0, selectTexture.length() - 4);

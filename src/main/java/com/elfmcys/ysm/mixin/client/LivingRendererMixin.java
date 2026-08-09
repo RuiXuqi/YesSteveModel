@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.mixin.client;
 
-import com.elfmcys.ysm.api.ILivingRenderer;
+import com.elfmcys.ysm.accessor.ILivingRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;

@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.storage;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /** Stable identity of every semantic input that can change converted bytes. */
-public record ConversionProfileId(ModelHash hash) implements Comparable<ConversionProfileId> {
+public record ConversionProfileId(Hash256 hash) implements Comparable<ConversionProfileId> {
     private static final int FORMAT_VERSION = 2;
 
     public ConversionProfileId {
@@ -42,7 +42,7 @@ public record ConversionProfileId(ModelHash hash) implements Comparable<Conversi
     }
 
     public static ConversionProfileId parse(String value) {
-        return new ConversionProfileId(ModelHash.parse(value));
+        return new ConversionProfileId(Hash256.parse(value));
     }
 
     public String pathComponent() {

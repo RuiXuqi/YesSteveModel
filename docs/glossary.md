@@ -16,7 +16,7 @@
 | serialized baked cache | `BakedModel` 的内部派生缓存表示，不是公开模型格式。 |
 | `EntityModelBinding` / `AnimatableEntity` / `AnimatedGeoModel` | 分别负责 render-target 绑定、`entity` 动画生命周期和 `BoneAttribute` 所有权。 |
 | `BoneAttribute` | Native 读取的逐骨骼记录；Java 持有布局等价的连续 attribute 数组。 |
-| `GeoModelState` / `GeoRenderData` | 前者拥有逐帧 native 状态和 pose buffer，后者组合借用视图与本次 draw metadata。 |
+| `GeoModelState` / `GeoRenderData` | 前者拥有逐帧 native `ModelState` 和 Java locator mapping，并借用其 `BonePoseView`；后者组合该状态与本次 draw metadata。 |
 | `RenderSchedule` / `RenderTask` | 按可见骨骼和几何分区形成的只读 CPU 工作及固定输出区间计划。 |
 | `VertexKind` | Native 顶点输出布局选择，区分 direct 布局与 `VertexConsumer` fallback。 |
 | bake / extract / render | 构建不可变几何、形成逐帧状态、输出顶点的三个阶段。 |

@@ -2,7 +2,7 @@ package com.elfmcys.ysm.model.catalog;
 
 import com.elfmcys.ysm.YesSteveModel;
 import com.elfmcys.ysm.format.parser.RawCompileResult;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.importer.RawModelImporter;
 import com.elfmcys.ysm.model.storage.ConvertedObjectStore;
 import com.elfmcys.ysm.model.storage.ConvertedSourceIndex;
@@ -147,7 +147,7 @@ public final class ModelSourceResolver {
 
     private Resolution compileStable(SourceObservation initial,
                                      CatalogModelLocation location,
-                                     ModelHash expectedProbeHash)
+                                     Hash256 expectedProbeHash)
             throws CatalogBuildException {
         var before = initial;
         for (var attempt = 0; attempt < 2; attempt++) {
@@ -243,6 +243,6 @@ public final class ModelSourceResolver {
         CONVERTED
     }
 
-    private record StableProbe(ModelHash modelHash, SourceObservation observation) {
+    private record StableProbe(Hash256 modelHash, SourceObservation observation) {
     }
 }

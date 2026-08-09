@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.network.forge;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -27,9 +27,9 @@ class ControlHandlerTest {
 
     @Test
     void presentModelHashesRoundTrip() {
-        var bytes = new byte[ModelHash.SIZE];
+        var bytes = new byte[Hash256.SIZE];
         bytes[0] = 1;
-        var hash = new ModelHash(bytes);
+        var hash = new Hash256(bytes);
         var snapshot = ControlHandler.authorizedModels(Set.of(hash), 1);
 
         assertEquals(Set.of(hash), ControlHandler.readHashSet(snapshot.getModelHashes()));

@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelScanError;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
 
@@ -10,7 +10,7 @@ public sealed interface ModelSourceState permits ModelSourceState.Ready,
         ModelSourceState.Rejected {
     SourceObservation observation();
 
-    record Ready(SourceObservation observation, ModelHash modelHash,
+    record Ready(SourceObservation observation, Hash256 modelHash,
                  ModelFileHandle handle) implements ModelSourceState {
         public Ready {
             Objects.requireNonNull(observation, "observation");

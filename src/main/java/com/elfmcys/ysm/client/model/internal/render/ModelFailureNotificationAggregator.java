@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.client.model.internal.render;
 
 import com.elfmcys.ysm.client.model.catalog.ModelContentVersion;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
@@ -27,7 +27,7 @@ final class ModelFailureNotificationAggregator implements AutoCloseable {
         this.scheduler = scheduler;
     }
 
-    synchronized void report(ModelHash hash, ModelContentVersion version, Outcome outcome) {
+    synchronized void report(Hash256 hash, ModelContentVersion version, Outcome outcome) {
         if (closed || emitted.contains(new EmissionKey(version, outcome))) {
             return;
         }
@@ -95,7 +95,7 @@ final class ModelFailureNotificationAggregator implements AutoCloseable {
         }
     }
 
-    private record PendingFailure(ModelHash modelHash, Outcome outcome) {
+    private record PendingFailure(Hash256 modelHash, Outcome outcome) {
     }
 
     private record EmissionKey(ModelContentVersion contentVersion, Outcome outcome) {

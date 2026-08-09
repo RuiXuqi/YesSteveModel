@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.capability;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
@@ -18,7 +18,7 @@ final class RoamingVariableStore {
             new Int2ReferenceOpenHashMap<>();
     private final Queue<Consumer<Object2FloatOpenHashMap<String>>> pending = new ArrayDeque<>();
 
-    Object2FloatOpenHashMap<String> variables(ModelHash modelHash) {
+    Object2FloatOpenHashMap<String> variables(Hash256 modelHash) {
         var values = variables.computeIfAbsent(modelHash.roamingHash(),
                 ignored -> new Object2FloatOpenHashMap<>(0));
         Consumer<Object2FloatOpenHashMap<String>> consumer;
@@ -28,7 +28,7 @@ final class RoamingVariableStore {
         return values;
     }
 
-    void execute(ModelHash modelHash, Consumer<Object2FloatOpenHashMap<String>> consumer) {
+    void execute(Hash256 modelHash, Consumer<Object2FloatOpenHashMap<String>> consumer) {
         if (modelHash == null) {
             pending.add(consumer);
         } else {
@@ -36,7 +36,7 @@ final class RoamingVariableStore {
         }
     }
 
-    Optional<Object2FloatOpenHashMap<String>> get(ModelHash modelHash) {
+    Optional<Object2FloatOpenHashMap<String>> get(Hash256 modelHash) {
         return modelHash == null ? Optional.empty() : Optional.of(variables(modelHash));
     }
 

@@ -5,7 +5,7 @@ import com.elfmcys.ysm.client.event.RegisterEntityRenderersEvent;
 import com.elfmcys.ysm.client.gui.PlayerModelScreen;
 import com.elfmcys.ysm.client.gui.PlayerTextureScreen;
 import com.elfmcys.ysm.client.model.ModelRenderTarget;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.util.NameUtil;
 import com.elfmcys.ysm.util.RenderUtil;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -18,13 +18,13 @@ import org.jetbrains.annotations.Nullable;
 public class MaidTextureScreen extends PlayerTextureScreen {
     private final EntityMaid maid;
 
-    public MaidTextureScreen(PlayerModelScreen parent, ModelHash modelHash, ModelRenderTarget model, EntityMaid maid) {
+    public MaidTextureScreen(PlayerModelScreen parent, Hash256 modelHash, ModelRenderTarget model, EntityMaid maid) {
         super(parent, modelHash, model);
         this.maid = maid;
     }
 
     @Override
-    protected void selectTexture(ModelHash hash, String path, String texture, @Nullable ModelRenderTarget renderTarget) {
+    protected void selectTexture(Hash256 hash, String path, String texture, @Nullable ModelRenderTarget renderTarget) {
         previewEntity.updateModelAndTexture(hash, texture);
         var name = NameUtil.getModeName(renderTarget == null ? model : renderTarget, path);
         maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(capability ->

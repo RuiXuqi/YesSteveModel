@@ -5,7 +5,7 @@ import com.elfmcys.ysm.model.catalog.CatalogRootKind;
 import com.elfmcys.ysm.model.catalog.ModelSourceKey;
 import com.elfmcys.ysm.model.catalog.ModelSourceKind;
 import com.elfmcys.ysm.model.catalog.SourceStamp;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,9 +39,9 @@ class ConvertedSourceIndexStoreTest {
         assertTrue(store.read(key).isEmpty());
     }
 
-    private static ModelHash hash(int seed) {
-        var bytes = new byte[ModelHash.SIZE];
+    private static Hash256 hash(int seed) {
+        var bytes = new byte[Hash256.SIZE];
         bytes[0] = (byte) seed;
-        return new ModelHash(bytes);
+        return new Hash256(bytes);
     }
 }

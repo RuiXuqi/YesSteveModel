@@ -3,7 +3,7 @@ package com.elfmcys.ysm.model.storage;
 import com.elfmcys.ysm.format.container.AssetContainerConstant;
 import com.elfmcys.ysm.format.parser.ModelParser;
 import com.elfmcys.ysm.format.schema.model.ModelFileConstant;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.importer.LegacyImporter;
 
 import java.util.Objects;
@@ -18,7 +18,7 @@ public record ConversionProfileInputs(int containerMajor,
                                       String canonicalizerVersion,
                                       String parserVersion,
                                       String imagePolicyVersion,
-                                      ModelHash defaultAnimationProfile,
+                                      Hash256 defaultAnimationProfile,
                                       String legacyImporterVersion) {
     public ConversionProfileInputs {
         if (containerMajor < 0 || containerMinor < 0 || containerPatch < 0) {
@@ -34,7 +34,7 @@ public record ConversionProfileInputs(int containerMajor,
         Objects.requireNonNull(legacyImporterVersion, "legacyImporterVersion");
     }
 
-    public static ConversionProfileInputs production(ModelHash defaultAnimationProfile) {
+    public static ConversionProfileInputs production(Hash256 defaultAnimationProfile) {
         return new ConversionProfileInputs(
                 AssetContainerConstant.CURRENT_MAJOR_VER,
                 AssetContainerConstant.CURRENT_MINOR_VER,

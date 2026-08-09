@@ -8,7 +8,7 @@ import com.elfmcys.ysm.client.gui.button.FlatColorButton;
 import com.elfmcys.ysm.client.gui.button.FlatIconButton;
 import com.elfmcys.ysm.client.model.ModelRenderTarget;
 import com.elfmcys.ysm.client.model.ClientModelService;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.network.NetworkHandler;
 import com.elfmcys.ysm.network.forge.ClientProtocolGateway;
 import com.elfmcys.ysm.task.TaskScope;
@@ -42,7 +42,7 @@ public class PlayerTextureScreen extends Screen {
 
     protected final CustomGuiPlayerEntity previewEntity = new CustomGuiPlayerEntity();
     protected final ModelRenderTarget model;
-    protected final ModelHash modelHash;
+    protected final Hash256 modelHash;
     protected final String modelPath;
     private final PlayerModelScreen parent;
     private final List<String> textures;
@@ -70,7 +70,7 @@ public class PlayerTextureScreen extends Screen {
         }
     }
 
-    public PlayerTextureScreen(PlayerModelScreen parent, ModelHash modelHash, ModelRenderTarget model) {
+    public PlayerTextureScreen(PlayerModelScreen parent, Hash256 modelHash, ModelRenderTarget model) {
         super(Component.literal("Player Texture GUI"));
         this.parent = parent;
         this.modelHash = modelHash;
@@ -181,7 +181,7 @@ public class PlayerTextureScreen extends Screen {
         }
     }
 
-    protected void selectTexture(ModelHash hash, String path, String texture, @Nullable ModelRenderTarget renderTarget) {
+    protected void selectTexture(Hash256 hash, String path, String texture, @Nullable ModelRenderTarget renderTarget) {
         selectedTexture = texture;
         previewEntity.updateModelAndTexture(hash, texture);
         var player = Minecraft.getInstance().player;

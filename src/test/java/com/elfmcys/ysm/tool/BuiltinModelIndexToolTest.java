@@ -2,7 +2,7 @@ package com.elfmcys.ysm.tool;
 
 import com.elfmcys.ysm.model.catalog.BuiltinModelIndex;
 import com.elfmcys.ysm.model.catalog.DefaultAnimationKey;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import org.junit.jupiter.api.Test;
 
@@ -87,9 +87,9 @@ class BuiltinModelIndexToolTest {
                 () -> BuiltinModelIndexTool.verificationReceipt(hash(9), 0));
     }
 
-    private static ModelHash hash(int marker) {
-        var bytes = new byte[ModelHash.SIZE];
+    private static Hash256 hash(int marker) {
+        var bytes = new byte[Hash256.SIZE];
         bytes[bytes.length - 1] = (byte) marker;
-        return new ModelHash(bytes);
+        return new Hash256(bytes);
     }
 }

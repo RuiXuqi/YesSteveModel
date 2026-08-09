@@ -2,7 +2,7 @@ package com.elfmcys.ysm.capability;
 
 import com.elfmcys.ysm.client.animation.molang.roaming.RemoteRoamingStruct;
 import com.elfmcys.ysm.client.entity.CustomVehicleEntity;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import it.unimi.dsi.fastutil.ints.Int2FloatMap;
 import it.unimi.dsi.fastutil.ints.Int2FloatOpenHashMap;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +19,7 @@ public class VehicleAnimatableCapability extends CustomVehicleEntity {
         super(entity);
     }
 
-    public void init(ModelHash ownerModelHash) {
+    public void init(Hash256 ownerModelHash) {
         updateModelHash(ownerModelHash);
         setInitialized();
     }

@@ -5,7 +5,7 @@ import com.elfmcys.ysm.format.parser.RawCompileResult;
 import com.elfmcys.ysm.format.vfs.Directory;
 import com.elfmcys.ysm.model.catalog.CatalogModelLocation;
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class ConvertedObjectStoreTest {
     Path temp;
 
     private static Path fixture;
-    private static ModelHash fixtureHash;
+    private static Hash256 fixtureHash;
 
     @BeforeAll
     static void createFixture() throws Exception {
@@ -109,7 +109,7 @@ class ConvertedObjectStoreTest {
                 testProfile());
         var bytes = fixtureHash.bytes();
         bytes[0] ^= 1;
-        var expected = new ModelHash(bytes);
+        var expected = new Hash256(bytes);
 
         assertThrows(ModelHashMismatchException.class, () -> store.resolveKnownHash(
                 temp.resolve("raw"), location("default"), expected,
@@ -157,6 +157,6 @@ class ConvertedObjectStoreTest {
 
     private static ConversionProfileId testProfile() {
         return ConversionProfileId.from(ConversionProfileInputs.production(
-                new com.elfmcys.ysm.model.domain.ModelHash(new byte[32])));
+                new Hash256(new byte[32])));
     }
 }

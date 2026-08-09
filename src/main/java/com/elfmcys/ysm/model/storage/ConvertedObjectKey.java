@@ -1,10 +1,10 @@
 package com.elfmcys.ysm.model.storage;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.util.Objects;
 
-public record ConvertedObjectKey(ConversionProfileId profile, ModelHash modelHash)
+public record ConvertedObjectKey(ConversionProfileId profile, Hash256 modelHash)
         implements Comparable<ConvertedObjectKey> {
     public ConvertedObjectKey {
         Objects.requireNonNull(profile, "profile");

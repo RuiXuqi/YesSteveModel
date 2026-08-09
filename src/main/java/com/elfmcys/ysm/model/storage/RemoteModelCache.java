@@ -5,7 +5,7 @@ import com.elfmcys.ysm.buffer.BufferType;
 import com.elfmcys.ysm.buffer.UniBuffer;
 import com.elfmcys.ysm.format.container.AssetContainerView;
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.natives.Blake3;
 import com.elfmcys.ysm.natives.Zstd;
 import com.elfmcys.ysm.network.message.model.ReceivedModelAssets;
@@ -42,10 +42,10 @@ public final class RemoteModelCache {
     public void storeChunks(ReceivedModelAssets assets) throws IOException {
         for (var chunk : assets.manifest().getChunks()) {
             var hash = chunk.getContentHash();
-            if (hash.length() != ModelHash.SIZE) {
+            if (hash.length() != Hash256.SIZE) {
                 throw new IOException("Remote chunk contains no valid content hash: " + chunk.getName());
             }
-            var expected = new ModelHash(hash.array(), 0, hash.length());
+            var expected = new Hash256(hash.array(), 0, hash.length());
             try (var data = assets.chunk(chunk)) {
                 if (!validateChunk(data, chunk, expected)) {
                     throw new IOException("Downloaded chunk failed content-hash validation: " + chunk.getName());
@@ -64,7 +64,7 @@ public final class RemoteModelCache {
         }
     }
 
-    public void removeMetadata(ModelHash modelHash, ModelHash descriptorHash) throws IOException {
+    public void removeMetadata(Hash256 modelHash, Hash256 descriptorHash) throws IOException {
         var target = cache.checkedTarget(metadataPath(modelHash, descriptorHash));
         cache.withKeyLock("remote-metadata", modelHash + ":" + descriptorHash, () -> {
             Files.deleteIfExists(target);
@@ -80,24 +80,24 @@ public final class RemoteModelCache {
         });
     }
 
-    private static boolean validateChunk(Path file, ModelAssetsProto.ModelChunk chunk, ModelHash expected) {
+    private static boolean validateChunk(Path file, ModelAssetsProto.ModelChunk chunk, Hash256 expected) {
         return RemoteChunkDataSource.validateStored(file, chunk.getEncoding(),
                 chunk.getRawSize(), chunk.getDecodedSize(), expected.bytes());
     }
 
-    private static boolean validateChunk(Path file, AssetContainerView.ChunkInfo chunk, ModelHash expected) {
+    private static boolean validateChunk(Path file, AssetContainerView.ChunkInfo chunk, Hash256 expected) {
         return RemoteChunkDataSource.validateStored(file, chunk.encoding(),
                 chunk.size(), chunk.decodeSize(), expected.bytes());
     }
 
     private static boolean validateChunk(UniBuffer source,
                                          ModelAssetsProto.ModelChunk chunk,
-                                         ModelHash expected) {
+                                         Hash256 expected) {
         return validateChunk(source, chunk.getEncoding(), chunk.getDecodedSize(), expected);
     }
 
     private static boolean validateChunk(UniBuffer source, String encoding,
-                                         int decodedSize, ModelHash expected) {
+                                         int decodedSize, Hash256 expected) {
         if ("zstd".equals(encoding)) {
             try (var ignored = Zstd.decompressAndValidate(
                     source, decodedSize, expected.bytes(), BufferType.NATIVE)) {
@@ -109,8 +109,8 @@ public final class RemoteModelCache {
         return Blake3.validateHash(source, expected.bytes());
     }
 
-    public Map<ModelHash, RemoteModelHandle> scan() throws IOException {
-        var result = new HashMap<ModelHash, RemoteModelHandle>();
+    public Map<Hash256, RemoteModelHandle> scan() throws IOException {
+        var result = new HashMap<Hash256, RemoteModelHandle>();
         if (!Files.isDirectory(paths.remoteModels())) {
             return Map.of();
         }
@@ -133,11 +133,11 @@ public final class RemoteModelCache {
     }
 
     public boolean hasChunk(AssetContainerView.ChunkInfo chunk) {
-        if (chunk.hash() == null || chunk.hash().length != ModelHash.SIZE) {
+        if (chunk.hash() == null || chunk.hash().length != Hash256.SIZE) {
             return false;
         }
         try {
-            var expected = new ModelHash(chunk.hash());
+            var expected = new Hash256(chunk.hash());
             var file = RemoteChunkDataSource.chunkPath(paths, expected, chunk.encoding(), chunk.size());
             return Files.isRegularFile(file) && validateChunk(file, chunk, expected);
         } catch (IllegalArgumentException ignored) {
@@ -158,7 +158,7 @@ public final class RemoteModelCache {
         return metadataPath(descriptor.modelHash(), descriptor.descriptorHash());
     }
 
-    private Path metadataPath(ModelHash modelHash, ModelHash descriptorHash) {
+    private Path metadataPath(Hash256 modelHash, Hash256 descriptorHash) {
         return paths.remoteModels().resolve(modelHash.toString())
                 .resolve(descriptorHash + ".meta");
     }

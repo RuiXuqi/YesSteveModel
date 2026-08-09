@@ -58,7 +58,7 @@ public final class AuthCommand {
                 } else {
                     capability.removeModel(hash);
                     player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(selection -> {
-                        if (hash.equals(selection.getModelHash())) {
+                        if (hash.equals(selection.getModelId())) {
                             ModelSelectionService.selectDefault(selection, snapshot);
                         }
                     });
@@ -86,7 +86,7 @@ public final class AuthCommand {
             player.getCapability(AuthModelsCapabilityProvider.AUTH_MODELS_CAP).ifPresent(capability -> {
                 capability.clear();
                 player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(selection -> {
-                    var selected = selection.getModelHash();
+                    var selected = selection.getModelId();
                     if (selected != null && snapshot.find(selected)
                             .map(handle -> handle.location().rootKind().accessPolicy()
                                     == AccessPolicy.SESSION_AUTHORIZED)

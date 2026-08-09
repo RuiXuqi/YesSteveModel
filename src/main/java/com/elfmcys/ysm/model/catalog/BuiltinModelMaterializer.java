@@ -8,7 +8,7 @@ import com.elfmcys.ysm.format.schema.file.AssetFileConstant;
 import com.elfmcys.ysm.format.schema.file.ChunkDataSource;
 import com.elfmcys.ysm.format.schema.model.ModelFileConstant;
 import com.elfmcys.ysm.format.schema.model.ModelFileView;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
 import com.elfmcys.ysm.model.storage.ModelHashing;
 import com.elfmcys.ysm.natives.render.NativeBakedModel;
@@ -38,7 +38,7 @@ public final class BuiltinModelMaterializer {
         decodeNamedImage(view, chunks, ModelFileConstant.THUMB_ICON_CHUNK_NAME);
         decodePresentationImages(view, chunks);
 
-        var animationHashes = new LinkedHashMap<DefaultAnimationKey, ModelHash>();
+        var animationHashes = new LinkedHashMap<DefaultAnimationKey, Hash256>();
         for (var target : view.getRenderTargets()) {
             var definition = readDefinition(view, chunks, target.descriptor().getBlobId());
             bindControllers(definition);
@@ -92,7 +92,7 @@ public final class BuiltinModelMaterializer {
     private static void bindAndHashAnimations(
             mixel.manifest.asset.RenderTargetOuterClass.RenderTarget target,
             ModelDataOuterClass.ModelData definition,
-            Map<DefaultAnimationKey, ModelHash> output) throws IOException {
+            Map<DefaultAnimationKey, Hash256> output) throws IOException {
         if (!definition.hasAnimationFiles()) {
             return;
         }
@@ -110,7 +110,7 @@ public final class BuiltinModelMaterializer {
         }
     }
 
-    public static ModelHash payloadHash(AnimationOuterClass.Animation animation)
+    public static Hash256 payloadHash(AnimationOuterClass.Animation animation)
             throws IOException {
         return ModelHashing.blake3(ProtoUtil.serializeToArray(animation));
     }
@@ -213,7 +213,7 @@ public final class BuiltinModelMaterializer {
         return texture.hasNormal() || texture.hasSpecular();
     }
 
-    public record Result(ModelHash modelHash,
-                         Map<DefaultAnimationKey, ModelHash> animationHashes) {
+    public record Result(Hash256 modelHash,
+                         Map<DefaultAnimationKey, Hash256> animationHashes) {
     }
 }

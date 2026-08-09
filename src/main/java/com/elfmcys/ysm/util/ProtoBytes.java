@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.util;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import us.hebi.quickbuf.RepeatedByte;
 
 import java.util.Arrays;
@@ -18,12 +18,12 @@ public final class ProtoBytes {
                 actual.array(), 0, actual.length());
     }
 
-    public static boolean equals(ModelHash expected, RepeatedByte actual) {
+    public static boolean equals(Hash256 expected, RepeatedByte actual) {
         return expected.matches(actual.array(), 0, actual.length());
     }
 
     /** Gives Quickbuf one owned copy instead of letting a generated setter copy twice. */
-    public static void set(RepeatedByte target, ModelHash source) {
+    public static void set(RepeatedByte target, Hash256 source) {
         target.setInternalArray(source.bytes());
     }
 }

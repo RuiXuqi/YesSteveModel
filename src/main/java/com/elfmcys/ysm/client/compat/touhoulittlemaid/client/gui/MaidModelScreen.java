@@ -5,7 +5,7 @@ import com.elfmcys.ysm.client.gui.ModelInfoScreen;
 import com.elfmcys.ysm.client.gui.PlayerModelScreen;
 import com.elfmcys.ysm.client.gui.PlayerTextureScreen;
 import com.elfmcys.ysm.client.model.ModelRenderTarget;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.util.ModelIdUtil;
 import com.elfmcys.ysm.util.NameUtil;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
@@ -30,7 +30,7 @@ public class MaidModelScreen extends PlayerModelScreen {
     }
 
     @Override
-    protected void selectModel(ModelHash hash, String path, String texture, ModelRenderTarget renderTarget) {
+    protected void selectModel(Hash256 hash, String path, String texture, ModelRenderTarget renderTarget) {
         var name = renderTarget == null ? Component.literal(ModelIdUtil.getFileNameFromPath(path))
                 : NameUtil.getModeName(renderTarget, path);
         maid.getCapability(YsmMaidCapabilityProvider.CAP).ifPresent(capability ->
@@ -39,7 +39,7 @@ public class MaidModelScreen extends PlayerModelScreen {
     }
 
     @Override
-    protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, ModelHash modelHash,
+    protected PlayerTextureScreen getTextureScreen(PlayerModelScreen parent, Hash256 modelHash,
                                                     ModelRenderTarget model) {
         var maidModel = maid.getCapability(YsmMaidCapabilityProvider.CAP)
                 .map(capability -> capability.getModelRenderTarget()).orElse(null);

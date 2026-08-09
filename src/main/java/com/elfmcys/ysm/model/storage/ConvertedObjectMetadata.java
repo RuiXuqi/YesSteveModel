@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.storage;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-record ConvertedObjectMetadata(ConvertedObjectKey key, ModelHash descriptorHash,
+record ConvertedObjectMetadata(ConvertedObjectKey key, Hash256 descriptorHash,
                                long containerSize) {
     private static final int MAGIC = 0x59534D4F;
     private static final int VERSION = 1;
@@ -29,9 +29,9 @@ record ConvertedObjectMetadata(ConvertedObjectKey key, ModelHash descriptorHash,
             if (input.readInt() != MAGIC || input.readInt() != VERSION) {
                 throw new IOException("Unsupported converted object metadata");
             }
-            var profile = new byte[ModelHash.SIZE];
-            var modelHash = new byte[ModelHash.SIZE];
-            var descriptorHash = new byte[ModelHash.SIZE];
+            var profile = new byte[Hash256.SIZE];
+            var modelHash = new byte[Hash256.SIZE];
+            var descriptorHash = new byte[Hash256.SIZE];
             input.readFully(profile);
             input.readFully(modelHash);
             input.readFully(descriptorHash);
@@ -40,9 +40,9 @@ record ConvertedObjectMetadata(ConvertedObjectKey key, ModelHash descriptorHash,
                 throw new IOException("Invalid converted object metadata size or trailing data");
             }
             return new ConvertedObjectMetadata(
-                    new ConvertedObjectKey(new ConversionProfileId(new ModelHash(profile)),
-                            new ModelHash(modelHash)),
-                    new ModelHash(descriptorHash), size);
+                    new ConvertedObjectKey(new ConversionProfileId(new Hash256(profile)),
+                            new Hash256(modelHash)),
+                    new Hash256(descriptorHash), size);
         }
     }
 

@@ -1,11 +1,14 @@
 package com.elfmcys.ysm.geckolib3.geo;
 
-import com.elfmcys.ysm.api.ILivingRenderer;
+import com.elfmcys.ysm.YesSteveModel;
+import com.elfmcys.ysm.accessor.ILivingRenderer;
+import com.elfmcys.ysm.api.rendering.v0.event.RenderLayerEvent;
+import com.elfmcys.ysm.api.rendering.v0.event.RenderModelEvent;
+import com.elfmcys.ysm.api.rendering.v0.TargetKind;
 import com.elfmcys.ysm.capability.VehicleAnimatableCapabilityProvider;
 import com.elfmcys.ysm.client.entity.CustomHumanoidEntity;
 import com.elfmcys.ysm.geckolib3.core.util.Color;
 import com.elfmcys.ysm.geckolib3.util.EModelRenderCycle;
-import com.elfmcys.ysm.geckolib3.util.IRenderCycle;
 import com.elfmcys.ysm.mixin.client.LivingEntityAccessor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -32,7 +35,6 @@ import java.util.Optional;
 
 public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T extends CustomHumanoidEntity<TEntity>> extends LivingEntityRenderer<TEntity, PlayerModel<TEntity>> implements IGeoRenderer<T> {
     protected final List<GeoLayerRenderer<T>> layerRenderers = new ObjectArrayList<>();
-    private IRenderCycle currentModelRenderCycle = EModelRenderCycle.INITIAL;
 
     public GeoReplacedEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER_SLIM), true), 0.5F);
@@ -40,22 +42,6 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
 
     public static int getPackedOverlay(LivingEntity entity, float u) {
         return OverlayTexture.pack(OverlayTexture.u(u), OverlayTexture.v(entity.hurtTime > 0 || entity.deathTime > 0));
-    }
-
-    @Override
-    @NotNull
-    public IRenderCycle getCurrentModelRenderCycle() {
-        return this.currentModelRenderCycle;
-    }
-
-    @Override
-    public void setCurrentModelRenderCycle(IRenderCycle currentModelRenderCycle) {
-        this.currentModelRenderCycle = currentModelRenderCycle;
-    }
-
-    @Override
-    public void renderEarly(GeoRenderData data, T animatable, PoseStack poseStack) {
-        IGeoRenderer.super.renderEarly(data, animatable, poseStack);
     }
 
     public void renderAnimatableEntity(T animatableEntity, float entityYaw, float partialTick,
@@ -71,7 +57,6 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
         var mc = Minecraft.getInstance();
         var data = animatableEntity.update(partialTick);
         if (data != null && mc.player != null) {
-            setCurrentModelRenderCycle(EModelRenderCycle.INITIAL);
             poseStack.pushPose();
             try {
 
@@ -94,29 +79,46 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
                     });
                 }
 
-                preRenderCallback(entity, poseStack, partialTick);
                 poseStack.translate(0, 0.01f, 0);
 
                 var texture = textureOverride == null ? data.texture : textureOverride;
                 var bodyVisible = this.isBodyVisible(entity) && !entity.isInvisibleTo(mc.player);
                 var glowing = mc.shouldEntityAppearGlowing(entity);
                 var renderType = getRenderType(texture,
-                        bodyVisible, glowing, false); // TODO: model.getModelData().isTranslucent()
+                        bodyVisible, glowing,
+                        data.modelState.hasTranslucentVertices());
 
                 var renderLayersFirst = data.renderLayersFirst;
                 var packedOverlay = getPackedOverlay(entity, getOverlayProgress(entity, partialTick));
 
-                preRender(data, animatableEntity, partialTick, poseStack, bufferSource, null,
-                        packedLight, packedOverlay, Color.WHITE);
-                if (renderLayersFirst && !entity.isSpectator()) {
-                    renderLayer(poseStack, bufferSource, animatableEntity, data, packedLight, packedOverlay);
-                }
                 if (renderType != null) {
-                    render(data, animatableEntity, renderType, poseStack, bufferSource, null,
+                    preRender(data, animatableEntity, poseStack, bufferSource,
                             packedLight, packedOverlay, Color.WHITE);
-                }
-                if (!renderLayersFirst && !entity.isSpectator()) {
-                    renderLayer(poseStack, bufferSource, animatableEntity, data, packedLight, packedOverlay);
+                    if (renderLayersFirst && !entity.isSpectator()) {
+                        renderLayer(poseStack, bufferSource, animatableEntity, data, packedLight, packedOverlay);
+                    }
+
+                    if (data.modelState.isValid()) {
+                        var event = new RenderModelEvent(animatableEntity.getEntity(),
+                                TargetKind.PLAYER,
+                                data,
+                                bufferSource,
+                                renderType,
+                                poseStack,
+                                packedLight,
+                                packedOverlay,
+                                Color.WHITE.getColor());
+                        if (!YesSteveModel.postEvent(event)) {
+                            render(data, animatableEntity, renderType, poseStack, bufferSource,
+                                    packedLight, packedOverlay, Color.WHITE);
+                        }
+                    }
+
+                    if (!renderLayersFirst && !entity.isSpectator()) {
+                        renderLayer(poseStack, bufferSource, animatableEntity, data, packedLight, packedOverlay);
+                    }
+                    postRender(data, animatableEntity, poseStack, bufferSource,
+                            packedLight, packedOverlay, Color.WHITE);
                 }
             } finally {
                 poseStack.popPose();
@@ -128,16 +130,22 @@ public abstract class GeoReplacedEntityRenderer<TEntity extends LivingEntity, T 
     }
 
     protected void renderLayer(PoseStack poseStack, MultiBufferSource buffer, T animatable, GeoRenderData renderData, int packedLight, int overlay) {
-        for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
-            layerRenderer.render(poseStack, buffer, animatable, renderData, packedLight, overlay);
+        var event = new RenderLayerEvent(animatable.getEntity(),
+                TargetKind.PLAYER,
+                renderData,
+                poseStack,
+                buffer,
+                packedLight,
+                overlay);
+        if (!YesSteveModel.postEvent(event)) {
+            for (GeoLayerRenderer<T> layerRenderer : this.layerRenderers) {
+                layerRenderer.render(poseStack, buffer, animatable, renderData, packedLight, overlay);
+            }
         }
     }
 
     protected float getOverlayProgress(TEntity entity, float partialTicks) {
         return 0.0F;
-    }
-
-    protected void preRenderCallback(TEntity entity, PoseStack poseStack, float partialTick) {
     }
 
     @Override

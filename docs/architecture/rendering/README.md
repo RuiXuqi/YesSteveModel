@@ -10,7 +10,7 @@
 | native renderer | `BakedModel`、`ModelState`、`RenderSchedule` / `RenderTask`；静态烘焙、骨骼层级、逐帧状态提取、CPU 调度、变换、面剔除、透明排序和顶点生成 | 纹理对象、Minecraft render state、GPU resource |
 | Minecraft / Iris | `RenderType`、`MultiBufferSource`、`VertexConsumer`、纹理注册、批处理、上传和 draw | 模型来源、`BakedModel`、动画状态 |
 
-Render target owner 在绘制期间保活资源；`AnimatedGeoModel` 持有 `entity` 级 `BoneAttribute`，每个 `GeoModelState` 输出槽持有自己的 `ModelState`、pose buffer 与 locator mapping。Native 不持有 animation、texture 或 `VertexConsumer`。
+Render target owner 在绘制期间保活资源；`AnimatedGeoModel` 持有 `entity` 级 `BoneAttribute`，每个 `GeoModelState` 输出槽持有自己的 native `ModelState` 与 locator mapping，并借用该 `ModelState` 持有的 `BonePose`。Native 不持有 animation、texture 或 `VertexConsumer`。
 
 ```mermaid
 flowchart TB
@@ -21,13 +21,13 @@ flowchart TB
     EN["entity-owned mutable state"] --> AM["AnimatedGeoModel"]
     AM --> BA["BoneAttribute array"]
     EN --> GS["GeoModelState output slots"]
-    GS --> PS["Java-owned pose / normal buffer"]
     GS --> FS["native ModelState"]
+    FS --> PS["native-owned BonePose array"]
+    GS -. "borrows BonePoseView" .-> PS
     BM --> FS
     BA -. "temporary input" .-> EX["ModelState::Extract"]
     EX --> FS
     EX --> PS
-    FS -. "borrows" .-> PS
     VA["NativeRenderAdapter"] --> RC["renderer::Render"]
     FS --> RC
     RC --> OR["direct / VertexConsumer fallback result"]
@@ -41,7 +41,7 @@ flowchart TB
 | 阶段 | 频率与执行位置 | 输入 | 输出 |
 |---|---|---|---|
 | bake | 模型或影响烘焙的资源变化时；后台构建路径 | 几何、基础纹理 alpha、UV 约定和 `BakeModelOptions` | 不可变 `BakedModel`；可选 serialized baked cache |
-| extract | 每个需要新动画结果的 `entity` 与 `RenderContext`；`level` entity 主路径可在 Java worker，部分同步路径仍在渲染线程 | `BakedModel`、`BoneAttribute` 与 Java-owned pose buffer | 有效 `ModelState`、可见骨骼、locator indices 和 `RenderSchedule` |
+| extract | 每个需要新动画结果的 `entity` 与 `RenderContext`；`level` entity 主路径可在 Java worker，部分同步路径仍在渲染线程 | `BakedModel` 与 `BoneAttribute` | 有效 `ModelState`、其持有的 `BonePose`、借用的 `BonePoseView`、可见骨骼、locator indices 和 `RenderSchedule` |
 | render | Minecraft 渲染线程发起；调用线程参与 native 执行 | `ModelState`、`RenderParameters`、`VertexKind` 与目标输出区间 | 成功后提交到 `VertexConsumer`，再由 Minecraft 上传和 draw |
 
 阶段名描述数据依赖，不保证固定线程。Native 渲染 worker 不执行动画求值或 extract；具体线程与同步边界见[逐帧状态与调度](frame-execution.md)。
@@ -49,7 +49,7 @@ flowchart TB
 ## 核心不变量
 
 - Bake 只产生可重建的内部派生物；CPU 数据布局、serialized cache 和逐帧调度均不是公开 ABI。
-- Extract 成功前 `GeoModelState` 不可发布；Render 只能消费当前 valid 的 `ModelState` 和仍存活的 pose buffer，不回退到失败前的状态。
+- Extract 成功前 `GeoModelState` 不可发布；Render 只能消费当前 valid 的 `ModelState`，Java 只能在下次 Extract 或 close 前借用对应 `BonePoseView`，失败时不回退到旧状态。
 - Position 与 normal 使用独立矩阵通道；Native 只生成顶点，不持有纹理或 GPU 对象。
 - `RenderType`、Java `RenderContext` 的 native 投影与 `VertexKind` 是三个独立维度，不能互相替代。
 

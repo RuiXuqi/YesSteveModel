@@ -11,22 +11,187 @@ import com.elfmcys.ysm.natives.buffer.NativeHeapBuffer;
 import mixel.asset.model.data.GeoModelOuterClass;
 import com.elfmcys.ysm.util.ProtoUtil;
 import com.mojang.blaze3d.platform.NativeImage;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public final class NativeBakedModel {
+public final class NativeBakedModel extends NativeObject {
+    private static final int BONE_INFO_INT_COUNT = 4;
+    private static final int CUBE_DATA_FLOAT_COUNT = 85;
+    private static final int CUBE_VERTEX_COUNT = 8;
+    private static final int CUBE_QUAD_COUNT = 6;
+    private static final int CUBE_POSITION_FLOAT_COUNT = 3;
+    private static final int QUAD_DATA_FLOAT_COUNT = 10;
+    private static final int QUAD_DATA_OFFSET = 24;
+    private static final int CUBE_COUNTS_OFFSET = 84;
+
+    private static final ThreadLocal<int[]> INT_BUFFER =
+            ThreadLocal.withInitial(() -> new int[0]);
+    private static final ThreadLocal<float[]> FLOAT_BUFFER =
+            ThreadLocal.withInitial(() -> new float[0]);
+
+    public record Info(int boneCount, boolean guiNoShadow, boolean hasPbr) {
+    }
+
+    public record BonePartitionInfo(int cubeCount,
+                                    int vertexCount,
+                                    int vertexCountAfterCulling) {
+    }
+
+    public record BoneInfo(BonePartitionInfo cutout,
+                           BonePartitionInfo cutoutNoCulling,
+                           BonePartitionInfo translucent,
+                           BonePartitionInfo translucentCulling) {
+    }
+
+    public record QuadData(Vector3f normal,
+                           Vector4f tangent,
+                           int vertex0,
+                           int vertex1,
+                           int vertex2,
+                           int vertex3,
+                           float planeD,
+                           float windingSign) {
+    }
+
+    public record CubeData(Vector3f[] positions,
+                           QuadData[] quads,
+                           int quadCount,
+                           int quadCountAfterCulling) {
+    }
+
     public record BakeResult(NativeBuffer bakedData, short[] sortedBoneIndices) {
     }
 
-    public record ReadResult(NativeObject bakedModel, short[] sortedBoneIndices) {
+    public record ReadResult(NativeBakedModel bakedModel, short[] sortedBoneIndices) {
     }
 
-    private NativeBakedModel() {
+    NativeBakedModel(long ptr) {
+        super(ptr);
     }
 
     public static int capability() {
         return nCapability();
+    }
+
+    public Info getInfo() {
+        var data = nGetInfo(get());
+        if (data == -1) {
+            throw new RuntimeException("Failed to get BakedModel info");
+        }
+        return new Info(
+                (int) (data & 0xffff),
+                (data & (1L << 16)) != 0,
+                (data & (1L << 17)) != 0);
+    }
+
+    public BoneInfo[] getBoneInfo(int boneIndex, int boneCount) {
+        var requiredSize = checkedArraySize(boneCount, BONE_INFO_INT_COUNT);
+        var data = getIntBuffer(requiredSize);
+        if (!nGetBoneInfo(get(), boneIndex, boneCount, data)) {
+            throw new RuntimeException("Failed to get BakedModel bone info");
+        }
+
+        var result = new BoneInfo[boneCount];
+        for (var i = 0; i < result.length; ++i) {
+            var offset = i * BONE_INFO_INT_COUNT;
+            result[i] = new BoneInfo(
+                    unpackBonePartitionInfo(data[offset]),
+                    unpackBonePartitionInfo(data[offset + 1]),
+                    unpackBonePartitionInfo(data[offset + 2]),
+                    unpackBonePartitionInfo(data[offset + 3]));
+        }
+        return result;
+    }
+
+    public CubeData[] getCubeData(int boneIndex, int bonePartition,
+                                  int cubeIndex, int cubeCount) {
+        var requiredSize = checkedArraySize(cubeCount, CUBE_DATA_FLOAT_COUNT);
+        var data = getFloatBuffer(requiredSize);
+        if (!nGetCubeData(get(), boneIndex, bonePartition, cubeIndex,
+                cubeCount, data)) {
+            throw new RuntimeException("Failed to get BakedModel cube data");
+        }
+
+        var result = new CubeData[cubeCount];
+        for (var i = 0; i < result.length; ++i) {
+            result[i] = unpackCubeData(data, i * CUBE_DATA_FLOAT_COUNT);
+        }
+        return result;
+    }
+
+    private static int checkedArraySize(int count, int stride) {
+        if (count < 0) {
+            throw new IllegalArgumentException("Negative element count");
+        }
+        return Math.multiplyExact(count, stride);
+    }
+
+    private static int[] getIntBuffer(int requiredSize) {
+        var data = INT_BUFFER.get();
+        if (data.length < requiredSize) {
+            data = new int[requiredSize];
+            INT_BUFFER.set(data);
+        }
+        return data;
+    }
+
+    private static float[] getFloatBuffer(int requiredSize) {
+        var data = FLOAT_BUFFER.get();
+        if (data.length < requiredSize) {
+            data = new float[requiredSize];
+            FLOAT_BUFFER.set(data);
+        }
+        return data;
+    }
+
+    private static BonePartitionInfo unpackBonePartitionInfo(int data) {
+        return new BonePartitionInfo(
+                data & 0xffff,
+                data >>> 16 & 0xff,
+                data >>> 24);
+    }
+
+    private static CubeData unpackCubeData(float[] data, int offset) {
+        var positions = new Vector3f[CUBE_VERTEX_COUNT];
+        for (var i = 0; i < positions.length; ++i) {
+            var positionOffset = offset + i * CUBE_POSITION_FLOAT_COUNT;
+            positions[i] = new Vector3f(
+                    data[positionOffset],
+                    data[positionOffset + 1],
+                    data[positionOffset + 2]);
+        }
+
+        var counts = Float.floatToRawIntBits(data[offset +
+                CUBE_COUNTS_OFFSET]);
+        var quadCount = counts & 0xff;
+        var quadCountAfterCulling = counts >>> 8 & 0xff;
+        if (quadCount > CUBE_QUAD_COUNT ||
+                quadCountAfterCulling > quadCount) {
+            throw new IllegalStateException("Invalid native cube data");
+        }
+
+        var quads = new QuadData[quadCount];
+        for (var i = 0; i < quads.length; ++i) {
+            var quadOffset = offset + QUAD_DATA_OFFSET +
+                    i * QUAD_DATA_FLOAT_COUNT;
+            var vertexIndices = Float.floatToRawIntBits(data[quadOffset + 7]);
+            quads[i] = new QuadData(
+                    new Vector3f(data[quadOffset], data[quadOffset + 1],
+                            data[quadOffset + 2]),
+                    new Vector4f(data[quadOffset + 3], data[quadOffset + 4],
+                            data[quadOffset + 5], data[quadOffset + 6]),
+                    vertexIndices & 0xff,
+                    vertexIndices >>> 8 & 0xff,
+                    vertexIndices >>> 16 & 0xff,
+                    vertexIndices >>> 24,
+                    data[quadOffset + 8],
+                    data[quadOffset + 9]);
+        }
+        return new CubeData(positions, quads, quadCount,
+                quadCountAfterCulling);
     }
 
     @Owned
@@ -95,7 +260,7 @@ public final class NativeBakedModel {
         if (ptr == 0) {
             throw new RuntimeException("Failed to read BakedModel");
         }
-        return new ReadResult(new NativeObject(ptr), sortedBoneIndices);
+        return new ReadResult(new NativeBakedModel(ptr), sortedBoneIndices);
     }
 
     public static boolean tryBake(UniBuffer modelData, NativeImage texture,
@@ -179,4 +344,13 @@ public final class NativeBakedModel {
 
     private static native long nRead(Object bakedDataBuf, long bakedDataFlags,
                                      short[] sortedBoneIndices);
+
+    private static native long nGetInfo(long bakedModel);
+
+    private static native boolean nGetBoneInfo(long bakedModel, int boneIndex,
+                                               int boneCount, int[] dst);
+
+    private static native boolean nGetCubeData(long bakedModel, int boneIndex,
+                                               int bonePartition, int cubeIndex,
+                                               int cubeCount, float[] dst);
 }

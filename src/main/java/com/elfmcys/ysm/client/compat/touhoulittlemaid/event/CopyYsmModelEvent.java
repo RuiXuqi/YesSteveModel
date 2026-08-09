@@ -77,8 +77,8 @@ public class CopyYsmModelEvent {
         player.getCapability(ModelInfoCapabilityProvider.MODEL_INFO_CAP).ifPresent(cap -> {
             String modelId = ServerModelService.current().flatMap(ServerModelService::snapshot)
                     .map(snapshot -> ModelSelectionService.displayId(cap, snapshot))
-                    .orElseGet(() -> cap.getModelHash() == null
-                            ? "default" : cap.getModelHash().toString());
+                    .orElseGet(() -> cap.getModelId() == null
+                            ? "default" : cap.getModelId().toString());
             String texture = cap.getSelectTexture();
 
             compound.putBoolean(EntityMaid.IS_YSM_MODEL_TAG, true);

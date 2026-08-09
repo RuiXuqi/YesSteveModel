@@ -1,4 +1,4 @@
-package com.elfmcys.ysm.api;
+package com.elfmcys.ysm.accessor;
 
 public interface IArrowExtraInfo {
     boolean isInGround();

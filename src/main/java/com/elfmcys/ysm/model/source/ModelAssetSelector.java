@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.source;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -25,7 +25,7 @@ public sealed interface ModelAssetSelector permits ModelAssetSelector.ModelPrevi
         return new ModelPresentation(asset, index);
     }
 
-    static ModelAssetSelector packCover(ModelHash expectedContentHash) {
+    static ModelAssetSelector packCover(Hash256 expectedContentHash) {
         return new PackCover(expectedContentHash);
     }
 
@@ -70,7 +70,7 @@ public sealed interface ModelAssetSelector permits ModelAssetSelector.ModelPrevi
         }
     }
 
-    record PackCover(ModelHash expectedContentHash) implements ModelAssetSelector {
+    record PackCover(Hash256 expectedContentHash) implements ModelAssetSelector {
         public PackCover {
             Objects.requireNonNull(expectedContentHash, "expectedContentHash");
         }

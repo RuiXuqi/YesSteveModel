@@ -1,6 +1,7 @@
 package com.elfmcys.ysm.natives;
 
 import com.elfmcys.ysm.testutil.NativeLibraryExtension;
+import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,9 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @EnabledIfEnvironmentVariable(named = "YSM_NATIVE_PATH", matches = ".+")
 @ExtendWith(NativeLibraryExtension.class)
-class NativeLoggingIntegrationTest {
+class NativeRuntimeIntegrationTest {
     @Test
-    void synchronizesCurrentLog4jLevelWithNativeLibrary() {
-        assertDoesNotThrow(NativeLogging::syncLevel);
+    void initializesIdempotentlyWithTheSameJavaConfig() {
+        assertDoesNotThrow(() -> NativeRuntime.initialize(
+                NativeRuntime.JavaConfig.fromLog4j(Level.INFO)));
     }
 }

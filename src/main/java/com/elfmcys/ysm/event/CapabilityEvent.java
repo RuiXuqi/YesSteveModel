@@ -228,7 +228,7 @@ public final class CapabilityEvent {
             }
             projectile.getCapability(ProjectileModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 ownerCap.executeWithMolangVars(molangVars -> {
-                    cap.init(ownerCap.getModelHash(), molangVars);
+                    cap.init(ownerCap.getModelId(), molangVars);
                     NetworkHandler.broadcastToVisiblePlayers(
                             MinecraftStateHandler.projectile(projectile.getId(), cap), projectile);
                 });
@@ -244,7 +244,7 @@ public final class CapabilityEvent {
             vehicle.getCapability(VehicleModelInfoCapabilityProvider.CAP).ifPresent(cap -> {
                 // 失败就丢弃
                 ownerCap.getMolangVars().ifPresent(molangVars -> {
-                    cap.update(ownerCap.getModelHash(), molangVars);
+                    cap.update(ownerCap.getModelId(), molangVars);
                     NetworkHandler.broadcastToVisiblePlayers(
                             MinecraftStateHandler.vehicle(vehicle.getId(), cap), vehicle);
                 });

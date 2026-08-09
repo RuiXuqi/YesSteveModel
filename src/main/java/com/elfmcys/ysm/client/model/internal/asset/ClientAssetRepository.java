@@ -11,7 +11,7 @@ import com.elfmcys.ysm.format.schema.file.FileImageSource;
 import com.elfmcys.ysm.model.cache.ScopedIdleValueCache;
 import com.elfmcys.ysm.model.catalog.ModelCatalogSources;
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.network.message.model.ModelAssetPlan;
 import com.elfmcys.ysm.network.message.model.ReceivedModelAssets;
@@ -60,7 +60,7 @@ public final class ClientAssetRepository implements AutoCloseable {
                 transfers.openBatch(snapshot.serverCursor().orElse(null)));
     }
 
-    private CompletableFuture<ImageSource> preview(Batch batch, ModelHash hash) {
+    private CompletableFuture<ImageSource> preview(Batch batch, Hash256 hash) {
         var entry = batch.snapshot.find(hash).orElse(null);
         if (entry == null) {
             return CompletableFuture.failedFuture(new IllegalArgumentException("Unknown model hash: " + hash));
@@ -109,7 +109,7 @@ public final class ClientAssetRepository implements AutoCloseable {
         });
     }
 
-    private CompletableFuture<ImageSource> presentation(Batch batch, ModelHash hash,
+    private CompletableFuture<ImageSource> presentation(Batch batch, Hash256 hash,
                                                         ModelAssetSelector.PresentationAsset asset, int index) {
         var entry = batch.snapshot.find(hash).orElse(null);
         if (entry == null) {
@@ -312,13 +312,13 @@ public final class ClientAssetRepository implements AutoCloseable {
         disconnect();
     }
 
-    private record PreviewKey(ModelHash modelHash, ModelHash descriptorHash) {
+    private record PreviewKey(Hash256 modelHash, Hash256 descriptorHash) {
     }
 
-    private record PackCoverKey(SourceId sourceId, ModelAssetSubject.Pack subject, ModelHash hash) {
+    private record PackCoverKey(SourceId sourceId, ModelAssetSubject.Pack subject, Hash256 hash) {
     }
 
-    private record PresentationKey(ModelHash modelHash, ModelHash descriptorHash,
+    private record PresentationKey(Hash256 modelHash, Hash256 descriptorHash,
                                    ModelAssetSelector.PresentationAsset asset, int index) {
     }
 
@@ -338,7 +338,7 @@ public final class ClientAssetRepository implements AutoCloseable {
             this.transfers = transfers;
         }
 
-        public synchronized CompletableFuture<ImageSource> preview(ModelHash hash) {
+        public synchronized CompletableFuture<ImageSource> preview(Hash256 hash) {
             checkRegistrationOpen();
             return ClientAssetRepository.this.preview(this, hash);
         }
@@ -349,7 +349,7 @@ public final class ClientAssetRepository implements AutoCloseable {
         }
 
         public synchronized CompletableFuture<ImageSource> presentation(
-                ModelHash hash, ModelAssetSelector.PresentationAsset asset, int index) {
+                Hash256 hash, ModelAssetSelector.PresentationAsset asset, int index) {
             checkRegistrationOpen();
             return ClientAssetRepository.this.presentation(this, hash, asset, index);
         }

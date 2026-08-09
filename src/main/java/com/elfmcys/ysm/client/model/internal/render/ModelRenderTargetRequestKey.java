@@ -1,11 +1,11 @@
 package com.elfmcys.ysm.client.model.internal.render;
 
 import com.elfmcys.ysm.client.model.catalog.ModelContentVersion;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.util.Objects;
 
-public record ModelRenderTargetRequestKey(ModelHash modelHash, ModelContentVersion contentVersion,
+public record ModelRenderTargetRequestKey(Hash256 modelHash, ModelContentVersion contentVersion,
                                           String renderTargetId, String textureName) {
     public ModelRenderTargetRequestKey {
         Objects.requireNonNull(modelHash, "modelHash");

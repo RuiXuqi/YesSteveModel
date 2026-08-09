@@ -4,7 +4,7 @@ import com.elfmcys.ysm.format.parser.ModelParser;
 import com.elfmcys.ysm.format.vfs.Directory;
 import com.elfmcys.ysm.model.importer.LegacyImporter;
 import com.elfmcys.ysm.model.importer.RawModelImporter;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.AtomicSharedCache;
 import com.elfmcys.ysm.model.storage.ConversionProfileId;
 import com.elfmcys.ysm.model.storage.ConvertedObjectStore;
@@ -84,7 +84,7 @@ class CatalogReconcilerTest {
         var cache = new AtomicSharedCache(paths);
         var profile = ConversionProfileId.from(
                 com.elfmcys.ysm.model.storage.ConversionProfileInputs.production(
-                        new ModelHash(new byte[ModelHash.SIZE])));
+                        new Hash256(new byte[Hash256.SIZE])));
         var resolver = new ModelSourceResolver(new RawModelImporter(
                 new LegacyImporter(),
                 com.elfmcys.ysm.format.parser.DefaultAnimationFilter.keepAll()),

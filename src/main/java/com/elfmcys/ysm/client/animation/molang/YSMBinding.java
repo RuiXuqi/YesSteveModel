@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.client.animation.molang;
 
-import com.elfmcys.ysm.api.IArrowExtraInfo;
+import com.elfmcys.ysm.accessor.IArrowExtraInfo;
 import com.elfmcys.ysm.capability.PlayerAnimatableCapability;
 import com.elfmcys.ysm.client.animation.molang.functions.*;
 import com.elfmcys.ysm.client.animation.molang.variable.FirstPersonModHideVariable;
@@ -80,6 +80,9 @@ public class YSMBinding extends ContextBinding {
         function("bone_pos", new BonePosition());
         function("bone_scale", new BoneScale());
         function("bone_pivot_abs", new BoneAbsolutePivot());
+        function("bone_color", new BoneRenderFunction.Color());
+        function("bone_transparency", new BoneRenderFunction.Transparency());
+        function("bone_glow", new BoneRenderFunction.Glow());
 
         var("head_yaw", ctx -> ctx.data().netHeadYaw);
         var("head_pitch", ctx -> ctx.data().headPitch);

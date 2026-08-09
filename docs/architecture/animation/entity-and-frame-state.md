@@ -11,9 +11,9 @@
 | `AnimationProcessor` | 保存骨骼 snapshot、active bone 与通道复位状态，并写入模型拥有的 `BoneAttribute` |
 | Molang 状态 | 保存 `variable` 内存、Roaming 视图、随机/物理上下文及待执行动作 |
 | `Entity` 输入状态 | 跟踪 tick、移动、`Pose` 和标准化投影，用于计算连续输入 |
-| 输出槽 | 保存 canonical 或按 `RenderContext` 分区的 mutable `GeoModelState`、pose / normal buffer 和 Java locator 映射 |
+| 输出槽 | 保存 canonical 或按 `RenderContext` 分区的 mutable `GeoModelState`、其 native `ModelState`、借用的 `BonePoseView` 和 Java locator 映射 |
 
-模型 animation、controller 和用户函数是 render target 级只读资源，可跨 `entity` 共享；上表中的可变状态不得跨 `entity` 共享。每个 `AnimatedGeoModel` 只有一份 `BoneAttribute` 数组；Extract 临时读取它，成功后的 `ModelState` 共享持有 `BakedModel`，并只长期借用对应 `GeoModelState` 的 pose buffer。
+模型 animation、controller 和用户函数是 render target 级只读资源，可跨 `entity` 共享；上表中的可变状态不得跨 `entity` 共享。每个 `AnimatedGeoModel` 只有一份 `BoneAttribute` 数组；Extract 临时读取它，成功后的 `ModelState` 共享持有 `BakedModel` 并拥有 `BonePose`，对应 `GeoModelState` 只在该快照有效期内借用 `BonePoseView`。
 
 ## 绑定与切换
 

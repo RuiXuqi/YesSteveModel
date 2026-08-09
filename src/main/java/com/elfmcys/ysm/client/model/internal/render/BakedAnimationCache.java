@@ -4,7 +4,7 @@ import com.elfmcys.ysm.client.model.AnimationStore;
 import com.elfmcys.ysm.client.model.ModelResourceFailureGate;
 import com.elfmcys.ysm.format.schema.baked.asset.BakedAssetView;
 import com.elfmcys.ysm.format.schema.baked.asset.BakedAssetWriter;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.AtomicSharedCache;
 import com.elfmcys.ysm.model.storage.ModelHashing;
 import com.elfmcys.ysm.model.storage.SharedCachePaths;
@@ -38,24 +38,24 @@ public final class BakedAnimationCache {
         this.cache = cache;
     }
 
-    public AnimationStore loadOrBake(ModelHash modelHash, ModelHash descriptorHash, String targetId,
-                                     String animationSet, ModelHash definitionHash,
+    public AnimationStore loadOrBake(Hash256 modelHash, Hash256 descriptorHash, String targetId,
+                                     String animationSet, Hash256 definitionHash,
                                      Iterable<ModelDataOuterClass.ModelData.AnimationFilesEntry> animationFiles)
             throws IOException {
         return loadOrBake(modelHash, descriptorHash, targetId, animationSet,
                 definitionHash, animationFiles, null);
     }
 
-    public AnimationStore loadOrBake(ModelHash modelHash, ModelHash descriptorHash, String targetId,
-                                     String animationSet, ModelHash definitionHash,
+    public AnimationStore loadOrBake(Hash256 modelHash, Hash256 descriptorHash, String targetId,
+                                     String animationSet, Hash256 definitionHash,
                                      Iterable<ModelDataOuterClass.ModelData.AnimationFilesEntry> animationFiles,
                                      AnimationStore fallback) throws IOException {
         return loadOrBake(modelHash, descriptorHash, targetId, animationSet, definitionHash,
                 animationFiles, fallback, ignored -> ModelResourceFailureGate.none());
     }
 
-    public AnimationStore loadOrBake(ModelHash modelHash, ModelHash descriptorHash, String targetId,
-                                     String animationSet, ModelHash definitionHash,
+    public AnimationStore loadOrBake(Hash256 modelHash, Hash256 descriptorHash, String targetId,
+                                     String animationSet, Hash256 definitionHash,
                                      Iterable<ModelDataOuterClass.ModelData.AnimationFilesEntry> animationFiles,
                                      AnimationStore fallback,
                                      Function<String, ModelResourceFailureGate> failureGates) throws IOException {
@@ -106,7 +106,7 @@ public final class BakedAnimationCache {
                 throws IOException;
     }
 
-    private Path path(ModelHash modelHash, ModelHash descriptorHash, ModelHash definitionHash) {
+    private Path path(Hash256 modelHash, Hash256 descriptorHash, Hash256 definitionHash) {
         return paths.baked().resolve(CACHE_ABI).resolve(modelHash.toString())
                 .resolve(descriptorHash.toString()).resolve(definitionHash + CACHE_SUFFIX);
     }
@@ -128,16 +128,16 @@ public final class BakedAnimationCache {
         return result;
     }
 
-    static ModelHash animationSetHash(ModelHash definitionHash, String animationSet) {
+    static Hash256 animationSetHash(Hash256 definitionHash, String animationSet) {
         var setName = animationSet.getBytes(StandardCharsets.UTF_8);
-        var input = ByteBuffer.allocate(HASH_DOMAIN.length + ModelHash.SIZE + Integer.BYTES + setName.length)
+        var input = ByteBuffer.allocate(HASH_DOMAIN.length + Hash256.SIZE + Integer.BYTES + setName.length)
                 .put(HASH_DOMAIN).put(definitionHash.bytes())
                 .putInt(setName.length).put(setName);
         return ModelHashing.blake3(input.array());
     }
 
-    private static void write(Path file, ModelHash modelHash, ModelHash descriptorHash, String targetId,
-                              ModelHash definitionHash, Iterable<AnimationOuterClass.Animation> animations)
+    private static void write(Path file, Hash256 modelHash, Hash256 descriptorHash, String targetId,
+                              Hash256 definitionHash, Iterable<AnimationOuterClass.Animation> animations)
             throws IOException {
         try (var writer = new BakedAssetWriter();
              var channel = FileChannel.open(file, StandardOpenOption.CREATE,
@@ -148,8 +148,8 @@ public final class BakedAnimationCache {
         }
     }
 
-    private static boolean validate(Path file, ModelHash modelHash, ModelHash descriptorHash,
-                                    String targetId, ModelHash definitionHash) {
+    private static boolean validate(Path file, Hash256 modelHash, Hash256 descriptorHash,
+                                    String targetId, Hash256 definitionHash) {
         try {
             return open(file).matches(modelHash, descriptorHash, targetId, definitionHash);
         } catch (Exception ignored) {

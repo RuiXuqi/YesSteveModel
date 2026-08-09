@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.source;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 
 import java.util.Map;
@@ -11,7 +11,7 @@ import java.util.Objects;
 public record PackOffer(SourceId sourceId, ModelAssetSubject.Pack subject,
                         String name, String description,
                         Map<String, ModelPackDescriptor.LocalizedText> translations,
-                        ModelHash coverHash, String coverFormat, int coverSize,
+                        Hash256 coverHash, String coverFormat, int coverSize,
                         AccessPolicy accessPolicy) {
     public PackOffer {
         Objects.requireNonNull(sourceId, "sourceId");

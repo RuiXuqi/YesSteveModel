@@ -1,15 +1,15 @@
 package com.elfmcys.ysm.capability;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 
 public class ProjectileModelInfoCapability {
-    private ModelHash modelHash;
+    private Hash256 modelHash;
     private boolean initialized = false;
     private Object2FloatOpenHashMap<String> molangVarsServerBound = new Object2FloatOpenHashMap<>();
 
-    public void init(ModelHash modelHash, Object2FloatOpenHashMap<String> molangVarsServerBound) {
+    public void init(Hash256 modelHash, Object2FloatOpenHashMap<String> molangVarsServerBound) {
         this.modelHash = modelHash;
         this.initialized = true;
         this.molangVarsServerBound = molangVarsServerBound;
@@ -21,7 +21,7 @@ public class ProjectileModelInfoCapability {
         this.molangVarsServerBound = source.molangVarsServerBound;
     }
 
-    public ModelHash getOwnerModelHash() {
+    public Hash256 getOwnerModelHash() {
         return modelHash;
     }
 
@@ -50,7 +50,7 @@ public class ProjectileModelInfoCapability {
     public void deserializeNBT(CompoundTag nbt) {
         var stored = nbt.getString("owner_model_hash");
         try {
-            this.modelHash = stored.isEmpty() ? null : ModelHash.parse(stored);
+            this.modelHash = stored.isEmpty() ? null : Hash256.parse(stored);
         } catch (IllegalArgumentException ignored) {
             this.modelHash = null;
         }

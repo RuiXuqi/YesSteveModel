@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelScanError;
 import com.elfmcys.ysm.model.domain.ModelScanReport;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
@@ -21,10 +21,10 @@ public final class CatalogReconciler {
     private final List<ModelCatalogSource> roots;
     private final ModelSourceResolver resolver;
     private final ModelPackScanner packScanner = new ModelPackScanner();
-    private final Set<ModelHash> builtinReservedHashes;
+    private final Set<Hash256> builtinReservedHashes;
 
     public CatalogReconciler(List<ModelCatalogSource> roots, ModelSourceResolver resolver,
-                             Set<ModelHash> builtinReservedHashes) {
+                             Set<Hash256> builtinReservedHashes) {
         this.roots = List.copyOf(roots);
         this.resolver = Objects.requireNonNull(resolver, "resolver");
         this.builtinReservedHashes = Set.copyOf(builtinReservedHashes);
@@ -188,12 +188,12 @@ public final class CatalogReconciler {
         }
     }
 
-    private Map<ModelHash, ModelFileHandle> selectModels(
+    private Map<Hash256, ModelFileHandle> selectModels(
             Map<ModelSourceKey, ModelSourceState> states,
             List<ModelScanError> errors, StatsBuilder stats) {
         var ready = states.values().stream().filter(ModelSourceState.Ready.class::isInstance)
                 .map(ModelSourceState.Ready.class::cast).toList();
-        var byHash = new HashMap<ModelHash, List<ModelSourceState.Ready>>();
+        var byHash = new HashMap<Hash256, List<ModelSourceState.Ready>>();
         var byLocation = new HashMap<CatalogModelLocation, List<ModelSourceState.Ready>>();
         ready.forEach(value -> {
             byHash.computeIfAbsent(value.modelHash(), ignored -> new ArrayList<>()).add(value);
@@ -221,7 +221,7 @@ public final class CatalogReconciler {
                             "Model hash is reserved by a builtin model " + value.modelHash()));
                 });
         stats.rejected += rejected.size();
-        var result = new LinkedHashMap<ModelHash, ModelFileHandle>();
+        var result = new LinkedHashMap<Hash256, ModelFileHandle>();
         ready.stream().filter(value -> !rejected.contains(value))
                 .sorted((left, right) -> left.handle().location()
                         .compareTo(right.handle().location()))

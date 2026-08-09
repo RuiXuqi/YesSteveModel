@@ -13,7 +13,7 @@ import com.elfmcys.ysm.geckolib3.geo.GeoRenderData;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.ysm.geckolib3.model.AnimatableEntity;
 import com.elfmcys.ysm.geckolib3.model.AnimatedGeoModel;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
@@ -121,7 +121,7 @@ public abstract class CustomHumanoidEntity<T extends LivingEntity> extends Custo
         updateTexture(true);
     }
 
-    public void updateModelAndTexture(ModelHash modelHash, String textureName) {
+    public void updateModelAndTexture(Hash256 modelHash, String textureName) {
         setInitialized();
         this.textureName = textureName;
         updateModelHash(modelHash);

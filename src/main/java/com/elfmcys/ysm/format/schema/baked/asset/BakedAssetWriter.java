@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.format.schema.baked.asset;
 
 import com.elfmcys.ysm.format.schema.file.AssetFileWriter;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.ModelHashing;
 import mixel.asset.model.data.AnimationOuterClass;
 import com.elfmcys.ysm.proto.baked.asset.AssetManifest;
@@ -18,8 +18,8 @@ public final class BakedAssetWriter extends AssetFileWriter {
         setProperty(BakedAssetConstant.PROP_VERSION, BakedAssetConstant.CURRENT_VERSION.toString());
     }
 
-    public void setData(ModelHash modelHash, ModelHash descriptorHash, String renderTargetId,
-                        ModelHash definitionHash, Iterable<AnimationOuterClass.Animation> animations)
+    public void setData(Hash256 modelHash, Hash256 descriptorHash, String renderTargetId,
+                        Hash256 definitionHash, Iterable<AnimationOuterClass.Animation> animations)
             throws IOException {
         var manifest = AssetManifest.BakedAssetManifest.newInstance()
                 .setRenderTargetId(renderTargetId);

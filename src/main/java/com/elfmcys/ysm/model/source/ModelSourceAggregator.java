@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.source;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +35,7 @@ public final class ModelSourceAggregator {
                 .thenComparing(ModelOffer::sourceId)
                 .thenComparing(ModelOffer::namespace)
                 .thenComparing(ModelOffer::path);
-        var offers = new LinkedHashMap<ModelHash, ArrayList<ModelOffer>>();
+        var offers = new LinkedHashMap<Hash256, ArrayList<ModelOffer>>();
         var packs = new ArrayList<PackOffer>();
         var cursors = new LinkedHashMap<SourceId, CatalogCursor>();
         for (var catalog : catalogs) {
@@ -47,7 +47,7 @@ public final class ModelSourceAggregator {
                     .computeIfAbsent(offer.descriptor().modelHash(), ignored -> new ArrayList<>()).add(offer));
             packs.addAll(catalog.packs());
         }
-        var immutableOffers = new LinkedHashMap<ModelHash, List<ModelOffer>>();
+        var immutableOffers = new LinkedHashMap<Hash256, List<ModelOffer>>();
         offers.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
             entry.getValue().sort(offerOrder);
             immutableOffers.put(entry.getKey(), List.copyOf(entry.getValue()));
@@ -59,7 +59,7 @@ public final class ModelSourceAggregator {
         return new AggregatedCatalog(Map.copyOf(immutableOffers), List.copyOf(packs), Map.copyOf(cursors));
     }
 
-    public record AggregatedCatalog(Map<ModelHash, List<ModelOffer>> offers,
+    public record AggregatedCatalog(Map<Hash256, List<ModelOffer>> offers,
                                     List<PackOffer> packs,
                                     Map<SourceId, CatalogCursor> cursors) {
         public AggregatedCatalog {
@@ -68,13 +68,13 @@ public final class ModelSourceAggregator {
             cursors = Map.copyOf(cursors);
         }
 
-        public Optional<ModelOffer> preferred(ModelHash hash) {
+        public Optional<ModelOffer> preferred(Hash256 hash) {
             var matches = offers.get(hash);
             return matches == null || matches.isEmpty() ? Optional.empty() : Optional.of(matches.get(0));
         }
 
-        public Optional<ModelHash> resolvePath(String path) {
-            ModelHash found = null;
+        public Optional<Hash256> resolvePath(String path) {
+            Hash256 found = null;
             for (var entry : offers.entrySet()) {
                 if (entry.getValue().stream().anyMatch(offer -> offer.path().value().equals(path))) {
                     if (found != null && !found.equals(entry.getKey())) {

@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.capability;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.google.common.collect.Sets;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -9,9 +9,9 @@ import net.minecraft.nbt.Tag;
 import java.util.Set;
 
 public class StarModelsCapability {
-    private Set<ModelHash> starModels = Sets.newHashSet();
+    private Set<Hash256> starModels = Sets.newHashSet();
 
-    public void addModel(ModelHash modelHash) {
+    public void addModel(Hash256 modelHash) {
         starModels.add(modelHash);
     }
 
@@ -19,19 +19,19 @@ public class StarModelsCapability {
         this.starModels = source.starModels;
     }
 
-    public void removeModel(ModelHash modelHash) {
+    public void removeModel(Hash256 modelHash) {
         starModels.remove(modelHash);
     }
 
-    public boolean containModel(ModelHash modelHash) {
+    public boolean containModel(Hash256 modelHash) {
         return starModels.contains(modelHash);
     }
 
-    public Set<ModelHash> getStarModels() {
+    public Set<Hash256> getStarModels() {
         return starModels;
     }
 
-    public void setStarModels(Set<ModelHash> starModels) {
+    public void setStarModels(Set<Hash256> starModels) {
         this.starModels = Sets.newHashSet(starModels);
     }
 
@@ -41,7 +41,7 @@ public class StarModelsCapability {
 
     public ListTag serializeNBT() {
         ListTag listTag = new ListTag();
-        for (ModelHash modelHash : starModels) {
+        for (Hash256 modelHash : starModels) {
             listTag.add(StringTag.valueOf(modelHash.toString()));
         }
         return listTag;
@@ -51,7 +51,7 @@ public class StarModelsCapability {
         this.starModels.clear();
         for (Tag tag : nbt) {
             try {
-                starModels.add(ModelHash.parse(tag.getAsString()));
+                starModels.add(Hash256.parse(tag.getAsString()));
             } catch (IllegalArgumentException ignored) {
                 // Old path-based favorites are intentionally not migrated.
             }

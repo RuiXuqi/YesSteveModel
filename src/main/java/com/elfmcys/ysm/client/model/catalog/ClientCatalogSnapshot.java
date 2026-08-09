@@ -2,7 +2,7 @@ package com.elfmcys.ysm.client.model.catalog;
 
 import com.elfmcys.ysm.model.catalog.RemoteCatalogSnapshot;
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.model.source.CatalogCursor;
 import com.elfmcys.ysm.model.source.ModelSource;
@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.function.LongSupplier;
 
 public record ClientCatalogSnapshot(long generation,
-                                    Map<ModelHash, ClientCatalogEntry> models,
+                                    Map<Hash256, ClientCatalogEntry> models,
                                     List<PackOffer> packs,
                                     ModelSourceAggregator.AggregatedCatalog sources,
                                     @Nullable RemoteCatalogSnapshot server) {
@@ -37,12 +37,12 @@ public record ClientCatalogSnapshot(long generation,
     }
 
     public static ClientCatalogSnapshot merge(ClientCatalogSnapshot previous, long generation,
-                                               Map<ModelHash, ModelFileHandle> local,
+                                               Map<Hash256, ModelFileHandle> local,
                                                List<ModelPackDescriptor> localPacks,
                                                @Nullable RemoteCatalogSnapshot server,
                                                Set<ModelBackingIdentity> forcedVersions,
                                                LongSupplier nextContentVersion) {
-        var entries = new LinkedHashMap<ModelHash, ClientCatalogEntry>();
+        var entries = new LinkedHashMap<Hash256, ClientCatalogEntry>();
         var hashes = new java.util.HashSet<>(local.keySet());
         if (server != null) {
             hashes.addAll(server.models().keySet());
@@ -74,7 +74,7 @@ public record ClientCatalogSnapshot(long generation,
         return new ClientCatalogSnapshot(generation, entries, aggregated.packs(), aggregated, server);
     }
 
-    public Optional<ClientCatalogEntry> find(ModelHash hash) {
+    public Optional<ClientCatalogEntry> find(Hash256 hash) {
         return Optional.ofNullable(models.get(hash));
     }
 

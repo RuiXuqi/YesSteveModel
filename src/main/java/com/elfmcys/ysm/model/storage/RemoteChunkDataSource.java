@@ -5,7 +5,7 @@ import com.elfmcys.ysm.buffer.UniBuffer;
 import com.elfmcys.ysm.format.container.AssetContainerView;
 import com.elfmcys.ysm.format.container.ChunkDecoding;
 import com.elfmcys.ysm.format.schema.file.ChunkDataSource;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -84,17 +84,17 @@ public final class RemoteChunkDataSource implements ChunkDataSource {
     }
 
     private Path file(AssetContainerView.ChunkInfo chunk) throws IOException {
-        if (chunk.hash() == null || chunk.hash().length != ModelHash.SIZE) {
+        if (chunk.hash() == null || chunk.hash().length != Hash256.SIZE) {
             throw new IOException("Remote chunk has no content hash: " + chunk.type());
         }
-        var file = chunkPath(paths, new ModelHash(chunk.hash()), chunk.encoding(), chunk.size());
+        var file = chunkPath(paths, new Hash256(chunk.hash()), chunk.encoding(), chunk.size());
         if (!Files.isRegularFile(file)) {
             throw new FileNotFoundException("Remote model chunk is not cached: " + chunk.type());
         }
         return file;
     }
 
-    static Path chunkPath(SharedCachePaths paths, ModelHash hash, String encoding, int encodedSize) {
+    static Path chunkPath(SharedCachePaths paths, Hash256 hash, String encoding, int encodedSize) {
         var encodingId = HexFormat.of().formatHex(encoding.getBytes(StandardCharsets.UTF_8));
         return paths.remoteChunks().resolve(hash + "-" + encodedSize + "-" + encodingId + ".chunk");
     }

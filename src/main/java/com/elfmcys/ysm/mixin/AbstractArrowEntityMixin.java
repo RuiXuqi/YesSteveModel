@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.mixin;
 
 import com.elfmcys.ysm.YesSteveModel;
-import com.elfmcys.ysm.api.IArrowExtraInfo;
+import com.elfmcys.ysm.accessor.IArrowExtraInfo;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;

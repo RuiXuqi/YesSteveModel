@@ -11,7 +11,7 @@ import com.elfmcys.ysm.client.model.internal.catalog.ClientCatalogManager;
 import com.elfmcys.ysm.client.model.internal.transfer.ClientTransferManager;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
 import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import com.elfmcys.ysm.model.catalog.DefaultAnimationKey;
@@ -110,8 +110,8 @@ public final class ClientModelRenderTargetManager implements AutoCloseable {
         });
     }
 
-    public CompletableFuture<ModelRenderTargetLease> acquire(TaskContext context, ModelHash hash, String targetId,
-                                                  String textureName) {
+    public CompletableFuture<ModelRenderTargetLease> acquire(TaskContext context, Hash256 hash, String targetId,
+                                                             String textureName) {
         return requireDefaultInitialization().thenCompose(ignored -> {
             var entry = catalogs.snapshot().find(hash).orElse(null);
             if (entry == null) {
@@ -126,7 +126,7 @@ public final class ClientModelRenderTargetManager implements AutoCloseable {
         });
     }
 
-    public boolean isLoaded(ModelHash hash, String targetId, String textureName) {
+    public boolean isLoaded(Hash256 hash, String targetId, String textureName) {
         var entry = catalogs.snapshot().find(hash).orElse(null);
         if (entry == null) {
             return false;
@@ -178,7 +178,7 @@ public final class ClientModelRenderTargetManager implements AutoCloseable {
         return renderTargets.loadingCount();
     }
 
-    public void reportActiveFailure(ModelHash hash, ModelContentVersion version,
+    public void reportActiveFailure(Hash256 hash, ModelContentVersion version,
                                     boolean fallbackAvailable) {
         notifications.report(hash, version, fallbackAvailable
                 ? ModelFailureNotificationAggregator.Outcome.FALLBACK
@@ -380,7 +380,7 @@ public final class ClientModelRenderTargetManager implements AutoCloseable {
     }
 
     private static CompletableFuture<ModelRenderTarget> traceLoad(
-            CompletableFuture<ModelRenderTarget> result, ModelHash hash, String path,
+            CompletableFuture<ModelRenderTarget> result, Hash256 hash, String path,
             String targetId, String texture, String source,
             ModelRenderTargetCache.Retention retention) {
         var startedAt = System.nanoTime();

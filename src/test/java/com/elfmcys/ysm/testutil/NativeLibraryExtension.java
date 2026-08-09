@@ -1,5 +1,8 @@
 package com.elfmcys.ysm.testutil;
 
+import com.elfmcys.ysm.YesSteveModel;
+import com.elfmcys.ysm.natives.NativeRuntime;
+import org.apache.logging.log4j.Level;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
@@ -35,8 +38,10 @@ public final class NativeLibraryExtension implements BeforeAllCallback {
             throw new IllegalStateException(NATIVE_PATH_ENV + " is not a file: " + path);
         }
 
+        YesSteveModel.LOGGER.error("Loading native lib: {}", path);
         try {
             System.load(path.toString());
+            NativeRuntime.initialize(NativeRuntime.JavaConfig.fromLog4j(Level.INFO));
         } catch (LinkageError | SecurityException exception) {
             throw new IllegalStateException("Failed to load native library: " + path, exception);
         }

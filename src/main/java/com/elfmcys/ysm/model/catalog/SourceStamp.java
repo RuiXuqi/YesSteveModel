@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.ModelHashing;
 
 import java.io.ByteArrayOutputStream;
@@ -97,7 +97,7 @@ public sealed interface SourceStamp permits SourceStamp.File, SourceStamp.RawDir
         }
     }
 
-    record RawDirectory(ModelHash metadataDigest, int fileCount, long totalBytes)
+    record RawDirectory(Hash256 metadataDigest, int fileCount, long totalBytes)
             implements SourceStamp {
         public RawDirectory {
             Objects.requireNonNull(metadataDigest, "metadataDigest");

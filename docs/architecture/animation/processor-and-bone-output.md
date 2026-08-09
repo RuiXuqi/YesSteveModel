@@ -39,8 +39,8 @@ flowchart LR
 
 ## Native 交接
 
-`AnimatedGeoModel` 持有 `entity` 级 `BoneAttribute` 数组；各输出槽由 `GeoModelState` 持有 native `ModelState`、pose / normal buffer 和 Java locator mapping，`GeoRenderData` 组合其借用视图与本次 draw metadata。`GeoModelState.extract(...)` 到 `ModelState::Extract` 是同步边界：native 临时读取 attribute，生成 pose、可见骨骼、locator indices 和 `RenderSchedule`，但不保留 attribute 或修改动画状态。
+`AnimatedGeoModel` 持有 `entity` 级 `BoneAttribute` 数组；各输出槽由 `GeoModelState` 持有 native `ModelState` 和 Java locator mapping，并借用 Extract 返回的只读 `BonePoseView`；`GeoRenderData` 再组合该状态与本次 draw metadata。`GeoModelState.extract(...)` 到 `ModelState::Extract` 是同步边界：native 临时读取 attribute，在 `ModelState` 内生成 `BonePose`、可见骨骼、locator indices 和 `RenderSchedule`，但不保留 attribute 或修改动画状态。
 
-同一 `entity` 的所有 `RenderContext` 求值必须串行；每个输出槽的 Extract、Render、buffer resize 与释放也必须串行。`renderer::Render` 还受进程级不可重入资源约束，不能因槽位不同而并发。Extract 的状态发布、失败失效、locator 回传与 pose-buffer 借用规则见[逐帧状态与调度](../rendering/frame-execution.md)。
+同一 `entity` 的所有 `RenderContext` 求值必须串行；每个输出槽的 Extract、Render、换模与释放也必须串行。`renderer::Render` 还受进程级不可重入资源约束，不能因槽位不同而并发。Extract 的状态发布、失败失效、locator 回传与 `BonePoseView` 借用规则见[逐帧状态与调度](../rendering/frame-execution.md)。
 
 跨语言数据布局是内部实现契约，应由单一版本门禁和测试保持一致，不应写入公开 Model Schema。当前属性语义和 context 复用仍有已知偏差，见[动画已知问题](../../status/known-issues/animation.md)。

@@ -7,7 +7,7 @@ import com.elfmcys.ysm.client.model.ModelResourceFailureGate;
 import com.elfmcys.ysm.format.container.AssetContainerReader;
 import com.elfmcys.ysm.format.container.AssetContainerView;
 import com.elfmcys.ysm.format.container.InlineChunkReader;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.ModelHashing;
 import mixel.asset.model.data.AnimationOuterClass;
 import com.elfmcys.ysm.proto.baked.asset.AssetManifest;
@@ -73,8 +73,8 @@ public final class BakedAssetView {
         animations = Map.copyOf(index);
     }
 
-    public boolean matches(ModelHash modelHash, ModelHash descriptorHash, String targetId,
-                           ModelHash definitionHash) {
+    public boolean matches(Hash256 modelHash, Hash256 descriptorHash, String targetId,
+                           Hash256 definitionHash) {
         return ProtoBytes.equals(modelHash, manifest.getModelHash())
                 && ProtoBytes.equals(descriptorHash, manifest.getDescriptorHash())
                 && targetId.equals(manifest.getRenderTargetId())
@@ -130,7 +130,7 @@ public final class BakedAssetView {
     }
 
     private static void validateHash(RepeatedByte value, String name) throws IOException {
-        if (value.length() != ModelHash.SIZE) {
+        if (value.length() != Hash256.SIZE) {
             throw new IOException("Invalid baked asset " + name);
         }
     }

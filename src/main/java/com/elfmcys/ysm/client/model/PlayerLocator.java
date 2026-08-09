@@ -1,6 +1,8 @@
 package com.elfmcys.ysm.client.model;
 
 import com.elfmcys.ysm.YesSteveModel;
+import com.elfmcys.ysm.api.model.v0.ModelKind;
+import com.elfmcys.ysm.api.model.v0.event.RegisterModelLocatorEvent;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoLocator;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoLocatorType;
 import net.minecraft.resources.ResourceLocation;
@@ -33,7 +35,7 @@ public class PlayerLocator extends GeoLocatorType {
             synchronized (PlayerLocator.class) {
                 if (INSTANCE == null) {
                     INSTANCE = new PlayerLocator();
-                    // 外部注册插在这里
+                    YesSteveModel.postEvent(new RegisterModelLocatorEvent(ModelKind.HUMANOID_FULL, INSTANCE::register));
                     INSTANCE.freeze();
                 }
             }

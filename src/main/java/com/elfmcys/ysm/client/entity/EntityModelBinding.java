@@ -3,7 +3,7 @@ package com.elfmcys.ysm.client.entity;
 import com.elfmcys.ysm.client.model.ClientModelService;
 import com.elfmcys.ysm.client.model.ModelRenderTargetLease;
 import com.elfmcys.ysm.client.model.catalog.ModelContentVersion;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.task.TaskScope;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +16,7 @@ final class EntityModelBinding implements AutoCloseable {
     }
 
     @Nullable
-    private ModelHash modelHash;
+    private Hash256 modelHash;
     @Nullable
     private DesiredRenderTarget requestedRenderTarget;
     private int requestGeneration;
@@ -28,12 +28,12 @@ final class EntityModelBinding implements AutoCloseable {
     @Nullable
     private CustomEntity.ResourceHolder resourceHolder;
 
-    void updateModelHash(@Nullable ModelHash modelHash) {
+    void updateModelHash(@Nullable Hash256 modelHash) {
         this.modelHash = modelHash;
     }
 
     @Nullable
-    ModelHash modelHash() {
+    Hash256 modelHash() {
         return modelHash;
     }
 
@@ -221,7 +221,7 @@ final class EntityModelBinding implements AutoCloseable {
         releaseRenderTarget();
     }
 
-    private record DesiredRenderTarget(ModelHash modelHash, ModelContentVersion contentVersion,
+    private record DesiredRenderTarget(Hash256 modelHash, ModelContentVersion contentVersion,
                                        String renderTargetId, String textureName) {
     }
 }

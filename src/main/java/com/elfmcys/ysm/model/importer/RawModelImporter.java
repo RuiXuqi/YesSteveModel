@@ -6,6 +6,7 @@ import com.elfmcys.ysm.format.parser.RawCompileResult;
 import com.elfmcys.ysm.format.vfs.Directory;
 import com.elfmcys.ysm.model.catalog.CatalogModelLocation;
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
 import com.elfmcys.ysm.natives.NativeArchive;
@@ -51,7 +52,7 @@ public final class RawModelImporter {
         return !v3Importer.recognizes(source);
     }
 
-    public com.elfmcys.ysm.model.domain.ModelHash scanModelHash(Path source) {
+    public Hash256 scanModelHash(Path source) {
         if (!supportsHashProbe(source)) {
             throw new IllegalArgumentException("Legacy model source does not support hash probing");
         }

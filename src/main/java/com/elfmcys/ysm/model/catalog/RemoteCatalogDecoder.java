@@ -3,7 +3,7 @@ package com.elfmcys.ysm.model.catalog;
 import com.elfmcys.ysm.buffer.ArrayBuffer;
 import com.elfmcys.ysm.format.schema.model.ModelFileView;
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import com.elfmcys.ysm.model.source.AccessPolicy;
@@ -43,7 +43,7 @@ public final class RemoteCatalogDecoder {
         if (source.getRevision() == 0) {
             throw new IOException("Remote model catalog revision must not be zero");
         }
-        var models = new LinkedHashMap<ModelHash, ModelOffer>();
+        var models = new LinkedHashMap<Hash256, ModelOffer>();
         for (var entry : source.getModels()) {
             var offer = offer(entry);
             if (models.putIfAbsent(offer.descriptor().modelHash(), offer) != null) {
@@ -134,7 +134,7 @@ public final class RemoteCatalogDecoder {
         var locations = new HashSet<String>();
         for (var entry : source) {
             var coverHash = ProtoBytes.copy(entry.getCoverHash());
-            if (coverHash.length != 0 && coverHash.length != ModelHash.SIZE) {
+            if (coverHash.length != 0 && coverHash.length != Hash256.SIZE) {
                 throw new IOException("Invalid remote model pack cover hash: " + entry.getHierarchy());
             }
             if (entry.getCoverSize() > MAX_PACK_COVER) {
@@ -151,7 +151,7 @@ public final class RemoteCatalogDecoder {
             var hierarchy = new ModelAssetSubject.Pack(namespace, entry.getHierarchy()).hierarchy();
             var pack = new PackOffer(ModelSources.GAME_SERVER,
                     new ModelAssetSubject.Pack(namespace, hierarchy), entry.getName(), entry.getDescription(),
-                    translations, coverHash.length == 0 ? null : new ModelHash(coverHash),
+                    translations, coverHash.length == 0 ? null : new Hash256(coverHash),
                     entry.getCoverFormat(), entry.getCoverSize(), accessPolicy(entry.getAccessPolicy()));
             if (!locations.add(namespace + "\0" + hierarchy)) {
                 throw new IOException("Duplicate remote model pack location: " + namespace + "/" + hierarchy);
@@ -184,11 +184,11 @@ public final class RemoteCatalogDecoder {
         };
     }
 
-    private static ModelHash modelHash(RepeatedByte value, String name) throws IOException {
-        if (value.length() != ModelHash.SIZE) {
+    private static Hash256 modelHash(RepeatedByte value, String name) throws IOException {
+        if (value.length() != Hash256.SIZE) {
             throw new IOException("Invalid " + name);
         }
-        return new ModelHash(value.array(), 0, value.length());
+        return new Hash256(value.array(), 0, value.length());
     }
 
     private static UUID epoch(RepeatedByte bytes) throws IOException {

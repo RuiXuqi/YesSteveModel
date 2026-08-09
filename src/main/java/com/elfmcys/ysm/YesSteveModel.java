@@ -1,5 +1,6 @@
 package com.elfmcys.ysm;
 
+import com.elfmcys.ysm.api.internal.event.YsmEventHandlerLoader;
 import com.elfmcys.ysm.config.ClientConfig;
 import com.elfmcys.ysm.config.ServerConfig;
 import com.elfmcys.ysm.init.ModSounds;
@@ -9,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.ModLoadingWarning;
@@ -28,33 +31,36 @@ public class YesSteveModel {
     public static final String MOD_ID = "ysm";
     public static ModContainer MOD;
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    private static IEventBus EVENT_BUS;
 
     public YesSteveModel() throws IOException {
         MOD = ModLoadingContext.get().getActiveContainer();
+        EVENT_BUS = FMLJavaModLoadingContext.get().getModEventBus();
+        initConfig();
+
         NativeLibUtil.load();
         if (!NativeLibUtil.isAvailable()) {
             LOGGER.error(getUnavailableMessageString());
             return;
         }
 
-        initConfig();
+        YsmEventHandlerLoader.attach(EVENT_BUS);
+    }
+
+    public static void registerEventHandler(Object handler) {
+        EVENT_BUS.register(handler);
     }
 
     private static void initConfig() {
-        var deprecatedFile = FMLPaths.CONFIGDIR.get().resolve(MOD_ID + "-common.toml").toFile();
-        if (deprecatedFile.isFile()) {
-            var newFile = FMLPaths.CONFIGDIR.get().resolve(MOD_ID + "-client.toml").toFile();
-            if (!newFile.isFile()) {
-                deprecatedFile.renameTo(newFile);
-            } else {
-                deprecatedFile.delete();
-            }
-        }
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.init());
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.init());
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ModSounds.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
         }
+    }
+
+    public static boolean postEvent(Event event) {
+        return EVENT_BUS.post(event);
     }
 
     @Keep

@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.importer.LegacyImporter;
 import com.elfmcys.ysm.model.importer.RawModelImporter;
 import com.elfmcys.ysm.model.storage.ModelBackingIdentity;
@@ -30,7 +30,7 @@ public final class ReloadableModelCatalog implements AutoCloseable,
     private final ScheduledThreadPoolExecutor workers;
     private final CatalogReloadCoordinator coordinator;
     private final ModelDirectoryWatcher watcher;
-    private final Consumer<ModelHash> convertedInvalidator;
+    private final Consumer<Hash256> convertedInvalidator;
     private final Map<Long, SubscriberState> subscribers = new LinkedHashMap<>();
     private final AtomicBoolean closed = new AtomicBoolean();
     private volatile ReloadableCatalogSnapshot current = ReloadableCatalogSnapshot.unready();
@@ -38,7 +38,7 @@ public final class ReloadableModelCatalog implements AutoCloseable,
 
     public ReloadableModelCatalog(ModelStorageInfrastructure storage,
                                   List<ModelCatalogSource> roots,
-                                  Set<ModelHash> builtinReservedHashes,
+                                  Set<Hash256> builtinReservedHashes,
                                   BuiltinModelIndex builtinContract) {
         control = new ScheduledThreadPoolExecutor(1, runnable -> {
             var thread = new Thread(runnable, "YSM Model Catalog Control");
@@ -73,7 +73,7 @@ public final class ReloadableModelCatalog implements AutoCloseable,
     ReloadableModelCatalog(ScheduledThreadPoolExecutor control,
                            ScheduledThreadPoolExecutor workers,
                            CatalogReloadCoordinator.ReconcileAction reconcile,
-                           Consumer<ModelHash> convertedInvalidator) {
+                           Consumer<Hash256> convertedInvalidator) {
         this.control = Objects.requireNonNull(control, "control");
         this.workers = Objects.requireNonNull(workers, "workers");
         this.convertedInvalidator = Objects.requireNonNull(

@@ -10,7 +10,7 @@ import com.elfmcys.ysm.format.parser.pojo.manifest.settings.ModelProperties;
 import com.elfmcys.ysm.format.parser.pojo.model.GeoModel;
 import com.elfmcys.ysm.format.schema.model.ModelFileConstant;
 import com.elfmcys.ysm.format.schema.model.ModelFileWriter;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.natives.image.Image;
 import mixel.common.ImageOuterClass;
 import mixel.common.StringPairOuterClass;
@@ -88,7 +88,7 @@ final class RawModelAssembler implements Closeable {
             writeCommonAssets(manifest, sourceManifest);
             writeContainerImages(manifest, sourceManifest.properties);
 
-            var modelHash = new ModelHash(source.aggregateHash());
+            var modelHash = new Hash256(source.aggregateHash());
             if (dryRun) {
                 return new Result(modelHash, null);
             }
@@ -515,6 +515,6 @@ final class RawModelAssembler implements Closeable {
         }
     }
 
-    record Result(ModelHash modelHash, @Nullable Path output) {
+    record Result(Hash256 modelHash, @Nullable Path output) {
     }
 }

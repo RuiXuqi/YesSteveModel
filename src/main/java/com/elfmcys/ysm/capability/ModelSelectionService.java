@@ -51,15 +51,15 @@ public final class ModelSelectionService {
 
     public static Optional<ModelFileHandle> resolve(ModelInfoCapability capability,
                                                      ServerCatalogSnapshot snapshot) {
-        if (capability.getModelHash() == null && !selectDefault(capability, snapshot)) {
+        if (capability.getModelId() == null && !selectDefault(capability, snapshot)) {
             return Optional.empty();
         }
-        return snapshot.find(capability.getModelHash());
+        return snapshot.find(capability.getModelId());
     }
 
     public static String displayId(ModelInfoCapability capability,
                                    ServerCatalogSnapshot snapshot) {
-        var hash = capability.getModelHash();
+        var hash = capability.getModelId();
         return hash == null ? "default" : snapshot.find(hash)
                 .map(model -> model.location().path().value())
                 .orElse(hash.toString());

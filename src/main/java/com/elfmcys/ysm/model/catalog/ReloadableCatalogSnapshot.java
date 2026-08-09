@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.model.domain.ModelScanReport;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
@@ -17,7 +17,7 @@ public record ReloadableCatalogSnapshot(
         boolean ready,
         Map<ModelSourceKey, ModelSourceState> sources,
         Map<ModelPackSourceKey, ModelPackSourceState> packSources,
-        Map<ModelHash, ModelFileHandle> models,
+        Map<Hash256, ModelFileHandle> models,
         List<ModelPackDescriptor> packs,
         ModelScanReport report) {
     public ReloadableCatalogSnapshot {

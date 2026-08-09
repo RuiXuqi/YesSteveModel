@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.HexFormat;
 
 /** Stable semantic identity of a model. */
-public final class ModelHash implements Comparable<ModelHash> {
+public final class Hash256 implements Comparable<Hash256> {
     public static final int SIZE = Blake3.HASH_SIZE;
     private static final HexFormat HEX = HexFormat.of();
 
@@ -15,7 +15,7 @@ public final class ModelHash implements Comparable<ModelHash> {
     private final int hashCode;
     private String text;
 
-    public ModelHash(byte[] bytes) {
+    public Hash256(byte[] bytes) {
         if (bytes.length != SIZE) {
             throw new IllegalArgumentException("Model hash must contain exactly " + SIZE + " bytes");
         }
@@ -23,7 +23,7 @@ public final class ModelHash implements Comparable<ModelHash> {
         this.hashCode = Arrays.hashCode(this.bytes);
     }
 
-    public ModelHash(byte[] bytes, int offset, int length) {
+    public Hash256(byte[] bytes, int offset, int length) {
         if (length != SIZE || offset < 0 || offset > bytes.length - length) {
             throw new IllegalArgumentException("Model hash must contain exactly " + SIZE + " bytes");
         }
@@ -31,11 +31,11 @@ public final class ModelHash implements Comparable<ModelHash> {
         this.hashCode = Arrays.hashCode(this.bytes);
     }
 
-    public static ModelHash parse(String value) {
+    public static Hash256 parse(String value) {
         if (value.length() != SIZE * 2) {
             throw new IllegalArgumentException("Model hash must contain exactly " + (SIZE * 2) + " hexadecimal characters");
         }
-        return new ModelHash(HEX.parseHex(value));
+        return new Hash256(HEX.parseHex(value));
     }
 
     public byte[] bytes() {
@@ -57,13 +57,13 @@ public final class ModelHash implements Comparable<ModelHash> {
     }
 
     @Override
-    public int compareTo(ModelHash other) {
+    public int compareTo(Hash256 other) {
         return Arrays.compareUnsigned(bytes, other.bytes);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof ModelHash other && Arrays.equals(bytes, other.bytes);
+        return obj instanceof Hash256 other && Arrays.equals(bytes, other.bytes);
     }
 
     @Override

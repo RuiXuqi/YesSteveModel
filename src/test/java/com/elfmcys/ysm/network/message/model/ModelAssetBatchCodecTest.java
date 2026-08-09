@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.network.message.model;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.source.ModelAssetSelector;
 import com.elfmcys.ysm.model.source.ModelAssetSubject;
 import com.elfmcys.ysm.network.protocol.ProtocolUuid;
@@ -78,9 +78,9 @@ class ModelAssetBatchCodecTest {
         assertEquals(3, decoded.getProtobufFragment().length());
     }
 
-    private static ModelHash hash(byte fill) {
-        var bytes = new byte[ModelHash.SIZE];
+    private static Hash256 hash(byte fill) {
+        var bytes = new byte[Hash256.SIZE];
         java.util.Arrays.fill(bytes, fill);
-        return new ModelHash(bytes);
+        return new Hash256(bytes);
     }
 }

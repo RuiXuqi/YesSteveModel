@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.catalog;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPath;
 import mixel.asset.model.data.AnimationOuterClass;
 import mixel.manifest.asset.RenderTargetOuterClass;
@@ -116,9 +116,9 @@ class BuiltinModelIndexTest {
         assertThrows(IOException.class, () -> BuiltinModelIndex.read(new StringReader(json)));
     }
 
-    private static ModelHash hash(int marker) {
-        var bytes = new byte[ModelHash.SIZE];
+    private static Hash256 hash(int marker) {
+        var bytes = new byte[Hash256.SIZE];
         bytes[bytes.length - 1] = (byte) marker;
-        return new ModelHash(bytes);
+        return new Hash256(bytes);
     }
 }

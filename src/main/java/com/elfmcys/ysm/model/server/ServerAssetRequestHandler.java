@@ -6,7 +6,7 @@ import com.elfmcys.ysm.model.cache.IdleValueCache;
 import com.elfmcys.ysm.model.catalog.ModelCatalogSources;
 import com.elfmcys.ysm.model.catalog.CatalogBackingKey;
 import com.elfmcys.ysm.model.catalog.ServerCatalogSnapshot;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.catalog.CatalogRootKind;
 import com.elfmcys.ysm.model.source.AccessPolicy;
 import com.elfmcys.ysm.model.storage.ModelHashing;
@@ -451,7 +451,7 @@ final class ServerAssetRequestHandler implements AutoCloseable {
                 ModelAssetProtoMapper.fromProto(resource.getSelector()));
     }
 
-    private static boolean canDownload(ServerPlayer player, ModelHash hash, AccessPolicy accessPolicy) {
+    private static boolean canDownload(ServerPlayer player, Hash256 hash, AccessPolicy accessPolicy) {
         if (accessPolicy != AccessPolicy.SESSION_AUTHORIZED) {
             return true;
         }
@@ -507,10 +507,10 @@ final class ServerAssetRequestHandler implements AutoCloseable {
         protocolAnomalies.clear();
     }
 
-    private record PreviewKey(ModelHash modelHash, ModelHash descriptorHash) {
+    private record PreviewKey(Hash256 modelHash, Hash256 descriptorHash) {
     }
 
-    private record PackCoverKey(CatalogRootKind rootKind, String hierarchy, ModelHash hash) {
+    private record PackCoverKey(CatalogRootKind rootKind, String hierarchy, Hash256 hash) {
     }
 
     private record DecodedResource(ModelAssetSubject subject, ModelAssetSelector selector) {

@@ -1,5 +1,6 @@
 package com.elfmcys.ysm.client.model;
 
+import java.lang.ref.Reference;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;

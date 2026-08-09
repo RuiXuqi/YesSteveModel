@@ -4,7 +4,7 @@ import com.elfmcys.ysm.client.lang.LanguageManager;
 import com.elfmcys.ysm.client.model.internal.metadata.ManifestModelInfoMapper;
 import com.elfmcys.ysm.info.ModelInfo;
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import com.elfmcys.ysm.network.message.model.ModelAssetPlan;
 import mixel.manifest.ManifestOuterClass;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /** Lightweight GUI metadata derived entirely from the catalog schema manifest. */
-public record CatalogModelMetadata(ModelHash modelHash, String path, ModelDescriptor descriptor,
+public record CatalogModelMetadata(Hash256 modelHash, String path, ModelDescriptor descriptor,
                                    ModelInfo info, Map<String, Map<String, String>> languages) {
     public CatalogModelMetadata {
         Objects.requireNonNull(modelHash, "modelHash");

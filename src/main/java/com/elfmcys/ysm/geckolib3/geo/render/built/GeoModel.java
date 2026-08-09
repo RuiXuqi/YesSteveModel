@@ -1,6 +1,5 @@
 package com.elfmcys.ysm.geckolib3.geo.render.built;
 
-import com.elfmcys.ysm.natives.NativeObject;
 import com.elfmcys.ysm.natives.render.NativeBakedModel;
 import mixel.asset.model.data.GeoModelOuterClass;
 import com.elfmcys.ysm.util.Closeable;
@@ -15,7 +14,7 @@ public class GeoModel implements Closeable {
     private final ReferenceList<GeoBone> sortedBones;
     private final GeoLocatorType locatorType;
     private final ReferenceList<ReferenceArrayList<GeoBone>> locatorMap;
-    private final NativeObject bakedModel;
+    private final NativeBakedModel bakedModel;
 
     public GeoModel(GeoModelOuterClass.GeoModel model,
                     GeoLocatorType locatorType,
@@ -36,7 +35,7 @@ public class GeoModel implements Closeable {
     private GeoModel(int boneCount,
                      IntFunction<GeoModelOuterClass.Bone> boneByIndex,
                      short[] sortedBoneIndices, GeoLocatorType locatorType,
-                     NativeObject bakedModel) {
+                     NativeBakedModel bakedModel) {
         Objects.requireNonNull(sortedBoneIndices, "sortedBoneIndices");
         this.locatorType = Objects.requireNonNull(locatorType, "locatorType");
         this.bakedModel = Objects.requireNonNull(bakedModel, "bakedModel");
@@ -86,7 +85,7 @@ public class GeoModel implements Closeable {
         return locatorMap;
     }
 
-    public NativeObject bakedModel() {
+    public NativeBakedModel bakedModel() {
         return bakedModel;
     }
 

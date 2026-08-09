@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.util;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.proto.network.model.ModelAssetsProto;
 import org.junit.jupiter.api.Test;
 
@@ -27,9 +27,9 @@ class ProtoBytesTest {
 
     @Test
     void transfersOneOwnedModelHashCopyToQuickbuf() {
-        var source = new byte[ModelHash.SIZE];
+        var source = new byte[Hash256.SIZE];
         source[0] = 42;
-        var hash = new ModelHash(source);
+        var hash = new Hash256(source);
         var chunk = ModelAssetsProto.ModelChunk.newInstance();
 
         ProtoBytes.set(chunk.getMutableContentHash(), hash);

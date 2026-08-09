@@ -23,7 +23,7 @@ public record ModelPackDescriptor(
         translations = Map.copyOf(translations);
         coverHash = coverHash == null ? new byte[0] : coverHash.clone();
         coverFormat = Objects.requireNonNullElse(coverFormat, "");
-        if (coverHash.length != 0 && coverHash.length != ModelHash.SIZE) {
+        if (coverHash.length != 0 && coverHash.length != Hash256.SIZE) {
             throw new IllegalArgumentException("Pack cover hash must be empty or 32 bytes");
         }
         if (coverSize < 0) {

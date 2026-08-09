@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class AnimatedGeoModel {
-    public static final int BONE_ATTRIBUTE_COUNT = 12;
+    public static final int BONE_ATTRIBUTE_COUNT = 14;
     private static final int ALL_HEAD_NAME = StringPool.computeIfAbsent("AllHead");
     private static final int VIEW_LOCATOR_NAME = StringPool.computeIfAbsent("ViewLocator");
 

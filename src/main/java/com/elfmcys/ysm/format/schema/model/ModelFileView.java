@@ -10,7 +10,7 @@ import com.elfmcys.ysm.format.schema.file.ChunkDataSource;
 import com.elfmcys.ysm.format.schema.model.views.CommonAssetView;
 import com.elfmcys.ysm.format.schema.model.views.ModelInfoView;
 import com.elfmcys.ysm.format.schema.model.views.RenderTargetView;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.RenderTargetIds;
 import com.elfmcys.ysm.natives.image.Image;
 import com.elfmcys.ysm.natives.image.ImageSource;
@@ -244,13 +244,13 @@ public class ModelFileView {
         manifestBytes = new byte[0];
     }
 
-    public ModelHash getModelHash() throws IOException {
+    public Hash256 getModelHash() throws IOException {
         var properties = manifest.getInfo().getProperties();
-        if (!properties.hasHashId() || properties.getHashId().length() != ModelHash.SIZE) {
+        if (!properties.hasHashId() || properties.getHashId().length() != Hash256.SIZE) {
             throw new IOException("Manifest contains no valid full model hash");
         }
         var hash = properties.getHashId();
-        return new ModelHash(hash.array(), 0, hash.length());
+        return new Hash256(hash.array(), 0, hash.length());
     }
 
     private record ManifestData(ManifestOuterClass.Manifest manifest, byte[] bytes) {

@@ -1,6 +1,6 @@
 package com.elfmcys.ysm.model.storage;
 
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.UnaryOperator;
@@ -8,7 +8,7 @@ import java.util.function.UnaryOperator;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ConversionProfileIdTest {
-    private static final ModelHash ANIMATION_PROFILE = new ModelHash(new byte[ModelHash.SIZE]);
+    private static final Hash256 ANIMATION_PROFILE = new Hash256(new byte[Hash256.SIZE]);
 
     @Test
     void everySemanticInputChangesTheProfile() {
@@ -40,13 +40,13 @@ class ConversionProfileIdTest {
         assertChanged(base, value -> replace(value, null, null, null, "parser", null, null));
         assertChanged(base, value -> replace(value, null, null, null, null, "image", null));
         assertChanged(base, value -> {
-            var changedProfile = new byte[ModelHash.SIZE];
+            var changedProfile = new byte[Hash256.SIZE];
             changedProfile[0] = 1;
             return new ConversionProfileInputs(
                     value.containerMajor(), value.containerMinor(), value.containerPatch(),
                     value.containerQualifier(), value.schemaId(), value.schemaVersion(),
                     value.canonicalizerVersion(), value.parserVersion(), value.imagePolicyVersion(),
-                    new ModelHash(changedProfile), value.legacyImporterVersion());
+                    new Hash256(changedProfile), value.legacyImporterVersion());
         });
         assertChanged(base, value -> replace(value, null, null, null, null, null, "legacy"));
     }

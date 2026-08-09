@@ -12,7 +12,7 @@ import com.elfmcys.ysm.model.catalog.ReloadableCatalogTransition;
 import com.elfmcys.ysm.model.catalog.ReloadableModelCatalog;
 import com.elfmcys.ysm.model.catalog.RemoteCatalogDecoder;
 import com.elfmcys.ysm.model.catalog.RemoteCatalogSnapshot;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.domain.ModelPackDescriptor;
 import com.elfmcys.ysm.model.storage.ModelBackingIdentity;
 import com.elfmcys.ysm.model.storage.ModelFileHandle;
@@ -106,13 +106,13 @@ public final class ClientCatalogManager implements AutoCloseable {
         replace(local, catalog.server(), Set.of(), false);
     }
 
-    public boolean contains(ModelHash hash) {
+    public boolean contains(Hash256 hash) {
         return catalog.models().containsKey(hash);
     }
 
-    public Optional<String> findRenderTarget(ModelHash hash,
-                                      RenderTargetOuterClass.RenderTargetKind kind,
-                                      ResourceLocation entityType) {
+    public Optional<String> findRenderTarget(Hash256 hash,
+                                             RenderTargetOuterClass.RenderTargetKind kind,
+                                             ResourceLocation entityType) {
         var entry = catalog.find(hash).orElse(null);
         if (entry == null) {
             return Optional.empty();
@@ -126,11 +126,11 @@ public final class ClientCatalogManager implements AutoCloseable {
         return Optional.empty();
     }
 
-    public Optional<ModelHash> resolvePath(String path) {
+    public Optional<Hash256> resolvePath(String path) {
         return catalog.sources().resolvePath(path);
     }
 
-    public String displayPath(ModelHash hash) {
+    public String displayPath(Hash256 hash) {
         return catalog.find(hash)
                 .map(ClientCatalogEntry::displayPath)
                 .orElse(hash.toString());
@@ -140,7 +140,7 @@ public final class ClientCatalogManager implements AutoCloseable {
         return local;
     }
 
-    public RemoteModelHandle remoteHandle(ModelHash hash) {
+    public RemoteModelHandle remoteHandle(Hash256 hash) {
         return local.remote().get(hash);
     }
 
@@ -154,7 +154,7 @@ public final class ClientCatalogManager implements AutoCloseable {
         replace(local.withRemote(Map.of()), null, Set.of(), true);
     }
 
-    public void refreshAfterBackingFailure(ModelHash modelHash,
+    public void refreshAfterBackingFailure(Hash256 modelHash,
                                            ModelContentVersion expectedVersion,
                                            ModelBackingIdentity backingIdentity) {
         var backing = recoveries.begin(catalog, modelHash, expectedVersion, backingIdentity)
@@ -177,7 +177,7 @@ public final class ClientCatalogManager implements AutoCloseable {
         }
     }
 
-    public synchronized void rememberRemote(ModelHash hash, RemoteModelHandle handle) {
+    public synchronized void rememberRemote(Hash256 hash, RemoteModelHandle handle) {
         if (!connected) {
             return;
         }
@@ -286,7 +286,7 @@ public final class ClientCatalogManager implements AutoCloseable {
         }
     }
 
-    private Map<ModelHash, RemoteModelHandle> scanRemoteCache() {
+    private Map<Hash256, RemoteModelHandle> scanRemoteCache() {
         try {
             return remoteCache.scan();
         } catch (IOException error) {
@@ -296,7 +296,7 @@ public final class ClientCatalogManager implements AutoCloseable {
     }
 
     private CompletableFuture<Void> applyLocalTransition(ReloadableCatalogTransition transition) {
-        var models = new LinkedHashMap<ModelHash, ModelFileHandle>();
+        var models = new LinkedHashMap<Hash256, ModelFileHandle>();
         builtins.models().forEach(
                 handle -> models.put(handle.descriptor().modelHash(), handle));
         models.putAll(transition.current().models());
@@ -346,7 +346,7 @@ public final class ClientCatalogManager implements AutoCloseable {
         private final Set<PendingRecovery> pending = new HashSet<>();
 
         synchronized Optional<CatalogBackingKey> begin(
-                ClientCatalogSnapshot catalog, ModelHash modelHash,
+                ClientCatalogSnapshot catalog, Hash256 modelHash,
                 ModelContentVersion expectedVersion, ModelBackingIdentity backingIdentity) {
             Objects.requireNonNull(catalog, "catalog");
             Objects.requireNonNull(modelHash, "modelHash");
@@ -402,7 +402,7 @@ public final class ClientCatalogManager implements AutoCloseable {
                     && entry.local().location().equals(recovery.backing().location());
         }
 
-        private record PendingRecovery(ModelHash modelHash,
+        private record PendingRecovery(Hash256 modelHash,
                                        ModelContentVersion expectedVersion,
                                        CatalogBackingKey backing) {
         }
@@ -414,10 +414,10 @@ public final class ClientCatalogManager implements AutoCloseable {
         localSubscription.close();
     }
 
-    public record LocalCatalogState(Map<ModelHash, ModelFileHandle> models,
+    public record LocalCatalogState(Map<Hash256, ModelFileHandle> models,
                                     List<ModelPackDescriptor> packs,
-                                    Map<ModelHash, RemoteModelHandle> remote) {
-        private LocalCatalogState withRemote(Map<ModelHash, RemoteModelHandle> value) {
+                                    Map<Hash256, RemoteModelHandle> remote) {
+        private LocalCatalogState withRemote(Map<Hash256, RemoteModelHandle> value) {
             return new LocalCatalogState(models, packs, value);
         }
 

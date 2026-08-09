@@ -23,7 +23,7 @@ import com.elfmcys.ysm.geckolib3.core.molang.value.IValue;
 import com.elfmcys.ysm.geckolib3.file.AnimationControllerFile;
 import com.elfmcys.ysm.geckolib3.geo.render.built.GeoModel;
 import com.elfmcys.ysm.model.domain.ModelDescriptor;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.catalog.DefaultAnimationKey;
 import com.elfmcys.ysm.network.message.model.ModelAssetPlan;
 import mixel.common.ImageOuterClass;
@@ -296,7 +296,7 @@ public final class ModelRenderTargetLoader {
         private AnimationStore loadAnimations(ModelDescriptor descriptor,
                                               RenderTargetOuterClass.RenderTarget target,
                                               String targetId, String animationSet,
-                                              ModelHash definitionHash,
+                                              Hash256 definitionHash,
                                               Iterable<ModelDataOuterClass.ModelData.AnimationFilesEntry>
                                                       animationFiles,
                                               boolean prewarm, boolean defaultModel,
@@ -335,18 +335,18 @@ public final class ModelRenderTargetLoader {
             throws IOException {
         var chunk = view.getFileView().getAssetView().getChunkInfo(AssetFileConstant.BLOB_CHUNK_PREFIX
                 + image.getBlobId());
-        if (chunk == null || chunk.hash() == null || chunk.hash().length != ModelHash.SIZE) {
+        if (chunk == null || chunk.hash() == null || chunk.hash().length != Hash256.SIZE) {
             throw new IOException("Texture chunk contains no content hash");
         }
         return chunk.hash();
     }
 
-    private static ModelHash definitionHash(ModelFileView view, int blobId) throws IOException {
+    private static Hash256 definitionHash(ModelFileView view, int blobId) throws IOException {
         var chunk = view.getFileView().getAssetView().getChunkInfo(AssetFileConstant.BLOB_CHUNK_PREFIX + blobId);
-        if (chunk == null || chunk.hash() == null || chunk.hash().length != ModelHash.SIZE) {
+        if (chunk == null || chunk.hash() == null || chunk.hash().length != Hash256.SIZE) {
             throw new IOException("Render target definition contains no content hash");
         }
-        return new ModelHash(chunk.hash());
+        return new Hash256(chunk.hash());
     }
 
     private static boolean hasPbr(Texture.PBRTextureSet texture) {

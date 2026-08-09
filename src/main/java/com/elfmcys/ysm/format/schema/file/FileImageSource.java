@@ -1,7 +1,7 @@
 package com.elfmcys.ysm.format.schema.file;
 
 import com.elfmcys.ysm.buffer.ArrayBuffer;
-import com.elfmcys.ysm.model.domain.ModelHash;
+import com.elfmcys.ysm.model.domain.Hash256;
 import com.elfmcys.ysm.model.storage.ModelHashing;
 import com.elfmcys.ysm.natives.image.Image;
 import com.elfmcys.ysm.natives.image.ImageSource;
@@ -15,7 +15,7 @@ import java.util.Objects;
 public final class FileImageSource implements ImageSource {
     private final Path file;
     private final int expectedSize;
-    private final ModelHash expectedHash;
+    private final Hash256 expectedHash;
     private final String expectedEncoding;
 
     public FileImageSource(Path file, int expectedSize, byte[] expectedHash, String expectedEncoding) {
@@ -24,7 +24,7 @@ public final class FileImageSource implements ImageSource {
             throw new IllegalArgumentException("Expected image size cannot be negative");
         }
         this.expectedSize = expectedSize;
-        this.expectedHash = new ModelHash(expectedHash);
+        this.expectedHash = new Hash256(expectedHash);
         this.expectedEncoding = Objects.requireNonNull(expectedEncoding, "expectedEncoding");
     }
 
