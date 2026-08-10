@@ -11,31 +11,33 @@ import java.util.Objects;
 import java.util.function.IntFunction;
 
 public class GeoModel implements Closeable {
+    private final String identity;
     private final ReferenceList<GeoBone> sortedBones;
     private final GeoLocatorType locatorType;
     private final ReferenceList<ReferenceArrayList<GeoBone>> locatorMap;
     private final NativeBakedModel bakedModel;
 
-    public GeoModel(GeoModelOuterClass.GeoModel model,
+    public GeoModel(String identity, GeoModelOuterClass.GeoModel model,
                     GeoLocatorType locatorType,
                     NativeBakedModel.ReadResult bakedModel) {
-        this(boneCount(model), index -> model.getBones().get(index),
+        this(identity, boneCount(model), index -> model.getBones().get(index),
                 bakedModel.sortedBoneIndices(), locatorType,
                 bakedModel.bakedModel());
     }
 
-    public GeoModel(GeoModelOuterClass.GeoModelIndex model,
+    public GeoModel(String identity, GeoModelOuterClass.GeoModelIndex model,
                     GeoLocatorType locatorType,
                     NativeBakedModel.ReadResult bakedModel) {
-        this(boneCount(model), index -> model.getBones().get(index),
+        this(identity, boneCount(model), index -> model.getBones().get(index),
                 bakedModel.sortedBoneIndices(), locatorType,
                 bakedModel.bakedModel());
     }
 
-    private GeoModel(int boneCount,
+    private GeoModel(String identity, int boneCount,
                      IntFunction<GeoModelOuterClass.Bone> boneByIndex,
                      short[] sortedBoneIndices, GeoLocatorType locatorType,
                      NativeBakedModel bakedModel) {
+        this.identity = identity;
         Objects.requireNonNull(sortedBoneIndices, "sortedBoneIndices");
         this.locatorType = Objects.requireNonNull(locatorType, "locatorType");
         this.bakedModel = Objects.requireNonNull(bakedModel, "bakedModel");
@@ -63,6 +65,10 @@ public class GeoModel implements Closeable {
         }
         this.sortedBones = ReferenceLists.unmodifiable(sortedBones);
         this.locatorMap = ReferenceLists.unmodifiable(locatorMap);
+    }
+
+    public String identity() {
+        return identity;
     }
 
     private static int boneCount(GeoModelOuterClass.GeoModel model) {

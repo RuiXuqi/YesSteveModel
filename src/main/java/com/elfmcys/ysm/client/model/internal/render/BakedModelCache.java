@@ -65,7 +65,7 @@ public final class BakedModelCache {
         try (var bakedData = baked.bakedData()) {
             var nativeModel = NativeBakedModel.read(
                     bakedData, baked.sortedBoneIndices().length);
-            return new GeoModel(source, locatorType, nativeModel);
+            return new GeoModel("default", source, locatorType, nativeModel);
         }
     }
 
@@ -96,7 +96,7 @@ public final class BakedModelCache {
             }
             try (data) {
                 var nativeModel = NativeBakedModel.read(data, view.modelIndex().getBones().length());
-                return new GeoModel(view.modelIndex(), locatorType, nativeModel);
+                return new GeoModel(expected.toString(), view.modelIndex(), locatorType, nativeModel);
             }
         }
     }

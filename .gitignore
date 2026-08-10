@@ -24,9 +24,10 @@ build
 
 # other
 eclipse
-run
-logs
+/run
+/logs
 __pycache__
+/.codegraph
 
 # Files from Forge MDK
 forge*changelog.txt

@@ -11,6 +11,7 @@ import com.elfmcys.ysm.natives.buffer.NativeHeapBuffer;
 import mixel.asset.model.data.GeoModelOuterClass;
 import com.elfmcys.ysm.util.ProtoUtil;
 import com.mojang.blaze3d.platform.NativeImage;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -19,13 +20,13 @@ import java.nio.ByteBuffer;
 
 public final class NativeBakedModel extends NativeObject {
     private static final int BONE_INFO_INT_COUNT = 4;
-    private static final int CUBE_DATA_FLOAT_COUNT = 85;
+    private static final int CUBE_DATA_FLOAT_COUNT = 133;
     private static final int CUBE_VERTEX_COUNT = 8;
     private static final int CUBE_QUAD_COUNT = 6;
     private static final int CUBE_POSITION_FLOAT_COUNT = 3;
-    private static final int QUAD_DATA_FLOAT_COUNT = 10;
+    private static final int QUAD_DATA_FLOAT_COUNT = 18;
     private static final int QUAD_DATA_OFFSET = 24;
-    private static final int CUBE_COUNTS_OFFSET = 84;
+    private static final int CUBE_COUNTS_OFFSET = 132;
 
     private static final ThreadLocal<int[]> INT_BUFFER =
             ThreadLocal.withInitial(() -> new int[0]);
@@ -48,6 +49,7 @@ public final class NativeBakedModel extends NativeObject {
 
     public record QuadData(Vector3f normal,
                            Vector4f tangent,
+                           Vector2f[] uv,
                            int vertex0,
                            int vertex1,
                            int vertex2,
@@ -177,18 +179,24 @@ public final class NativeBakedModel extends NativeObject {
         for (var i = 0; i < quads.length; ++i) {
             var quadOffset = offset + QUAD_DATA_OFFSET +
                     i * QUAD_DATA_FLOAT_COUNT;
-            var vertexIndices = Float.floatToRawIntBits(data[quadOffset + 7]);
+            var uv = new Vector2f[4];
+            for (var vertex = 0; vertex < uv.length; ++vertex) {
+                var uvOffset = quadOffset + 7 + vertex * 2;
+                uv[vertex] = new Vector2f(data[uvOffset], data[uvOffset + 1]);
+            }
+            var vertexIndices = Float.floatToRawIntBits(data[quadOffset + 15]);
             quads[i] = new QuadData(
                     new Vector3f(data[quadOffset], data[quadOffset + 1],
                             data[quadOffset + 2]),
                     new Vector4f(data[quadOffset + 3], data[quadOffset + 4],
                             data[quadOffset + 5], data[quadOffset + 6]),
+                    uv,
                     vertexIndices & 0xff,
                     vertexIndices >>> 8 & 0xff,
                     vertexIndices >>> 16 & 0xff,
                     vertexIndices >>> 24,
-                    data[quadOffset + 8],
-                    data[quadOffset + 9]);
+                    data[quadOffset + 16],
+                    data[quadOffset + 17]);
         }
         return new CubeData(positions, quads, quadCount,
                 quadCountAfterCulling);
